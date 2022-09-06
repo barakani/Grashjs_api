@@ -1,4 +1,4 @@
-package com.grashjs.api;
+package com.graphjs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

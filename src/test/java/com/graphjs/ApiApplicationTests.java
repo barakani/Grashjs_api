@@ -1,4 +1,4 @@
-package com.grashjs.api;
+package com.graphjs;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
