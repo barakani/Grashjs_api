@@ -30,7 +30,7 @@ public class WorkOrder {
 
 //    private List<Time> timeList;
 
-    //    private Request fromRequest;
+    //    private Request parentRequest;
 
     //    private PurchaseOrder purchaseOrder;
 
