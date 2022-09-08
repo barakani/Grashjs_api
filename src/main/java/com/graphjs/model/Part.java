@@ -27,7 +27,7 @@ public class Part {
 
     private String description;
 
-    private double quantity;
+    private int quantity;
 
     private double area;
 
@@ -41,7 +41,7 @@ public class Part {
 
 //    assignedCustomers: list<Customer>
 
-    private double minQuantity;
+    private int minQuantity;
 
 //    assignedTeams: list<Team>;
 }

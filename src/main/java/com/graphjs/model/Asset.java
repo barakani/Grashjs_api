@@ -56,9 +56,9 @@ public class Asset {
 
 //    private AssetReliability reliability;
 
-    private Date uptime;
+    private int uptime;
 
-    private Date downtime;
+    private int downtime;
 
 //    private List<File> files;
 
