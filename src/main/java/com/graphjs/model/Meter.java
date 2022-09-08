@@ -22,7 +22,7 @@ public class Meter {
 
     private String unit;
 
-    private String updateFrequency;
+    private int updateFrequency;
 
 //    private MeterCategory meterCategory;
 
