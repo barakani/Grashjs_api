@@ -1,4 +1,5 @@
 package com.graphjs.model;
+import com.graphjs.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkOrder {
+public class WorkOrder extends WorkOrderBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

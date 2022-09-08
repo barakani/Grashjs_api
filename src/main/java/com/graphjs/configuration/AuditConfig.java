@@ -1,5 +1,7 @@
 package com.graphjs.configuration;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -12,13 +14,10 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing
+@RequiredArgsConstructor
 public class AuditConfig {
 
-    private final UserService userService;
-
-    public AuditConfig(UserService userService) {
-        this.userService = userService;
-    }
+    //private final UserService userService;
 
     @Bean
     public AuditorAware<Long> auditorProvider() {
@@ -35,7 +34,9 @@ public class AuditConfig {
                 return Optional.empty();
             }
             String username = authentication.getName();
-            return Optional.ofNullable(userService.search(username).getId());
+            //TODO
+            //return Optional.ofNullable(userService.search(username).getId());
+            return Optional.ofNullable(1L);
         }
 
     }

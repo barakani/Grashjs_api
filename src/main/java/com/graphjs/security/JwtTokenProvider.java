@@ -1,8 +1,8 @@
 package com.graphjs.security;
 
-import campus.exception.CustomException;
-import campus.model.enums.Role;
-import campus.utils.Consts;
+import com.graphjs.exception.CustomException;
+import com.graphjs.model.enums.RoleType;
+import com.graphjs.utils.Consts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -46,7 +46,7 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String username, List<Role> roles) {
+    public String createToken(String username, List<RoleType> roles) {
 
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));

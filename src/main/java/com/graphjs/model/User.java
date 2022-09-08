@@ -29,6 +29,9 @@ public class User {
 
     private String jobTitle;
 
+    private String password;
+
+    private boolean enabled;
 //    private Company company;
 
 //    private UserSettings userSettings;

@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    # url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:mysql://localhost:3306/grash
+    username: root
+    password:
+  tomcat:
+    max-wait: 20000
+    max-active: 50
+    max-idle: 20
+    min-idle: 15
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        id:
+          new_generator_mappings: false
+
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: grashdev@gmail.com
+    password:
+    protocol: smtp
+    tls: true
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.gmail.com
+
+server:
+  port: 8080 # This is the default port anyway, but you can change it here
+
+security:
+  jwt:
+    token:
+      secret-key: Grash4785@jk
+      expire-length: 1800000 # 30 minutes duration by default: 30 minutes * 60 seconds * 1000 miliseconds
+
+frontend:
+  url: http://localhost:3000
+mail:
+  recipient: #recipient@gmail.com
