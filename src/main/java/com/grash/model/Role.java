@@ -1,12 +1,11 @@
 package com.grash.model;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -18,5 +17,5 @@ public class Role {
 
     private RoleType roleType;
 
-   // private Permissions permissions;
-}
+    @ElementCollection(targetClass = BasicPermission.class)
+    private Collection<BasicPermission> permissions;}
