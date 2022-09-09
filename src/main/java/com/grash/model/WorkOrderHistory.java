@@ -1,4 +1,5 @@
 package com.grash.model;
+import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,10 +11,10 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class WorkOrderHistory extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Collection<FieldConfiguration> fieldConfigurations;
+    private String name;
 }

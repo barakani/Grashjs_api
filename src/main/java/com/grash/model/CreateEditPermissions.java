@@ -10,10 +10,12 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class CreateEditPermissions {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Collection<FieldConfiguration> fieldConfigurations;
+    private boolean peopleAndTeams;
+
+    private boolean categories;
 }

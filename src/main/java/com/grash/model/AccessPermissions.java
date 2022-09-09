@@ -10,10 +10,9 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class AccessPermissions {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-//    private Collection<FieldConfiguration> fieldConfigurations;
+    
 }

@@ -1,4 +1,5 @@
 package com.grash.model;
+import com.grash.model.enums.RoleType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,10 +11,12 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Collection<FieldConfiguration> fieldConfigurations;
+    private RoleType roleType;
+
+   // private Permissions permissions;
 }

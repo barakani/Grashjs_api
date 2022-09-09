@@ -6,7 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class SuccessResponse {
-    private Boolean success;
+    private boolean success;
     private String message;
 
     public SuccessResponse(Boolean success, String message) {
