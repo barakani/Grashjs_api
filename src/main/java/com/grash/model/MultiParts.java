@@ -10,7 +10,7 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class Set {
+public class MultiParts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
