@@ -15,7 +15,6 @@ public class WorkOrderConfiguration {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private FieldConfiguration fieldConfiguration;
+//    private List<SingleWorkOrderFieldConfiguration> configurationList;
 
-    private boolean isCreation;
 }

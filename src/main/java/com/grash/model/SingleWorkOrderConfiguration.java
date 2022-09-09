@@ -10,10 +10,12 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class SingleWorkOrderConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private List<FieldConfiguration> fieldConfiguration;
+//    private FieldConfiguration fieldConfiguration;
+
+    private boolean isCreation;
 }

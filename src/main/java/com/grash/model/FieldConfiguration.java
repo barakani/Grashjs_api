@@ -1,4 +1,4 @@
-package com.grash.model.abstracts;
+package com.grash.model;
 
 import com.grash.model.enums.FieldType;
 import lombok.Data;
