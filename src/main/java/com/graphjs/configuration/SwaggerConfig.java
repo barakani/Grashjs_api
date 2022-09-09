@@ -31,14 +31,14 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)//
                 .securitySchemes(Collections.singletonList(apiKey()))
                 .securityContexts(Collections.singletonList(securityContext()))
-                .tags(new Tag("auth", "Authentication"), new Tag("school", "School"))//
+                .tags(new Tag("auth", "Authentication"))//
                 .genericModelSubstitutes(Optional.class);
 
     }
 
     private ApiInfo metadata() {
         return new ApiInfoBuilder()//
-                .title("Campus Sutura API")//
+                .title("Grash API")//
                 .version("1.0.0")//
                 .license("MIT License").licenseUrl("http://opensource.org/licenses/MIT")//
                 .build();

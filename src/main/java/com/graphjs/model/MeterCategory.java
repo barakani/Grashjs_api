@@ -1,5 +1,6 @@
 package com.graphjs.model;
-import com.graphjs.model.abstracts.BasicInfos;
+import com.graphjs.model.abstracts.CategoryAbstract;
+import com.graphjs.model.abstracts.FileAbstract;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,21 +12,8 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class Company extends BasicInfos {
+public class MeterCategory extends CategoryAbstract {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-//    private Image logo;
-
-    private String city;
-
-    private String state;
-
-    private String zipCode;
-
-//    private SubscriptionPlan subscriptionPlan;
-
-//    private CompanySettings companySettings;
-
 }

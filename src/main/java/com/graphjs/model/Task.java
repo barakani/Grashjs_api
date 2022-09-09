@@ -1,5 +1,6 @@
 package com.graphjs.model;
-import com.graphjs.model.abstracts.BasicInfos;
+import com.graphjs.model.abstracts.TaskBase;
+import com.graphjs.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,21 +12,16 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class Company extends BasicInfos {
+public class Task extends TaskBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Image logo;
+    private String title;
 
-    private String city;
+    private Status status;
 
-    private String state;
+    private String note;
 
-    private String zipCode;
-
-//    private SubscriptionPlan subscriptionPlan;
-
-//    private CompanySettings companySettings;
-
+    // private Collection<Image> images;
 }

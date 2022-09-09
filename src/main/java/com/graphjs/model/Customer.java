@@ -1,4 +1,5 @@
 package com.graphjs.model;
+import com.graphjs.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class Customer {
+public class Customer extends BasicInfos {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

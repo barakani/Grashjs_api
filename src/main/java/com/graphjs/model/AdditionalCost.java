@@ -1,5 +1,5 @@
 package com.graphjs.model;
-import com.graphjs.model.abstracts.BasicInfos;
+import com.graphjs.model.abstracts.Cost;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,21 +11,14 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class Company extends BasicInfos {
+public class AdditionalCost extends Cost {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Image logo;
+    private String description;
 
-    private String city;
+    //private User assignedTo;
 
-    private String state;
-
-    private String zipCode;
-
-//    private SubscriptionPlan subscriptionPlan;
-
-//    private CompanySettings companySettings;
-
+    private boolean includeToTotalCost;
 }

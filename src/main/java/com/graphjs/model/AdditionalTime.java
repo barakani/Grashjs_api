@@ -1,5 +1,6 @@
 package com.graphjs.model;
-import com.graphjs.model.abstracts.BasicInfos;
+import com.graphjs.model.abstracts.Cost;
+import com.graphjs.model.abstracts.Time;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,25 +8,23 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class Company extends BasicInfos {
+public class AdditionalTime extends Time {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Image logo;
+    //private User assignedTo;
 
-    private String city;
+    private boolean includeToTotalTime;
 
-    private String state;
+    private double hourlyRate;
 
-    private String zipCode;
+    private Date startedAt;
 
-//    private SubscriptionPlan subscriptionPlan;
-
-//    private CompanySettings companySettings;
-
+    //private TimeCategory timeCategory;
 }
