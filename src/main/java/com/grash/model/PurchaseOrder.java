@@ -20,16 +20,38 @@ public class PurchaseOrder {
 
 //    private PurchaseOrderOrderCategory purchaseOrderOrderCategory;
 
-    private Date dueDate;
+    private Date shippingDueDate;
 
-    private String additionalDetail;
+    private String shippingAdditionalDetail;
+
+    private String shippingShipToName;
+
+    private String shippingCompanyName;
+
+    private String shippingAddress;
+
+    private String shippingCity;
+
+    private String shippingState;
+
+    private String shippingZipCode;
+
+    private String shippingPhone;
+
+    private String shippingFax;
+
+    private Date additionalInfoDate;
+
+    private String additionalInfoRequistionerName;
+
+    private String additionalInfoShippingOrderCategory;
+
+    private String additionalInfoTerm;
+
+    private String additionalInfoNotes;
 
 //    private Vendor vendor;
 
 //    private Company requesterInformation;
-
-//    private ShippingInformation shippingInformation;
-
-//    private AdditionalInformation additionalInformation;
 
 }

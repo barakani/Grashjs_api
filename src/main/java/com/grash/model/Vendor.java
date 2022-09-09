@@ -22,7 +22,7 @@ public class Vendor extends BasicInfos {
 
     private double rate;
 
-//    private CustomerField customerField;
+//    private CustomField customField;
 
 
 }
