@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.TaskBase;
+import com.grash.model.TaskBase;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +17,6 @@ public class Task extends TaskBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    private String title;
 
     private Status status;
 
