@@ -15,7 +15,11 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Collection<User> users;
+    @ManyToMany
+    @JoinTable( name = "T_Team_User_Associations",
+            joinColumns = @JoinColumn( name = "idTeam" ),
+            inverseJoinColumns = @JoinColumn( name = "idUser" ) )
+    private Collection<User> users;
 
     private String name;
 
@@ -26,4 +30,10 @@ public class Team {
             joinColumns = @JoinColumn( name = "idTeam" ),
             inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
     private Collection<Asset> asset;
+
+    @ManyToMany
+    @JoinTable( name = "T_Location_Team_Associations",
+            joinColumns = @JoinColumn( name = "idLocation" ),
+            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
+    private Collection<Location> locations;
 }

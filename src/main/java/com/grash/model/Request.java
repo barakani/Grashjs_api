@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -20,8 +21,11 @@ public class Request {
 
     private Priority priority;
 
-//    private List<File> fileList;
-
+    @ManyToMany
+    @JoinTable( name = "T_Request_File_Associations",
+            joinColumns = @JoinColumn( name = "idRequest" ),
+            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
+    private Collection<File> files;
     @OneToOne
     private Image image;
 

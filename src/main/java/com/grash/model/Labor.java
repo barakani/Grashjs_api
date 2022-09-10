@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Time;
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,4 +20,8 @@ public class Labor extends Time {
 
     @OneToOne
     private LaborCost laborCost;
+
+    @ManyToOne
+    @NotNull
+    private WorkOrder workOrder;
 }

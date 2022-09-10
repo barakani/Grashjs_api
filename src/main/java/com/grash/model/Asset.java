@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.AssetStatus;
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +30,8 @@ public class Asset {
     @OneToOne
     private Image image;
 
-    @OneToOne
+    @ManyToOne
+    @NotNull
     private Location location;
 
     @OneToOne

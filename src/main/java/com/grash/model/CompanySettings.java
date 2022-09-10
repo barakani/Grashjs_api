@@ -1,9 +1,11 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -25,6 +27,8 @@ public class CompanySettings {
 //    @OneToOne
 //   private AssetFieldsConfiguration assetFieldsConfiguration;
 
-//    private List<Role> roleList;
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Role> roleList;
 
 }

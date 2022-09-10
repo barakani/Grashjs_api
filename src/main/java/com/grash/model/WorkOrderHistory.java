@@ -1,13 +1,11 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Audit;
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -18,4 +16,9 @@ public class WorkOrderHistory extends Audit {
     private Long id;
 
     private String name;
+
+    @ManyToOne
+    @NotNull
+    private WorkOrder workOrder;
+
 }

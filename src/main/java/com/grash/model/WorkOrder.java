@@ -1,10 +1,13 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 
 @Entity
@@ -21,13 +24,21 @@ public class WorkOrder extends WorkOrderBase {
 
     private boolean archived;
 
-//    private List<WorkOrderHistory> workOrderHistoryList;
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<WorkOrderHistory> workOrderHistoryList;
 
-//    private List<Cost> costList;
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<LaborCost> laborCosts;
 
-//    private List<Task> taskList;
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Task> taskList;
 
-//    private List<Time> timeList;
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Labor> labors;
 
     @OneToOne
     private Request parentRequest;
@@ -35,7 +46,11 @@ public class WorkOrder extends WorkOrderBase {
     @OneToOne
     private PurchaseOrder purchaseOrder;
 
-//    private List<File> fileList;
+    @ManyToMany
+    @JoinTable( name = "T_WorkOrder_File_Associations",
+            joinColumns = @JoinColumn( name = "idWorkOrder" ),
+            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
+    private Collection<File> fileList;
 
     @OneToOne
     private PreventiveMaintenance parentPreventiveMaintenance;

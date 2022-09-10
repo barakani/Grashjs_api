@@ -1,10 +1,12 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -14,7 +16,9 @@ public class Meter {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private List<Reading> readingList;
+    @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Reading> readingList;
 
     private String name;
 
@@ -28,7 +32,11 @@ public class Meter {
     @OneToOne
     private Image image;
 
-//    assignedTo: list<User>;
+    @ManyToMany
+    @JoinTable( name = "T_Meter_User_Associations",
+            joinColumns = @JoinColumn( name = "idMeter" ),
+            inverseJoinColumns = @JoinColumn( name = "idUser" ) )
+    private Collection<User> users;
 
     @OneToOne
     private Location location;
@@ -37,6 +45,8 @@ public class Meter {
     @NotNull
     private Asset asset;
 
-//    private List<WorkOrderMeterTrigger> workOrderMeterTriggerList;
+    @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<WorkOrderMeterTrigger> workOrderMeterTriggerList;
 
 }

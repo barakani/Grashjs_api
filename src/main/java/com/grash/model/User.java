@@ -1,7 +1,6 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -47,6 +46,34 @@ public class User {
             joinColumns = @JoinColumn( name = "idUser" ),
             inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
     private Collection<Asset> asset;
+
+    @ManyToMany
+    @JoinTable( name = "T_Location_User_Associations",
+            joinColumns = @JoinColumn( name = "idUser" ),
+            inverseJoinColumns = @JoinColumn( name = "idLocation" ) )
+    private Collection<Location> locations;
+
+    @ManyToOne
+    @JoinTable( name = "T_Meter_User_Associations",
+            joinColumns = @JoinColumn( name = "idUser" ),
+            inverseJoinColumns = @JoinColumn( name = "idMeter" ) )
+    private Collection<Meter> meters;
+
+    @ManyToMany
+    @JoinTable( name = "T_Part_User_Associations",
+            joinColumns = @JoinColumn( name = "idUser" ),
+            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    private Collection<Part> parts;
+
+    @ManyToMany
+    @JoinTable( name = "T_Team_User_Associations",
+            joinColumns = @JoinColumn( name = "idUser" ),
+            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
+    private Collection<Team> teams;
+
+
+
+
 
 }
 

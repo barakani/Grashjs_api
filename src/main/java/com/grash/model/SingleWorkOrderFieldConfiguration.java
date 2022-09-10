@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +17,10 @@ public class SingleWorkOrderFieldConfiguration {
     @OneToOne
     private FieldConfiguration fieldConfiguration;
     private boolean forCreation;
+
+    @ManyToOne
+    @NotNull
+    WorkOrderConfiguration workOrderConfiguration;
+
+
 }

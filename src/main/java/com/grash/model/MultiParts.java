@@ -3,10 +3,8 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -16,7 +14,11 @@ public class MultiParts {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private List<Part> partList;
+    @ManyToMany
+    @JoinTable( name = "T_MultiPart_Part_Associations",
+            joinColumns = @JoinColumn( name = "idMultiPart" ),
+            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    private Collection<Part> partList;
 
     private String name;
 

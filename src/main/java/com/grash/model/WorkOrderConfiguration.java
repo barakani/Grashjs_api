@@ -1,12 +1,11 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -16,5 +15,7 @@ public class WorkOrderConfiguration {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Collection<SingleWorkOrderFieldConfiguration> workOrderFieldConfigurations;
+    @OneToMany(mappedBy = "workOrderConfiguration", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<SingleWorkOrderFieldConfiguration> workOrderFieldConfigurations;
 }

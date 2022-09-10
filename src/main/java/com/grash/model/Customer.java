@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -22,5 +23,11 @@ public class Customer extends BasicInfos {
 
     @OneToOne
     private BillingInfos billingInfos;
+
+    @ManyToMany
+    @JoinTable( name = "T_Part_customer_Associations",
+            joinColumns = @JoinColumn( name = "idCustomer" ),
+            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    private Collection<Part> parts;
 
 }

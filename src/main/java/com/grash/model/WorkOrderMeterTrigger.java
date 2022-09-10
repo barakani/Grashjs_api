@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +28,10 @@ public class WorkOrderMeterTrigger {
     private int value;
 
     private int waitBefore;
+
+    @ManyToOne
+    @NotNull
+    private Meter meter;
 
 }
 

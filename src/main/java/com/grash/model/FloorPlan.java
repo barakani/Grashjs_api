@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,4 +20,8 @@ public class FloorPlan {
     private Image image;
 
     private double area;
+
+    @ManyToOne
+    @NotNull
+    private Location location;
 }

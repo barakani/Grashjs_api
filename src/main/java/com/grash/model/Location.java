@@ -1,9 +1,11 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -19,11 +21,21 @@ public class Location {
 
     private String gps;
 
-//    private List<Asset> assetList;
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Asset> assetList;
 
-//    private List<User> workers;
+    @ManyToMany
+    @JoinTable( name = "T_Location_Workers_Associations",
+            joinColumns = @JoinColumn( name = "idLocation" ),
+            inverseJoinColumns = @JoinColumn( name = "idWorker" ) )
+    private Collection<User> workers;
 
-//    private List<Team> teamList;
+    @ManyToMany
+    @JoinTable( name = "T_Location_Team_Associations",
+            joinColumns = @JoinColumn( name = "idLocation" ),
+            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
+    private Collection<Team> teamList;
 
     @OneToOne
     private Location parentLocation;
@@ -34,8 +46,12 @@ public class Location {
     @OneToOne
     private Customer customer;
 
-//    private List<Part> partList;
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Part> partList;
 
-//    private List<FloorPlan> floorPlanList;
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<FloorPlan> floorPlanList;
 }
 
