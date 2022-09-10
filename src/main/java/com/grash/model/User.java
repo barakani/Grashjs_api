@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -37,6 +38,10 @@ public class User {
 
     @OneToOne
     private UserSettings userSettings;
+
+    @ManyToOne
+    @NotNull
+    private Asset asset;
 
 }
 

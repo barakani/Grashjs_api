@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -43,4 +44,8 @@ public class Part {
     private int minQuantity;
 
 //    assignedTeams: list<Team>;
+
+    @ManyToOne
+    @NotNull
+    private Asset asset;
 }
