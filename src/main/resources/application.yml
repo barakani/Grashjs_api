@@ -4,11 +4,11 @@ spring:
     url: jdbc:mysql://localhost:3306/grash
     username: root
     password:
-  tomcat:
-    max-wait: 20000
-    max-active: 50
-    max-idle: 20
-    min-idle: 15
+#    tomcat:
+#      max-wait: 20000
+#      max-active: 50
+#      max-idle: 20
+#      min-idle: 15
   profiles:
     active: dev
   mvc:
