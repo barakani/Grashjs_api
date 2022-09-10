@@ -22,7 +22,7 @@ public class WorkOrderMeterTrigger {
     @OneToOne
     private WorkOrder workOrder;
 
-    private WorkOrderMeterTriggerCondition condition;
+    private WorkOrderMeterTriggerCondition workOrderMeterTriggerCondition;
 
     private int value;
 
