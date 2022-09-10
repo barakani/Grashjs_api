@@ -47,12 +47,16 @@ public class Asset {
     @OneToOne
     private User primaryUser;
 
-    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToMany
+    @JoinTable( name = "T_Asset_User_Associations",
+            joinColumns = @JoinColumn( name = "idAsset" ),
+            inverseJoinColumns = @JoinColumn( name = "idUser" ) )
     private Collection<User> assignedTo;
 
-    @OneToMany(mappedBy = "asset=", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToMany
+    @JoinTable( name = "T_Asset_Team_Associations",
+            joinColumns = @JoinColumn( name = "idAsset" ),
+            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
     private Collection<Team> teams;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

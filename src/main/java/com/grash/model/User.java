@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -39,9 +40,11 @@ public class User {
     @OneToOne
     private UserSettings userSettings;
 
-    @ManyToOne
-    @NotNull
-    private Asset asset;
+    @ManyToMany
+    @JoinTable( name = "T_Asset_User_Associations",
+            joinColumns = @JoinColumn( name = "idUser" ),
+            inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
+    private Collection<Asset> asset;
 
 }
 
