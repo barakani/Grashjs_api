@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,6 @@ public class Company extends BasicInfos {
     private CompanySettings companySettings;
 
     @OneToOne
+    @JsonIgnore
     private BankCard bankCard;
 }

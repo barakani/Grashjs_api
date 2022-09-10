@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class User {
 
     private String jobTitle;
 
+    @JsonIgnore
     private String password;
 
     private boolean enabled;
