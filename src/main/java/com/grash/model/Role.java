@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.Set;
 
 @Entity
 @Data
@@ -18,4 +18,4 @@ public class Role {
     private RoleType roleType;
 
     @ElementCollection(targetClass = BasicPermission.class)
-    private Collection<BasicPermission> permissions;}
+    private Set<BasicPermission> permissions;}

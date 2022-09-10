@@ -1,17 +1,15 @@
 package com.grash.model;
+import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkOrderMetricTrigger {
+public class WorkOrderMeterTrigger {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -20,9 +18,10 @@ public class WorkOrderMetricTrigger {
 
     private Date date;
 
-//    private WorkOrder workOrder;
+    @OneToOne
+    private WorkOrder workOrder;
 
-//    private WorkOrderMeterTriggerCondition condition;
+    private WorkOrderMeterTriggerCondition condition;
 
     private int value;
 

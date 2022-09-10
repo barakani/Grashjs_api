@@ -3,10 +3,7 @@ import com.grash.model.abstracts.Time;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -16,7 +13,9 @@ public class Labor extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // private User worker;
+    @OneToOne
+    private User worker;
 
-   // private LaborCost laborCost;
+    @OneToOne
+    private LaborCost laborCost;
 }

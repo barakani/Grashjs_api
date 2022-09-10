@@ -10,12 +10,16 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class SingleWorkOrderConfiguration {
+public class SubscriptionPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private FieldConfiguration fieldConfiguration;
+    private String name;
 
-    private boolean isCreation;
+    private double monthlyCostPerUser;
+
+    private double yearlyCostPerUser;
+
+    private String code;
 }

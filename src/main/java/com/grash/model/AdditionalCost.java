@@ -3,10 +3,7 @@ import com.grash.model.abstracts.Cost;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -18,7 +15,8 @@ public class AdditionalCost extends Cost {
 
     private String description;
 
-    //private User assignedTo;
+    @OneToOne
+    private User assignedTo;
 
     private boolean includeToTotalCost;
 }

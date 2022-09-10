@@ -3,10 +3,7 @@ import com.grash.model.abstracts.Time;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -17,7 +14,8 @@ public class AdditionalTime extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    //private User assignedTo;
+    @OneToOne
+    private User assignedTo;
 
     private boolean includeToTotalTime;
 
@@ -25,5 +23,6 @@ public class AdditionalTime extends Time {
 
     private Date startedAt;
 
-    //private TimeCategory timeCategory;
+    @OneToOne
+    private TimeCategory timeCategory;
 }

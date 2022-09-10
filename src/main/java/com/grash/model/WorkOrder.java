@@ -3,10 +3,7 @@ import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -31,12 +28,15 @@ public class WorkOrder extends WorkOrderBase {
 
 //    private List<Time> timeList;
 
-    //    private Request parentRequest;
+    @OneToOne
+    private Request parentRequest;
 
-    //    private PurchaseOrder purchaseOrder;
+    @OneToOne
+    private PurchaseOrder purchaseOrder;
 
 //    private List<File> fileList;
 
-//    private PreventiveMaintenance parentPreventiveMaintenance;
+    @OneToOne
+   private PreventiveMaintenance parentPreventiveMaintenance;
 
 }

@@ -3,10 +3,7 @@ import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -16,7 +13,8 @@ public class Company extends BasicInfos {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Image logo;
+    @OneToOne
+    private Image logo;
 
     private String city;
 
@@ -24,8 +22,10 @@ public class Company extends BasicInfos {
 
     private String zipCode;
 
-//    private SubscriptionPlan subscriptionPlan;
+    @OneToOne
+    private Subscription subscription;
 
-//    private CompanySettings companySettings;
+    @OneToOne
+    private CompanySettings companySettings;
 
 }

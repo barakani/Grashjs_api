@@ -2,10 +2,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -15,13 +12,17 @@ public class CompanySettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private GeneralPreferences generalPreferences;
+    @OneToOne
+    private GeneralPreferences generalPreferences;
 
-//    private WorkOrderConfiguration workOrderConfiguration;
+    @OneToOne
+    private WorkOrderConfiguration workOrderConfiguration;
 
-//    private WorkRequestConfiguration workRequestConfiguration;
+    @OneToOne
+    private WorkRequestConfiguration workRequestConfiguration;
 
-//    private FieldsConfiguration fieldsConfiguration;
+//    @OneToOne
+//   private AssetFieldsConfiguration assetFieldsConfiguration;
 
 //    private List<Role> roleList;
 

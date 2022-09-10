@@ -4,10 +4,7 @@ import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -17,7 +14,8 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    private Schedule schedule;
+    @OneToOne
+    private Schedule schedule;
 
 
 }

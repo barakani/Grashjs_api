@@ -2,10 +2,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -25,16 +22,20 @@ public class User {
 
     private String phone;
 
-//    private Role role;
+    @OneToOne
+    private Role role;
 
     private String jobTitle;
 
     private String password;
 
     private boolean enabled;
-//    private Company company;
 
-//    private UserSettings userSettings;
+    @OneToOne
+    private Company company;
+
+    @OneToOne
+   private UserSettings userSettings;
 
 }
 

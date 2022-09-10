@@ -2,10 +2,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -18,7 +15,8 @@ public class PurchaseOrder {
 
     private String title;
 
-//    private PurchaseOrderOrderCategory purchaseOrderOrderCategory;
+    @OneToOne
+    private PurchaseOrderCategory purchaseOrderOrderCategory;
 
     private Date shippingDueDate;
 
@@ -50,8 +48,10 @@ public class PurchaseOrder {
 
     private String additionalInfoNotes;
 
-//    private Vendor vendor;
+    @OneToOne
+    private Vendor vendor;
 
-//    private Company requesterInformation;
+    @OneToOne
+    private Company requesterInformation;
 
 }

@@ -5,10 +5,7 @@ import com.grash.model.enums.RelationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -20,9 +17,11 @@ public class Relation {
     
     private RelationType relationType;
 
-    //private WorkOrder parent;
+    @OneToOne
+    private WorkOrder parent;
 
-   // private WorkOrder child;
+    @OneToOne
+    private WorkOrder child;
 
 
 }

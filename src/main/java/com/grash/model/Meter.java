@@ -3,10 +3,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -24,15 +21,19 @@ public class Meter {
 
     private int updateFrequency;
 
-//    private MeterCategory meterCategory;
+    @OneToOne
+    private MeterCategory meterCategory;
 
-//    private Image image;
+    @OneToOne
+    private Image image;
 
 //    assignedTo: list<User>;
 
-//    private Location location;
+    @OneToOne
+    private Location location;
 
-//    private Asset asset;
+    @OneToOne
+    private Asset asset;
 
 //    private List<WorkOrderMeterTrigger> workOrderMeterTriggerList;
 

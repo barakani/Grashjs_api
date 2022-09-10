@@ -1,12 +1,10 @@
 package com.grash.model;
 
+import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -20,14 +18,16 @@ public class Request {
 
     private String description;
 
-//    private Enum<PRIORITY> priority;
+    private Priority priority;
 
 //    private List<File> fileList;
 
-//    private Image image;
+    @OneToOne
+    private Image image;
 
     private Long createdBy;
 
+    //TODO
 //    private Enum<OPTIONALFIELDS> optionalfields;
 
 

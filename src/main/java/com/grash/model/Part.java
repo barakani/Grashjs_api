@@ -3,10 +3,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -31,13 +28,15 @@ public class Part {
 
     private double area;
 
-//  private Location location;
+    @OneToOne
+   private Location location;
 
     private Date createdAt;
 
 //  private List<File>;
 
-//    private Image image;
+    @OneToOne
+    private Image image;
 
 //    assignedCustomers: list<Customer>
 

@@ -3,10 +3,7 @@ package com.grash.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Data
@@ -28,11 +25,14 @@ public class Location {
 
 //    private List<Team> teamList;
 
-//    Parent: Location
+    @OneToOne
+    private Location parentLocation;
 
-//    private Vendor vendor;
+    @OneToOne
+    private Vendor vendor;
 
-//    private Customer customer;
+    @OneToOne
+    private Customer customer;
 
 //    private List<Part> partList;
 

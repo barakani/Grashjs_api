@@ -1,12 +1,10 @@
 package com.grash.model;
 
+import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -23,21 +21,26 @@ public class Asset {
 
 //    private List<Part> parts;
 
-//    private Image image;
+    @OneToOne
+    private Image image;
 
-//    private Location location;
+    @OneToOne
+    private Location location;
 
-//    Parent: Asset;
+    @OneToOne
+    private Asset parentAsset;
 
     private String area;
 
     private String barCode;
 
-//    category: AssetCategory;
+    @OneToOne
+    private AssetCategory category;
 
     private String description;
 
-//    primaryUser: Person;
+    @OneToOne
+    private User primaryUser;
 
 //    assignedTo: list<User>;
 
@@ -45,15 +48,14 @@ public class Asset {
 
 //    assignedVendors: list<Vendor>;
 
-//    private Deprecation deprecation;
+    @OneToOne
+    private Deprecation deprecation;
 
     private Date warrantyExpirationDate;
 
     private String additionalInfos;
 
-//    private AssetStatus status;
-
-//    private AssetReliability reliability;
+    private AssetStatus status;
 
     private int uptime;
 
