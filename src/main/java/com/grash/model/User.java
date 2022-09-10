@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -35,7 +36,7 @@ public class User {
     private Company company;
 
     @OneToOne
-   private UserSettings userSettings;
+    private UserSettings userSettings;
 
 }
 

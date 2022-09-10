@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

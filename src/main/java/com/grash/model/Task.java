@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.abstracts.TaskBase;
 import com.grash.model.enums.Status;
 import lombok.Data;

@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.enums.BusinessType;
 import com.grash.model.enums.Language;
 import lombok.Data;
@@ -14,7 +15,7 @@ public class GeneralPreferences {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-   private Language language;
+    private Language language;
 
     private String dateFormat;
 

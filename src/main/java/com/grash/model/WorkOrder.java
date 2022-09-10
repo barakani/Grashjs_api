@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,6 @@ public class WorkOrder extends WorkOrderBase {
 //    private List<File> fileList;
 
     @OneToOne
-   private PreventiveMaintenance parentPreventiveMaintenance;
+    private PreventiveMaintenance parentPreventiveMaintenance;
 
 }

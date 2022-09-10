@@ -29,7 +29,7 @@ public class Part {
     private double area;
 
     @OneToOne
-   private Location location;
+    private Location location;
 
     private Date createdAt;
 

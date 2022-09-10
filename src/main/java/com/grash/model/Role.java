@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
@@ -18,4 +19,5 @@ public class Role {
     private RoleType roleType;
 
     @ElementCollection(targetClass = BasicPermission.class)
-    private Set<BasicPermission> permissions;}
+    private Set<BasicPermission> permissions;
+}

@@ -21,7 +21,7 @@ public class Utils {
         return "SN-" + returnValue;
     }
 
-    public String readFile(String filename){
+    public String readFile(String filename) {
         StringBuilder contentBuilder = new StringBuilder();
         try {
             BufferedReader in = new BufferedReader(new FileReader(filename));

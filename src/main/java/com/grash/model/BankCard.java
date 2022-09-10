@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.CategoryAbstract;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,8 +11,19 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class MeterCategory extends CategoryAbstract {
+public class BankCard {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private int number;
+
+    private String expirationMonth;
+
+    private String expirationYear;
+
+    private int cvv;
+
+    private String cardholderName;
+
 }

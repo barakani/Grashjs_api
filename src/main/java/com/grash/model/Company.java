@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,4 +29,6 @@ public class Company extends BasicInfos {
     @OneToOne
     private CompanySettings companySettings;
 
+    @OneToOne
+    private BankCard bankCard;
 }

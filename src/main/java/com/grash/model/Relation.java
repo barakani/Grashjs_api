@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.RelationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ public class Relation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     private RelationType relationType;
 
     @OneToOne

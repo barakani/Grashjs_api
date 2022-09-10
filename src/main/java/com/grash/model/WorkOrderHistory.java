@@ -1,4 +1,5 @@
 package com.grash.model;
+
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
