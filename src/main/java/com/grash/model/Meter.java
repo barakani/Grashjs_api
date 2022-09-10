@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,7 +33,8 @@ public class Meter {
     @OneToOne
     private Location location;
 
-    @OneToOne
+    @ManyToOne
+    @NotNull
     private Asset asset;
 
 //    private List<WorkOrderMeterTrigger> workOrderMeterTriggerList;

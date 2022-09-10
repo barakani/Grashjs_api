@@ -1,11 +1,14 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -19,7 +22,9 @@ public class Asset {
 
     private boolean archived;
 
-//    private List<Part> parts;
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Part> parts;
 
     @OneToOne
     private Image image;
@@ -42,11 +47,17 @@ public class Asset {
     @OneToOne
     private User primaryUser;
 
-//    assignedTo: list<User>;
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<User> assignedTo;
 
-//    assignedTeams: list<Team>;
+    @OneToMany(mappedBy = "asset=", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Team> teams;
 
-//    assignedVendors: list<Vendor>;
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Vendor> vendors;
 
     @OneToOne
     private Deprecation deprecation;
@@ -61,9 +72,13 @@ public class Asset {
 
     private int downtime;
 
-//    private List<File> files;
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<File> files;
 
-//    private List<Meter> meters;
+    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Meter> meters;
 
 }
 
