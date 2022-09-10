@@ -59,8 +59,10 @@ public class Asset {
             inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
     private Collection<Team> teams;
 
-    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToMany
+    @JoinTable( name = "T_Asset_Vendor_Associations",
+            joinColumns = @JoinColumn( name = "idAsset" ),
+            inverseJoinColumns = @JoinColumn( name = "idVendor" ) )
     private Collection<Vendor> vendors;
 
     @OneToOne
