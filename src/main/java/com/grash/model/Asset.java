@@ -78,8 +78,10 @@ public class Asset {
 
     private int downtime;
 
-    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToMany
+    @JoinTable( name = "T_Asset_File_Associations",
+            joinColumns = @JoinColumn( name = "idAsset" ),
+            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
     private Collection<File> files;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -15,7 +16,9 @@ public class File extends FileAbstract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
-    @NotNull
-    private Asset asset;
+    @ManyToMany
+    @JoinTable( name = "T_Asset_File_Associations",
+            joinColumns = @JoinColumn( name = "idFile" ),
+            inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
+    private Collection<Asset> asset;
 }
