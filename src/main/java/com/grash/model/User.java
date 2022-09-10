@@ -53,7 +53,7 @@ public class User {
             inverseJoinColumns = @JoinColumn( name = "idLocation" ) )
     private Collection<Location> locations;
 
-    @ManyToOne
+    @ManyToMany
     @JoinTable( name = "T_Meter_User_Associations",
             joinColumns = @JoinColumn( name = "idUser" ),
             inverseJoinColumns = @JoinColumn( name = "idMeter" ) )
