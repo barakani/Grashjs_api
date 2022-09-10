@@ -28,4 +28,6 @@ public class Company extends BasicInfos {
     @OneToOne
     private CompanySettings companySettings;
 
+    @OneToOne
+    private BankCard bankCard;
 }
