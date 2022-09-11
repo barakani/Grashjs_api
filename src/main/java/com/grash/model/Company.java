@@ -27,8 +27,8 @@ public class Company extends BasicInfos {
     @OneToOne
     private Subscription subscription;
 
-    @OneToOne
-    private CompanySettings companySettings;
+    @OneToOne(cascade = CascadeType.ALL)
+    private CompanySettings companySettings = new CompanySettings(this);
 
     @OneToOne
     @JsonIgnore

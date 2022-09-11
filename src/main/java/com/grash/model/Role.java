@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -19,10 +20,19 @@ public class Role {
 
     private RoleType roleType;
 
+    private String name;
+
     @ElementCollection(targetClass = BasicPermission.class)
     private Set<BasicPermission> permissions;
 
     @ManyToOne
     @NotNull
     private CompanySettings companySettings;
+
+    public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings) {
+        this.name = name;
+        this.roleType = roleType;
+        this.companySettings = companySettings;
+        this.permissions = basicPermissions;
+    }
 }

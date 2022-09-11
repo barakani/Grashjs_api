@@ -1,11 +1,16 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.RoleType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 @Entity
 @Data
@@ -24,11 +29,30 @@ public class CompanySettings {
     @OneToOne
     private WorkRequestConfiguration workRequestConfiguration;
 
+    @OneToOne
+    @JsonIgnore
+    private Company company;
+
 //    @OneToOne
 //   private AssetFieldsConfiguration assetFieldsConfiguration;
 
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Collection<Role> roleList;
+    private Collection<Role> roleList = Arrays.asList(
+            createRole("Administrator",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Limited Administrator",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Technician",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Limited technician",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("View only",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Requester",Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES))
+            );
+
+    private Role createRole(String name, List<BasicPermission> basicPermissions){
+        return new Role(RoleType.CLIENT, name, new HashSet<>(basicPermissions), this);
+    }
+
+    public CompanySettings(Company company){
+        this.company = company;
+    }
 
 }
