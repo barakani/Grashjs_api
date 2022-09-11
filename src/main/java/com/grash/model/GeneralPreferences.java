@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.BusinessType;
 import com.grash.model.enums.Language;
 import lombok.Data;
@@ -26,17 +27,25 @@ public class GeneralPreferences {
 
     private String timeZone;
 
-    private String autoAssignWorkOrders;
+    private boolean autoAssignWorkOrders;
 
-    private String autoAssignRequests;
+    private boolean autoAssignRequests;
 
-    private boolean disableWorkOrdersNotif;
+    private boolean disableClosedWorkOrdersNotif;
 
-    private boolean askFeedBackOnWOClosed;
+    private boolean askFeedBackOnWOClosed = true;
 
-    private String labelCostInTotalCost;
+    private boolean laborCostInTotalCost = true;
 
-    private String wOUpdateForRequesters;
+    private boolean wOUpdateForRequesters = true;
+
+    @OneToOne
+    @JsonIgnore
+    private CompanySettings companySettings;
+
+    public GeneralPreferences(CompanySettings companySettings){
+        this.companySettings = companySettings;
+    }
 
 
 }

@@ -11,8 +11,8 @@ import java.util.Date;
 @MappedSuperclass
 public class WorkOrderBase extends Audit {
     private Date dueDate;
-    private Status status;
-    private Priority priority;
+    private Status status = Status.OPEN;
+    private Priority priority = Priority.NONE;
     private int estimatedDuration;
     private String description;
     private String title;

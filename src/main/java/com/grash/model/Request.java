@@ -20,7 +20,7 @@ public class Request {
 
     private String description;
 
-    private Priority priority;
+    private Priority priority = Priority.NONE;
 
     @ManyToMany
     @JoinTable( name = "T_Request_File_Associations",

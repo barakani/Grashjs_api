@@ -17,7 +17,7 @@ public class FieldConfiguration {
 
     private String fieldName;
 
-    private FieldType fieldType;
+    private FieldType fieldType = FieldType.OPTIONAL;
 
     @ManyToOne
     @NotNull

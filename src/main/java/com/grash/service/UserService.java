@@ -51,7 +51,7 @@ public class UserService {
     public String signin(String email, String password, String type) {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-            if(authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_"+type.toUpperCase()))){
+            if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
             return jwtTokenProvider.createToken(email, Arrays.asList(userRepository.findUserByEmail(email).getRole().getRoleType()));
@@ -64,7 +64,7 @@ public class UserService {
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
-            if(API_HOST.equals("http://localhost:8080")){
+            if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
                 userRepository.save(user);
                 return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
@@ -78,14 +78,15 @@ public class UserService {
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
 
-                if (user.getRole()==null){
+                if (user.getRole() == null) {
                     //create company with default roles
                 }
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
                 //return jwtTokenProvider.createToken(user.getEmail(), user.getRoles());
-            }} else {
+            }
+        } else {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
@@ -114,22 +115,21 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public long count(){
+    public long count() {
         return userRepository.count();
     }
 
-    public Optional<User> findById(Long id){
+    public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    public User update(Long id, UserSignupRequest user){
-        if(userRepository.existsById(id)){
+    public User update(Long id, UserSignupRequest user) {
+        if (userRepository.existsById(id)) {
             User savedUser = userRepository.findById(id).get();
             modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
             modelMapper.map(user, savedUser);
             return userRepository.save(savedUser);
-        }
-        else throw new CustomException("Not found",HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public void enableUser(String email) {
@@ -138,15 +138,15 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public SuccessResponse resetPassword(String email){
+    public SuccessResponse resetPassword(String email) {
         User user = search(email);
         Helper helper = new Helper();
-        String password = helper.generateString().replace("-","").substring(0,8).toUpperCase();
+        String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        String message = "Votre mot de passe a été réinitialisé.\nVeuillez vous reconnecter en utilisant ce mot de passe: "+password+
+        String message = "Votre mot de passe a été réinitialisé.\nVeuillez vous reconnecter en utilisant ce mot de passe: " + password +
                 "\nIl est important procéder au changement de votre mot de passe le plutôt possible pour des raisons de sécurité.";
-        emailService.send(user.getEmail(),"Réinitialisation de votre mot de passe Sutura", message);
+        emailService.send(user.getEmail(), "Réinitialisation de votre mot de passe Sutura", message);
         return new SuccessResponse(true, "Password changed successfully");
     }
 

@@ -1,5 +1,6 @@
 package com.grash.configuration;
 
+import com.grash.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuditConfig {
 
-    //private final UserService userService;
+    private final UserService userService;
 
     @Bean
     public AuditorAware<Long> auditorProvider() {
@@ -33,9 +34,7 @@ public class AuditConfig {
                 return Optional.empty();
             }
             String username = authentication.getName();
-            //TODO
-            //return Optional.ofNullable(userService.search(username).getId());
-            return Optional.ofNullable(1L);
+            return Optional.ofNullable(userService.search(username).getId());
         }
 
     }
