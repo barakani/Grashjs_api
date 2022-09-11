@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
-public class UserSignupDTO {
+public class UserSignupRequest {
 
     @ApiModelProperty(position = 1)
     @NotNull
@@ -17,7 +17,7 @@ public class UserSignupDTO {
     @ApiModelProperty(position = 2)
     @NotNull
     private String password;
-    @NotNull
+
     @ApiModelProperty(position = 3)
     private Role role;
 }

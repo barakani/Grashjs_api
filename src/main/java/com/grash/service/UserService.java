@@ -1,7 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.UserSignupDTO;
+import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.VerificationToken;
@@ -77,6 +77,10 @@ public class UserService {
 
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
+
+                if (user.getRole()==null){
+                    //create company with default roles
+                }
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
@@ -118,7 +122,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User update(Long id, UserSignupDTO user){
+    public User update(Long id, UserSignupRequest user){
         if(userRepository.existsById(id)){
             User savedUser = userRepository.findById(id).get();
             modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
