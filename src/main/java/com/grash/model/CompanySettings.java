@@ -27,7 +27,7 @@ public class CompanySettings {
     private WorkOrderConfiguration workOrderConfiguration = new WorkOrderConfiguration(this);
 
     @OneToOne(cascade = CascadeType.ALL)
-    private WorkRequestConfiguration workRequestConfiguration = new WorkRequestConfiguration(this);
+    private WorkOrderRequestConfiguration WorkOrderRequestConfiguration = new WorkOrderRequestConfiguration(this);
 
     @OneToOne
     @JsonIgnore

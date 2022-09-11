@@ -10,11 +10,11 @@ import java.util.Collection;
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkRequestConfiguration {
+public class WorkOrderRequestConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToMany(mappedBy = "workRequestConfiguration", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "WorkOrderRequestConfiguration", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<FieldConfiguration> fieldConfigurations;
 
@@ -22,7 +22,7 @@ public class WorkRequestConfiguration {
     @JsonIgnore
     private CompanySettings companySettings;
 
-    public WorkRequestConfiguration(CompanySettings companySettings){
+    public WorkOrderRequestConfiguration(CompanySettings companySettings){
         this.companySettings = companySettings;
     }
 }

@@ -21,6 +21,6 @@ public class FieldConfiguration {
 
     @ManyToOne
     @NotNull
-    private WorkRequestConfiguration workRequestConfiguration;
+    private WorkOrderRequestConfiguration WorkOrderRequestConfiguration;
 
 }
