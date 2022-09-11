@@ -17,4 +17,12 @@ public class WorkRequestConfiguration {
     @OneToMany(mappedBy = "workRequestConfiguration", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<FieldConfiguration> fieldConfigurations;
+
+    @OneToOne
+    @JsonIgnore
+    private CompanySettings companySettings;
+
+    public WorkRequestConfiguration(CompanySettings companySettings){
+        this.companySettings = companySettings;
+    }
 }

@@ -20,14 +20,14 @@ public class CompanySettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    private GeneralPreferences generalPreferences;
+    @OneToOne(cascade = CascadeType.ALL)
+    private GeneralPreferences generalPreferences = new GeneralPreferences(this);
 
-    @OneToOne
-    private WorkOrderConfiguration workOrderConfiguration;
+    @OneToOne(cascade = CascadeType.ALL)
+    private WorkOrderConfiguration workOrderConfiguration = new WorkOrderConfiguration(this);
 
-    @OneToOne
-    private WorkRequestConfiguration workRequestConfiguration;
+    @OneToOne(cascade = CascadeType.ALL)
+    private WorkRequestConfiguration workRequestConfiguration = new WorkRequestConfiguration(this);
 
     @OneToOne
     @JsonIgnore
