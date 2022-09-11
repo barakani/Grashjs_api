@@ -3,7 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.TaskBase;
 import com.grash.model.enums.Status;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

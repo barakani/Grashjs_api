@@ -2,7 +2,7 @@ package com.grash.model;
 
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

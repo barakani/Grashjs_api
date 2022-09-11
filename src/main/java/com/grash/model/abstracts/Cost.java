@@ -1,7 +1,7 @@
 package com.grash.model.abstracts;
 
 import com.grash.model.WorkOrder;
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 import javax.persistence.ManyToOne;

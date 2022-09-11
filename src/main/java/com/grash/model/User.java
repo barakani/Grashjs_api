@@ -30,6 +30,8 @@ public class User {
 
     private String jobTitle;
 
+    private String username;
+
     @JsonIgnore
     private String password;
 

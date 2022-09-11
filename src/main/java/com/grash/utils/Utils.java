@@ -18,7 +18,7 @@ public class Utils {
             String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
-        return "SN-" + returnValue;
+        return returnValue.toString();
     }
 
     public String readFile(String filename) {
