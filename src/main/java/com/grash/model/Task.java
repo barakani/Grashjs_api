@@ -18,7 +18,7 @@ public class Task extends TaskBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Status status;
+    private Status status=Status.OPEN;
 
     private String note;
 

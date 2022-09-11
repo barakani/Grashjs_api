@@ -74,7 +74,7 @@ public class Asset {
 
     private String additionalInfos;
 
-    private AssetStatus status;
+    private AssetStatus status = AssetStatus.OPERATIONAL;
 
     private int uptime;
 

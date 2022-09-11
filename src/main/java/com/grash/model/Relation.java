@@ -14,7 +14,7 @@ public class Relation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private RelationType relationType;
+    private RelationType relationType=RelationType.RELATED_TO;
 
     @OneToOne
     private WorkOrder parent;
