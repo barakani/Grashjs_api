@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Data
@@ -31,8 +32,22 @@ public class Request {
 
     private Long createdBy;
 
-    //TODO
-//    private Enum<OPTIONALFIELDS> optionalfields;
+//  optionalfields;
 
+    @OneToOne
+    private Asset asset;
+
+    @OneToOne
+    private Location location;
+
+    @OneToOne
+    private User assignedTo;
+
+    private Date dueDate;
+
+    private String category;
+
+    @OneToOne
+    private Team team;
 
 }
