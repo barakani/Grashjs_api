@@ -40,8 +40,8 @@ public class User {
     @OneToOne
     private Company company;
 
-    @OneToOne
-    private UserSettings userSettings;
+    @OneToOne(cascade = CascadeType.ALL)
+    private UserSettings userSettings = new UserSettings();
 
     @ManyToMany
     @JoinTable( name = "T_Asset_User_Associations",

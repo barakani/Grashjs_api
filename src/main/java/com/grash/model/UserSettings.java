@@ -16,12 +16,12 @@ public class UserSettings {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String emailNotified;
+    private boolean emailNotified;
 
-    private String emailUpdatesForWorkOrders;
+    private boolean emailUpdatesForWorkOrders;
 
-    private String emailUpdatesForRequests;
+    private boolean emailUpdatesForRequests;
 
-    private String emailUpdatesForPurchaseOrders;
+    private boolean emailUpdatesForPurchaseOrders;
 
 }
