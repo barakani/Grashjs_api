@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserSettingsService {
-    private final UserSettingsRepository UserSettingsRepository;
+    private final UserSettingsRepository userSettingsRepository;
 
     public UserSettings create(UserSettings UserSettings) {
-        return UserSettingsRepository.save(UserSettings);
+        return userSettingsRepository.save(UserSettings);
     }
 
     public UserSettings update(UserSettings UserSettings) {
-        return UserSettingsRepository.save(UserSettings);
+        return userSettingsRepository.save(UserSettings);
     }
 
-    public Collection<UserSettings> getAll() { return UserSettingsRepository.findAll(); }
+    public Collection<UserSettings> getAll() { return userSettingsRepository.findAll(); }
 
-    public void delete(Long id){ UserSettingsRepository.deleteById(id);}
+    public void delete(Long id){ userSettingsRepository.deleteById(id);}
 
-    public Optional<UserSettings> findById(Long id) {return UserSettingsRepository.findById(id); }
+    public Optional<UserSettings> findById(Long id) {return userSettingsRepository.findById(id); }
 }

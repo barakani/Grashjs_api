@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DeprecationService {
-    private final DeprecationRepository DeprecationRepository;
+    private final DeprecationRepository deprecationRepository;
 
     private final ModelMapper modelMapper;
 
     public Deprecation create(Deprecation Deprecation) {
-        return DeprecationRepository.save(Deprecation);
+        return deprecationRepository.save(Deprecation);
     }
 
     public Deprecation update(Deprecation Deprecation) {
-        return DeprecationRepository.save(Deprecation);
+        return deprecationRepository.save(Deprecation);
     }
 
-    public Collection<Deprecation> getAll() { return DeprecationRepository.findAll(); }
+    public Collection<Deprecation> getAll() { return deprecationRepository.findAll(); }
 
-    public void delete(Long id){ DeprecationRepository.deleteById(id);}
+    public void delete(Long id){ deprecationRepository.deleteById(id);}
 
-    public Optional<Deprecation> findById(Long id) {return DeprecationRepository.findById(id); }
+    public Optional<Deprecation> findById(Long id) {return deprecationRepository.findById(id); }
 }

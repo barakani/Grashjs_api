@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TeamService {
-    private final TeamRepository TeamRepository;
+    private final TeamRepository teamRepository;
 
     public Team create(Team Team) {
-        return TeamRepository.save(Team);
+        return teamRepository.save(Team);
     }
 
     public Team update(Team Team) {
-        return TeamRepository.save(Team);
+        return teamRepository.save(Team);
     }
 
-    public Collection<Team> getAll() { return TeamRepository.findAll(); }
+    public Collection<Team> getAll() { return teamRepository.findAll(); }
 
-    public void delete(Long id){ TeamRepository.deleteById(id);}
+    public void delete(Long id){ teamRepository.deleteById(id);}
 
-    public Optional<Team> findById(Long id) {return TeamRepository.findById(id); }
+    public Optional<Team> findById(Long id) {return teamRepository.findById(id); }
 }

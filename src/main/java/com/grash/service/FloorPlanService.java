@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FloorPlanService {
-    private final FloorPlanRepository FloorPlanRepository;
+    private final FloorPlanRepository floorPlanRepository;
 
     private final ModelMapper modelMapper;
 
     public FloorPlan create(FloorPlan FloorPlan) {
-        return FloorPlanRepository.save(FloorPlan);
+        return floorPlanRepository.save(FloorPlan);
     }
 
     public FloorPlan update(FloorPlan FloorPlan) {
-        return FloorPlanRepository.save(FloorPlan);
+        return floorPlanRepository.save(FloorPlan);
     }
 
-    public Collection<FloorPlan> getAll() { return FloorPlanRepository.findAll(); }
+    public Collection<FloorPlan> getAll() { return floorPlanRepository.findAll(); }
 
-    public void delete(Long id){ FloorPlanRepository.deleteById(id);}
+    public void delete(Long id){ floorPlanRepository.deleteById(id);}
 
-    public Optional<FloorPlan> findById(Long id) {return FloorPlanRepository.findById(id); }
+    public Optional<FloorPlan> findById(Long id) {return floorPlanRepository.findById(id); }
 }

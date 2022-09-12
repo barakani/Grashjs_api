@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AssetService {
-    private final AssetRepository AssetRepository;
+    private final AssetRepository assetRepository;
 
     private final ModelMapper modelMapper;
 
     public Asset create(Asset Asset) {
-        return AssetRepository.save(Asset);
+        return assetRepository.save(Asset);
     }
 
     public Asset update(Asset Asset) {
-        return AssetRepository.save(Asset);
+        return assetRepository.save(Asset);
     }
 
-    public Collection<Asset> getAll() { return AssetRepository.findAll(); }
+    public Collection<Asset> getAll() { return assetRepository.findAll(); }
 
-    public void delete(Long id){ AssetRepository.deleteById(id);}
+    public void delete(Long id){ assetRepository.deleteById(id);}
 
-    public Optional<Asset> findById(Long id) {return AssetRepository.findById(id); }
+    public Optional<Asset> findById(Long id) {return assetRepository.findById(id); }
 }

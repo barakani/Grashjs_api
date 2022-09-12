@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class MeterService {
-    private final MeterRepository MeterRepository;
+    private final MeterRepository meterRepository;
 
     public Meter create(Meter Meter) {
-        return MeterRepository.save(Meter);
+        return meterRepository.save(Meter);
     }
 
     public Meter update(Meter Meter) {
-        return MeterRepository.save(Meter);
+        return meterRepository.save(Meter);
     }
 
-    public Collection<Meter> getAll() { return MeterRepository.findAll(); }
+    public Collection<Meter> getAll() { return meterRepository.findAll(); }
 
-    public void delete(Long id){ MeterRepository.deleteById(id);}
+    public void delete(Long id){ meterRepository.deleteById(id);}
 
-    public Optional<Meter> findById(Long id) {return MeterRepository.findById(id); }
+    public Optional<Meter> findById(Long id) {return meterRepository.findById(id); }
 }

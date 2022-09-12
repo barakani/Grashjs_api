@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
-    private final CustomerRepository CustomerRepository;
+    private final CustomerRepository customerRepository;
 
     private final ModelMapper modelMapper;
 
     public Customer create(Customer Customer) {
-        return CustomerRepository.save(Customer);
+        return customerRepository.save(Customer);
     }
 
     public Customer update(Customer Customer) {
-        return CustomerRepository.save(Customer);
+        return customerRepository.save(Customer);
     }
 
-    public Collection<Customer> getAll() { return CustomerRepository.findAll(); }
+    public Collection<Customer> getAll() { return customerRepository.findAll(); }
 
-    public void delete(Long id){ CustomerRepository.deleteById(id);}
+    public void delete(Long id){ customerRepository.deleteById(id);}
 
-    public Optional<Customer> findById(Long id) {return CustomerRepository.findById(id); }
+    public Optional<Customer> findById(Long id) {return customerRepository.findById(id); }
 }

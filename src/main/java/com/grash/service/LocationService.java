@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LocationService {
-    private final LocationRepository LocationRepository;
+    private final LocationRepository locationRepository;
 
     private final ModelMapper modelMapper;
 
     public Location create(Location Location) {
-        return LocationRepository.save(Location);
+        return locationRepository.save(Location);
     }
 
     public Location update(Location Location) {
-        return LocationRepository.save(Location);
+        return locationRepository.save(Location);
     }
 
-    public Collection<Location> getAll() { return LocationRepository.findAll(); }
+    public Collection<Location> getAll() { return locationRepository.findAll(); }
 
-    public void delete(Long id){ LocationRepository.deleteById(id);}
+    public void delete(Long id){ locationRepository.deleteById(id);}
 
-    public Optional<Location> findById(Long id) {return LocationRepository.findById(id); }
+    public Optional<Location> findById(Long id) {return locationRepository.findById(id); }
 }

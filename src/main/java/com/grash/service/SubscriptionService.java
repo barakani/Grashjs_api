@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
-    private final SubscriptionRepository SubscriptionRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     public Subscription create(Subscription Subscription) {
-        return SubscriptionRepository.save(Subscription);
+        return subscriptionRepository.save(Subscription);
     }
 
     public Subscription update(Subscription Subscription) {
-        return SubscriptionRepository.save(Subscription);
+        return subscriptionRepository.save(Subscription);
     }
 
-    public Collection<Subscription> getAll() { return SubscriptionRepository.findAll(); }
+    public Collection<Subscription> getAll() { return subscriptionRepository.findAll(); }
 
-    public void delete(Long id){ SubscriptionRepository.deleteById(id);}
+    public void delete(Long id){ subscriptionRepository.deleteById(id);}
 
-    public Optional<Subscription> findById(Long id) {return SubscriptionRepository.findById(id); }
+    public Optional<Subscription> findById(Long id) {return subscriptionRepository.findById(id); }
 }

@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RequestService {
-    private final RequestRepository RequestRepository;
+    private final RequestRepository requestRepository;
 
     public Request create(Request Request) {
-        return RequestRepository.save(Request);
+        return requestRepository.save(Request);
     }
 
     public Request update(Request Request) {
-        return RequestRepository.save(Request);
+        return requestRepository.save(Request);
     }
 
-    public Collection<Request> getAll() { return RequestRepository.findAll(); }
+    public Collection<Request> getAll() { return requestRepository.findAll(); }
 
-    public void delete(Long id){ RequestRepository.deleteById(id);}
+    public void delete(Long id){ requestRepository.deleteById(id);}
 
-    public Optional<Request> findById(Long id) {return RequestRepository.findById(id); }
+    public Optional<Request> findById(Long id) {return requestRepository.findById(id); }
 }

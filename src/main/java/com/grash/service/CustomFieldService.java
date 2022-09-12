@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CustomFieldService {
-    private final CustomFieldRepository CustomFieldRepository;
+    private final CustomFieldRepository customFieldRepository;
 
     private final ModelMapper modelMapper;
 
     public CustomField create(CustomField CustomField) {
-        return CustomFieldRepository.save(CustomField);
+        return customFieldRepository.save(CustomField);
     }
 
     public CustomField update(CustomField CustomField) {
-        return CustomFieldRepository.save(CustomField);
+        return customFieldRepository.save(CustomField);
     }
 
-    public Collection<CustomField> getAll() { return CustomFieldRepository.findAll(); }
+    public Collection<CustomField> getAll() { return customFieldRepository.findAll(); }
 
-    public void delete(Long id){ CustomFieldRepository.deleteById(id);}
+    public void delete(Long id){ customFieldRepository.deleteById(id);}
 
-    public Optional<CustomField> findById(Long id) {return CustomFieldRepository.findById(id); }
+    public Optional<CustomField> findById(Long id) {return customFieldRepository.findById(id); }
 }

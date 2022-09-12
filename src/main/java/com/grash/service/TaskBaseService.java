@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TaskBaseService {
-    private final TaskBaseRepository TaskBaseRepository;
+    private final TaskBaseRepository taskBaseRepository;
 
     public TaskBase create(TaskBase TaskBase) {
-        return TaskBaseRepository.save(TaskBase);
+        return taskBaseRepository.save(TaskBase);
     }
 
     public TaskBase update(TaskBase TaskBase) {
-        return TaskBaseRepository.save(TaskBase);
+        return taskBaseRepository.save(TaskBase);
     }
 
-    public Collection<TaskBase> getAll() { return TaskBaseRepository.findAll(); }
+    public Collection<TaskBase> getAll() { return taskBaseRepository.findAll(); }
 
-    public void delete(Long id){ TaskBaseRepository.deleteById(id);}
+    public void delete(Long id){ taskBaseRepository.deleteById(id);}
 
-    public Optional<TaskBase> findById(Long id) {return TaskBaseRepository.findById(id); }
+    public Optional<TaskBase> findById(Long id) {return taskBaseRepository.findById(id); }
 }

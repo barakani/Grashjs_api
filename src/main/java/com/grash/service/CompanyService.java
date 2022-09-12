@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
-    private final CompanyRepository CompanyRepository;
+    private final CompanyRepository companyRepository;
 
     private final ModelMapper modelMapper;
 
     public Company create(Company Company) {
-        return CompanyRepository.save(Company);
+        return companyRepository.save(Company);
     }
 
     public Company update(Company Company) {
-        return CompanyRepository.save(Company);
+        return companyRepository.save(Company);
     }
 
-    public Collection<Company> getAll() { return CompanyRepository.findAll(); }
+    public Collection<Company> getAll() { return companyRepository.findAll(); }
 
-    public void delete(Long id){ CompanyRepository.deleteById(id);}
+    public void delete(Long id){ companyRepository.deleteById(id);}
 
-    public Optional<Company> findById(Long id) {return CompanyRepository.findById(id); }
+    public Optional<Company> findById(Long id) {return companyRepository.findById(id); }
 }

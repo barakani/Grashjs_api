@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CheckListService {
-    private final CheckListRepository ChecklistRepository;
+    private final CheckListRepository checkListRepository;
 
     private final ModelMapper modelMapper;
 
     public Checklist create(Checklist Checklist) {
-        return ChecklistRepository.save(Checklist);
+        return checkListRepository.save(Checklist);
     }
 
     public Checklist update(Checklist Checklist) {
-        return ChecklistRepository.save(Checklist);
+        return checkListRepository.save(Checklist);
     }
 
-    public Collection<Checklist> getAll() { return ChecklistRepository.findAll(); }
+    public Collection<Checklist> getAll() { return checkListRepository.findAll(); }
 
-    public void delete(Long id){ ChecklistRepository.deleteById(id);}
+    public void delete(Long id){ checkListRepository.deleteById(id);}
 
-    public Optional<Checklist> findById(Long id) {return ChecklistRepository.findById(id); }
+    public Optional<Checklist> findById(Long id) {return checkListRepository.findById(id); }
 }

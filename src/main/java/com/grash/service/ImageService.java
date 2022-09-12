@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ImageService {
-    private final ImageRepository ImageRepository;
+    private final ImageRepository imageRepository;
 
     public Image create(Image Image) {
-        return ImageRepository.save(Image);
+        return imageRepository.save(Image);
     }
 
     public Image update(Image Image) {
-        return ImageRepository.save(Image);
+        return imageRepository.save(Image);
     }
 
-    public Collection<Image> getAll() { return ImageRepository.findAll(); }
+    public Collection<Image> getAll() { return imageRepository.findAll(); }
 
-    public void delete(Long id){ ImageRepository.deleteById(id);}
+    public void delete(Long id){ imageRepository.deleteById(id);}
 
-    public Optional<Image> findById(Long id) {return ImageRepository.findById(id); }
+    public Optional<Image> findById(Long id) {return imageRepository.findById(id); }
 }

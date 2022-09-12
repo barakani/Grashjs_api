@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PartService {
-    private final PartRepository PartRepository;
+    private final PartRepository partRepository;
 
     public Part create(Part Part) {
-        return PartRepository.save(Part);
+        return partRepository.save(Part);
     }
 
     public Part update(Part Part) {
-        return PartRepository.save(Part);
+        return partRepository.save(Part);
     }
 
-    public Collection<Part> getAll() { return PartRepository.findAll(); }
+    public Collection<Part> getAll() { return partRepository.findAll(); }
 
-    public void delete(Long id){ PartRepository.deleteById(id);}
+    public void delete(Long id){ partRepository.deleteById(id);}
 
-    public Optional<Part> findById(Long id) {return PartRepository.findById(id); }
+    public Optional<Part> findById(Long id) {return partRepository.findById(id); }
 }

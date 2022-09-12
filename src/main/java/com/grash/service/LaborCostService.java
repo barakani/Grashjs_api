@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LaborCostService {
-    private final LaborCostRepository LaborCostRepository;
+    private final LaborCostRepository laborCostRepository;
 
     public LaborCost create(LaborCost LaborCost) {
-        return LaborCostRepository.save(LaborCost);
+        return laborCostRepository.save(LaborCost);
     }
 
     public LaborCost update(LaborCost LaborCost) {
-        return LaborCostRepository.save(LaborCost);
+        return laborCostRepository.save(LaborCost);
     }
 
-    public Collection<LaborCost> getAll() { return LaborCostRepository.findAll(); }
+    public Collection<LaborCost> getAll() { return laborCostRepository.findAll(); }
 
-    public void delete(Long id){ LaborCostRepository.deleteById(id);}
+    public void delete(Long id){ laborCostRepository.deleteById(id);}
 
-    public Optional<LaborCost> findById(Long id) {return LaborCostRepository.findById(id); }
+    public Optional<LaborCost> findById(Long id) {return laborCostRepository.findById(id); }
 }

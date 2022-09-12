@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RelationService {
-    private final RelationRepository RelationRepository;
+    private final RelationRepository relationRepository;
 
     public Relation create(Relation Relation) {
-        return RelationRepository.save(Relation);
+        return relationRepository.save(Relation);
     }
 
     public Relation update(Relation Relation) {
-        return RelationRepository.save(Relation);
+        return relationRepository.save(Relation);
     }
 
-    public Collection<Relation> getAll() { return RelationRepository.findAll(); }
+    public Collection<Relation> getAll() { return relationRepository.findAll(); }
 
-    public void delete(Long id){ RelationRepository.deleteById(id);}
+    public void delete(Long id){ relationRepository.deleteById(id);}
 
-    public Optional<Relation> findById(Long id) {return RelationRepository.findById(id); }
+    public Optional<Relation> findById(Long id) {return relationRepository.findById(id); }
 }

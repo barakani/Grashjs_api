@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CurrencyService {
-    private final CurrencyRepository CurrencyRepository;
+    private final CurrencyRepository currencyRepository;
 
     private final ModelMapper modelMapper;
 
     public Currency create(Currency Currency) {
-        return CurrencyRepository.save(Currency);
+        return currencyRepository.save(Currency);
     }
 
     public Currency update(Currency Currency) {
-        return CurrencyRepository.save(Currency);
+        return currencyRepository.save(Currency);
     }
 
-    public Collection<Currency> getAll() { return CurrencyRepository.findAll(); }
+    public Collection<Currency> getAll() { return currencyRepository.findAll(); }
 
-    public void delete(Long id){ CurrencyRepository.deleteById(id);}
+    public void delete(Long id){ currencyRepository.deleteById(id);}
 
-    public Optional<Currency> findById(Long id) {return CurrencyRepository.findById(id); }
+    public Optional<Currency> findById(Long id) {return currencyRepository.findById(id); }
 }

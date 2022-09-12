@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PurchaseOrderService {
-    private final PurchaseOrderRepository PurchaseOrderRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     public PurchaseOrder create(PurchaseOrder PurchaseOrder) {
-        return PurchaseOrderRepository.save(PurchaseOrder);
+        return purchaseOrderRepository.save(PurchaseOrder);
     }
 
     public PurchaseOrder update(PurchaseOrder PurchaseOrder) {
-        return PurchaseOrderRepository.save(PurchaseOrder);
+        return purchaseOrderRepository.save(PurchaseOrder);
     }
 
-    public Collection<PurchaseOrder> getAll() { return PurchaseOrderRepository.findAll(); }
+    public Collection<PurchaseOrder> getAll() { return purchaseOrderRepository.findAll(); }
 
-    public void delete(Long id){ PurchaseOrderRepository.deleteById(id);}
+    public void delete(Long id){ purchaseOrderRepository.deleteById(id);}
 
-    public Optional<PurchaseOrder> findById(Long id) {return PurchaseOrderRepository.findById(id); }
+    public Optional<PurchaseOrder> findById(Long id) {return purchaseOrderRepository.findById(id); }
 }

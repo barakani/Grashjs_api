@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class WorkOrderService {
-    private final WorkOrderRepository WorkOrderRepository;
+    private final WorkOrderRepository workOrderRepository;
 
     public WorkOrder create(WorkOrder WorkOrder) {
-        return WorkOrderRepository.save(WorkOrder);
+        return workOrderRepository.save(WorkOrder);
     }
 
     public WorkOrder update(WorkOrder WorkOrder) {
-        return WorkOrderRepository.save(WorkOrder);
+        return workOrderRepository.save(WorkOrder);
     }
 
-    public Collection<WorkOrder> getAll() { return WorkOrderRepository.findAll(); }
+    public Collection<WorkOrder> getAll() { return workOrderRepository.findAll(); }
 
-    public void delete(Long id){ WorkOrderRepository.deleteById(id);}
+    public void delete(Long id){ workOrderRepository.deleteById(id);}
 
-    public Optional<WorkOrder> findById(Long id) {return WorkOrderRepository.findById(id); }
+    public Optional<WorkOrder> findById(Long id) {return workOrderRepository.findById(id); }
 }

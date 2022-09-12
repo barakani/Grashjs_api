@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RoleService {
-    private final RoleRepository RoleRepository;
+    private final RoleRepository roleRepository;
 
     public Role create(Role Role) {
-        return RoleRepository.save(Role);
+        return roleRepository.save(Role);
     }
 
     public Role update(Role Role) {
-        return RoleRepository.save(Role);
+        return roleRepository.save(Role);
     }
 
-    public Collection<Role> getAll() { return RoleRepository.findAll(); }
+    public Collection<Role> getAll() { return roleRepository.findAll(); }
 
-    public void delete(Long id){ RoleRepository.deleteById(id);}
+    public void delete(Long id){ roleRepository.deleteById(id);}
 
-    public Optional<Role> findById(Long id) {return RoleRepository.findById(id); }
+    public Optional<Role> findById(Long id) {return roleRepository.findById(id); }
 }

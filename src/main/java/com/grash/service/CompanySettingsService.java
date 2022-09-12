@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CompanySettingsService {
-    private final CompanySettingsRepository CompanySettingsRepository;
+    private final CompanySettingsRepository companySettingsRepository;
 
     private final ModelMapper modelMapper;
 
     public CompanySettings create(CompanySettings CompanySettings) {
-        return CompanySettingsRepository.save(CompanySettings);
+        return companySettingsRepository.save(CompanySettings);
     }
 
     public CompanySettings update(CompanySettings CompanySettings) {
-        return CompanySettingsRepository.save(CompanySettings);
+        return companySettingsRepository.save(CompanySettings);
     }
 
-    public Collection<CompanySettings> getAll() { return CompanySettingsRepository.findAll(); }
+    public Collection<CompanySettings> getAll() { return companySettingsRepository.findAll(); }
 
-    public void delete(Long id){ CompanySettingsRepository.deleteById(id);}
+    public void delete(Long id){ companySettingsRepository.deleteById(id);}
 
-    public Optional<CompanySettings> findById(Long id) {return CompanySettingsRepository.findById(id); }
+    public Optional<CompanySettings> findById(Long id) {return companySettingsRepository.findById(id); }
 }

@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CostCategoryService {
-    private final CostCategoryRepository CostCategoryRepository;
+    private final CostCategoryRepository costCategoryRepository;
 
     private final ModelMapper modelMapper;
 
     public CostCategory create(CostCategory CostCategory) {
-        return CostCategoryRepository.save(CostCategory);
+        return costCategoryRepository.save(CostCategory);
     }
 
     public CostCategory update(CostCategory CostCategory) {
-        return CostCategoryRepository.save(CostCategory);
+        return costCategoryRepository.save(CostCategory);
     }
 
-    public Collection<CostCategory> getAll() { return CostCategoryRepository.findAll(); }
+    public Collection<CostCategory> getAll() { return costCategoryRepository.findAll(); }
 
-    public void delete(Long id){ CostCategoryRepository.deleteById(id);}
+    public void delete(Long id){ costCategoryRepository.deleteById(id);}
 
-    public Optional<CostCategory> findById(Long id) {return CostCategoryRepository.findById(id); }
+    public Optional<CostCategory> findById(Long id) {return costCategoryRepository.findById(id); }
 }

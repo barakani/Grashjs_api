@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class GeneralPreferencesService {
-    private final GeneralPreferencesRepository GeneralPreferencesRepository;
+    private final GeneralPreferencesRepository generalPreferencesRepository;
 
     public GeneralPreferences create(GeneralPreferences GeneralPreferences) {
-        return GeneralPreferencesRepository.save(GeneralPreferences);
+        return generalPreferencesRepository.save(GeneralPreferences);
     }
 
     public GeneralPreferences update(GeneralPreferences GeneralPreferences) {
-        return GeneralPreferencesRepository.save(GeneralPreferences);
+        return generalPreferencesRepository.save(GeneralPreferences);
     }
 
-    public Collection<GeneralPreferences> getAll() { return GeneralPreferencesRepository.findAll(); }
+    public Collection<GeneralPreferences> getAll() { return generalPreferencesRepository.findAll(); }
 
-    public void delete(Long id){ GeneralPreferencesRepository.deleteById(id);}
+    public void delete(Long id){ generalPreferencesRepository.deleteById(id);}
 
-    public Optional<GeneralPreferences> findById(Long id) {return GeneralPreferencesRepository.findById(id); }
+    public Optional<GeneralPreferences> findById(Long id) {return generalPreferencesRepository.findById(id); }
 }

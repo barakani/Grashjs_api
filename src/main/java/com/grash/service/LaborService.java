@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LaborService {
-    private final LaborRepository LaborRepository;
+    private final LaborRepository laborRepository;
 
     private final ModelMapper modelMapper;
 
     public Labor create(Labor Labor) {
-        return LaborRepository.save(Labor);
+        return laborRepository.save(Labor);
     }
 
     public Labor update(Labor Labor) {
-        return LaborRepository.save(Labor);
+        return laborRepository.save(Labor);
     }
 
-    public Collection<Labor> getAll() { return LaborRepository.findAll(); }
+    public Collection<Labor> getAll() { return laborRepository.findAll(); }
 
-    public void delete(Long id){ LaborRepository.deleteById(id);}
+    public void delete(Long id){ laborRepository.deleteById(id);}
 
-    public Optional<Labor> findById(Long id) {return LaborRepository.findById(id); }
+    public Optional<Labor> findById(Long id) {return laborRepository.findById(id); }
 }

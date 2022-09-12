@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class BillingInfosService {
-    private final BillingInfosRepository BillingInfosRepository;
+    private final BillingInfosRepository billingInfosRepository;
 
     private final ModelMapper modelMapper;
 
     public BillingInfos create(BillingInfos BillingInfos) {
-        return BillingInfosRepository.save(BillingInfos);
+        return billingInfosRepository.save(BillingInfos);
     }
 
     public BillingInfos update(BillingInfos BillingInfos) {
-        return BillingInfosRepository.save(BillingInfos);
+        return billingInfosRepository.save(BillingInfos);
     }
 
-    public Collection<BillingInfos> getAll() { return BillingInfosRepository.findAll(); }
+    public Collection<BillingInfos> getAll() { return billingInfosRepository.findAll(); }
 
-    public void delete(Long id){ BillingInfosRepository.deleteById(id);}
+    public void delete(Long id){ billingInfosRepository.deleteById(id);}
 
-    public Optional<BillingInfos> findById(Long id) {return BillingInfosRepository.findById(id); }
+    public Optional<BillingInfos> findById(Long id) {return billingInfosRepository.findById(id); }
 }

@@ -12,21 +12,21 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class MeterCategoryService {
-    private final MeterCategoryRepository MeterCategoryRepository;
+    private final MeterCategoryRepository meterCategoryRepository;
 
     private final ModelMapper modelMapper;
 
     public MeterCategory create(MeterCategory MeterCategory) {
-        return MeterCategoryRepository.save(MeterCategory);
+        return meterCategoryRepository.save(MeterCategory);
     }
 
     public MeterCategory update(MeterCategory MeterCategory) {
-        return MeterCategoryRepository.save(MeterCategory);
+        return meterCategoryRepository.save(MeterCategory);
     }
 
-    public Collection<MeterCategory> getAll() { return MeterCategoryRepository.findAll(); }
+    public Collection<MeterCategory> getAll() { return meterCategoryRepository.findAll(); }
 
-    public void delete(Long id){ MeterCategoryRepository.deleteById(id);}
+    public void delete(Long id){ meterCategoryRepository.deleteById(id);}
 
-    public Optional<MeterCategory> findById(Long id) {return MeterCategoryRepository.findById(id); }
+    public Optional<MeterCategory> findById(Long id) {return meterCategoryRepository.findById(id); }
 }

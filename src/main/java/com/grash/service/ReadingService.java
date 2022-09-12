@@ -11,19 +11,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ReadingService {
-    private final ReadingRepository ReadingRepository;
+    private final ReadingRepository readingRepository;
 
     public Reading create(Reading Reading) {
-        return ReadingRepository.save(Reading);
+        return readingRepository.save(Reading);
     }
 
     public Reading update(Reading Reading) {
-        return ReadingRepository.save(Reading);
+        return readingRepository.save(Reading);
     }
 
-    public Collection<Reading> getAll() { return ReadingRepository.findAll(); }
+    public Collection<Reading> getAll() { return readingRepository.findAll(); }
 
-    public void delete(Long id){ ReadingRepository.deleteById(id);}
+    public void delete(Long id){ readingRepository.deleteById(id);}
 
-    public Optional<Reading> findById(Long id) {return ReadingRepository.findById(id); }
+    public Optional<Reading> findById(Long id) {return readingRepository.findById(id); }
 }
