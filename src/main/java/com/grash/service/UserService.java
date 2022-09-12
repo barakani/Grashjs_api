@@ -70,6 +70,7 @@ public class UserService {
                 //create company with default roles
                 Company company = new Company();
                 companyService.create(company);
+                user.setOwnsCompany(true);
                 user.setCompany(company);
                 user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals("Administrator")).findFirst().get());
             }

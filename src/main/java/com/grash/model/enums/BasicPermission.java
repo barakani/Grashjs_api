@@ -1,6 +1,7 @@
 package com.grash.model.enums;
 
 public enum BasicPermission {
+    ALL,
     CREATE_EDIT_PEOPLE_AND_TEAMS,
     CREATE_EDIT_CATEGORIES,
     DELETE_WORK_ORDERS,
