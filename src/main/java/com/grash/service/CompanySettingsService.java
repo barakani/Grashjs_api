@@ -4,6 +4,8 @@ import com.grash.model.CompanySettings;
 import com.grash.repository.CompanySettingsRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -24,7 +26,7 @@ public class CompanySettingsService {
         return companySettingsRepository.save(CompanySettings);
     }
 
-    public Collection<CompanySettings> getAll() { return companySettingsRepository.findAll(); }
+    public Page<CompanySettings> getAll(Pageable paging) { return companySettingsRepository.findAll(paging); }
 
     public void delete(Long id){ companySettingsRepository.deleteById(id);}
 
