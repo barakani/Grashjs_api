@@ -1,10 +1,10 @@
 package com.grash.model;
 
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -22,5 +22,10 @@ public class SingleWorkOrderFieldConfiguration {
     @NotNull
     WorkOrderConfiguration workOrderConfiguration;
 
+    public SingleWorkOrderFieldConfiguration(String fieldName, boolean forCreation, WorkOrderConfiguration workOrderConfiguration) {
+        this.workOrderConfiguration = workOrderConfiguration;
+        this.fieldConfiguration = new FieldConfiguration(fieldName);
+        this.forCreation = forCreation;
+    }
 
 }

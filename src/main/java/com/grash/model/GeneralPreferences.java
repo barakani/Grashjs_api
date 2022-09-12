@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.BusinessType;
+import com.grash.model.enums.DateFormat;
 import com.grash.model.enums.Language;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class GeneralPreferences {
 
     private Language language = Language.EN;
 
-    private String dateFormat;
+    private DateFormat dateFormat = DateFormat.MMDDYY;
 
     @OneToOne
     private Currency currency;
@@ -43,7 +44,7 @@ public class GeneralPreferences {
     @JsonIgnore
     private CompanySettings companySettings;
 
-    public GeneralPreferences(CompanySettings companySettings){
+    public GeneralPreferences(CompanySettings companySettings) {
         this.companySettings = companySettings;
     }
 
