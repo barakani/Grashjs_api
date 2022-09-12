@@ -39,8 +39,14 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CostCategory not found")})
-    public Optional<CostCategory> getById(@ApiParam("id") @PathVariable("id") Long id) {
-        return costCategoryService.findById(id);
+    public Optional<CostCategory> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
+        if (costCategoryOptional.isPresent()) {
+            if (costCategoryOptional.get().getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())) {
+                return costCategoryService.findById(id);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else return null;
     }
 
     @PostMapping("")
@@ -81,11 +87,16 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "CostCategory not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id) {
-        if (costCategoryService.findById(id).isPresent()) {
-            costCategoryService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                    HttpStatus.OK);
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        
+        Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
+        if (optionalCostCategory.isPresent()) {
+            if (user.getCompany().getCompanySettings().getId().equals(optionalCostCategory.get().getCompanySettings().getId())) {
+                costCategoryService.delete(id);
+                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                        HttpStatus.OK);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("CostCategory not found", HttpStatus.NOT_FOUND);
     }
 }

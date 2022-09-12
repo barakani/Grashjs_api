@@ -45,7 +45,7 @@ public class CompanySettingsController {
             } else {
                 throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else return null;
     }
 
     @PatchMapping("/{id}")
