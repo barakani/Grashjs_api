@@ -20,4 +20,14 @@ public class UserSignupRequest {
 
     @ApiModelProperty(position = 3)
     private Role role;
+
+    @NotNull
+    private String firstName;
+
+    @NotNull
+    private String lastName;
+
+    @NotNull
+    private String phone;
+
 }
