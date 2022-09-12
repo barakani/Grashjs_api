@@ -16,4 +16,8 @@ public class AssetCategory extends CategoryAbstract {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    public AssetCategory(String name, CompanySettings companySettings) {
+        super(name, companySettings);
+    }
 }
