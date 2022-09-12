@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,7 @@ public class CompanySettingsController {
     private final ModelMapper modelMapper;
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -49,15 +51,17 @@ public class CompanySettingsController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Application not found")})
     public CompanySettings patch(@ApiParam("CompanySettings") @RequestBody CompanySettings companySettings,
+                                 @ApiParam("id") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
         User user = userService.whoami(req);
 
-        Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(companySettings.getId());
+        Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
 
         if (companySettingsOptional.isPresent()) {
             CompanySettings foundCompanySettings = companySettingsOptional.get();

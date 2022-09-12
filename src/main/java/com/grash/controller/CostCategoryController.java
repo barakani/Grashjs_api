@@ -89,10 +89,11 @@ public class CostCategoryController {
             @ApiResponse(code = 404, message = "CostCategory not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        
+
         Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
         if (optionalCostCategory.isPresent()) {
-            if (user.getCompany().getCompanySettings().getId().equals(optionalCostCategory.get().getCompanySettings().getId())) {
+            if (user.getCompany().getCompanySettings().getId().equals(optionalCostCategory.get().getCompanySettings().getId())
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_CATEGORIES)) {
                 costCategoryService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
