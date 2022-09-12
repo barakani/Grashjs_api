@@ -55,4 +55,24 @@ public class CompanySettings {
         this.company = company;
     }
 
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<CostCategory> costCategories;
+
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<AssetCategory> assetCategories;
+
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<MeterCategory> meterCategories;
+
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<PurchaseOrderCategory> purchaseOrderCategories;
+
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<TimeCategory> timeCategories;
+
 }
