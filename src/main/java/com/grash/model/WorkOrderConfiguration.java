@@ -19,7 +19,7 @@ public class WorkOrderConfiguration {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "workOrderConfiguration", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderConfiguration", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<SingleWorkOrderFieldConfiguration> workOrderFieldConfigurations = createSingleWorkOrderFieldConfigurations(Arrays.asList("description",
             "priority", "images", "assigned", "additionalAssigned", "team", "asset"), Arrays.asList("files", "tasks", "time", "parts", "cost"));
