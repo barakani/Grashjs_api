@@ -1,23 +1,24 @@
 package com.grash.security;
 
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
+import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 @RequiredArgsConstructor
 public class MyUserDetails implements UserDetailsService {
 
-    //private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //  final User user = userRepository.findUserByEmail(username);
-        final User user = new User();
+        final User user = userRepository.findUserByEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException("User '" + username + "' not found");
         }
@@ -25,7 +26,7 @@ public class MyUserDetails implements UserDetailsService {
         return org.springframework.security.core.userdetails.User//
                 .withUsername(username)//
                 .password(user.getPassword())//
-                .authorities(user.getRole().getRoleType())//
+                .authorities(Arrays.asList(user.getRole().getRoleType()))//
                 .accountExpired(false)//
                 .accountLocked(false)//
                 .credentialsExpired(false)//
