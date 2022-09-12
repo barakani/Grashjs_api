@@ -3,7 +3,7 @@ spring:
     # url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     url: jdbc:mysql://localhost:3306/grash
     username: root
-    password: root
+    password:
     #    tomcat:
     #      max-wait: 20000
     #      max-active: 50
@@ -16,7 +16,7 @@ spring:
       matching-strategy: ant_path_matcher
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
