@@ -42,10 +42,10 @@ public class CompanySettings {
     private Collection<Role> roleList = Arrays.asList(
             createRole("Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Technician", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Limited technician", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("View only", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Requester", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES))
+            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES))
     );
 
     public CompanySettings(Company company) {

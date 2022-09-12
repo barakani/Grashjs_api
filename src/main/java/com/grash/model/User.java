@@ -41,6 +41,8 @@ public class User {
     @OneToOne
     private Company company;
 
+    private boolean ownsCompany;
+
     @OneToOne(cascade = CascadeType.ALL)
     private UserSettings userSettings = new UserSettings();
 
