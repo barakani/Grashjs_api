@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
+import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
@@ -41,6 +42,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
+    private final CompanyService companyService;
     private final VerificationTokenRepository verificationTokenRepository;
 
     @Value("${api.host}")
@@ -64,6 +66,13 @@ public class UserService {
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
+            if (user.getRole() == null) {
+                //create company with default roles
+                Company company = new Company();
+                companyService.create(company);
+                user.setCompany(company);
+                user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals("Administrator")).findFirst().get());
+            }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
                 userRepository.save(user);
@@ -77,10 +86,6 @@ public class UserService {
 
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
-
-                if (user.getRole() == null) {
-                    //create company with default roles
-                }
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");

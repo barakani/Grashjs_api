@@ -48,7 +48,7 @@ public class CompanySettings {
             );
 
     private Role createRole(String name, List<BasicPermission> basicPermissions){
-        return new Role(RoleType.CLIENT, name, new HashSet<>(basicPermissions), this);
+        return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);
     }
 
     public CompanySettings(Company company){
