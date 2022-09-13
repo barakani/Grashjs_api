@@ -1,11 +1,11 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Time;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -18,8 +18,8 @@ public class Labor extends Time {
     @OneToOne
     private User worker;
 
-    @OneToOne
-    private LaborCost laborCost;
+    @OneToOne(cascade = CascadeType.ALL)
+    private LaborCost laborCost = new LaborCost();
 
     @ManyToOne
     @NotNull

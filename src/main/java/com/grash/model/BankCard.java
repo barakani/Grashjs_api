@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -16,14 +17,19 @@ public class BankCard {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private int number;
 
+    @NotNull
     private String expirationMonth;
 
+    @NotNull
     private String expirationYear;
 
+    @NotNull
     private int cvv;
 
+    @NotNull
     private String cardholderName;
 
 }

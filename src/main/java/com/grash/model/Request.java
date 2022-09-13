@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Date;
 
@@ -16,6 +17,7 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String title;
 
     private String description;
@@ -23,9 +25,9 @@ public class Request {
     private Priority priority = Priority.NONE;
 
     @ManyToMany
-    @JoinTable( name = "T_Request_File_Associations",
-            joinColumns = @JoinColumn( name = "idRequest" ),
-            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
+    @JoinTable(name = "T_Request_File_Associations",
+            joinColumns = @JoinColumn(name = "idRequest"),
+            inverseJoinColumns = @JoinColumn(name = "idFile"))
     private Collection<File> files;
     @OneToOne
     private Image image;

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -15,11 +16,12 @@ public class MultiParts {
     private Long id;
 
     @ManyToMany
-    @JoinTable( name = "T_MultiPart_Part_Associations",
-            joinColumns = @JoinColumn( name = "idMultiPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    @JoinTable(name = "T_MultiPart_Part_Associations",
+            joinColumns = @JoinColumn(name = "idMultiPart"),
+            inverseJoinColumns = @JoinColumn(name = "idPart"))
     private Collection<Part> partList;
 
+    @NotNull
     private String name;
 
 }

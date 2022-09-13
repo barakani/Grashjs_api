@@ -14,8 +14,8 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    private Schedule schedule;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Schedule schedule = new Schedule();
 
 
 }

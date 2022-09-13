@@ -1,11 +1,11 @@
 package com.grash.model;
 
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -18,6 +18,7 @@ public class WorkOrderMeterTrigger {
 
     private boolean isOneTime;
 
+    @NotNull
     private Date date;
 
     @OneToOne
@@ -27,6 +28,7 @@ public class WorkOrderMeterTrigger {
 
     private int value;
 
+    @NotNull
     private int waitBefore;
 
     @ManyToOne

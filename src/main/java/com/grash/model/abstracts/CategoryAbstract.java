@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 @MappedSuperclass
 @NoArgsConstructor
 public abstract class CategoryAbstract extends Audit {
+
+    @NotNull
     private String name;
 
     @ManyToOne

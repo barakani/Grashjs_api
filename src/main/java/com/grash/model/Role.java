@@ -2,11 +2,11 @@ package com.grash.model;
 
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +20,7 @@ public class Role {
 
     private RoleType roleType;
 
+    @NotNull
     private String name;
 
     @ElementCollection(targetClass = BasicPermission.class)

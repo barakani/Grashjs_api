@@ -1,11 +1,11 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Audit;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -15,6 +15,7 @@ public class WorkOrderHistory extends Audit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String name;
 
     @ManyToOne

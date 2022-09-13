@@ -1,11 +1,11 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -20,10 +20,12 @@ public class Meter {
     @JsonIgnore
     private Collection<Reading> readingList;
 
+    @NotNull
     private String name;
 
     private String unit;
 
+    @NotNull
     private int updateFrequency;
 
     @OneToOne
@@ -33,9 +35,9 @@ public class Meter {
     private Image image;
 
     @ManyToMany
-    @JoinTable( name = "T_Meter_User_Associations",
-            joinColumns = @JoinColumn( name = "idMeter" ),
-            inverseJoinColumns = @JoinColumn( name = "idUser" ) )
+    @JoinTable(name = "T_Meter_User_Associations",
+            joinColumns = @JoinColumn(name = "idMeter"),
+            inverseJoinColumns = @JoinColumn(name = "idUser"))
     private Collection<User> users;
 
     @OneToOne

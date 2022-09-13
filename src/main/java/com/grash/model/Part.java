@@ -1,10 +1,10 @@
 package com.grash.model;
 
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Date;
 
@@ -16,14 +16,15 @@ public class Part {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String name;
 
     private double cost;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_User_Associations",
-            joinColumns = @JoinColumn( name = "idPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idUser" ) )
+    @JoinTable(name = "T_Part_User_Associations",
+            joinColumns = @JoinColumn(name = "idPart"),
+            inverseJoinColumns = @JoinColumn(name = "idUser"))
     private Collection<User> assignedTo;
 
     private String barcode;
@@ -41,26 +42,26 @@ public class Part {
     private Date createdAt;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_File_Associations",
-            joinColumns = @JoinColumn( name = "idPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
+    @JoinTable(name = "T_Part_File_Associations",
+            joinColumns = @JoinColumn(name = "idPart"),
+            inverseJoinColumns = @JoinColumn(name = "idFile"))
     private Collection<File> files;
 
     @OneToOne
     private Image image;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_Customer_Associations",
-            joinColumns = @JoinColumn( name = "idPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idCustomer" ) )
+    @JoinTable(name = "T_Part_Customer_Associations",
+            joinColumns = @JoinColumn(name = "idPart"),
+            inverseJoinColumns = @JoinColumn(name = "idCustomer"))
     private Collection<Customer> assignedCustomer;
 
     private int minQuantity;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_Team_Associations",
-            joinColumns = @JoinColumn( name = "idPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
+    @JoinTable(name = "T_Part_Team_Associations",
+            joinColumns = @JoinColumn(name = "idPart"),
+            inverseJoinColumns = @JoinColumn(name = "idTeam"))
     private Collection<Team> teams;
 
     @ManyToOne
@@ -68,8 +69,8 @@ public class Part {
     private Asset asset;
 
     @ManyToMany
-    @JoinTable( name = "T_MultiPart_Part_Associations",
-            joinColumns = @JoinColumn( name = "idPart" ),
-            inverseJoinColumns = @JoinColumn( name = "idMultiPart" ) )
+    @JoinTable(name = "T_MultiPart_Part_Associations",
+            joinColumns = @JoinColumn(name = "idPart"),
+            inverseJoinColumns = @JoinColumn(name = "idMultiPart"))
     private Collection<MultiParts> multiParts;
 }

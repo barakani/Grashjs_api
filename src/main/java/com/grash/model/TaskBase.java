@@ -1,11 +1,14 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Audit;
-import com.grash.model.abstracts.Cost;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -15,5 +18,6 @@ public class TaskBase extends Audit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String title;
 }

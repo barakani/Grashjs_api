@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -14,7 +15,8 @@ public class PurchaseOrder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String title;
+    @NotNull
+    private String name;
 
     @OneToOne
     private PurchaseOrderCategory purchaseOrderOrderCategory;

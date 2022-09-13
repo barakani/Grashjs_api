@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -15,10 +16,12 @@ public class Checklist {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     @OneToMany
     @JsonIgnore
     private Collection<TaskBase> taskBaseList;
 
+    @NotNull
     private String name;
 
     private String description;

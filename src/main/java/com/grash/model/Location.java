@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -15,6 +16,7 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private String name;
 
     private String address;
@@ -26,15 +28,15 @@ public class Location {
     private Collection<Asset> assetList;
 
     @ManyToMany
-    @JoinTable( name = "T_Location_Workers_Associations",
-            joinColumns = @JoinColumn( name = "idLocation" ),
-            inverseJoinColumns = @JoinColumn( name = "idWorker" ) )
+    @JoinTable(name = "T_Location_Workers_Associations",
+            joinColumns = @JoinColumn(name = "idLocation"),
+            inverseJoinColumns = @JoinColumn(name = "idWorker"))
     private Collection<User> workers;
 
     @ManyToMany
-    @JoinTable( name = "T_Location_Team_Associations",
-            joinColumns = @JoinColumn( name = "idLocation" ),
-            inverseJoinColumns = @JoinColumn( name = "idTeam" ) )
+    @JoinTable(name = "T_Location_Team_Associations",
+            joinColumns = @JoinColumn(name = "idLocation"),
+            inverseJoinColumns = @JoinColumn(name = "idTeam"))
     private Collection<Team> teamList;
 
     @OneToOne
