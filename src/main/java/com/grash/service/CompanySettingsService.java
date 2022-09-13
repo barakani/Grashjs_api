@@ -3,12 +3,10 @@ package com.grash.service;
 import com.grash.model.CompanySettings;
 import com.grash.repository.CompanySettingsRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @Service
