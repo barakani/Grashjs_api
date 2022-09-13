@@ -1,7 +1,6 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.BasicInfos;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,13 +21,13 @@ public class Vendor extends BasicInfos {
 
     private double rate;
 
-    @OneToOne
-    private CustomField customField;
+    @OneToMany(mappedBy = "vendor", fetch = FetchType.LAZY)
+    private Collection<CustomField> customFields;
 
     @ManyToMany
-    @JoinTable( name = "T_Asset_Vendor_Associations",
-            joinColumns = @JoinColumn( name = "idVendor" ),
-            inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
+    @JoinTable(name = "T_Asset_Vendor_Associations",
+            joinColumns = @JoinColumn(name = "idVendor"),
+            inverseJoinColumns = @JoinColumn(name = "idAsset"))
     private Collection<Asset> asset;
 
 

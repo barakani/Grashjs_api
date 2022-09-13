@@ -21,13 +21,20 @@ public class Customer extends BasicInfos {
 
     private double rate;
 
+
+    private String billingName;
+
+    private String billingAddress;
+
+    private String billingAddress2;
+
     @OneToOne
-    private BillingInfos billingInfos;
+    private Currency billingCurrency;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_customer_Associations",
-            joinColumns = @JoinColumn( name = "idCustomer" ),
-            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    @JoinTable(name = "T_Part_customer_Associations",
+            joinColumns = @JoinColumn(name = "idCustomer"),
+            inverseJoinColumns = @JoinColumn(name = "idPart"))
     private Collection<Part> parts;
 
 }
