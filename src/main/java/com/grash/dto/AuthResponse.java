@@ -1,6 +1,5 @@
 package com.grash.dto;
 
-import com.grash.utils.Consts;
 import lombok.Data;
 
 import java.io.Serializable;

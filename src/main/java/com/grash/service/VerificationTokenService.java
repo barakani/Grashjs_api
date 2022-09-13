@@ -1,11 +1,10 @@
 package com.grash.service;
 
+import com.grash.dto.AuthResponse;
 import com.grash.model.User;
 import com.grash.model.VerificationToken;
-import com.grash.dto.AuthResponse;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
-import com.grash.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -72,7 +72,7 @@ public class CompanySettingsController {
                     throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
-                throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
+                throw new CustomException("Can't patch someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
             throw new CustomException("CompanySettings not found", HttpStatus.NOT_FOUND);

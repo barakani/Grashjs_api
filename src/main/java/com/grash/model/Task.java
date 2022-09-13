@@ -1,13 +1,12 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.grash.model.TaskBase;
 import com.grash.model.enums.Status;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity

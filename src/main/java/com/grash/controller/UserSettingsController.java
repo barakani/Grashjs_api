@@ -1,7 +1,6 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.UserSettings;
 import com.grash.service.UserService;

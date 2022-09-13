@@ -1,7 +1,6 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.FileAbstract;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
