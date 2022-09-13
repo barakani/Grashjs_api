@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -20,4 +21,8 @@ public class AdditionalCost extends Cost {
     private User assignedTo;
 
     private boolean includeToTotalCost;
+    
+    @ManyToOne
+    @NotNull
+    private WorkOrder workOrder;
 }

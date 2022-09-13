@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -26,4 +27,8 @@ public class AdditionalTime extends Time {
 
     @OneToOne
     private TimeCategory timeCategory;
+
+    @ManyToOne
+    @NotNull
+    private WorkOrder workOrder;
 }

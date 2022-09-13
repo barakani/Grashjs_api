@@ -1,7 +1,6 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,16 +29,19 @@ public class WorkOrder extends WorkOrderBase {
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Collection<LaborCost> laborCosts;
-
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<Task> taskList;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Labor> labors;
 
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<AdditionalCost> additionalCosts;
+
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<AdditionalTime> additionalTimes;
     @OneToOne
     private Request parentRequest;
 
@@ -47,9 +49,9 @@ public class WorkOrder extends WorkOrderBase {
     private PurchaseOrder purchaseOrder;
 
     @ManyToMany
-    @JoinTable( name = "T_WorkOrder_File_Associations",
-            joinColumns = @JoinColumn( name = "idWorkOrder" ),
-            inverseJoinColumns = @JoinColumn( name = "idFile" ) )
+    @JoinTable(name = "T_WorkOrder_File_Associations",
+            joinColumns = @JoinColumn(name = "idWorkOrder"),
+            inverseJoinColumns = @JoinColumn(name = "idFile"))
     private Collection<File> fileList;
 
     @OneToOne
