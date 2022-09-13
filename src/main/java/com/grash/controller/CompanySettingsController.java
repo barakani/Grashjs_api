@@ -11,7 +11,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +27,6 @@ public class CompanySettingsController {
     private final CompanySettingsService companySettingsService;
 
     private final UserService userService;
-
-    private final ModelMapper modelMapper;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

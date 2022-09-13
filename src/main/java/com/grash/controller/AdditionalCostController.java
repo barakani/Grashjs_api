@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,8 +31,6 @@ public class AdditionalCostController {
     private final AdditionalCostService additionalCostService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
-    private final ModelMapper modelMapper;
-
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -41,8 +38,15 @@ public class AdditionalCostController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public Optional<AdditionalCost> getById(@ApiParam("id") @PathVariable("id") Long id) {
-        return additionalCostService.findById(id);
+    public Optional<AdditionalCost> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
+        if (optionalAdditionalCost.isPresent()) {
+            AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
+            if (checkAccess(user, savedAdditionalCost)) {
+                return optionalAdditionalCost;
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else return null;
     }
 
     @PostMapping("")
@@ -74,8 +78,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (user.getCompany().getId().equals(
-                    userService.findById(savedAdditionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId())) {
+            if (checkAccess(user, savedAdditionalCost)) {
                 return additionalCostService.update(id, additionalCost);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
@@ -93,12 +96,16 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (user.getCompany().getId().equals(
-                    userService.findById(savedAdditionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId())) {
+            if (checkAccess(user, savedAdditionalCost)) {
                 additionalCostService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
+    }
+
+    private boolean checkAccess(User user, AdditionalCost additionalCost) {
+        return user.getCompany().getId().equals(
+                userService.findById(additionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }
 }
