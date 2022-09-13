@@ -43,7 +43,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
+            if (hasAccess(user, savedAdditionalCost)) {
                 return optionalAdditionalCost;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
@@ -78,7 +78,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
+            if (hasAccess(user, savedAdditionalCost)) {
                 return additionalCostService.update(id, additionalCost);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
@@ -96,7 +96,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
+            if (hasAccess(user, savedAdditionalCost)) {
                 additionalCostService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -104,7 +104,7 @@ public class AdditionalCostController {
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, AdditionalCost additionalCost) {
+    private boolean hasAccess(User user, AdditionalCost additionalCost) {
         return user.getCompany().getId().equals(
                 userService.findById(additionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }

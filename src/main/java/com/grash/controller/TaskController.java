@@ -43,7 +43,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (checkAccess(user, savedTask)) {
+            if (hasAccess(user, savedTask)) {
                 return optionalTask;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
@@ -78,7 +78,7 @@ public class TaskController {
 
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (checkAccess(user, savedTask)) {
+            if (hasAccess(user, savedTask)) {
                 return taskService.update(id, task);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
@@ -96,7 +96,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (checkAccess(user, savedTask)) {
+            if (hasAccess(user, savedTask)) {
                 taskService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -104,7 +104,7 @@ public class TaskController {
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, Task task) {
+    private boolean hasAccess(User user, Task task) {
         return user.getCompany().getId().equals(
                 userService.findById(task.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }

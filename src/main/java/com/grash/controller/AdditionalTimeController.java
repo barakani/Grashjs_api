@@ -43,7 +43,7 @@ public class AdditionalTimeController {
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (checkAccess(user, savedAdditionalTime)) {
+            if (hasAccess(user, savedAdditionalTime)) {
                 return optionalAdditionalTime;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
@@ -78,7 +78,7 @@ public class AdditionalTimeController {
 
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (checkAccess(user, savedAdditionalTime)) {
+            if (hasAccess(user, savedAdditionalTime)) {
                 return additionalTimeService.update(id, additionalTime);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
@@ -96,7 +96,7 @@ public class AdditionalTimeController {
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (checkAccess(user, savedAdditionalTime)) {
+            if (hasAccess(user, savedAdditionalTime)) {
                 additionalTimeService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -104,7 +104,7 @@ public class AdditionalTimeController {
         } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, AdditionalTime additionalTime) {
+    private boolean hasAccess(User user, AdditionalTime additionalTime) {
         return user.getCompany().getId().equals(
                 userService.findById(additionalTime.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }

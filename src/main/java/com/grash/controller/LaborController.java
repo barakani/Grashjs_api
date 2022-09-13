@@ -43,7 +43,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (checkAccess(user, savedLabor)) {
+            if (hasAccess(user, savedLabor)) {
                 return optionalLabor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
@@ -78,7 +78,7 @@ public class LaborController {
 
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (checkAccess(user, savedLabor)) {
+            if (hasAccess(user, savedLabor)) {
                 return laborService.update(id, labor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
@@ -96,7 +96,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (checkAccess(user, savedLabor)) {
+            if (hasAccess(user, savedLabor)) {
                 laborService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -104,7 +104,7 @@ public class LaborController {
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, Labor labor) {
+    private boolean hasAccess(User user, Labor labor) {
         return user.getCompany().getId().equals(
                 userService.findById(labor.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }

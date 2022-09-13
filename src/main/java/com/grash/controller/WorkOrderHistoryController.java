@@ -42,7 +42,7 @@ public class WorkOrderHistoryController {
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
-            if (checkAccess(user, savedWorkOrderHistory)) {
+            if (hasAccess(user, savedWorkOrderHistory)) {
                 return optionalWorkOrderHistory;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
@@ -76,7 +76,7 @@ public class WorkOrderHistoryController {
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
-            if (checkAccess(user, savedWorkOrderHistory)) {
+            if (hasAccess(user, savedWorkOrderHistory)) {
                 workOrderHistoryService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -84,7 +84,7 @@ public class WorkOrderHistoryController {
         } else throw new CustomException("WorkOrderHistory not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, WorkOrderHistory workOrderHistory) {
+    private boolean hasAccess(User user, WorkOrderHistory workOrderHistory) {
         return user.getCompany().getId().equals(
                 userService.findById(workOrderHistory.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }
