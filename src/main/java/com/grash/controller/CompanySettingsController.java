@@ -33,7 +33,7 @@ public class CompanySettingsController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Activity not found")})
+            @ApiResponse(code = 404, message = "CompanySettings not found")})
     public Optional<CompanySettings> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
@@ -52,7 +52,7 @@ public class CompanySettingsController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Application not found")})
+            @ApiResponse(code = 404, message = "CompanySettings not found")})
     public CompanySettings patch(@ApiParam("CompanySettings") @RequestBody CompanySettings companySettings,
                                  @ApiParam("id") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
@@ -69,7 +69,7 @@ public class CompanySettingsController {
                     throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
-                throw new CustomException("Can't get someone else's application", HttpStatus.NOT_ACCEPTABLE);
+                throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
         } else {
             throw new CustomException("CompanySettings not found", HttpStatus.NOT_FOUND);
