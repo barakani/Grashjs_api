@@ -1,12 +1,12 @@
 package com.grash.controller;
 
-import com.grash.dto.AdditionalCostPatchDTO;
+import com.grash.dto.AdditionalTimePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.AdditionalCost;
+import com.grash.model.AdditionalTime;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
-import com.grash.service.AdditionalCostService;
+import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
@@ -23,12 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/additionalCosts")
-@Api(tags = "additionalCost")
+@RequestMapping("/additionalTimes")
+@Api(tags = "additionalTime")
 @RequiredArgsConstructor
-public class AdditionalCostController {
+public class AdditionalTimeController {
 
-    private final AdditionalCostService additionalCostService;
+    private final AdditionalTimeService additionalTimeService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
 
@@ -37,14 +37,14 @@ public class AdditionalCostController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public Optional<AdditionalCost> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+            @ApiResponse(code = 404, message = "AdditionalTime not found")})
+    public Optional<AdditionalTime> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
-        if (optionalAdditionalCost.isPresent()) {
-            AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
-                return optionalAdditionalCost;
+        Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
+        if (optionalAdditionalTime.isPresent()) {
+            AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
+            if (checkAccess(user, savedAdditionalTime)) {
+                return optionalAdditionalTime;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
     }
@@ -54,13 +54,13 @@ public class AdditionalCostController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AdditionalCost create(@ApiParam("AdditionalCost") @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
+    public AdditionalTime create(@ApiParam("AdditionalTime") @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
             User workOrderCreator = userService.findById(optionalWorkOrder.get().getCreatedBy()).get();
             if (user.getCompany().getId().equals(workOrderCreator.getCompany().getId())) {
-                return additionalCostService.create(additionalCostReq);
+                return additionalTimeService.create(additionalTimeReq);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
     }
@@ -70,18 +70,18 @@ public class AdditionalCostController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public AdditionalCost patch(@ApiParam("AdditionalCost") @RequestBody AdditionalCostPatchDTO additionalCost, @ApiParam("id") @PathVariable("id") Long id,
+            @ApiResponse(code = 404, message = "AdditionalTime not found")})
+    public AdditionalTime patch(@ApiParam("AdditionalTime") @RequestBody AdditionalTimePatchDTO additionalTime, @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
+        Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
 
-        if (optionalAdditionalCost.isPresent()) {
-            AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
-                return additionalCostService.update(id, additionalCost);
+        if (optionalAdditionalTime.isPresent()) {
+            AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
+            if (checkAccess(user, savedAdditionalTime)) {
+                return additionalTimeService.update(id, additionalTime);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
@@ -89,23 +89,23 @@ public class AdditionalCostController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "AdditionalCost not found")})
+            @ApiResponse(code = 404, message = "AdditionalTime not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
-        Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
-        if (optionalAdditionalCost.isPresent()) {
-            AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (checkAccess(user, savedAdditionalCost)) {
-                additionalCostService.delete(id);
+        Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
+        if (optionalAdditionalTime.isPresent()) {
+            AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
+            if (checkAccess(user, savedAdditionalTime)) {
+                additionalTimeService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean checkAccess(User user, AdditionalCost additionalCost) {
+    private boolean checkAccess(User user, AdditionalTime additionalTime) {
         return user.getCompany().getId().equals(
-                userService.findById(additionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId());
+                userService.findById(additionalTime.getWorkOrder().getCreatedBy()).get().getCompany().getId());
     }
 }

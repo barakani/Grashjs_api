@@ -38,7 +38,7 @@ public class UserSettingsController {
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
-            if (optionalUserSettings.get().getId().equals(user.getUserSettings().getId())){
+            if (optionalUserSettings.get().getId().equals(user.getUserSettings().getId())) {
                 return userSettingsService.findById(id);
             } else {
                 throw new CustomException("Can't get someone else's userSettings", HttpStatus.NOT_ACCEPTABLE);
@@ -53,15 +53,15 @@ public class UserSettingsController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "UserSettings not found")})
     public UserSettings patch(@ApiParam("UserSettings") @RequestBody UserSettings userSettings,
-                                 @ApiParam("id") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
+                              @ApiParam("id") @PathVariable("id") Long id,
+                              HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
 
         if (optionalUserSettings.isPresent()) {
-            UserSettings foundUserSettings = optionalUserSettings.get();
-            if (foundUserSettings.getId().equals(user.getUserSettings())) {
+            UserSettings savedUserSettings = optionalUserSettings.get();
+            if (savedUserSettings.getId().equals(user.getUserSettings().getId())) {
                 return userSettingsService.update(userSettings);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
