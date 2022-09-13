@@ -16,8 +16,6 @@ import java.util.Optional;
 public class CompanySettingsService {
     private final CompanySettingsRepository companySettingsRepository;
 
-    private final ModelMapper modelMapper;
-
     public CompanySettings create(CompanySettings CompanySettings) {
         return companySettingsRepository.save(CompanySettings);
     }
