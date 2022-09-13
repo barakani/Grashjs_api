@@ -1,9 +1,11 @@
 package com.grash.service;
 
+import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,12 @@ public class AdditionalCostService {
         return additionalCostRepository.save(additionalCost);
     }
 
-    public AdditionalCost update(Long id, AdditionalCost additionalCost) {
+    public AdditionalCost update(Long id, AdditionalCostPatchDTO additionalCost) {
         if (additionalCostRepository.existsById(id)) {
-            return additionalCostRepository.save(additionalCost);
+            AdditionalCost savedAdditionalCost = additionalCostRepository.findById(id).get();
+            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+            modelMapper.map(additionalCost, savedAdditionalCost);
+            return additionalCostRepository.save(savedAdditionalCost);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
