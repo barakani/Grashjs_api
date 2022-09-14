@@ -1,5 +1,6 @@
 package com.grash.model.abstracts;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.CompanySettings;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public abstract class CategoryAbstract extends Audit {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private CompanySettings companySettings;
 
     public CategoryAbstract(String name, CompanySettings companySettings) {

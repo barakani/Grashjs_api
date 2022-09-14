@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.FieldType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class FieldConfiguration {
     private FieldType fieldType = FieldType.OPTIONAL;
 
     @ManyToOne
+    @JsonIgnore
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration;
 
     public FieldConfiguration(String fieldName, WorkOrderRequestConfiguration workOrderRequestConfiguration) {

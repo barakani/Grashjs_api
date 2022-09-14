@@ -17,8 +17,8 @@ public class WorkOrderRequestConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "WorkOrderRequestConfiguration", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<FieldConfiguration> fieldConfigurations = createFieldConfigurations(Arrays.asList("asset", "location", "worker", "dueDate", "category", "team"), this);
 
     @OneToOne

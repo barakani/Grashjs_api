@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class Role {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private CompanySettings companySettings;
 
     public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings) {

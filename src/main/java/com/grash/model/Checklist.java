@@ -27,6 +27,7 @@ public class Checklist {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private CompanySettings companySettings;
 
 }
