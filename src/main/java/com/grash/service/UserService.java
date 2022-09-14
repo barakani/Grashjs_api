@@ -4,6 +4,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
+import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
@@ -42,6 +43,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
+    private final RoleService roleService;
     private final CompanyService companyService;
     private final VerificationTokenRepository verificationTokenRepository;
 
@@ -73,6 +75,11 @@ public class UserService {
                 user.setOwnsCompany(true);
                 user.setCompany(company);
                 user.setRole(company.getCompanySettings().getRoleList().stream().filter(role -> role.getName().equals("Administrator")).findFirst().get());
+            } else {
+                Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
+                if (optionalRole.isPresent()) {
+                    user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+                } else throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
             }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
