@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Cost;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,9 @@ public class AdditionalCost extends Cost {
     private User assignedTo;
 
     private boolean includeToTotalCost;
-    
+
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private WorkOrder workOrder;
 }

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class WorkOrderHistory extends Audit {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private WorkOrder workOrder;
 
 }

@@ -17,7 +17,7 @@ public class Task extends TaskBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Status status=Status.OPEN;
+    private Status status = Status.OPEN;
 
     private String note;
 
@@ -26,6 +26,7 @@ public class Task extends TaskBase {
     private Collection<Image> images;
 
     @ManyToOne
+    @JsonIgnore
     @NotNull
     private WorkOrder workOrder;
 }

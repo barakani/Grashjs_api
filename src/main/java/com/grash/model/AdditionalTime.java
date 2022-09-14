@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Time;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class AdditionalTime extends Time {
     private TimeCategory timeCategory;
 
     @ManyToOne
+    @JsonIgnore
     @NotNull
     private WorkOrder workOrder;
 }
