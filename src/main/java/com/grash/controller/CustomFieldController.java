@@ -101,13 +101,13 @@ public class CustomFieldController {
     }
 
     private boolean hasAccess(User user, CustomField customField) {
-        return user.getCompany().getId().equals(customField.getVendor().getCompanySettings().getId());
+        return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
     }
 
     private boolean canCreate(User user, CustomField customFieldReq) {
         Optional<Vendor> optionalVendor = vendorService.findById(customFieldReq.getVendor().getId());
         if (optionalVendor.isPresent()) {
-            return user.getCompany().getId().equals(optionalVendor.get().getCompanySettings().getCompany().getId());
+            return user.getCompany().getId().equals(optionalVendor.get().getCompany().getId());
         } else throw new CustomException("Invalid Vendor", HttpStatus.NOT_ACCEPTABLE);
     }
 }

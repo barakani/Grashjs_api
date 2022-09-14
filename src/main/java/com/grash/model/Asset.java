@@ -23,6 +23,10 @@ public class Asset extends Audit {
 
     private boolean archived;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Part> parts;

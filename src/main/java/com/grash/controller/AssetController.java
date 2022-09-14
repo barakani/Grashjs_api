@@ -4,10 +4,10 @@ import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
-import com.grash.model.Location;
+import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.service.AssetService;
-import com.grash.service.LocationService;
+import com.grash.service.CompanyService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -30,7 +30,7 @@ public class AssetController {
 
     private final AssetService assetService;
     private final UserService userService;
-    private final LocationService locationService;
+    private final CompanyService companyService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -106,10 +106,9 @@ public class AssetController {
     }
 
     private boolean canCreate(User user, Asset assetReq) {
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
-        if (optionalLocation.isPresent()) {
-            User locationCreator = userService.findById(optionalLocation.get().getCreatedBy()).get();
-            return user.getCompany().getId().equals(locationCreator.getCompany().getId());
+        Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
+        if (optionalCompany.isPresent()) {
+            return user.getCompany().getId().equals(optionalCompany.get().getId());
         } else throw new CustomException("Invalid Location", HttpStatus.NOT_ACCEPTABLE);
     }
 }

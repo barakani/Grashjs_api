@@ -75,10 +75,6 @@ public class CompanySettings {
     @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Checklist> checklists;
-    
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<Vendor> vendors;
 
     private Role createRole(String name, List<BasicPermission> basicPermissions) {
         return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);

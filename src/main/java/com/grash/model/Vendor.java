@@ -33,5 +33,5 @@ public class Vendor extends BasicInfos {
 
     @ManyToOne
     @NotNull
-    private CompanySettings companySettings;
+    private Company company;
 }

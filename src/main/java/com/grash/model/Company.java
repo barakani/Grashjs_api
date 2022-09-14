@@ -31,10 +31,18 @@ public class Company extends BasicInfos {
     @OneToOne(cascade = CascadeType.ALL)
     private CompanySettings companySettings = new CompanySettings(this);
 
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Customer> customers;
-    
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Vendor> vendors;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Asset> assets;
+
     @OneToOne
     @JsonIgnore
     private BankCard bankCard;
