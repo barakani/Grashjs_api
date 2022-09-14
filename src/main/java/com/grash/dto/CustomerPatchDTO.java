@@ -1,12 +1,13 @@
 package com.grash.dto;
 
 import com.grash.model.Currency;
+import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CustomerPatchDTO {
+public class CustomerPatchDTO extends BasicInfos {
     private String vendorType;
 
     private String description;
