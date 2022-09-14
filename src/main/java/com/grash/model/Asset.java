@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class Asset extends Audit {
 
     @ManyToOne
     @NotNull
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

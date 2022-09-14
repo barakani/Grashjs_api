@@ -1,6 +1,6 @@
 package com.grash.model.abstracts;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.CompanySettings;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public abstract class CategoryAbstract extends Audit {
 
     @ManyToOne
     @NotNull
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
 
     public CategoryAbstract(String name, CompanySettings companySettings) {
