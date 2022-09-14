@@ -45,5 +45,9 @@ public class AssetCategoryService {
         return assetCategoryRepository.findById(id);
     }
 
+    public Collection<AssetCategory> findByCompanySettings(Long id) {
+        return assetCategoryRepository.findByCompanySettings(id);
+    }
+
 
 }

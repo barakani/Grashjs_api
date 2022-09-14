@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -32,6 +33,19 @@ public class AssetCategoryController {
     private final AssetCategoryService assetCategoryService;
     private final CompanySettingsService companySettingsService;
     private final UserService userService;
+
+
+    @GetMapping("")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<AssetCategory> getAll(HttpServletRequest req) {
+        User user = userService.whoami(req);
+        CompanySettings companySettings = user.getCompany().getCompanySettings();
+        return assetCategoryService.findByCompanySettings(companySettings.getId());
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

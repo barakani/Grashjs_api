@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.dto.CategoryPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -32,6 +34,17 @@ public class CostCategoryController {
     private final UserService userService;
     private final ModelMapper modelMapper;
 
+    @GetMapping("")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<CostCategory> getAll(HttpServletRequest req) {
+        User user = userService.whoami(req);
+        CompanySettings companySettings = user.getCompany().getCompanySettings();
+        return costCategoryService.findByCompanySettings(companySettings.getId());
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

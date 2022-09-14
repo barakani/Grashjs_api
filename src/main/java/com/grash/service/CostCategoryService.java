@@ -45,4 +45,8 @@ public class CostCategoryService {
     public Optional<CostCategory> findById(Long id) {
         return costCategoryRepository.findById(id);
     }
+
+    public Collection<CostCategory> findByCompanySettings(Long id) {
+        return costCategoryRepository.findByCompanySettings(id);
+    }
 }
