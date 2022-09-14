@@ -20,6 +20,10 @@ public class Request {
     @NotNull
     private String title;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+
     private String description;
 
     private Priority priority = Priority.NONE;

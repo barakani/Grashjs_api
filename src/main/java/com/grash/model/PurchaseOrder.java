@@ -15,6 +15,10 @@ public class PurchaseOrder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+    
     @NotNull
     private String name;
 

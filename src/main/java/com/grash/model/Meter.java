@@ -20,6 +20,10 @@ public class Meter {
     @JsonIgnore
     private Collection<Reading> readingList;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+    
     @NotNull
     private String name;
 

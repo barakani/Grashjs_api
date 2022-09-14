@@ -21,6 +21,10 @@ public class Part {
 
     private double cost;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+
     @ManyToMany
     @JoinTable(name = "T_Part_User_Associations",
             joinColumns = @JoinColumn(name = "idPart"),

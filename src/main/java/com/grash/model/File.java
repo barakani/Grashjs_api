@@ -16,32 +16,28 @@ public class File extends FileAbstract {
     private Long id;
 
     @ManyToMany
-    @JoinTable( name = "T_Asset_File_Associations",
-            joinColumns = @JoinColumn( name = "idFile" ),
-            inverseJoinColumns = @JoinColumn( name = "idAsset" ) )
+    @JoinTable(name = "T_Asset_File_Associations",
+            joinColumns = @JoinColumn(name = "idFile"),
+            inverseJoinColumns = @JoinColumn(name = "idAsset"))
     private Collection<Asset> asset;
 
     @ManyToMany
-    @JoinTable( name = "T_Part_File_Associations",
-            joinColumns = @JoinColumn( name = "idFile" ),
-            inverseJoinColumns = @JoinColumn( name = "idPart" ) )
+    @JoinTable(name = "T_Part_File_Associations",
+            joinColumns = @JoinColumn(name = "idFile"),
+            inverseJoinColumns = @JoinColumn(name = "idPart"))
     private Collection<Part> parts;
 
     @ManyToMany
-    @JoinTable( name = "T_Request_File_Associations",
-            joinColumns = @JoinColumn( name = "idFile" ),
-            inverseJoinColumns = @JoinColumn( name = "idRequest" ) )
+    @JoinTable(name = "T_Request_File_Associations",
+            joinColumns = @JoinColumn(name = "idFile"),
+            inverseJoinColumns = @JoinColumn(name = "idRequest"))
     private Collection<Request> Requests;
 
     @ManyToMany
-    @JoinTable( name = "T_WorkOrder_File_Associations",
-            joinColumns = @JoinColumn( name = "idFile" ),
-            inverseJoinColumns = @JoinColumn( name = "idWorkOrder" ) )
+    @JoinTable(name = "T_WorkOrder_File_Associations",
+            joinColumns = @JoinColumn(name = "idFile"),
+            inverseJoinColumns = @JoinColumn(name = "idWorkOrder"))
     private Collection<WorkOrder> workOrders;
-
-
-
-
 
 
 }

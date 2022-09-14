@@ -22,6 +22,10 @@ public class Location extends Audit {
 
     private String address;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+
     private String gps;
 
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)

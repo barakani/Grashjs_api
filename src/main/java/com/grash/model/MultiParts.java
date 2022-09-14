@@ -15,6 +15,10 @@ public class MultiParts {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ManyToOne
+    @NotNull
+    private Company company;
+    
     @ManyToMany
     @JoinTable(name = "T_MultiPart_Part_Associations",
             joinColumns = @JoinColumn(name = "idMultiPart"),
