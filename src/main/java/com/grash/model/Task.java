@@ -22,7 +22,6 @@ public class Task extends TaskBase {
     private String note;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<Image> images;
 
     @ManyToOne

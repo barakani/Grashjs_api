@@ -72,6 +72,7 @@ public class Part {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Asset asset;
 
     @ManyToMany

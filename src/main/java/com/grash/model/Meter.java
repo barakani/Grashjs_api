@@ -17,7 +17,6 @@ public class Meter {
     private Long id;
 
     @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<Reading> readingList;
 
     @ManyToOne
@@ -50,10 +49,10 @@ public class Meter {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Asset asset;
 
     @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<WorkOrderMeterTrigger> workOrderMeterTriggerList;
 
 }

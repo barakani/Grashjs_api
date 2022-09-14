@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,5 +22,6 @@ public class Reading {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Meter meter;
 }

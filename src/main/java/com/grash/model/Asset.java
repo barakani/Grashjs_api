@@ -29,7 +29,6 @@ public class Asset extends Audit {
     private Company company;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<Part> parts;
 
     @OneToOne
@@ -92,7 +91,6 @@ public class Asset extends Audit {
     private Collection<File> files;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    @JsonIgnore
     private Collection<Meter> meters;
 
 }

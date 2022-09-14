@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,7 @@ public class WorkOrderMeterTrigger {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Meter meter;
 
 }
