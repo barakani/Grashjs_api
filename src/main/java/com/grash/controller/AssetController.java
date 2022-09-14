@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Asset;
 import com.grash.model.Company;
 import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
 import com.grash.service.CompanyService;
 import com.grash.service.UserService;
@@ -34,18 +35,20 @@ public class AssetController {
     private final CompanyService companyService;
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Asset> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        return assetService.findByCompany(user.getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return assetService.findByCompany(user.getCompany().getId());
+        } else return assetService.getAll();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -62,7 +65,7 @@ public class AssetController {
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -74,7 +77,7 @@ public class AssetController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -93,7 +96,7 @@ public class AssetController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

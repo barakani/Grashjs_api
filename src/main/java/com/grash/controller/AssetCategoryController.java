@@ -36,7 +36,7 @@ public class AssetCategoryController {
 
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -48,7 +48,7 @@ public class AssetCategoryController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -68,7 +68,7 @@ public class AssetCategoryController {
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -84,7 +84,7 @@ public class AssetCategoryController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -110,7 +110,7 @@ public class AssetCategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

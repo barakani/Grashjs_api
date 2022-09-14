@@ -93,7 +93,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/me")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
@@ -104,12 +104,12 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public AuthResponse refresh(HttpServletRequest req) {
         return new AuthResponse(userService.refresh(req.getRemoteUser()));
     }
 
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @GetMapping(value = "/resetpwd", produces = "application/json")
     public SuccessResponse resetPassword(@RequestParam String email) {
         return userService.resetPassword(email);

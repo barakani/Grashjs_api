@@ -7,6 +7,7 @@ import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -35,19 +36,21 @@ public class CostCategoryController {
     private final ModelMapper modelMapper;
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<CostCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        CompanySettings companySettings = user.getCompany().getCompanySettings();
-        return costCategoryService.findByCompanySettings(companySettings.getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            CompanySettings companySettings = user.getCompany().getCompanySettings();
+            return costCategoryService.findByCompanySettings(companySettings.getId());
+        } else return costCategoryService.getAll();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -63,7 +66,7 @@ public class CostCategoryController {
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -77,7 +80,7 @@ public class CostCategoryController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -95,7 +98,7 @@ public class CostCategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

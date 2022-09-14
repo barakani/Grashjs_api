@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.service.ChecklistService;
 import com.grash.service.CompanySettingsService;
 import com.grash.service.UserService;
@@ -34,19 +35,21 @@ public class ChecklistController {
     private final CompanySettingsService companySettingsService;
 
     @GetMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Checklist> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        CompanySettings companySettings = user.getCompany().getCompanySettings();
-        return checklistService.findByCompanySettings(companySettings.getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            CompanySettings companySettings = user.getCompany().getCompanySettings();
+            return checklistService.findByCompanySettings(companySettings.getId());
+        } else return checklistService.getAll();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -63,7 +66,7 @@ public class ChecklistController {
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -75,7 +78,7 @@ public class ChecklistController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -94,7 +97,7 @@ public class ChecklistController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

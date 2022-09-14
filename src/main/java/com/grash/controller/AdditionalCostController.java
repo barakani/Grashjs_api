@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.RoleType;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -41,6 +42,9 @@ public class AdditionalCostController {
     public Optional<AdditionalCost> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return optionalAdditionalCost;
+        }
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
             if (hasAccess(user, savedAdditionalCost)) {
@@ -50,7 +54,7 @@ public class AdditionalCostController {
     }
 
     @PostMapping("")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -65,7 +69,7 @@ public class AdditionalCostController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -84,7 +88,7 @@ public class AdditionalCostController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
