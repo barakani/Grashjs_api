@@ -3,10 +3,10 @@ package com.grash.controller;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.CompanySettings;
+import com.grash.model.Company;
 import com.grash.model.Customer;
 import com.grash.model.User;
-import com.grash.service.CompanySettingsService;
+import com.grash.service.CompanyService;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -30,7 +30,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final UserService userService;
-    private final CompanySettingsService companySettingsService;
+    private final CompanyService companyService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -101,13 +101,13 @@ public class CustomerController {
     }
 
     private boolean hasAccess(User user, Customer customer) {
-        return user.getCompany().getCompanySettings().getId().equals(customer.getCompanySettings().getId());
+        return user.getCompany().getId().equals(customer.getCompany().getId());
     }
 
     private boolean canCreate(User user, Customer customerReq) {
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(customerReq.getCompanySettings().getId());
-        if (optionalCompanySettings.isPresent()) {
-            return user.getCompany().getCompanySettings().getId().equals(optionalCompanySettings.get().getId());
+        Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
+        if (optionalCompany.isPresent()) {
+            return user.getCompany().getId().equals(optionalCompany.get().getId());
         } else throw new CustomException("Invalid CompanySettings", HttpStatus.NOT_ACCEPTABLE);
     }
 }

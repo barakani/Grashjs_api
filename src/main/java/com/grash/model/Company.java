@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -30,6 +31,10 @@ public class Company extends BasicInfos {
     @OneToOne(cascade = CascadeType.ALL)
     private CompanySettings companySettings = new CompanySettings(this);
 
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Customer> customers;
+    
     @OneToOne
     @JsonIgnore
     private BankCard bankCard;

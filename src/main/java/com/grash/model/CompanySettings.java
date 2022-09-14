@@ -75,11 +75,7 @@ public class CompanySettings {
     @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Checklist> checklists;
-
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<Customer> customers;
-
+    
     @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Vendor> vendors;
