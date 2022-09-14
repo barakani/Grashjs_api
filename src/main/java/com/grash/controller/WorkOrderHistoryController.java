@@ -86,6 +86,6 @@ public class WorkOrderHistoryController {
 
     private boolean hasAccess(User user, WorkOrderHistory workOrderHistory) {
         return user.getCompany().getId().equals(
-                userService.findById(workOrderHistory.getWorkOrder().getCreatedBy()).get().getCompany().getId());
+                userService.findById(workOrderHistory.getCreatedBy()).get().getCompany().getId());
     }
 }

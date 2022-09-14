@@ -106,6 +106,6 @@ public class AdditionalTimeController {
 
     private boolean hasAccess(User user, AdditionalTime additionalTime) {
         return user.getCompany().getId().equals(
-                userService.findById(additionalTime.getWorkOrder().getCreatedBy()).get().getCompany().getId());
+                userService.findById(additionalTime.getCreatedBy()).get().getCompany().getId());
     }
 }

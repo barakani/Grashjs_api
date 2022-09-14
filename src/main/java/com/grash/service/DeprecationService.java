@@ -20,13 +20,19 @@ public class DeprecationService {
         return deprecationRepository.save(Deprecation);
     }
 
-    public Deprecation update(Deprecation Deprecation) {
+    public Deprecation update(Long id, Deprecation Deprecation) {
         return deprecationRepository.save(Deprecation);
     }
 
-    public Collection<Deprecation> getAll() { return deprecationRepository.findAll(); }
+    public Collection<Deprecation> getAll() {
+        return deprecationRepository.findAll();
+    }
 
-    public void delete(Long id){ deprecationRepository.deleteById(id);}
+    public void delete(Long id) {
+        deprecationRepository.deleteById(id);
+    }
 
-    public Optional<Deprecation> findById(Long id) {return deprecationRepository.findById(id); }
+    public Optional<Deprecation> findById(Long id) {
+        return deprecationRepository.findById(id);
+    }
 }

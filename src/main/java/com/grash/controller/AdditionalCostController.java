@@ -106,6 +106,6 @@ public class AdditionalCostController {
 
     private boolean hasAccess(User user, AdditionalCost additionalCost) {
         return user.getCompany().getId().equals(
-                userService.findById(additionalCost.getWorkOrder().getCreatedBy()).get().getCompany().getId());
+                userService.findById(additionalCost.getCreatedBy()).get().getCompany().getId());
     }
 }

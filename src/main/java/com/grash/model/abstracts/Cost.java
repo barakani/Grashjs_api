@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @MappedSuperclass
-public abstract class Cost extends DateAudit {
+public abstract class Cost extends Audit {
 
     @NotNull
     private double cost;
