@@ -44,4 +44,8 @@ public class AssetService {
     public Optional<Asset> findById(Long id) {
         return assetRepository.findById(id);
     }
+
+    public Collection<Asset> findByCompany(Long id) {
+        return assetRepository.findByCompany_Id(id);
+    }
 }

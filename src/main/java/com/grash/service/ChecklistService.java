@@ -44,4 +44,8 @@ public class ChecklistService {
     public Optional<Checklist> findById(Long id) {
         return checklistRepository.findById(id);
     }
+
+    public Collection<Checklist> findByCompanySettings(Long id) {
+        return checklistRepository.findByCompanySettings_Id(id);
+    }
 }
