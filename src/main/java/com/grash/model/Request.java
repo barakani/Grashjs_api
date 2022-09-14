@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class Request {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
     private String description;

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class PreventiveMaintenance extends WorkOrderBase {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
 

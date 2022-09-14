@@ -24,6 +24,7 @@ public class Location extends Audit {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
     private String gps;

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ public class Part {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
     @ManyToMany

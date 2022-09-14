@@ -25,6 +25,7 @@ public class Asset extends Audit {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

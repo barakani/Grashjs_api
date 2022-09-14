@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,8 +18,9 @@ public class MultiParts {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
-    
+
     @ManyToMany
     @JoinTable(name = "T_MultiPart_Part_Associations",
             joinColumns = @JoinColumn(name = "idMultiPart"),

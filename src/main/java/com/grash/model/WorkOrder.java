@@ -26,6 +26,7 @@ public class WorkOrder extends WorkOrderBase {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)

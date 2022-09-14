@@ -22,8 +22,9 @@ public class Meter {
 
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Company company;
-    
+
     @NotNull
     private String name;
 
