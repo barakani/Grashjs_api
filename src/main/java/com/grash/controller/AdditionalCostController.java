@@ -42,9 +42,6 @@ public class AdditionalCostController {
     public Optional<AdditionalCost> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return optionalAdditionalCost;
-        }
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
             if (hasAccess(user, savedAdditionalCost)) {
@@ -108,7 +105,9 @@ public class AdditionalCostController {
     }
 
     private boolean hasAccess(User user, AdditionalCost additionalCost) {
-        return user.getCompany().getId().equals(
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(
                 additionalCost.getWorkOrder().getCompany().getId());
     }
 }

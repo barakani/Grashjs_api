@@ -36,7 +36,7 @@ public class CostCategoryController {
     private final ModelMapper modelMapper;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -50,7 +50,7 @@ public class CostCategoryController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),

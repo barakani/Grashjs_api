@@ -33,7 +33,7 @@ public class CustomFieldController {
     private final VendorService vendorService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
