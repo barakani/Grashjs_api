@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Date;
 
@@ -22,6 +23,10 @@ public class WorkOrder extends WorkOrderBase {
     private Date completedOn;
 
     private boolean archived;
+
+    @ManyToOne
+    @NotNull
+    private Company company;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     @JsonIgnore

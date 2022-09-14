@@ -58,8 +58,7 @@ public class TaskController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(taskReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            User workOrderCreator = userService.findById(optionalWorkOrder.get().getCreatedBy()).get();
-            if (user.getCompany().getId().equals(workOrderCreator.getCompany().getId())) {
+            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
                 return taskService.create(taskReq);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
@@ -106,6 +105,6 @@ public class TaskController {
 
     private boolean hasAccess(User user, Task task) {
         return user.getCompany().getId().equals(
-                userService.findById(task.getWorkOrder().getCreatedBy()).get().getCompany().getId());
+                task.getWorkOrder().getCompany().getId());
     }
 }

@@ -43,6 +43,10 @@ public class Company extends BasicInfos {
     @JsonIgnore
     private Collection<Asset> assets;
 
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<WorkOrder> workOrders;
+
     @OneToOne
     @JsonIgnore
     private BankCard bankCard;

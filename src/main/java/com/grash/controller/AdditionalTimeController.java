@@ -58,8 +58,7 @@ public class AdditionalTimeController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            User workOrderCreator = userService.findById(optionalWorkOrder.get().getCreatedBy()).get();
-            if (user.getCompany().getId().equals(workOrderCreator.getCompany().getId())) {
+            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
                 return additionalTimeService.create(additionalTimeReq);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
@@ -106,6 +105,6 @@ public class AdditionalTimeController {
 
     private boolean hasAccess(User user, AdditionalTime additionalTime) {
         return user.getCompany().getId().equals(
-                userService.findById(additionalTime.getCreatedBy()).get().getCompany().getId());
+                additionalTime.getWorkOrder().getCompany().getId());
     }
 }

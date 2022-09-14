@@ -58,8 +58,7 @@ public class AdditionalCostController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            User workOrderCreator = userService.findById(optionalWorkOrder.get().getCreatedBy()).get();
-            if (user.getCompany().getId().equals(workOrderCreator.getCompany().getId())) {
+            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
                 return additionalCostService.create(additionalCostReq);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
@@ -106,6 +105,6 @@ public class AdditionalCostController {
 
     private boolean hasAccess(User user, AdditionalCost additionalCost) {
         return user.getCompany().getId().equals(
-                userService.findById(additionalCost.getCreatedBy()).get().getCompany().getId());
+                additionalCost.getWorkOrder().getCompany().getId());
     }
 }

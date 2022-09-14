@@ -57,8 +57,7 @@ public class WorkOrderHistoryController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(workOrderHistoryReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            User workOrderCreator = userService.findById(optionalWorkOrder.get().getCreatedBy()).get();
-            if (user.getCompany().getId().equals(workOrderCreator.getCompany().getId())) {
+            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
                 return workOrderHistoryService.create(workOrderHistoryReq);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
@@ -85,7 +84,6 @@ public class WorkOrderHistoryController {
     }
 
     private boolean hasAccess(User user, WorkOrderHistory workOrderHistory) {
-        return user.getCompany().getId().equals(
-                userService.findById(workOrderHistory.getCreatedBy()).get().getCompany().getId());
+        return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());
     }
 }
