@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -37,4 +38,7 @@ public class Customer extends BasicInfos {
             inverseJoinColumns = @JoinColumn(name = "idPart"))
     private Collection<Part> parts;
 
+    @ManyToOne
+    @NotNull
+    private CompanySettings companySettings;
 }

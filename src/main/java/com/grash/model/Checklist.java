@@ -16,7 +16,6 @@ public class Checklist {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
     @OneToMany
     @JsonIgnore
     private Collection<TaskBase> taskBaseList;
