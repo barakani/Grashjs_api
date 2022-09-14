@@ -116,7 +116,9 @@ public class VendorController {
     }
 
     private boolean hasAccess(User user, Vendor vendor) {
-        return user.getCompany().getId().equals(vendor.getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(vendor.getCompany().getId());
     }
 
     private boolean canCreate(User user, Vendor vendorReq) {

@@ -4,6 +4,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Deprecation;
 import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.service.DeprecationService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -96,7 +97,9 @@ public class DeprecationController {
     }
 
     private boolean hasAccess(User user, Deprecation deprecation) {
-        return user.getCompany().getId().equals(
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(
                 userService.findById(deprecation.getCreatedBy()).get().getCompany().getId());
     }
 }

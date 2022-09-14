@@ -117,7 +117,9 @@ public class ChecklistController {
     }
 
     private boolean hasAccess(User user, Checklist checklist) {
-        return user.getCompany().getCompanySettings().getId().equals(checklist.getCompanySettings().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getCompanySettings().getId().equals(checklist.getCompanySettings().getId());
     }
 
     private boolean canCreate(User user, Checklist checklistReq) {

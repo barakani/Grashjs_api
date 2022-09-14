@@ -116,7 +116,9 @@ public class AssetController {
     }
 
     private boolean hasAccess(User user, Asset asset) {
-        return user.getCompany().getId().equals(asset.getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(asset.getCompany().getId());
     }
 
     private boolean canCreate(User user, Asset assetReq) {

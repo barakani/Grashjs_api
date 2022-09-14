@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.RoleType;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -104,7 +105,9 @@ public class AdditionalTimeController {
     }
 
     private boolean hasAccess(User user, AdditionalTime additionalTime) {
-        return user.getCompany().getId().equals(
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(
                 additionalTime.getWorkOrder().getCompany().getId());
     }
 }

@@ -116,7 +116,9 @@ public class CustomerController {
     }
 
     private boolean hasAccess(User user, Customer customer) {
-        return user.getCompany().getId().equals(customer.getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(customer.getCompany().getId());
     }
 
     private boolean canCreate(User user, Customer customerReq) {

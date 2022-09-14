@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Labor;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.RoleType;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -104,7 +105,9 @@ public class LaborController {
     }
 
     private boolean hasAccess(User user, Labor labor) {
-        return user.getCompany().getId().equals(
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(
                 labor.getWorkOrder().getCompany().getId());
     }
 }

@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderHistory;
+import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderHistoryService;
 import com.grash.service.WorkOrderService;
@@ -84,6 +85,8 @@ public class WorkOrderHistoryController {
     }
 
     private boolean hasAccess(User user, WorkOrderHistory workOrderHistory) {
-        return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());
     }
 }

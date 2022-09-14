@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.CustomField;
 import com.grash.model.User;
 import com.grash.model.Vendor;
+import com.grash.model.enums.RoleType;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
@@ -101,7 +102,9 @@ public class CustomFieldController {
     }
 
     private boolean hasAccess(User user, CustomField customField) {
-        return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
     }
 
     private boolean canCreate(User user, CustomField customFieldReq) {
