@@ -1,14 +1,14 @@
 package com.grash.controller;
 
-import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
-import com.grash.model.Customer;
 import com.grash.model.User;
+import com.grash.model.Vendor;
 import com.grash.service.CompanyService;
-import com.grash.service.CustomerService;
 import com.grash.service.UserService;
+import com.grash.service.VendorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -24,12 +24,12 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/customers")
-@Api(tags = "customer")
+@RequestMapping("/vendors")
+@Api(tags = "vendor")
 @RequiredArgsConstructor
-public class CustomerController {
+public class VendorController {
 
-    private final CustomerService customerService;
+    private final VendorService vendorService;
     private final UserService userService;
     private final CompanyService companyService;
 
@@ -39,9 +39,9 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<Customer> getAll(HttpServletRequest req) {
+    public Collection<Vendor> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        return customerService.findByCompany(user.getCompany().getId());
+        return vendorService.findByCompany(user.getCompany().getId());
     }
 
     @GetMapping("/{id}")
@@ -49,14 +49,14 @@ public class CustomerController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "Customer not found")})
-    public Optional<Customer> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+            @ApiResponse(code = 404, message = "Vendor not found")})
+    public Optional<Vendor> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<Customer> optionalCustomer = customerService.findById(id);
-        if (optionalCustomer.isPresent()) {
-            Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
-                return optionalCustomer;
+        Optional<Vendor> optionalVendor = vendorService.findById(id);
+        if (optionalVendor.isPresent()) {
+            Vendor savedVendor = optionalVendor.get();
+            if (hasAccess(user, savedVendor)) {
+                return optionalVendor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return null;
     }
@@ -66,10 +66,10 @@ public class CustomerController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Customer create(@ApiParam("Customer") @RequestBody Customer customerReq, HttpServletRequest req) {
+    public Vendor create(@ApiParam("Vendor") @RequestBody Vendor vendorReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, customerReq)) {
-            return customerService.create(customerReq);
+        if (canCreate(user, vendorReq)) {
+            return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -78,18 +78,18 @@ public class CustomerController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Customer not found")})
-    public Customer patch(@ApiParam("Customer") @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
-                          HttpServletRequest req) {
+            @ApiResponse(code = 404, message = "Vendor not found")})
+    public Vendor patch(@ApiParam("Vendor") @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable("id") Long id,
+                        HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<Customer> optionalCustomer = customerService.findById(id);
+        Optional<Vendor> optionalVendor = vendorService.findById(id);
 
-        if (optionalCustomer.isPresent()) {
-            Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
-                return customerService.update(id, customer);
+        if (optionalVendor.isPresent()) {
+            Vendor savedVendor = optionalVendor.get();
+            if (hasAccess(user, savedVendor)) {
+                return vendorService.update(id, vendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
@@ -97,27 +97,27 @@ public class CustomerController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Customer not found")})
+            @ApiResponse(code = 404, message = "Vendor not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
-        Optional<Customer> optionalCustomer = customerService.findById(id);
-        if (optionalCustomer.isPresent()) {
-            Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
-                customerService.delete(id);
+        Optional<Vendor> optionalVendor = vendorService.findById(id);
+        if (optionalVendor.isPresent()) {
+            Vendor savedVendor = optionalVendor.get();
+            if (hasAccess(user, savedVendor)) {
+                vendorService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Customer customer) {
-        return user.getCompany().getId().equals(customer.getCompany().getId());
+    private boolean hasAccess(User user, Vendor vendor) {
+        return user.getCompany().getId().equals(vendor.getCompany().getId());
     }
 
-    private boolean canCreate(User user, Customer customerReq) {
-        Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
+    private boolean canCreate(User user, Vendor vendorReq) {
+        Optional<Company> optionalCompany = companyService.findById(vendorReq.getCompany().getId());
         if (optionalCompany.isPresent()) {
             return user.getCompany().getId().equals(optionalCompany.get().getId());
         } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);

@@ -44,4 +44,8 @@ public class CustomerService {
     public Optional<Customer> findById(Long id) {
         return customerRepository.findById(id);
     }
+
+    public Collection<Customer> findByCompany(Long id) {
+        return customerRepository.findByCompany_Id(id);
+    }
 }

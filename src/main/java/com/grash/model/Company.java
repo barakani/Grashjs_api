@@ -39,6 +39,7 @@ public class Company extends BasicInfos {
     @JsonIgnore
     private Collection<Vendor> vendors;
 
+
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<Asset> assets;
