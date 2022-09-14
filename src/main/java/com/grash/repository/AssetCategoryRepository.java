@@ -7,5 +7,5 @@ import java.util.Collection;
 
 public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Long> {
 
-    Collection<AssetCategory> findByCompanySettings(Long id);
+    Collection<AssetCategory> findByCompanySettings_Id(Long id);
 }

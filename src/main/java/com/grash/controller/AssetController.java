@@ -101,8 +101,7 @@ public class AssetController {
     }
 
     private boolean hasAccess(User user, Asset asset) {
-        return user.getCompany().getId().equals(
-                userService.findById(asset.getCreatedBy()).get().getCompany().getId());
+        return user.getCompany().getId().equals(asset.getCompany().getId());
     }
 
     private boolean canCreate(User user, Asset assetReq) {

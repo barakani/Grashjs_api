@@ -7,6 +7,6 @@ import java.util.Collection;
 
 public interface CostCategoryRepository extends JpaRepository<CostCategory, Long> {
 
-    Collection<CostCategory> findByCompanySettings(Long id);
+    Collection<CostCategory> findByCompanySettings_Id(Long id);
 
 }

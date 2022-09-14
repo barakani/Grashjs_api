@@ -46,7 +46,7 @@ public class AssetCategoryService {
     }
 
     public Collection<AssetCategory> findByCompanySettings(Long id) {
-        return assetCategoryRepository.findByCompanySettings(id);
+        return assetCategoryRepository.findByCompanySettings_Id(id);
     }
 
 
