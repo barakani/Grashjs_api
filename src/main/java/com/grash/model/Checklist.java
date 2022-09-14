@@ -26,4 +26,8 @@ public class Checklist {
 
     private String description;
 
+    @ManyToOne
+    @NotNull
+    private CompanySettings companySettings;
+
 }

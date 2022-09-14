@@ -71,7 +71,10 @@ public class CompanySettings {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<TimeCategory> timeCategories = createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time"));
-    ;
+
+    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Collection<Checklist> checklists;
 
     private Role createRole(String name, List<BasicPermission> basicPermissions) {
         return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);
