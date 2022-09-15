@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/additionalCosts")
+@RequestMapping("/additional-costs")
 @Api(tags = "additionalCost")
 @RequiredArgsConstructor
 public class AdditionalCostController {

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/floorPlans")
+@RequestMapping("/floor-plans")
 @Api(tags = "floorPlan")
 @RequiredArgsConstructor
 public class FloorPlanController {

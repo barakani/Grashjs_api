@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/companySettings")
+@RequestMapping("/company-settings")
 @Api(tags = "companySettings")
 @RequiredArgsConstructor
 public class CompanySettingsController {

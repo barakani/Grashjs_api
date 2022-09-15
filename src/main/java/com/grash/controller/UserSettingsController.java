@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/userSettings")
+@RequestMapping("/user-settings")
 @Api(tags = "userSettings")
 @RequiredArgsConstructor
 public class UserSettingsController {

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/customFields")
+@RequestMapping("/custom-fields")
 @Api(tags = "customField")
 @RequiredArgsConstructor
 public class CustomFieldController {

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/additionalTimes")
+@RequestMapping("/additional-times")
 @Api(tags = "additionalTime")
 @RequiredArgsConstructor
 public class AdditionalTimeController {

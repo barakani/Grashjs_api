@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/assetCategory")
+@RequestMapping("/asset-categories")
 @Api(tags = "assetCategory")
 @RequiredArgsConstructor
 public class AssetCategoryController {

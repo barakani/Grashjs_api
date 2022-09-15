@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/costCategories")
+@RequestMapping("/cost-categories")
 @Api(tags = "costCategory")
 @RequiredArgsConstructor
 public class CostCategoryController {

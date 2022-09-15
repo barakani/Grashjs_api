@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/workOrderHistorys")
+@RequestMapping("/work-order-histories")
 @Api(tags = "workOrderHistory")
 @RequiredArgsConstructor
 public class WorkOrderHistoryController {
