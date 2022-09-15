@@ -58,12 +58,9 @@ public class AdditionalTimeController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalTime create(@ApiParam("AdditionalTime") @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
-                return additionalTimeService.create(additionalTimeReq);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
+        if (canCreate(user, additionalTimeReq)) {
+            return additionalTimeService.create(additionalTimeReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -110,5 +107,12 @@ public class AdditionalTimeController {
             return true;
         } else return user.getCompany().getId().equals(
                 additionalTime.getWorkOrder().getCompany().getId());
+    }
+
+    private boolean canCreate(User user, AdditionalTime additionalTimeReq) {
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
+        if (optionalWorkOrder.isPresent()) {
+            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
+        } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
     }
 }

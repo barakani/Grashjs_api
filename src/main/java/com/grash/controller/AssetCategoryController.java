@@ -4,7 +4,6 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
-import com.grash.model.Company;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
@@ -73,13 +72,9 @@ public class AssetCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetCategory create(@ApiParam("AssetCategory") @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(assetCategoryReq.getCompanySettings().getId());
-        if (optionalCompanySettings.isPresent()) {
-            Company company = optionalCompanySettings.get().getCompany();
-            if (user.getCompany().getId().equals(company.getId())) {
-                return assetCategoryService.create(assetCategoryReq);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Invalid CompanySettings", HttpStatus.NOT_ACCEPTABLE);
+        if (canCreate(user, assetCategoryReq)) {
+            return assetCategoryService.create(assetCategoryReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -135,4 +130,10 @@ public class AssetCategoryController {
         } else return assetCategory.getCompanySettings().getId().equals(user.getCompany().getId());
     }
 
+    private boolean canCreate(User user, AssetCategory assetCategoryReq) {
+        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(assetCategoryReq.getCompanySettings().getId());
+        if (optionalCompanySettings.isPresent()) {
+            return user.getCompany().getCompanySettings().getId().equals(optionalCompanySettings.get().getId());
+        } else throw new CustomException("Invalid CompanySettings", HttpStatus.NOT_ACCEPTABLE);
+    }
 }

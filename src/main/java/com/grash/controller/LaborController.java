@@ -57,12 +57,9 @@ public class LaborController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Labor create(@ApiParam("Labor") @RequestBody Labor laborReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(laborReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
-                return laborService.create(laborReq);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
+        if (canCreate(user, laborReq)) {
+            return laborService.create(laborReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -109,5 +106,12 @@ public class LaborController {
             return true;
         } else return user.getCompany().getId().equals(
                 labor.getWorkOrder().getCompany().getId());
+    }
+
+    private boolean canCreate(User user, Labor laborReq) {
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(laborReq.getWorkOrder().getId());
+        if (optionalWorkOrder.isPresent()) {
+            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
+        } else throw new CustomException("Invalid Work order", HttpStatus.NOT_ACCEPTABLE);
     }
 }

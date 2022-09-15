@@ -57,12 +57,9 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            if (user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())) {
-                return additionalCostService.create(additionalCostReq);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Invalid Work Order", HttpStatus.NOT_ACCEPTABLE);
+        if (canCreate(user, additionalCostReq)) {
+            return additionalCostService.create(additionalCostReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -109,5 +106,12 @@ public class AdditionalCostController {
             return true;
         } else return user.getCompany().getId().equals(
                 additionalCost.getWorkOrder().getCompany().getId());
+    }
+
+    private boolean canCreate(User user, AdditionalCost additionalCostReq) {
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
+        if (optionalWorkOrder.isPresent()) {
+            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
+        } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
     }
 }
