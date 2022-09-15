@@ -16,4 +16,8 @@ public class PurchaseOrderCategory extends CategoryAbstract {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    public PurchaseOrderCategory(String name, CompanySettings companySettings) {
+        super(name, companySettings);
+    }
 }
