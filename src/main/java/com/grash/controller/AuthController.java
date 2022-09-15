@@ -37,7 +37,7 @@ public class AuthController {
             @ApiResponse(code = 422, message = "Invalid credentials")
     })
     public ResponseEntity<AuthResponse> login(
-            @ApiParam("AuthLoginResquest") @RequestBody UserLoginRequest userLoginRequest) {
+            @ApiParam("AuthLoginRequest") @RequestBody UserLoginRequest userLoginRequest) {
         AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail(), userLoginRequest.getPassword(), userLoginRequest.getType()));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
@@ -93,7 +93,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/me")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     @ApiOperation(value = "${AuthController.me}", response = UserResponseDTO.class, authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
@@ -104,12 +104,12 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     public AuthResponse refresh(HttpServletRequest req) {
         return new AuthResponse(userService.refresh(req.getRemoteUser()));
     }
 
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("permitAll()")
     @GetMapping(value = "/resetpwd", produces = "application/json")
     public SuccessResponse resetPassword(@RequestParam String email) {
         return userService.resetPassword(email);
