@@ -57,25 +57,9 @@ public class CompanySettings {
     @JsonIgnore
     private Collection<CostCategory> costCategories = createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost"));
 
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<AssetCategory> assetCategories;
-
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<MeterCategory> meterCategories;
-
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<PurchaseOrderCategory> purchaseOrderCategories;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Collection<TimeCategory> timeCategories = createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time"));
-
-    @OneToMany(mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<Checklist> checklists;
 
     private Role createRole(String name, List<BasicPermission> basicPermissions) {
         return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);

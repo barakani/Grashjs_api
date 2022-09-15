@@ -23,9 +23,6 @@ public class Vendor extends BasicInfos {
 
     private double rate;
 
-    @OneToMany(mappedBy = "vendor", fetch = FetchType.LAZY)
-    private Collection<CustomField> customFields;
-
     @ManyToMany
     @JoinTable(name = "T_Asset_Vendor_Associations",
             joinColumns = @JoinColumn(name = "id_vendor"),

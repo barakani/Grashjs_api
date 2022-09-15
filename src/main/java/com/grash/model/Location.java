@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
@@ -30,10 +29,6 @@ public class Location extends Audit {
 
     private String gps;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<Asset> assetList;
-
     @ManyToMany
     @JoinTable(name = "T_Location_Workers_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
@@ -62,13 +57,5 @@ public class Location extends Audit {
 
     @OneToOne
     private Customer customer;
-
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<Part> partList;
-
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Collection<FloorPlan> floorPlanList;
 }
 

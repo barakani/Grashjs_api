@@ -16,9 +16,6 @@ public class Meter {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
-    private Collection<Reading> readingList;
-
     @ManyToOne
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -55,8 +52,5 @@ public class Meter {
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
-
-    @OneToMany(mappedBy = "meter", fetch = FetchType.LAZY)
-    private Collection<WorkOrderMeterTrigger> workOrderMeterTriggerList;
 
 }

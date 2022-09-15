@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,6 @@ public class Checklist {
     private Long id;
 
     @OneToMany
-    @JsonIgnore
     private Collection<TaskBase> taskBaseList;
 
     @NotNull

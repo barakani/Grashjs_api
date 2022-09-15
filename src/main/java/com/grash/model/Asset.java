@@ -28,9 +28,6 @@ public class Asset extends Audit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
 
-    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    private Collection<Part> parts;
-
     @OneToOne
     private Image image;
 
@@ -105,9 +102,6 @@ public class Asset extends Audit {
                     @Index(name = "idx_asset_file_file_id", columnList = "id_file")
             })
     private Collection<File> files;
-
-    @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)
-    private Collection<Meter> meters;
 
 }
 

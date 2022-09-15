@@ -28,21 +28,10 @@ public class WorkOrder extends WorkOrderBase {
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;
-
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<WorkOrderHistory> workOrderHistoryList;
-
+    
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     private Collection<Task> taskList;
 
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<Labor> labors;
-
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<AdditionalCost> additionalCosts;
-
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<AdditionalTime> additionalTimes;
     @OneToOne
     private Request parentRequest;
 
