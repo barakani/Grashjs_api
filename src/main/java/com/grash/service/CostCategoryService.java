@@ -1,12 +1,11 @@
 package com.grash.service;
 
-import com.grash.dto.CategoryPostDTO;
+import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
 import com.grash.repository.CostCategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +17,16 @@ import java.util.Optional;
 public class CostCategoryService {
     private final CostCategoryRepository costCategoryRepository;
 
-    private final ModelMapper modelMapper;
+    private final CostCategoryMapper costCategoryMapper;
 
     public CostCategory create(CostCategory CostCategory) {
         return costCategoryRepository.save(CostCategory);
     }
 
-    public CostCategory update(Long id, CategoryPostDTO costCategory) {
+    public CostCategory update(Long id, CategoryPatchDTO costCategory) {
         if (costCategoryRepository.existsById(id)) {
             CostCategory savedCostCategory = costCategoryRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(costCategory, savedCostCategory);
-            return costCategoryRepository.save(savedCostCategory);
+            return costCategoryRepository.save(costCategoryMapper.updateCostCategory(savedCostCategory, costCategory));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
     }

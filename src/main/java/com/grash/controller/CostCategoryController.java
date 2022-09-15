@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.CategoryPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -85,7 +86,7 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "CostCategory not found")})
-    public CostCategory patch(@ApiParam("CostCategory") @RequestBody CategoryPostDTO costCategory, @ApiParam("id") @PathVariable("id") Long id,
+    public CostCategory patch(@ApiParam("CostCategory") @RequestBody CategoryPatchDTO costCategory, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);
         if (costCategoryService.findById(id).isPresent()) {
