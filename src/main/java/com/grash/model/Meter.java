@@ -40,8 +40,12 @@ public class Meter {
 
     @ManyToMany
     @JoinTable(name = "T_Meter_User_Associations",
-            joinColumns = @JoinColumn(name = "idMeter"),
-            inverseJoinColumns = @JoinColumn(name = "idUser"))
+            joinColumns = @JoinColumn(name = "id_meter"),
+            inverseJoinColumns = @JoinColumn(name = "id_user"),
+            indexes = {
+                    @Index(name = "idx_meter_user_meter_id", columnList = "id_meter"),
+                    @Index(name = "idx_meter_user_user_id", columnList = "id_user")
+            })
     private Collection<User> users;
 
     @OneToOne
