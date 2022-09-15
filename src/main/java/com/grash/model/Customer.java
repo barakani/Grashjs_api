@@ -35,8 +35,12 @@ public class Customer extends BasicInfos {
 
     @ManyToMany
     @JoinTable(name = "T_Part_customer_Associations",
-            joinColumns = @JoinColumn(name = "idCustomer"),
-            inverseJoinColumns = @JoinColumn(name = "idPart"))
+            joinColumns = @JoinColumn(name = "id_customer"),
+            inverseJoinColumns = @JoinColumn(name = "id_part"),
+            indexes = {
+                    @Index(name = "idx_customer_part_customer_id", columnList = "id_customer"),
+                    @Index(name = "idx_customer_part_part_id", columnList = "id_part")
+            })
     private Collection<Part> parts;
 
     @ManyToOne

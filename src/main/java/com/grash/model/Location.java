@@ -36,14 +36,22 @@ public class Location extends Audit {
 
     @ManyToMany
     @JoinTable(name = "T_Location_Workers_Associations",
-            joinColumns = @JoinColumn(name = "idLocation"),
-            inverseJoinColumns = @JoinColumn(name = "idWorker"))
+            joinColumns = @JoinColumn(name = "id_location"),
+            inverseJoinColumns = @JoinColumn(name = "id_worker"),
+            indexes = {
+                    @Index(name = "idx_location_worker_location_id", columnList = "id_location"),
+                    @Index(name = "idx_location_worker_worker_id", columnList = "id_worker")
+            })
     private Collection<User> workers;
 
     @ManyToMany
     @JoinTable(name = "T_Location_Team_Associations",
-            joinColumns = @JoinColumn(name = "idLocation"),
-            inverseJoinColumns = @JoinColumn(name = "idTeam"))
+            joinColumns = @JoinColumn(name = "id_location"),
+            inverseJoinColumns = @JoinColumn(name = "id_team"),
+            indexes = {
+                    @Index(name = "idx_location_team_location_id", columnList = "id_location"),
+                    @Index(name = "idx_location_team_team_id", columnList = "id_team")
+            })
     private Collection<Team> teamList;
 
     @OneToOne

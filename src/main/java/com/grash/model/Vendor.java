@@ -28,8 +28,12 @@ public class Vendor extends BasicInfos {
 
     @ManyToMany
     @JoinTable(name = "T_Asset_Vendor_Associations",
-            joinColumns = @JoinColumn(name = "idVendor"),
-            inverseJoinColumns = @JoinColumn(name = "idAsset"))
+            joinColumns = @JoinColumn(name = "id_vendor"),
+            inverseJoinColumns = @JoinColumn(name = "id_asset"),
+            indexes = {
+                    @Index(name = "idx_vendor_asset_vendor_id", columnList = "id_vendor"),
+                    @Index(name = "idx_vendor_asset_asset_id", columnList = "id_asset")
+            })
     private Collection<Asset> asset;
 
     @ManyToOne

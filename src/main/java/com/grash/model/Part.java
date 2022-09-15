@@ -29,8 +29,12 @@ public class Part {
 
     @ManyToMany
     @JoinTable(name = "T_Part_User_Associations",
-            joinColumns = @JoinColumn(name = "idPart"),
-            inverseJoinColumns = @JoinColumn(name = "idUser"))
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_user"),
+            indexes = {
+                    @Index(name = "idx_part_user_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_user_user_id", columnList = "id_user")
+            })
     private Collection<User> assignedTo;
 
     private String barcode;
@@ -49,8 +53,12 @@ public class Part {
 
     @ManyToMany
     @JoinTable(name = "T_Part_File_Associations",
-            joinColumns = @JoinColumn(name = "idPart"),
-            inverseJoinColumns = @JoinColumn(name = "idFile"))
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_file"),
+            indexes = {
+                    @Index(name = "idx_part_file_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_file_file_id", columnList = "id_file")
+            })
     private Collection<File> files;
 
     @OneToOne
@@ -58,16 +66,24 @@ public class Part {
 
     @ManyToMany
     @JoinTable(name = "T_Part_Customer_Associations",
-            joinColumns = @JoinColumn(name = "idPart"),
-            inverseJoinColumns = @JoinColumn(name = "idCustomer"))
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_customer"),
+            indexes = {
+                    @Index(name = "idx_part_customer_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
+            })
     private Collection<Customer> assignedCustomer;
 
     private int minQuantity;
 
     @ManyToMany
     @JoinTable(name = "T_Part_Team_Associations",
-            joinColumns = @JoinColumn(name = "idPart"),
-            inverseJoinColumns = @JoinColumn(name = "idTeam"))
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_team"),
+            indexes = {
+                    @Index(name = "idx_part_team_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_team_team_id", columnList = "id_team")
+            })
     private Collection<Team> teams;
 
     @ManyToOne
@@ -76,8 +92,12 @@ public class Part {
     private Asset asset;
 
     @ManyToMany
-    @JoinTable(name = "T_MultiPart_Part_Associations",
-            joinColumns = @JoinColumn(name = "idPart"),
-            inverseJoinColumns = @JoinColumn(name = "idMultiPart"))
+    @JoinTable(name = "T_MultiParts_Part_Associations",
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_multi_parts"),
+            indexes = {
+                    @Index(name = "idx_part_multi_parts_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_multi_parts_multi_parts_id", columnList = "id_multi_parts")
+            })
     private Collection<MultiParts> multiParts;
 }

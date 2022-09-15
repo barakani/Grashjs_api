@@ -55,20 +55,32 @@ public class Asset extends Audit {
 
     @ManyToMany
     @JoinTable(name = "T_Asset_User_Associations",
-            joinColumns = @JoinColumn(name = "idAsset"),
-            inverseJoinColumns = @JoinColumn(name = "idUser"))
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_user"),
+            indexes = {
+                    @Index(name = "idx_asset_user_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_user_user_id", columnList = "id_user")
+            })
     private Collection<User> assignedTo;
 
     @ManyToMany
     @JoinTable(name = "T_Asset_Team_Associations",
-            joinColumns = @JoinColumn(name = "idAsset"),
-            inverseJoinColumns = @JoinColumn(name = "idTeam"))
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_team"),
+            indexes = {
+                    @Index(name = "idx_asset_team_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_team_team_id", columnList = "id_team")
+            })
     private Collection<Team> teams;
 
     @ManyToMany
     @JoinTable(name = "T_Asset_Vendor_Associations",
-            joinColumns = @JoinColumn(name = "idAsset"),
-            inverseJoinColumns = @JoinColumn(name = "idVendor"))
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_vendor"),
+            indexes = {
+                    @Index(name = "idx_asset_vendor_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_vendor_vendor_id", columnList = "id_vendor")
+            })
     private Collection<Vendor> vendors;
 
     @OneToOne
@@ -86,8 +98,12 @@ public class Asset extends Audit {
 
     @ManyToMany
     @JoinTable(name = "T_Asset_File_Associations",
-            joinColumns = @JoinColumn(name = "idAsset"),
-            inverseJoinColumns = @JoinColumn(name = "idFile"))
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_file"),
+            indexes = {
+                    @Index(name = "idx_asset_file_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_file_file_id", columnList = "id_file")
+            })
     private Collection<File> files;
 
     @OneToMany(mappedBy = "asset", fetch = FetchType.LAZY)

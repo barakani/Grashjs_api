@@ -32,8 +32,12 @@ public class Request {
 
     @ManyToMany
     @JoinTable(name = "T_Request_File_Associations",
-            joinColumns = @JoinColumn(name = "idRequest"),
-            inverseJoinColumns = @JoinColumn(name = "idFile"))
+            joinColumns = @JoinColumn(name = "id_request"),
+            inverseJoinColumns = @JoinColumn(name = "id_file"),
+            indexes = {
+                    @Index(name = "idx_request_file_request_id", columnList = "id_request"),
+                    @Index(name = "idx_request_file_file_id", columnList = "id_file")
+            })
     private Collection<File> files;
     @OneToOne
     private Image image;
