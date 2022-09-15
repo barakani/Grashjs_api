@@ -34,17 +34,17 @@ public class CompanySettingsController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CompanySettings not found")})
-    public Optional<CompanySettings> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public CompanySettings getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {
             if (companySettingsOptional.get().getId().equals(user.getCompany().getCompanySettings().getId())) {
-                return companySettingsService.findById(id);
+                return companySettingsService.findById(id).get();
             } else {
                 throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}")

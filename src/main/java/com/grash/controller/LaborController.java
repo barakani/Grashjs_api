@@ -39,15 +39,15 @@ public class LaborController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Labor not found")})
-    public Optional<Labor> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Labor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
             if (hasAccess(user, savedLabor)) {
-                return optionalLabor;
+                return optionalLabor.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

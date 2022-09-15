@@ -56,14 +56,14 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CostCategory not found")})
-    public Optional<CostCategory> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public CostCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
         if (costCategoryOptional.isPresent()) {
             if (costCategoryOptional.get().getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())) {
-                return costCategoryService.findById(id);
+                return costCategoryService.findById(id).get();
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

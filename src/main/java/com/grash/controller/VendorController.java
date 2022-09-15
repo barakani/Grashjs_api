@@ -53,15 +53,15 @@ public class VendorController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Vendor not found")})
-    public Optional<Vendor> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Vendor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
             if (hasAccess(user, savedVendor)) {
-                return optionalVendor;
+                return optionalVendor.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

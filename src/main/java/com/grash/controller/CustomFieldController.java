@@ -39,15 +39,15 @@ public class CustomFieldController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CustomField not found")})
-    public Optional<CustomField> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public CustomField getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
             if (hasAccess(user, savedCustomField)) {
-                return optionalCustomField;
+                return optionalCustomField.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

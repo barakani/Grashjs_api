@@ -47,7 +47,7 @@ public class FloorPlanController {
             if (hasAccess(user, savedFloorPlan)) {
                 return optionalFloorPlan;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

@@ -37,15 +37,15 @@ public class DeprecationController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Deprecation not found")})
-    public Optional<Deprecation> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Deprecation getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
             if (hasAccess(user, savedDeprecation)) {
-                return optionalDeprecation;
+                return optionalDeprecation.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

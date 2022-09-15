@@ -33,17 +33,17 @@ public class UserSettingsController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "UserSettings not found")})
-    public Optional<UserSettings> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public UserSettings getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
             if (optionalUserSettings.get().getId().equals(user.getUserSettings().getId())) {
-                return userSettingsService.findById(id);
+                return optionalUserSettings.get();
             } else {
                 throw new CustomException("Can't get someone else's userSettings", HttpStatus.NOT_ACCEPTABLE);
             }
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}")
