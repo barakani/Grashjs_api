@@ -39,15 +39,16 @@ public class AdditionalTimeController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AdditionalTime not found")})
-    public Optional<AdditionalTime> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AdditionalTime getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
             if (hasAccess(user, savedAdditionalTime)) {
-                return optionalAdditionalTime;
+                return optionalAdditionalTime.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return null;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+
     }
 
     @PostMapping("")

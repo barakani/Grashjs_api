@@ -54,18 +54,16 @@ public class AssetCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Optional<AssetCategory> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {
             if (hasAccess(user, optionalAssetCategory.get())) {
-                return assetCategoryService.findById(id);
+                return assetCategoryService.findById(id).get();
             } else {
                 throw new CustomException("Can't get assetCategory from other company", HttpStatus.NOT_ACCEPTABLE);
             }
-        } else {
-            return null;
-        }
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
