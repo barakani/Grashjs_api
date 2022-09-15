@@ -28,8 +28,14 @@ public class FieldConfiguration {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration;
 
-    public FieldConfiguration(String fieldName, WorkOrderRequestConfiguration workOrderRequestConfiguration) {
+    @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private WorkOrderConfiguration workOrderConfiguration;
+
+    public FieldConfiguration(String fieldName, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration
+    ) {
         this.fieldName = fieldName;
+        this.workOrderConfiguration = workOrderConfiguration;
         this.WorkOrderRequestConfiguration = workOrderRequestConfiguration;
     }
 
@@ -37,7 +43,7 @@ public class FieldConfiguration {
         this.fieldName = fieldName;
     }
 
-    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames, WorkOrderRequestConfiguration workOrderRequestConfiguration) {
-        return fieldNames.stream().map(fieldName -> new FieldConfiguration(fieldName, workOrderRequestConfiguration)).collect(Collectors.toList());
+    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
+        return fieldNames.stream().map(fieldName -> new FieldConfiguration(fieldName, workOrderRequestConfiguration, workOrderConfiguration)).collect(Collectors.toList());
     }
 }
