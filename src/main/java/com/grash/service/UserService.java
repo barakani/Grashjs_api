@@ -78,7 +78,10 @@ public class UserService {
             } else {
                 Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
                 if (optionalRole.isPresent()) {
-                    user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+                    user.setRole(optionalRole.get());
+                    if (optionalRole.get().getCompanySettings() != null) {
+                        user.setCompany(optionalRole.get().getCompanySettings().getCompany());
+                    }
                 } else throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
             }
             if (API_HOST.equals("http://localhost:8080")) {
@@ -97,7 +100,6 @@ public class UserService {
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
-                //return jwtTokenProvider.createToken(user.getEmail(), user.getRoles());
             }
         } else {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);

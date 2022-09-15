@@ -28,9 +28,13 @@ public class Role {
     private Set<BasicPermission> permissions;
 
     @ManyToOne
-    @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
+
+    public Role(RoleType roleType, String name) {
+        this.name = name;
+        this.roleType = roleType;
+    }
 
     public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings) {
         this.name = name;
