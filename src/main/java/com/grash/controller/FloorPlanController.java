@@ -5,7 +5,6 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.FloorPlan;
 import com.grash.model.User;
-import com.grash.service.CompanyService;
 import com.grash.service.FloorPlanService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -29,7 +28,6 @@ public class FloorPlanController {
 
     private final FloorPlanService floorPlanService;
     private final UserService userService;
-    private final CompanyService companyService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

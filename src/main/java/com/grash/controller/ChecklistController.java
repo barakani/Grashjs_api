@@ -8,7 +8,6 @@ import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ChecklistService;
-import com.grash.service.CompanySettingsService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -32,7 +31,6 @@ public class ChecklistController {
 
     private final ChecklistService checklistService;
     private final UserService userService;
-    private final CompanySettingsService companySettingsService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")

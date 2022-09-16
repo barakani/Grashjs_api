@@ -7,7 +7,6 @@ import com.grash.model.AdditionalCost;
 import com.grash.model.User;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,7 +28,6 @@ public class AdditionalCostController {
 
     private final AdditionalCostService additionalCostService;
     private final UserService userService;
-    private final WorkOrderService workOrderService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

@@ -7,7 +7,6 @@ import com.grash.model.CustomField;
 import com.grash.model.User;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
-import com.grash.service.VendorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,7 +28,6 @@ public class CustomFieldController {
 
     private final CustomFieldService customFieldService;
     private final UserService userService;
-    private final VendorService vendorService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
