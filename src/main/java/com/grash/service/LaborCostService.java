@@ -2,7 +2,6 @@ package com.grash.service;
 
 import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.AssetCategory;
 import com.grash.model.LaborCost;
 import com.grash.repository.LaborCostRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,6 @@ public class LaborCostService {
     private final LaborCostRepository laborCostRepository;
     private final ModelMapper modelMapper;
 
-    public Collection<LaborCost> findByCompanySettings(Long id) {
-        return laborCostRepository.findByCompanySettings_Id(id);
-    }
-
     public LaborCost create(LaborCost LaborCost) {
         return laborCostRepository.save(LaborCost);
     }
@@ -37,9 +32,19 @@ public class LaborCostService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<LaborCost> getAll() { return laborCostRepository.findAll(); }
+    public Collection<LaborCost> getAll() {
+        return laborCostRepository.findAll();
+    }
 
-    public void delete(Long id){ laborCostRepository.deleteById(id);}
+    public void delete(Long id) {
+        laborCostRepository.deleteById(id);
+    }
 
-    public Optional<LaborCost> findById(Long id) {return laborCostRepository.findById(id); }
+    public Optional<LaborCost> findById(Long id) {
+        return laborCostRepository.findById(id);
+    }
+
+    public Collection<LaborCost> findByCompany(Long id) {
+        return laborCostRepository.findByCompany_Id(id);
+    }
 }

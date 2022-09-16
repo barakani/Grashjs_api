@@ -4,7 +4,6 @@ import com.grash.dto.LaborCostPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
-import com.grash.model.CompanySettings;
 import com.grash.model.LaborCost;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
@@ -44,8 +43,7 @@ public class LaborCostController {
             @ApiResponse(code = 404, message = "LaborCost not found")})
     public Collection<LaborCost> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        CompanySettings companySettings = user.getCompany().getCompanySettings();
-        return laborCostService.findByCompanySettings(companySettings.getId());
+        return laborCostService.findByCompany(user.getCompany().getId());
     }
 
     @GetMapping("/{id}")

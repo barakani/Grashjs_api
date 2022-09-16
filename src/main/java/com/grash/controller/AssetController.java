@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,7 @@ public class AssetController {
     private final LocationService locationService;
     private final ImageService imageService;
     private final AssetCategoryService assetCategoryService;
+    private final ModelMapper modelMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -124,18 +126,11 @@ public class AssetController {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
-        Optional<Image> optionalImage = imageService.findById(assetReq.getImage().getId());
-        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(assetReq.getCategory().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
-        //optional fields
-        boolean third = assetReq.getImage() == null || optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = assetReq.getCategory() == null || optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
 
-        if (first && second && third && fourth) {
+        if (first && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
             return true;
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
@@ -144,14 +139,14 @@ public class AssetController {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
-        Optional<Image> optionalImage = imageService.findById(assetReq.getImage().getId());
-        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(assetReq.getCategory().getId());
+        Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
+        Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
 
         //@NotNull fields
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         //optional fields
-        boolean third = assetReq.getImage() == null || optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = assetReq.getCategory() == null || optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
+        boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
 
         if (second && third && fourth) {
             return true;

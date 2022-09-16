@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Data
@@ -45,8 +44,6 @@ public class Part extends CompanyAudit {
     @ManyToOne
     @NotNull
     private Location location;
-
-    private Date createdAt;
 
     @ManyToMany
     @JoinTable(name = "T_Part_File_Associations",
