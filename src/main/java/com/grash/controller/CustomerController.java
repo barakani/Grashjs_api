@@ -3,7 +3,6 @@ package com.grash.controller;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.Company;
 import com.grash.model.Customer;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
@@ -58,7 +57,7 @@ public class CustomerController {
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer)) {
                 return optionalCustomer.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -71,7 +70,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Customer create(@ApiParam("Customer") @RequestBody Customer customerReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, customerReq)) {
+        if (customerService.canCreate(user, customerReq)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -89,7 +88,7 @@ public class CustomerController {
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer)) {
                 return customerService.update(id, customer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
@@ -107,7 +106,7 @@ public class CustomerController {
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer)) {
                 customerService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -115,16 +114,4 @@ public class CustomerController {
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Customer customer) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(customer.getCompany().getId());
-    }
-
-    private boolean canCreate(User user, Customer customerReq) {
-        Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
-        if (optionalCompany.isPresent()) {
-            return user.getCompany().getId().equals(optionalCompany.get().getId());
-        } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

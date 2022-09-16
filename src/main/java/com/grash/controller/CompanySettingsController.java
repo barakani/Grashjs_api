@@ -14,7 +14,10 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -40,37 +43,12 @@ public class CompanySettingsController {
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {
-            if (companySettingsOptional.get().getId().equals(user.getCompany().getCompanySettings().getId())) {
+            if (hasAccess(user, companySettingsOptional.get())) {
                 return companySettingsService.findById(id).get();
             } else {
                 throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "CompanySettings not found")})
-    public CompanySettings patch(@ApiParam("CompanySettings") @RequestBody CompanySettings companySettings,
-                                 @ApiParam("id") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
-
-        if (companySettingsOptional.isPresent()) {
-            CompanySettings savedCompanySettings = companySettingsOptional.get();
-            if (hasAccess(user, savedCompanySettings)) {
-                return companySettingsService.update(companySettings);
-            } else {
-                throw new CustomException("Can't patch someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
-            }
-        } else {
-            throw new CustomException("CompanySettings not found", HttpStatus.NOT_FOUND);
-        }
     }
 
     private boolean hasAccess(User user, CompanySettings companySettings) {

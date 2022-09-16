@@ -62,16 +62,18 @@ public class AssetService {
             return true;
         } else return user.getCompany().getId().equals(asset.getCompany().getId());
     }
-    
+
     public boolean canCreate(User user, Asset assetReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
+        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
+        if (first && second && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
             return true;
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
@@ -79,16 +81,15 @@ public class AssetService {
     public boolean canPatch(User user, AssetPatchDTO assetReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
+        Optional<Location> optionalLocation = assetReq.getLocation() == null ? Optional.empty() : locationService.findById(assetReq.getLocation().getId());
         Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
         Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
         Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
         Optional<User> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
         Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
 
-        //@NotNull fields
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         //optional fields
+        boolean second = !optionalLocation.isPresent() || optionalLocation.get().getCompany().getId().equals(companyId);
         boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
         boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
         boolean fifth = !optionalParentAsset.isPresent() || optionalParentAsset.get().getCompany().getId().equals(companyId);

@@ -3,11 +3,10 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
-import com.grash.model.Company;
+import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
-import com.grash.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -21,14 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AssetCategoryService {
     private final AssetCategoryRepository assetCategoryRepository;
-
-    private final AssetRepository assetRepository;
-    private final LocationService locationService;
-    private final ImageService imageService;
-    private final AssetCategoryService assetCategoryService;
-    private final DeprecationService deprecationService;
-    private final UserService userService;
-    private final CompanyService companyService;
+    private final CompanySettingsService companySettingsService;
 
     private final ModelMapper modelMapper;
 
@@ -68,12 +60,11 @@ public class AssetCategoryService {
     }
 
     public boolean canCreate(User user, AssetCategory assetCategoryReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(assetCategoryReq.getCompanySettings().getCompany().getId());
+        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(assetCategoryReq.getCompanySettings().getId());
 
         //Post only fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(
+                user.getCompany().getCompanySettings().getId());
 
         if (first && canPatch(user, modelMapper.map(assetCategoryReq, CategoryPatchDTO.class))) {
             return true;
