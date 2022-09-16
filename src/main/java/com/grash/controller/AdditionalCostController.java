@@ -111,7 +111,8 @@ public class AdditionalCostController {
     private boolean canCreate(User user, AdditionalCost additionalCostReq) {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
+            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId()) &&
+                    user.getCompany().getId().equals(additionalCostReq.getCompany().getId());
         } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
     }
 }

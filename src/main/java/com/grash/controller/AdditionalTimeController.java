@@ -112,7 +112,8 @@ public class AdditionalTimeController {
     private boolean canCreate(User user, AdditionalTime additionalTimeReq) {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
         if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
+            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())
+                    && user.getCompany().getId().equals(additionalTimeReq.getCompany().getId());
         } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
     }
 }

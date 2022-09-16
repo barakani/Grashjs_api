@@ -3,13 +3,9 @@ package com.grash.controller;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.Asset;
-import com.grash.model.Company;
-import com.grash.model.User;
+import com.grash.model.*;
 import com.grash.model.enums.RoleType;
-import com.grash.service.AssetService;
-import com.grash.service.CompanyService;
-import com.grash.service.UserService;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -33,6 +29,9 @@ public class AssetController {
     private final AssetService assetService;
     private final UserService userService;
     private final CompanyService companyService;
+    private final LocationService locationService;
+    private final ImageService imageService;
+    private final AssetCategoryService assetCategoryService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -89,7 +88,7 @@ public class AssetController {
 
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (hasAccess(user, savedAsset)) {
+            if (hasAccess(user, savedAsset) && canPatch(user, asset)) {
                 return assetService.update(id, asset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
@@ -122,9 +121,40 @@ public class AssetController {
     }
 
     private boolean canCreate(User user, Asset assetReq) {
+        Long companyId = user.getCompany().getId();
+
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-        if (optionalCompany.isPresent()) {
-            return user.getCompany().getId().equals(optionalCompany.get().getId());
-        } else throw new CustomException("Invalid Location", HttpStatus.NOT_ACCEPTABLE);
+        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
+        Optional<Image> optionalImage = imageService.findById(assetReq.getImage().getId());
+        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(assetReq.getCategory().getId());
+
+        //@NotNull fields
+        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+        //optional fields
+        boolean third = assetReq.getImage() == null || optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId);
+        boolean fourth = assetReq.getCategory() == null || optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+
+        if (first && second && third && fourth) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    private boolean canPatch(User user, AssetPatchDTO assetReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
+        Optional<Image> optionalImage = imageService.findById(assetReq.getImage().getId());
+        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(assetReq.getCategory().getId());
+
+        //@NotNull fields
+        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+        //optional fields
+        boolean third = assetReq.getImage() == null || optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId);
+        boolean fourth = assetReq.getCategory() == null || optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+
+        if (second && third && fourth) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 }

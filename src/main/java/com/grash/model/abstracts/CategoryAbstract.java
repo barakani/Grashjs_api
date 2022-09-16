@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @MappedSuperclass
 @NoArgsConstructor
-public abstract class CategoryAbstract extends CompanyAudit {
+public abstract class CategoryAbstract extends Audit {
 
     @NotNull
     private String name;
