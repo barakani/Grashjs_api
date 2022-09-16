@@ -79,8 +79,6 @@ public class AdditionalTimeService {
         boolean third = !optionalTimeCategory.isPresent() || optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
         boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
 
-        if (third && sixth) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return third && sixth;
     }
 }

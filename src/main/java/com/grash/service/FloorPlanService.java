@@ -75,8 +75,6 @@ public class FloorPlanService {
         //optional fields
         boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
 
-        if (third) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return third;
     }
 }

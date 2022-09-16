@@ -74,9 +74,7 @@ public class AdditionalCostService {
 
         boolean first = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
 
-        if (first) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first;
     }
 
 }

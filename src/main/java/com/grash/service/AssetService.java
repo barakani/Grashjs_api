@@ -94,8 +94,6 @@ public class AssetService {
         boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
         boolean seventh = !optionalDeprecation.isPresent() || optionalDeprecation.get().getCompany().getId().equals(companyId);
 
-        if (second && third && fourth && fifth && sixth && seventh) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return second && third && fourth && fifth && sixth && seventh;
     }
 }
