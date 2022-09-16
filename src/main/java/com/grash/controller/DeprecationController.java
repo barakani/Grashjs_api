@@ -1,10 +1,10 @@
 package com.grash.controller;
 
+import com.grash.dto.DeprecationPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Deprecation;
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
 import com.grash.service.DeprecationService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -42,7 +42,7 @@ public class DeprecationController {
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (hasAccess(user, savedDeprecation)) {
+            if (deprecationService.hasAccess(user, savedDeprecation)) {
                 return optionalDeprecation.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -53,8 +53,11 @@ public class DeprecationController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Deprecation create(@ApiParam("Deprecation") @RequestBody Deprecation deprecationReq) {
-        return deprecationService.create(deprecationReq);
+    public Deprecation create(@ApiParam("Deprecation") @RequestBody Deprecation deprecationReq, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (deprecationService.canCreate(user, deprecationReq)) {
+            return deprecationService.create(deprecationReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -63,14 +66,14 @@ public class DeprecationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Deprecation not found")})
-    public Deprecation patch(@ApiParam("Deprecation") @RequestBody Deprecation deprecation, @ApiParam("id") @PathVariable("id") Long id,
+    public Deprecation patch(@ApiParam("Deprecation") @RequestBody DeprecationPatchDTO deprecation, @ApiParam("id") @PathVariable("id") Long id,
                              HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
 
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (hasAccess(user, savedDeprecation)) {
+            if (deprecationService.hasAccess(user, savedDeprecation) & deprecationService.canPatch(user, deprecation)) {
                 return deprecationService.update(id, deprecation);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Deprecation not found", HttpStatus.NOT_FOUND);
@@ -88,7 +91,7 @@ public class DeprecationController {
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (hasAccess(user, savedDeprecation)) {
+            if (deprecationService.hasAccess(user, savedDeprecation)) {
                 deprecationService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -96,10 +99,5 @@ public class DeprecationController {
         } else throw new CustomException("Deprecation not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Deprecation deprecation) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(
-                userService.findById(deprecation.getCreatedBy()).get().getCompany().getId());
-    }
+
 }

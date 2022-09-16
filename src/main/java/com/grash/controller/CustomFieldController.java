@@ -5,8 +5,6 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.CustomField;
 import com.grash.model.User;
-import com.grash.model.Vendor;
-import com.grash.model.enums.RoleType;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
@@ -44,7 +42,7 @@ public class CustomFieldController {
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (hasAccess(user, savedCustomField)) {
+            if (customFieldService.hasAccess(user, savedCustomField)) {
                 return optionalCustomField.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -57,7 +55,7 @@ public class CustomFieldController {
             @ApiResponse(code = 403, message = "Access denied")})
     public CustomField create(@ApiParam("CustomField") @RequestBody CustomField customFieldReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, customFieldReq)) {
+        if (customFieldService.canCreate(user, customFieldReq)) {
             return customFieldService.create(customFieldReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -75,7 +73,7 @@ public class CustomFieldController {
 
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (hasAccess(user, savedCustomField)) {
+            if (customFieldService.hasAccess(user, savedCustomField)) {
                 return customFieldService.update(id, customField);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
@@ -93,24 +91,11 @@ public class CustomFieldController {
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (hasAccess(user, savedCustomField)) {
+            if (customFieldService.hasAccess(user, savedCustomField)) {
                 customFieldService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
-    }
-
-    private boolean hasAccess(User user, CustomField customField) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, CustomField customFieldReq) {
-        Optional<Vendor> optionalVendor = vendorService.findById(customFieldReq.getVendor().getId());
-        if (optionalVendor.isPresent()) {
-            return user.getCompany().getId().equals(optionalVendor.get().getCompany().getId());
-        } else throw new CustomException("Invalid Vendor", HttpStatus.NOT_ACCEPTABLE);
     }
 }
