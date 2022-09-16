@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import java.util.Collection;
 @Entity
 @Data
 @NoArgsConstructor
-public class Team {
+public class Team extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
