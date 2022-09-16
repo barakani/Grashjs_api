@@ -3,15 +3,16 @@ package com.grash.controller;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.*;
+import com.grash.model.Asset;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
-import com.grash.service.*;
+import com.grash.service.AssetService;
+import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,12 +30,6 @@ public class AssetController {
 
     private final AssetService assetService;
     private final UserService userService;
-    private final CompanyService companyService;
-    private final LocationService locationService;
-    private final ImageService imageService;
-    private final AssetCategoryService assetCategoryService;
-    private final DeprecationService deprecationService;
-    private final ModelMapper modelMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -60,7 +55,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (hasAccess(user, savedAsset)) {
+            if (assetService.hasAccess(user, savedAsset)) {
                 return optionalAsset.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -73,7 +68,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Asset create(@ApiParam("Asset") @RequestBody Asset assetReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, assetReq)) {
+        if (assetService.canCreate(user, assetReq)) {
             return assetService.create(assetReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -91,7 +86,7 @@ public class AssetController {
 
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (hasAccess(user, savedAsset) && canPatch(user, asset)) {
+            if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)) {
                 return assetService.update(id, asset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
@@ -109,7 +104,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (hasAccess(user, savedAsset)) {
+            if (assetService.hasAccess(user, savedAsset)) {
                 assetService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -117,46 +112,4 @@ public class AssetController {
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Asset asset) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(asset.getCompany().getId());
-    }
-
-    private boolean canCreate(User user, Asset assetReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-
-        //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        if (first && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-    }
-
-    private boolean canPatch(User user, AssetPatchDTO assetReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
-        Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
-        Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
-        Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : assetService.findById(assetReq.getParentAsset().getId());
-        Optional<User> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
-        Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
-
-        //@NotNull fields
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
-        //optional fields
-        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        boolean fifth = !optionalParentAsset.isPresent() || optionalParentAsset.get().getCompany().getId().equals(companyId);
-        boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
-        boolean seventh = !optionalDeprecation.isPresent() || optionalDeprecation.get().getCompany().getId().equals(companyId);
-
-        if (second && third && fourth && fifth && sixth && seventh) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-    }
 }

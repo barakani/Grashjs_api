@@ -2,7 +2,8 @@ package com.grash.service;
 
 import com.grash.dto.AssetPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.Asset;
+import com.grash.model.*;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
@@ -17,6 +18,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AssetService {
     private final AssetRepository assetRepository;
+    private final LocationService locationService;
+    private final ImageService imageService;
+    private final AssetCategoryService assetCategoryService;
+    private final DeprecationService deprecationService;
+    private final UserService userService;
+    private final CompanyService companyService;
+
 
     private final ModelMapper modelMapper;
 
@@ -47,5 +55,48 @@ public class AssetService {
 
     public Collection<Asset> findByCompany(Long id) {
         return assetRepository.findByCompany_Id(id);
+    }
+
+    public boolean hasAccess(User user, Asset asset) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(asset.getCompany().getId());
+    }
+    
+    public boolean canCreate(User user, Asset assetReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
+
+        //@NotNull fields
+        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+
+        if (first && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    public boolean canPatch(User user, AssetPatchDTO assetReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
+        Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
+        Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
+        Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
+        Optional<User> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
+        Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
+
+        //@NotNull fields
+        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+        //optional fields
+        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
+        boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        boolean fifth = !optionalParentAsset.isPresent() || optionalParentAsset.get().getCompany().getId().equals(companyId);
+        boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
+        boolean seventh = !optionalDeprecation.isPresent() || optionalDeprecation.get().getCompany().getId().equals(companyId);
+
+        if (second && third && fourth && fifth && sixth && seventh) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 }
