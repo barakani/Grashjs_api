@@ -5,8 +5,6 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
 import com.grash.model.User;
-import com.grash.model.WorkOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -44,7 +42,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (hasAccess(user, savedAdditionalCost)) {
+            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
                 return optionalAdditionalCost.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -57,7 +55,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, additionalCostReq)) {
+        if (additionalCostService.canCreate(user, additionalCostReq)) {
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -75,7 +73,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (hasAccess(user, savedAdditionalCost)) {
+            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
                 return additionalCostService.update(id, additionalCost);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
@@ -93,7 +91,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (hasAccess(user, savedAdditionalCost)) {
+            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
                 additionalCostService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -101,18 +99,4 @@ public class AdditionalCostController {
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, AdditionalCost additionalCost) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(
-                additionalCost.getWorkOrder().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, AdditionalCost additionalCostReq) {
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId()) &&
-                    user.getCompany().getId().equals(additionalCostReq.getCompany().getId());
-        } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

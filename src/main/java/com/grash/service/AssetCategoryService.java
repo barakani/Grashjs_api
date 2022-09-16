@@ -3,7 +3,11 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
+import com.grash.model.Company;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
+import com.grash.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -17,6 +21,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AssetCategoryService {
     private final AssetCategoryRepository assetCategoryRepository;
+
+    private final AssetRepository assetRepository;
+    private final LocationService locationService;
+    private final ImageService imageService;
+    private final AssetCategoryService assetCategoryService;
+    private final DeprecationService deprecationService;
+    private final UserService userService;
+    private final CompanyService companyService;
 
     private final ModelMapper modelMapper;
 
@@ -49,5 +61,26 @@ public class AssetCategoryService {
         return assetCategoryRepository.findByCompanySettings_Id(id);
     }
 
+    public boolean hasAccess(User user, AssetCategory assetCategory) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(assetCategory.getCompanySettings().getCompany().getId());
+    }
 
+    public boolean canCreate(User user, AssetCategory assetCategoryReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Company> optionalCompany = companyService.findById(assetCategoryReq.getCompanySettings().getCompany().getId());
+
+        //Post only fields
+        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+
+        if (first && canPatch(user, modelMapper.map(assetCategoryReq, CategoryPatchDTO.class))) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    public boolean canPatch(User user, CategoryPatchDTO assetCategoryReq) {
+        return true;
+    }
 }

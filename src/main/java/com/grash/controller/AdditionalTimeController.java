@@ -5,11 +5,8 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.User;
-import com.grash.model.WorkOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +28,6 @@ public class AdditionalTimeController {
 
     private final AdditionalTimeService additionalTimeService;
     private final UserService userService;
-    private final WorkOrderService workOrderService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -44,7 +40,7 @@ public class AdditionalTimeController {
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (hasAccess(user, savedAdditionalTime)) {
+            if (additionalTimeService.hasAccess(user, savedAdditionalTime)) {
                 return optionalAdditionalTime.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -58,7 +54,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalTime create(@ApiParam("AdditionalTime") @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, additionalTimeReq)) {
+        if (additionalTimeService.canCreate(user, additionalTimeReq)) {
             return additionalTimeService.create(additionalTimeReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -76,7 +72,7 @@ public class AdditionalTimeController {
 
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (hasAccess(user, savedAdditionalTime)) {
+            if (additionalTimeService.hasAccess(user, savedAdditionalTime)) {
                 return additionalTimeService.update(id, additionalTime);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
@@ -94,26 +90,11 @@ public class AdditionalTimeController {
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (hasAccess(user, savedAdditionalTime)) {
+            if (additionalTimeService.hasAccess(user, savedAdditionalTime)) {
                 additionalTimeService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);
-    }
-
-    private boolean hasAccess(User user, AdditionalTime additionalTime) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(
-                additionalTime.getWorkOrder().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, AdditionalTime additionalTimeReq) {
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalTimeReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId())
-                    && user.getCompany().getId().equals(additionalTimeReq.getCompany().getId());
-        } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
     }
 }
