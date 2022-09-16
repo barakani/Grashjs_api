@@ -5,11 +5,8 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Labor;
 import com.grash.model.User;
-import com.grash.model.WorkOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +28,6 @@ public class LaborController {
 
     private final LaborService laborService;
     private final UserService userService;
-    private final WorkOrderService workOrderService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -44,7 +40,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (hasAccess(user, savedLabor)) {
+            if (laborService.hasAccess(user, savedLabor)) {
                 return optionalLabor.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -57,7 +53,7 @@ public class LaborController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Labor create(@ApiParam("Labor") @RequestBody Labor laborReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, laborReq)) {
+        if (laborService.canCreate(user, laborReq)) {
             return laborService.create(laborReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -75,7 +71,7 @@ public class LaborController {
 
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (hasAccess(user, savedLabor)) {
+            if (laborService.hasAccess(user, savedLabor)) {
                 return laborService.update(id, labor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
@@ -93,7 +89,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (hasAccess(user, savedLabor)) {
+            if (laborService.hasAccess(user, savedLabor)) {
                 laborService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -101,17 +97,4 @@ public class LaborController {
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Labor labor) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(
-                labor.getWorkOrder().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, Labor laborReq) {
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(laborReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
-        } else throw new CustomException("Invalid Work order", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

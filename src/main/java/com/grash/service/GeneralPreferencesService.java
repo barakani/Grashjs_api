@@ -2,8 +2,9 @@ package com.grash.service;
 
 import com.grash.dto.GeneralPreferencesDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.AssetCategory;
 import com.grash.model.GeneralPreferences;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.GeneralPreferencesRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
@@ -33,13 +34,26 @@ public class GeneralPreferencesService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<GeneralPreferences> getAll() { return generalPreferencesRepository.findAll(); }
+    public Collection<GeneralPreferences> getAll() {
+        return generalPreferencesRepository.findAll();
+    }
 
-    public void delete(Long id){ generalPreferencesRepository.deleteById(id);}
+    public void delete(Long id) {
+        generalPreferencesRepository.deleteById(id);
+    }
 
-    public Optional<GeneralPreferences> findById(Long id) {return generalPreferencesRepository.findById(id); }
+    public Optional<GeneralPreferences> findById(Long id) {
+        return generalPreferencesRepository.findById(id);
+    }
 
     public Collection<GeneralPreferences> findByCompanySettings(Long id) {
         return generalPreferencesRepository.findByCompanySettings_Id(id);
+    }
+
+    public boolean hasAccess(User user, GeneralPreferences generalPreferences) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getCompanySettings().getId().equals(
+                generalPreferences.getCompanySettings().getId());
     }
 }
