@@ -1,12 +1,10 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Date;
 
@@ -24,11 +22,6 @@ public class WorkOrder extends WorkOrderBase {
 
     private boolean archived;
 
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
-    
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     private Collection<Task> taskList;
 

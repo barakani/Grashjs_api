@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @MappedSuperclass
-public abstract class Time extends Audit {
+public abstract class Time extends CompanyAudit {
 
     @NotNull
     private int duration;

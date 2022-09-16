@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Deprecation extends Audit {
+public class Deprecation extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -1,17 +1,19 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkOrderHistory extends Audit {
+public class WorkOrderHistory extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -19,9 +21,5 @@ public class WorkOrderHistory extends Audit {
     @NotNull
     private String name;
 
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private WorkOrder workOrder;
 
 }

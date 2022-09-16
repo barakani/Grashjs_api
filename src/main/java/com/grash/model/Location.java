@@ -1,7 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,7 @@ import java.util.Collection;
 @Entity
 @Data
 @NoArgsConstructor
-public class Location extends Audit {
+public class Location extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -21,11 +20,6 @@ public class Location extends Audit {
     private String name;
 
     private String address;
-
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
 
     private String gps;
 

@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,15 +11,10 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class PurchaseOrder {
+public class PurchaseOrder extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
 
     @NotNull
     private String name;

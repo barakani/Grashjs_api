@@ -1,7 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Asset extends Audit {
+public class Asset extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,11 +21,6 @@ public class Asset extends Audit {
     private Date createAt;
 
     private boolean archived;
-
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
 
     @OneToOne
     private Image image;

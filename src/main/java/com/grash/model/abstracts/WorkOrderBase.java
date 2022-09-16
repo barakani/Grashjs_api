@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Data
 @MappedSuperclass
-public class WorkOrderBase extends Audit {
+public class WorkOrderBase extends CompanyAudit {
     private Date dueDate;
     private Status status = Status.OPEN;
     private Priority priority = Priority.NONE;

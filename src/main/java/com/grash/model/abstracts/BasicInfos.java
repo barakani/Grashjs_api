@@ -6,7 +6,7 @@ import javax.persistence.MappedSuperclass;
 
 @Data
 @MappedSuperclass
-public abstract class BasicInfos {
+public abstract class BasicInfos extends CompanyAudit {
     private String name;
     private String address;
     private String phone;

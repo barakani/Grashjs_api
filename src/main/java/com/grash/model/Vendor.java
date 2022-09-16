@@ -1,12 +1,10 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
@@ -33,8 +31,4 @@ public class Vendor extends BasicInfos {
             })
     private Collection<Asset> asset;
 
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
 }

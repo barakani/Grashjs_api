@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Part {
+public class Part extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,10 +23,6 @@ public class Part {
 
     private double cost;
 
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Company company;
 
     @ManyToMany
     @JoinTable(name = "T_Part_User_Associations",
