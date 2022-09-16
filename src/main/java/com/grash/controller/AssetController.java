@@ -33,6 +33,7 @@ public class AssetController {
     private final LocationService locationService;
     private final ImageService imageService;
     private final AssetCategoryService assetCategoryService;
+    private final DeprecationService deprecationService;
     private final ModelMapper modelMapper;
 
     @GetMapping("")
@@ -141,14 +142,20 @@ public class AssetController {
         Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
         Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
         Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
+        Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : assetService.findById(assetReq.getParentAsset().getId());
+        Optional<User> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
+        Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
 
         //@NotNull fields
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         //optional fields
         boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
         boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        boolean fifth = !optionalParentAsset.isPresent() || optionalParentAsset.get().getCompany().getId().equals(companyId);
+        boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
+        boolean seventh = !optionalDeprecation.isPresent() || optionalDeprecation.get().getCompany().getId().equals(companyId);
 
-        if (second && third && fourth) {
+        if (second && third && fourth && fifth && sixth && seventh) {
             return true;
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
