@@ -67,9 +67,7 @@ public class LaborService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        if (first && second && canPatch(user, modelMapper.map(laborReq, LaborPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && second && canPatch(user, modelMapper.map(laborReq, LaborPatchDTO.class));
     }
 
     public boolean canPatch(User user, LaborPatchDTO laborReq) {

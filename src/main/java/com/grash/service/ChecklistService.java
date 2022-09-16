@@ -65,9 +65,7 @@ public class ChecklistService {
         //@NotNull fields
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(user.getCompany().getCompanySettings().getId());
 
-        if (first && canPatch(user, modelMapper.map(checklistReq, ChecklistPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(checklistReq, ChecklistPatchDTO.class));
     }
 
     public boolean canPatch(User user, ChecklistPatchDTO checklistReq) {

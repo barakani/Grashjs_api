@@ -66,9 +66,7 @@ public class TaskService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        if (first && second && canPatch(user, modelMapper.map(taskReq, TaskPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && second && canPatch(user, modelMapper.map(taskReq, TaskPatchDTO.class));
     }
 
     public boolean canPatch(User user, TaskPatchDTO taskReq) {

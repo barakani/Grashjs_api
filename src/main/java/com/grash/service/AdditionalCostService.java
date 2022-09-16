@@ -65,9 +65,7 @@ public class AdditionalCostService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class));
     }
 
     public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {
@@ -75,7 +73,7 @@ public class AdditionalCostService {
         Optional<User> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
 
         boolean first = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
-        
+
         if (first) {
             return true;
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

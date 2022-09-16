@@ -66,9 +66,7 @@ public class AdditionalTimeService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        if (first && second && canPatch(user, modelMapper.map(additionalTimeReq, AdditionalTimePatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && second && canPatch(user, modelMapper.map(additionalTimeReq, AdditionalTimePatchDTO.class));
     }
 
     public boolean canPatch(User user, AdditionalTimePatchDTO additionalTimeReq) {

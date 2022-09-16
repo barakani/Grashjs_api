@@ -73,9 +73,7 @@ public class AssetService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        if (first && second && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && second && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class));
     }
 
     public boolean canPatch(User user, AssetPatchDTO assetReq) {

@@ -63,9 +63,7 @@ public class DeprecationService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(deprecationReq, DeprecationPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(deprecationReq, DeprecationPatchDTO.class));
     }
 
     public boolean canPatch(User user, DeprecationPatchDTO deprecationReq) {

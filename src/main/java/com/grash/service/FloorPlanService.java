@@ -65,9 +65,7 @@ public class FloorPlanService {
         //@NotNull fields
         boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(floorPlanReq, FloorPlanPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(floorPlanReq, FloorPlanPatchDTO.class));
     }
 
     public boolean canPatch(User user, FloorPlanPatchDTO floorPlanReq) {

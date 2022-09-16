@@ -66,9 +66,7 @@ public class LaborCostService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(laborCostReq, LaborCostPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(laborCostReq, LaborCostPatchDTO.class));
     }
 
     public boolean canPatch(User user, LaborCostPatchDTO laborCostReq) {

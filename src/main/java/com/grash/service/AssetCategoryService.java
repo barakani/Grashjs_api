@@ -66,9 +66,7 @@ public class AssetCategoryService {
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(
                 user.getCompany().getCompanySettings().getId());
 
-        if (first && canPatch(user, modelMapper.map(assetCategoryReq, CategoryPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(assetCategoryReq, CategoryPatchDTO.class));
     }
 
     public boolean canPatch(User user, CategoryPatchDTO assetCategoryReq) {

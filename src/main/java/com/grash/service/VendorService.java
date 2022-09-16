@@ -71,9 +71,7 @@ public class VendorService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(vendorReq, VendorPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(vendorReq, VendorPatchDTO.class));
     }
 
     public boolean canPatch(User user, VendorPatchDTO vendorReq) {

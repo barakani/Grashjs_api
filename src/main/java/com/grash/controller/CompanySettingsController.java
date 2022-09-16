@@ -3,8 +3,6 @@ package com.grash.controller;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
-import com.grash.model.enums.BasicPermission;
-import com.grash.model.enums.RoleType;
 import com.grash.service.CompanySettingsService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -43,21 +41,11 @@ public class CompanySettingsController {
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {
-            if (hasAccess(user, companySettingsOptional.get())) {
+            if (companySettingsService.hasAccess(user, companySettingsOptional.get())) {
                 return companySettingsService.findById(id).get();
             } else {
                 throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
             }
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    private boolean hasAccess(User user, CompanySettings companySettings) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else if (user.getCompany().getCompanySettings().getId().equals(companySettings.getId())) {
-            if (user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
-                return true;
-            } else throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
-        } else return false;
     }
 }

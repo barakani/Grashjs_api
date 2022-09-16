@@ -62,9 +62,7 @@ public class CustomFieldService {
         //@NotNull fields
         boolean first = optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
 
-        if (first && canPatch(user, modelMapper.map(customFieldReq, CustomFieldPatchDTO.class))) {
-            return true;
-        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        return first && canPatch(user, modelMapper.map(customFieldReq, CustomFieldPatchDTO.class));
     }
 
     public boolean canPatch(User user, CustomFieldPatchDTO customFieldReq) {
