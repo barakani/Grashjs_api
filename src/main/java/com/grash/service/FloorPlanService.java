@@ -3,6 +3,10 @@ package com.grash.service;
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.FloorPlan;
+import com.grash.model.Image;
+import com.grash.model.Location;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
@@ -17,6 +21,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FloorPlanService {
     private final FloorPlanRepository floorPlanRepository;
+    private final ImageService imageService;
+    private final LocationService locationService;
 
     private final ModelMapper modelMapper;
 
@@ -43,5 +49,36 @@ public class FloorPlanService {
 
     public Optional<FloorPlan> findById(Long id) {
         return floorPlanRepository.findById(id);
+    }
+
+    public boolean hasAccess(User user, FloorPlan floorPlan) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
+    }
+
+    public boolean canCreate(User user, FloorPlan floorPlanReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Location> optionalLocation = locationService.findById(floorPlanReq.getLocation().getId());
+
+        //@NotNull fields
+        boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+
+        if (first && canPatch(user, modelMapper.map(floorPlanReq, FloorPlanPatchDTO.class))) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    public boolean canPatch(User user, FloorPlanPatchDTO floorPlanReq) {
+        Long companyId = user.getCompany().getId();
+        Optional<Image> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : imageService.findById(floorPlanReq.getImage().getId());
+
+        //optional fields
+        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
+
+        if (third) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 }

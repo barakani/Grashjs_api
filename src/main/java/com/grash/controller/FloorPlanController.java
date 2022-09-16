@@ -3,10 +3,8 @@ package com.grash.controller;
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.Company;
 import com.grash.model.FloorPlan;
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
 import com.grash.service.CompanyService;
 import com.grash.service.FloorPlanService;
 import com.grash.service.UserService;
@@ -44,7 +42,7 @@ public class FloorPlanController {
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (hasAccess(user, savedFloorPlan)) {
+            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
                 return optionalFloorPlan;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -57,7 +55,7 @@ public class FloorPlanController {
             @ApiResponse(code = 403, message = "Access denied")})
     public FloorPlan create(@ApiParam("FloorPlan") @RequestBody FloorPlan floorPlanReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, floorPlanReq)) {
+        if (floorPlanService.canCreate(user, floorPlanReq)) {
             return floorPlanService.create(floorPlanReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -75,7 +73,7 @@ public class FloorPlanController {
 
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (hasAccess(user, savedFloorPlan)) {
+            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
                 return floorPlanService.update(id, floorPlan);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
@@ -93,7 +91,7 @@ public class FloorPlanController {
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (hasAccess(user, savedFloorPlan)) {
+            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
                 floorPlanService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -101,16 +99,4 @@ public class FloorPlanController {
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, FloorPlan floorPlan) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, FloorPlan floorPlanReq) {
-        Optional<Company> optionalCompany = companyService.findById(floorPlanReq.getLocation().getCompany().getId());
-        if (optionalCompany.isPresent()) {
-            return user.getCompany().getId().equals(optionalCompany.get().getId());
-        } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);
-    }
 }
