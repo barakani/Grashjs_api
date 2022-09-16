@@ -3,7 +3,6 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
@@ -58,7 +57,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (hasAccess(user, savedVendor)) {
+            if (vendorService.hasAccess(user, savedVendor)) {
                 return optionalVendor.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -71,7 +70,7 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Vendor create(@ApiParam("Vendor") @RequestBody Vendor vendorReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, vendorReq)) {
+        if (vendorService.canCreate(user, vendorReq)) {
             return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -89,7 +88,7 @@ public class VendorController {
 
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (hasAccess(user, savedVendor)) {
+            if (vendorService.hasAccess(user, savedVendor) && vendorService.canPatch(user, vendor)) {
                 return vendorService.update(id, vendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
@@ -107,7 +106,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (hasAccess(user, savedVendor)) {
+            if (vendorService.hasAccess(user, savedVendor)) {
                 vendorService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -115,16 +114,4 @@ public class VendorController {
         } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Vendor vendor) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(vendor.getCompany().getId());
-    }
-
-    private boolean canCreate(User user, Vendor vendorReq) {
-        Optional<Company> optionalCompany = companyService.findById(vendorReq.getCompany().getId());
-        if (optionalCompany.isPresent()) {
-            return user.getCompany().getId().equals(optionalCompany.get().getId());
-        } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

@@ -88,7 +88,7 @@ public class CustomerController {
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer) && customerService.canPatch(user, customer)) {
                 return customerService.update(id, customer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);

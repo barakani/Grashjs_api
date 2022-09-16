@@ -2,7 +2,10 @@ package com.grash.service;
 
 import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.model.Company;
 import com.grash.model.LaborCost;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.LaborCostRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class LaborCostService {
     private final LaborCostRepository laborCostRepository;
     private final ModelMapper modelMapper;
+    private final CompanyService companyService;
 
     public LaborCost create(LaborCost LaborCost) {
         return laborCostRepository.save(LaborCost);
@@ -46,5 +50,28 @@ public class LaborCostService {
 
     public Collection<LaborCost> findByCompany(Long id) {
         return laborCostRepository.findByCompany_Id(id);
+    }
+
+    public boolean hasAccess(User user, LaborCost laborCost) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(laborCost.getCompany().getId());
+    }
+
+    public boolean canCreate(User user, LaborCost laborCostReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Company> optionalCompany = companyService.findById(laborCostReq.getCompany().getId());
+
+        //@NotNull fields
+        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+
+        if (first && canPatch(user, modelMapper.map(laborCostReq, LaborCostPatchDTO.class))) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    public boolean canPatch(User user, LaborCostPatchDTO laborCostReq) {
+        return true;
     }
 }

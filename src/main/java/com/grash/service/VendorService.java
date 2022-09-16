@@ -2,7 +2,10 @@ package com.grash.service;
 
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.model.Company;
+import com.grash.model.User;
 import com.grash.model.Vendor;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
@@ -17,7 +20,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VendorService {
     private final VendorRepository vendorRepository;
-
+    private final LocationService locationService;
+    private final ImageService imageService;
+    private final AssetCategoryService assetCategoryService;
+    private final DeprecationService deprecationService;
+    private final UserService userService;
+    private final CompanyService companyService;
     private final ModelMapper modelMapper;
 
     public Vendor create(Vendor Vendor) {
@@ -47,5 +55,28 @@ public class VendorService {
 
     public Collection<Vendor> findByCompany(Long id) {
         return vendorRepository.findByCompany_Id(id);
+    }
+
+    public boolean hasAccess(User user, Vendor vendor) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(vendor.getCompany().getId());
+    }
+
+    public boolean canCreate(User user, Vendor vendorReq) {
+        Long companyId = user.getCompany().getId();
+
+        Optional<Company> optionalCompany = companyService.findById(vendorReq.getCompany().getId());
+
+        //@NotNull fields
+        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+
+        if (first && canPatch(user, modelMapper.map(vendorReq, VendorPatchDTO.class))) {
+            return true;
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    public boolean canPatch(User user, VendorPatchDTO vendorReq) {
+        return true;
     }
 }

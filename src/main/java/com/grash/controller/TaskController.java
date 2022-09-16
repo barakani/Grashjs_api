@@ -5,8 +5,6 @@ import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Task;
 import com.grash.model.User;
-import com.grash.model.WorkOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -44,7 +42,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (hasAccess(user, savedTask)) {
+            if (taskService.hasAccess(user, savedTask)) {
                 return optionalTask.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -57,7 +55,7 @@ public class TaskController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Task create(@ApiParam("Task") @RequestBody Task taskReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, taskReq)) {
+        if (taskService.canCreate(user, taskReq)) {
             return taskService.create(taskReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -75,7 +73,7 @@ public class TaskController {
 
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (hasAccess(user, savedTask)) {
+            if (taskService.hasAccess(user, savedTask) && taskService.canPatch(user, task)) {
                 return taskService.update(id, task);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
@@ -93,7 +91,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (hasAccess(user, savedTask)) {
+            if (taskService.hasAccess(user, savedTask)) {
                 taskService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -101,17 +99,4 @@ public class TaskController {
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Task task) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(
-                task.getWorkOrder().getCompany().getId());
-    }
-
-    private boolean canCreate(User user, Task taskReq) {
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(taskReq.getWorkOrder().getId());
-        if (optionalWorkOrder.isPresent()) {
-            return user.getCompany().getId().equals(optionalWorkOrder.get().getCompany().getId());
-        } else throw new CustomException("Invalid WorkOrder", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

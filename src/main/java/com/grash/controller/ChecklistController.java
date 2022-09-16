@@ -59,7 +59,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (hasAccess(user, savedChecklist)) {
+            if (checklistService.hasAccess(user, savedChecklist)) {
                 return optionalChecklist.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -72,7 +72,7 @@ public class ChecklistController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Checklist create(@ApiParam("Checklist") @RequestBody Checklist checklistReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (canCreate(user, checklistReq)) {
+        if (checklistService.canCreate(user, checklistReq)) {
             return checklistService.create(checklistReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -90,7 +90,7 @@ public class ChecklistController {
 
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (hasAccess(user, savedChecklist)) {
+            if (checklistService.hasAccess(user, savedChecklist) && checklistService.canPatch(user, checklist)) {
                 return checklistService.update(id, checklist);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
@@ -108,7 +108,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (hasAccess(user, savedChecklist)) {
+            if (checklistService.hasAccess(user, savedChecklist)) {
                 checklistService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -116,16 +116,4 @@ public class ChecklistController {
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }
 
-    private boolean hasAccess(User user, Checklist checklist) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getCompanySettings().getId().equals(checklist.getCompanySettings().getId());
-    }
-
-    private boolean canCreate(User user, Checklist checklistReq) {
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(checklistReq.getCompanySettings().getId());
-        if (optionalCompanySettings.isPresent()) {
-            return user.getCompany().getCompanySettings().getId().equals(optionalCompanySettings.get().getId());
-        } else throw new CustomException("Invalid CompanySettings", HttpStatus.NOT_ACCEPTABLE);
-    }
 }

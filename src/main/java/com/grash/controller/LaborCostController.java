@@ -6,7 +6,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.LaborCost;
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
 import com.grash.service.CompanyService;
 import com.grash.service.LaborCostService;
 import com.grash.service.UserService;
@@ -56,7 +55,7 @@ public class LaborCostController {
         User user = userService.whoami(req);
         Optional<LaborCost> optionalLaborCost = laborCostService.findById(id);
         if (optionalLaborCost.isPresent()) {
-            if (hasAccess(user, optionalLaborCost.get())) {
+            if (laborCostService.hasAccess(user, optionalLaborCost.get())) {
                 return laborCostService.findById(id).get();
             } else {
                 throw new CustomException("Can't get laborCost from other company", HttpStatus.NOT_ACCEPTABLE);
@@ -73,7 +72,7 @@ public class LaborCostController {
         User user = userService.whoami(req);
         Optional<Company> optionalCompany = companyService.findById(laborCost.getCompany().getId());
         if (optionalCompany.isPresent()) {
-            if (canCreate(user, laborCost)) {
+            if (laborCostService.canCreate(user, laborCost)) {
                 return laborCostService.create(laborCost);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);
@@ -85,7 +84,7 @@ public class LaborCostController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "LaborCost not found")})
-    public LaborCost patch(@ApiParam("LaborCost") @RequestBody LaborCostPatchDTO laborCostPatchDTO,
+    public LaborCost patch(@ApiParam("LaborCost") @RequestBody LaborCostPatchDTO laborCost,
                            @ApiParam("id") @PathVariable("id") Long id,
                            HttpServletRequest req) {
         User user = userService.whoami(req);
@@ -93,8 +92,8 @@ public class LaborCostController {
 
         if (optionalLaborCost.isPresent()) {
             LaborCost savedLaborCost = optionalLaborCost.get();
-            if (hasAccess(user, savedLaborCost)) {
-                return laborCostService.update(id, laborCostPatchDTO);
+            if (laborCostService.hasAccess(user, savedLaborCost) && laborCostService.canPatch(user, laborCost)) {
+                return laborCostService.update(id, laborCost);
             } else {
                 throw new CustomException("Can't patch laborCost from other company", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -116,7 +115,7 @@ public class LaborCostController {
 
         Optional<LaborCost> laborCostOptional = laborCostService.findById(id);
         if (laborCostOptional.isPresent()) {
-            if (hasAccess(user, laborCostOptional.get())) {
+            if (laborCostService.hasAccess(user, laborCostOptional.get())) {
                 laborCostService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -124,19 +123,5 @@ public class LaborCostController {
         } else throw new CustomException("LaborCost not found", HttpStatus.NOT_FOUND);
     }
 
-
-    private boolean hasAccess(User user, LaborCost laborCost) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return laborCost.getCompany().getId().equals(user.getCompany().getId());
-    }
-
-    private boolean canCreate(User user, LaborCost laborCost) {
-        Optional<Company> optionalCompany = companyService
-                .findById(laborCost.getCompany().getId());
-        if (optionalCompany.isPresent()) {
-            return user.getCompany().getId().equals(optionalCompany.get().getId());
-        } else throw new CustomException("Invalid Company", HttpStatus.NOT_ACCEPTABLE);
-    }
 
 }

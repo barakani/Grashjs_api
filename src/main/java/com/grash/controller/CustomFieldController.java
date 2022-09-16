@@ -73,7 +73,7 @@ public class CustomFieldController {
 
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (customFieldService.hasAccess(user, savedCustomField)) {
+            if (customFieldService.hasAccess(user, savedCustomField) && customFieldService.canPatch(user, customField)) {
                 return customFieldService.update(id, customField);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);

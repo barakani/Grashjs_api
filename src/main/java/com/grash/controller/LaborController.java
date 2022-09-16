@@ -71,7 +71,7 @@ public class LaborController {
 
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (laborService.hasAccess(user, savedLabor)) {
+            if (laborService.hasAccess(user, savedLabor) && laborService.canPatch(user, labor)) {
                 return laborService.update(id, labor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);

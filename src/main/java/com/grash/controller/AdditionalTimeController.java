@@ -72,7 +72,7 @@ public class AdditionalTimeController {
 
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
-            if (additionalTimeService.hasAccess(user, savedAdditionalTime)) {
+            if (additionalTimeService.hasAccess(user, savedAdditionalTime) && additionalTimeService.canPatch(user, additionalTime)) {
                 return additionalTimeService.update(id, additionalTime);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalTime not found", HttpStatus.NOT_FOUND);

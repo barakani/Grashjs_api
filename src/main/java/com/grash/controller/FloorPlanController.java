@@ -73,7 +73,7 @@ public class FloorPlanController {
 
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
+            if (floorPlanService.hasAccess(user, savedFloorPlan) && floorPlanService.canPatch(user, floorPlan)) {
                 return floorPlanService.update(id, floorPlan);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);

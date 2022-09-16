@@ -73,7 +73,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
+            if (additionalCostService.hasAccess(user, savedAdditionalCost) && additionalCostService.canPatch(user, additionalCost)) {
                 return additionalCostService.update(id, additionalCost);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);

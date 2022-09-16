@@ -88,7 +88,7 @@ public class AssetCategoryController {
 
         if (optionalAssetCategory.isPresent()) {
             AssetCategory savedAssetCategory = optionalAssetCategory.get();
-            if (assetCategoryService.hasAccess(user, savedAssetCategory)) {
+            if (assetCategoryService.hasAccess(user, savedAssetCategory) && assetCategoryService.canPatch(user, assetCategory)) {
                 return assetCategoryService.update(id, assetCategory);
             } else {
                 throw new CustomException("Can't patch assetCategory from other company", HttpStatus.NOT_ACCEPTABLE);
