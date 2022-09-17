@@ -74,7 +74,7 @@ public class LaborService {
         Long companyId = user.getCompany().getId();
 
         Optional<User> optionalUser = laborReq.getWorker() == null ? Optional.empty() : userService.findById(laborReq.getWorker().getId());
-        boolean first = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
+        boolean first = laborReq.getWorker() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return first;
     }

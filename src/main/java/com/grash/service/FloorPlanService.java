@@ -73,7 +73,7 @@ public class FloorPlanService {
         Optional<Image> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : imageService.findById(floorPlanReq.getImage().getId());
 
         //optional fields
-        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
+        boolean third = floorPlanReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
 
         return third;
     }

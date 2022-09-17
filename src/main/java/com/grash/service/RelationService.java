@@ -36,11 +36,17 @@ public class RelationService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Relation> getAll() { return relationRepository.findAll(); }
+    public Collection<Relation> getAll() {
+        return relationRepository.findAll();
+    }
 
-    public void delete(Long id){ relationRepository.deleteById(id);}
+    public void delete(Long id) {
+        relationRepository.deleteById(id);
+    }
 
-    public Optional<Relation> findById(Long id) {return relationRepository.findById(id); }
+    public Optional<Relation> findById(Long id) {
+        return relationRepository.findById(id);
+    }
 
     public Collection<Relation> findByCompany(Long id) {
         return relationRepository.findByCompany_Id(id);
@@ -63,8 +69,8 @@ public class RelationService {
         Optional<WorkOrder> optionalParentWorkOrder = relationReq.getParent() == null ? Optional.empty() : workOrderService.findById(relationReq.getParent().getId());
         Optional<WorkOrder> optionalChildWorkOrder = relationReq.getChild() == null ? Optional.empty() : workOrderService.findById(relationReq.getChild().getId());
 
-        boolean first = !optionalParentWorkOrder.isPresent() || optionalParentWorkOrder.get().getCompany().getId().equals(companyId);
-        boolean second = !optionalChildWorkOrder.isPresent() || optionalChildWorkOrder.get().getCompany().getId().equals(companyId);
+        boolean first = relationReq.getParent() == null || (optionalParentWorkOrder.isPresent() && optionalParentWorkOrder.get().getCompany().getId().equals(companyId));
+        boolean second = relationReq.getChild() == null || (optionalChildWorkOrder.isPresent() && optionalChildWorkOrder.get().getCompany().getId().equals(companyId));
 
         return first && second;
     }

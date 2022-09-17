@@ -76,8 +76,8 @@ public class AdditionalTimeService {
         Optional<User> optionalUser = additionalTimeReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalTimeReq.getAssignedTo().getId());
 
         //optional fields
-        boolean third = !optionalTimeCategory.isPresent() || optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
+        boolean third = additionalTimeReq.getTimeCategory() == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
+        boolean sixth = additionalTimeReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return third && sixth;
     }

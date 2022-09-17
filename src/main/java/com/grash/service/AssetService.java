@@ -87,12 +87,12 @@ public class AssetService {
         Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
 
         //optional fields
-        boolean second = !optionalLocation.isPresent() || optionalLocation.get().getCompany().getId().equals(companyId);
-        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = !optionalAssetCategory.isPresent() || optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        boolean fifth = !optionalParentAsset.isPresent() || optionalParentAsset.get().getCompany().getId().equals(companyId);
-        boolean sixth = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
-        boolean seventh = !optionalDeprecation.isPresent() || optionalDeprecation.get().getCompany().getId().equals(companyId);
+        boolean second = assetReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
+        boolean third = assetReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
+        boolean fourth = assetReq.getCategory() == null || (optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
+        boolean fifth = assetReq.getParentAsset() == null || (optionalParentAsset.isPresent() && optionalParentAsset.get().getCompany().getId().equals(companyId));
+        boolean sixth = assetReq.getPrimaryUser() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
+        boolean seventh = assetReq.getDeprecation() == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth && fifth && sixth && seventh;
     }

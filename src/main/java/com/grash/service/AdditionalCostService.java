@@ -72,7 +72,7 @@ public class AdditionalCostService {
         Long companyId = user.getCompany().getId();
         Optional<User> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
 
-        boolean first = !optionalUser.isPresent() || optionalUser.get().getCompany().getId().equals(companyId);
+        boolean first = additionalCostReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return first;
     }

@@ -48,6 +48,11 @@ public class TimeCategoryService {
         return timeCategoryRepository.findById(id);
     }
 
+    public Collection<TimeCategory> findByCompanySettings(Long id) {
+        return timeCategoryRepository.findByCompanySettings_Id(id);
+
+    }
+    
     public boolean hasAccess(User user, TimeCategory timeCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
@@ -67,10 +72,5 @@ public class TimeCategoryService {
 
     public boolean canPatch(User user, CategoryPatchDTO timeCategoryReq) {
         return true;
-    }
-    
-    public Collection<TimeCategory> findByCompanySettings(Long id) {
-        return timeCategoryRepository.findByCompanySettings_Id(id);
-
     }
 }

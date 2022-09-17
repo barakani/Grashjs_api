@@ -24,7 +24,9 @@ public class ReadingService {
     private final MeterService meterService;
     private ModelMapper modelMapper;
 
-    public Reading create(Reading Reading) { return readingRepository.save(Reading); }
+    public Reading create(Reading Reading) {
+        return readingRepository.save(Reading);
+    }
 
     public Reading update(Long id, ReadingPatchDTO reading) {
         if (readingRepository.existsById(id)) {
@@ -35,11 +37,17 @@ public class ReadingService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Reading> getAll() { return readingRepository.findAll(); }
+    public Collection<Reading> getAll() {
+        return readingRepository.findAll();
+    }
 
-    public void delete(Long id){ readingRepository.deleteById(id);}
+    public void delete(Long id) {
+        readingRepository.deleteById(id);
+    }
 
-    public Optional<Reading> findById(Long id) {return readingRepository.findById(id); }
+    public Optional<Reading> findById(Long id) {
+        return readingRepository.findById(id);
+    }
 
     public Collection<Reading> findByCompany(Long id) {
         return readingRepository.findByCompany_Id(id);
@@ -65,9 +73,9 @@ public class ReadingService {
     public boolean canPatch(User user, ReadingPatchDTO readingReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Meter> optionalMeter = readingReq.getMeter() == null  ? Optional.empty() : meterService.findById(readingReq.getMeter().getId());
+        Optional<Meter> optionalMeter = readingReq.getMeter() == null ? Optional.empty() : meterService.findById(readingReq.getMeter().getId());
 
-        boolean first = !optionalMeter.isPresent() || optionalMeter.get().getCompany().getId().equals(companyId);
+        boolean first = readingReq.getMeter() == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
 
         return first;
     }

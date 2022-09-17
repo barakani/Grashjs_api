@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PurchaseOrderCategoryService {
     private final PurchaseOrderCategoryRepository purchaseOrderCategoryRepository;
-    
+
     private final CompanySettingsService companySettingsService;
 
 
@@ -63,7 +63,7 @@ public class PurchaseOrderCategoryService {
 
     public boolean canCreate(User user, PurchaseOrderCategory purchaseOrderCategoryReq) {
         Long companyId = user.getCompany().getId();
-        
+
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(purchaseOrderCategoryReq.getCompanySettings().getId());
 
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
@@ -76,7 +76,7 @@ public class PurchaseOrderCategoryService {
 
         Optional<CompanySettings> optionalCompanySettings = purchaseOrderCategoryReq.getCompanySettings() == null ? Optional.empty() : companySettingsService.findById(purchaseOrderCategoryReq.getCompanySettings().getId());
 
-        boolean first = !optionalCompanySettings.isPresent() || optionalCompanySettings.get().getCompany().getId().equals(companyId);
+        boolean first = purchaseOrderCategoryReq.getCompanySettings() == null || (optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId));
 
         return first;
     }
