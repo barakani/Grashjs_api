@@ -103,6 +103,12 @@ public class User {
             })
     private Collection<Team> teams;
 
+    @ManyToMany
+    private Collection<PreventiveMaintenance> preventiveMaintenances;
+
+    @ManyToMany
+    private Collection<WorkOrder> workOrders;
+
 
 }
 

@@ -26,8 +26,8 @@ public class RequestService {
     private final TeamService teamService;
     private final AssetService assetService;
 
-    public Request create(Request Request) {
-        return requestRepository.save(Request);
+    public Request create(Request request) {
+        return requestRepository.save(request);
     }
 
     public Request update(Long id, RequestPatchDTO request) {
