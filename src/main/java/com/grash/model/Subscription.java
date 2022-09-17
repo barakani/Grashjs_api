@@ -15,10 +15,15 @@ public class Subscription {
     private Long id;
 
     @NotNull
-    private int users;
+    private int usersCount;
 
     private boolean monthly;
 
-    @ManyToOne
+    @OneToOne
+    @NotNull
     private SubscriptionPlan subscriptionPlan;
+
+    @OneToOne
+    @NotNull
+    private Company company;
 }

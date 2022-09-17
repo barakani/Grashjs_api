@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
-    @Query("SELECT r from Request r where r.company = :x ")
+    @Query("SELECT r from Request r where r.company.id = :x ")
     Collection<Request> findByCompany_Id(@Param("x") Long id);
 }
