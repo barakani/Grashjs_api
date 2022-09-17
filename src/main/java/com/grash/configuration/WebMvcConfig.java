@@ -1,6 +1,8 @@
 package com.grash.configuration;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,6 +15,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Value("${frontend.url}")
     private String frontendUrl;
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

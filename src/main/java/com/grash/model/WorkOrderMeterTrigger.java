@@ -23,6 +23,7 @@ public class WorkOrderMeterTrigger {
     private Date date;
 
     @OneToOne
+    @NotNull
     private WorkOrder workOrder;
 
     private WorkOrderMeterTriggerCondition workOrderMeterTriggerCondition;
