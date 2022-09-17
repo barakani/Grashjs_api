@@ -1,9 +1,15 @@
 package com.grash.service;
 
+import com.grash.dto.FieldConfigurationPatchDTO;
+import com.grash.exception.CustomException;
 import com.grash.model.FieldConfiguration;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.FieldConfigurationRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -20,13 +26,31 @@ public class FieldConfigurationService {
         return fieldConfigurationRepository.save(FieldConfiguration);
     }
 
-    public FieldConfiguration update(FieldConfiguration FieldConfiguration) {
-        return fieldConfigurationRepository.save(FieldConfiguration);
+    public FieldConfiguration update(Long id, FieldConfigurationPatchDTO fieldConfiguration) {
+        if (fieldConfigurationRepository.existsById(id)) {
+            FieldConfiguration savedFieldConfiguration = fieldConfigurationRepository.findById(id).get();
+            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+            modelMapper.map(fieldConfiguration, savedFieldConfiguration);
+            return fieldConfigurationRepository.save(savedFieldConfiguration);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<FieldConfiguration> getAll() { return fieldConfigurationRepository.findAll(); }
+    public Collection<FieldConfiguration> getAll() {
+        return fieldConfigurationRepository.findAll();
+    }
 
-    public void delete(Long id){ fieldConfigurationRepository.deleteById(id);}
+    public void delete(Long id) {
+        fieldConfigurationRepository.deleteById(id);
+    }
 
-    public Optional<FieldConfiguration> findById(Long id) {return fieldConfigurationRepository.findById(id); }
+    public Optional<FieldConfiguration> findById(Long id) {
+        return fieldConfigurationRepository.findById(id);
+    }
+
+    public boolean hasAccess(User user, FieldConfiguration fieldConfiguration) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else
+            return user.getCompany().getId().equals(fieldConfiguration.getWorkOrderConfiguration().getCompanySettings().getCompany().getId());
+    }
 }
