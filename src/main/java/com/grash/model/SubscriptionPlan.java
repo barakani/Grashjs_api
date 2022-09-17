@@ -24,5 +24,6 @@ public class SubscriptionPlan {
     private String code;
 
     @OneToOne
+    @NotNull
     private Company company;
 }
