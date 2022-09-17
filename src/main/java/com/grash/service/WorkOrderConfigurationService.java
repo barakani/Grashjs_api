@@ -1,6 +1,8 @@
 package com.grash.service;
 
+import com.grash.model.User;
 import com.grash.model.WorkOrderConfiguration;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderConfigurationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,22 @@ public class WorkOrderConfigurationService {
         return workOrderConfigurationRepository.save(WorkOrderConfiguration);
     }
 
-    public Collection<WorkOrderConfiguration> getAll() { return workOrderConfigurationRepository.findAll(); }
+    public Collection<WorkOrderConfiguration> getAll() {
+        return workOrderConfigurationRepository.findAll();
+    }
 
-    public void delete(Long id){ workOrderConfigurationRepository.deleteById(id);}
+    public void delete(Long id) {
+        workOrderConfigurationRepository.deleteById(id);
+    }
 
-    public Optional<WorkOrderConfiguration> findById(Long id) {return workOrderConfigurationRepository.findById(id); }
+    public Optional<WorkOrderConfiguration> findById(Long id) {
+        return workOrderConfigurationRepository.findById(id);
+    }
+
+    public boolean hasAccess(User user, WorkOrderConfiguration workOrderConfiguration) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else
+            return user.getCompany().getId().equals(workOrderConfiguration.getCompanySettings().getCompany().getId());
+    }
 }
