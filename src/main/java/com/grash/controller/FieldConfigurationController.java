@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/fieldConfigurations")
+@RequestMapping("/field-configurations")
 @Api(tags = "fieldConfiguration")
 @RequiredArgsConstructor
 public class FieldConfigurationController {

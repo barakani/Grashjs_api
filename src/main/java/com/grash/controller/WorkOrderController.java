@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/workOrders")
+@RequestMapping("/work-orders")
 @Api(tags = "workOrder")
 @RequiredArgsConstructor
 public class WorkOrderController {

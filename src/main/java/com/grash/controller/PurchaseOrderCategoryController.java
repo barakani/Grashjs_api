@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/purchaseOrderCategorys")
+@RequestMapping("/purchase-order-categories")
 @Api(tags = "purchaseOrderCategory")
 @RequiredArgsConstructor
 public class PurchaseOrderCategoryController {

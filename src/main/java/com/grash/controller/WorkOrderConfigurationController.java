@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/workOrderConfigurations")
+@RequestMapping("/work-order-configurations")
 @Api(tags = "workOrderConfiguration")
 @RequiredArgsConstructor
 public class WorkOrderConfigurationController {

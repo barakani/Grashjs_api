@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/taskBases")
+@RequestMapping("/task-bases")
 @Api(tags = "taskBase")
 @RequiredArgsConstructor
 public class TaskBaseController {

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/workOrderMeterTriggers")
+@RequestMapping("/work-order-meter-triggers")
 @Api(tags = "workOrderMeterTrigger")
 @RequiredArgsConstructor
 public class WorkOrderMeterTriggerController {

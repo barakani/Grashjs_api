@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/labor-cost")
+@RequestMapping("/labor-costs")
 @Api(tags = "laborCost")
 @RequiredArgsConstructor
 public class LaborCostController {

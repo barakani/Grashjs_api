@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/timeCategorys")
+@RequestMapping("/time-categories")
 @Api(tags = "timeCategory")
 @RequiredArgsConstructor
 public class TimeCategoryController {
