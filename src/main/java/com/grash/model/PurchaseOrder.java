@@ -19,7 +19,7 @@ public class PurchaseOrder extends CompanyAudit {
     @NotNull
     private String name;
 
-    @OneToOne
+    @ManyToOne
     private PurchaseOrderCategory purchaseOrderOrderCategory;
 
     private Date shippingDueDate;
@@ -52,10 +52,10 @@ public class PurchaseOrder extends CompanyAudit {
 
     private String additionalInfoNotes;
 
-    @OneToOne
+    @ManyToOne
     private Vendor vendor;
 
-    @OneToOne
+    @ManyToOne
     private Company requesterInformation;
 
 }

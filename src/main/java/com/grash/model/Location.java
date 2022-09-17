@@ -43,13 +43,13 @@ public class Location extends CompanyAudit {
             })
     private Collection<Team> teamList;
 
-    @OneToOne
+    @ManyToOne
     private Location parentLocation;
 
-    @OneToOne
+    @ManyToOne
     private Vendor vendor;
 
-    @OneToOne
+    @ManyToOne
     private Customer customer;
 }
 

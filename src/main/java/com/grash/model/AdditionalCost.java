@@ -18,7 +18,7 @@ public class AdditionalCost extends Cost {
 
     private String description;
 
-    @OneToOne
+    @ManyToOne
     private User assignedTo;
 
     private boolean includeToTotalCost;

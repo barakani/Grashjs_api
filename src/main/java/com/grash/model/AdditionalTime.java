@@ -17,7 +17,7 @@ public class AdditionalTime extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private User assignedTo;
 
     private boolean includeToTotalTime;
@@ -26,7 +26,7 @@ public class AdditionalTime extends Time {
 
     private Date startedAt;
 
-    @OneToOne
+    @ManyToOne
     private TimeCategory timeCategory;
 
     @ManyToOne

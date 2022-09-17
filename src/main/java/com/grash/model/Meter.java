@@ -25,7 +25,7 @@ public class Meter extends CompanyAudit {
     @NotNull
     private int updateFrequency;
 
-    @OneToOne
+    @ManyToOne
     private MeterCategory meterCategory;
 
     @OneToOne
@@ -41,7 +41,7 @@ public class Meter extends CompanyAudit {
             })
     private Collection<User> users;
 
-    @OneToOne
+    @ManyToOne
     private Location location;
 
     @ManyToOne

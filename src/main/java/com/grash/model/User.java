@@ -30,7 +30,7 @@ public class User {
 
     private String phone;
 
-    @OneToOne
+    @ManyToOne
     @NotNull
     private Role role;
 
@@ -45,7 +45,7 @@ public class User {
 
     private boolean enabled;
 
-    @OneToOne
+    @ManyToOne
     private Company company;
 
     private boolean ownsCompany;

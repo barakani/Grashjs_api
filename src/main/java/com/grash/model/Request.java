@@ -41,20 +41,20 @@ public class Request extends CompanyAudit {
 
 //  optionalfields;
 
-    @OneToOne
+    @ManyToOne
     private Asset asset;
 
-    @OneToOne
+    @ManyToOne
     private Location location;
 
-    @OneToOne
+    @ManyToOne
     private User assignedTo;
 
     private Date dueDate;
 
     private String category;
 
-    @OneToOne
+    @ManyToOne
     private Team team;
 
 }

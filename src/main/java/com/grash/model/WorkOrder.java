@@ -25,10 +25,10 @@ public class WorkOrder extends WorkOrderBase {
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
     private Collection<Task> taskList;
 
-    @OneToOne
+    @ManyToOne
     private Request parentRequest;
 
-    @OneToOne
+    @ManyToOne
     private PurchaseOrder purchaseOrder;
 
     @ManyToMany
@@ -41,7 +41,7 @@ public class WorkOrder extends WorkOrderBase {
             })
     private Collection<File> fileList;
 
-    @OneToOne
+    @ManyToOne
     private PreventiveMaintenance parentPreventiveMaintenance;
 
 }

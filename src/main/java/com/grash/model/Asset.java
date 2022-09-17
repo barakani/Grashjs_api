@@ -29,19 +29,19 @@ public class Asset extends CompanyAudit {
     @NotNull
     private Location location;
 
-    @OneToOne
+    @ManyToOne
     private Asset parentAsset;
 
     private String area;
 
     private String barCode;
 
-    @OneToOne
+    @ManyToOne
     private AssetCategory category;
 
     private String description;
 
-    @OneToOne
+    @ManyToOne
     private User primaryUser;
 
     @ManyToMany

@@ -19,6 +19,6 @@ public class Subscription {
 
     private boolean monthly;
 
-    @OneToOne
+    @ManyToOne
     private SubscriptionPlan subscriptionPlan;
 }

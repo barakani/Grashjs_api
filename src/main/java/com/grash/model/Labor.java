@@ -16,7 +16,7 @@ public class Labor extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private User worker;
 
     @OneToOne(cascade = CascadeType.ALL)

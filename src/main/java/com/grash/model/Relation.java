@@ -14,12 +14,12 @@ public class Relation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private RelationType relationType=RelationType.RELATED_TO;
+    private RelationType relationType = RelationType.RELATED_TO;
 
-    @OneToOne
+    @ManyToOne
     private WorkOrder parent;
 
-    @OneToOne
+    @ManyToOne
     private WorkOrder child;
 
 

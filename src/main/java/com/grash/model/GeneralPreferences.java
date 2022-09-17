@@ -21,7 +21,7 @@ public class GeneralPreferences {
 
     private DateFormat dateFormat = DateFormat.MMDDYY;
 
-    @OneToOne
+    @ManyToOne
     private Currency currency;
 
     private BusinessType businessType;
