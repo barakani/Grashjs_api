@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
-import com.sun.javafx.logging.JFRInputEvent;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
@@ -40,13 +39,21 @@ public class RequestService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Request> getAll() { return requestRepository.findAll(); }
+    public Collection<Request> getAll() {
+        return requestRepository.findAll();
+    }
 
-    public void delete(Long id){ requestRepository.deleteById(id);}
+    public void delete(Long id) {
+        requestRepository.deleteById(id);
+    }
 
-    public Optional<Request> findById(Long id) {return requestRepository.findById(id); }
+    public Optional<Request> findById(Long id) {
+        return requestRepository.findById(id);
+    }
 
-    public Collection<Request> findByCompany(Long id) {return requestRepository.findByCompany_Id(id); }
+    public Collection<Request> findByCompany(Long id) {
+        return requestRepository.findByCompany_Id(id);
+    }
 
     public boolean hasAccess(User user, Request request) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
@@ -75,11 +82,11 @@ public class RequestService {
         Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
 
         //optional fields
-        boolean first = !optionalAsset.isPresent() || optionalAsset.get().getCompany().getId().equals(companyId);
-        boolean second = !optionalLocation.isPresent() || optionalLocation.get().getCompany().getId().equals(companyId);
-        boolean third = !optionalImage.isPresent() || optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = !optionalAssignedTo.isPresent() || optionalAssignedTo.get().getCompany().getId().equals(companyId);
-        boolean fifth = !optionalTeam.isPresent() || optionalTeam.get().getCompany().getId().equals(companyId);
+        boolean first = requestReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
+        boolean second = requestReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
+        boolean third = requestReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
+        boolean fourth = requestReq.getAssignedTo() == null || (optionalAssignedTo.isPresent() && optionalAssignedTo.get().getCompany().getId().equals(companyId));
+        boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
 
         return first && second && third && fourth && fifth;
     }
