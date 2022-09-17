@@ -52,7 +52,7 @@ public class PurchaseOrderCategoryService {
     }
 
     public Collection<PurchaseOrderCategory> findByCompanySettings(Long id) {
-        return purchaseOrderCategoryRepository.findByCompanySettings_Id();
+        return purchaseOrderCategoryRepository.findByCompanySettings_Id(id);
     }
 
     public boolean hasAccess(User user, PurchaseOrderCategory purchaseOrderCategory) {

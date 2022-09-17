@@ -68,6 +68,12 @@ public class Part extends CompanyAudit {
             })
     private Collection<Customer> assignedCustomer;
 
+    @ManyToMany
+    private Collection<WorkOrder> workOrders;
+
+    @ManyToMany
+    private Collection<PreventiveMaintenance> preventiveMaintenances;
+
     private int minQuantity;
 
     @ManyToMany
