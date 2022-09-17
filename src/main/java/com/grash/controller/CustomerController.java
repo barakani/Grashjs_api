@@ -6,7 +6,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.Customer;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
-import com.grash.service.CompanyService;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -31,7 +30,6 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final UserService userService;
-    private final CompanyService companyService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")

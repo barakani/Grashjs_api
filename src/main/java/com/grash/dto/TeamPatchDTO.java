@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class LaborCostPatchDTO {
-    private double cost;
+public class TeamPatchDTO {
+    String name;
+    String description;
 }

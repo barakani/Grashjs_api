@@ -1,11 +1,11 @@
 package com.grash.controller;
 
-import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.FloorPlan;
+import com.grash.model.TaskBase;
 import com.grash.model.User;
-import com.grash.service.FloorPlanService;
+import com.grash.service.TaskBaseService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -21,12 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/floor-plans")
-@Api(tags = "floorPlan")
+@RequestMapping("/taskBases")
+@Api(tags = "taskBase")
 @RequiredArgsConstructor
-public class FloorPlanController {
+public class TaskBaseController {
 
-    private final FloorPlanService floorPlanService;
+    private final TaskBaseService taskBaseService;
     private final UserService userService;
 
     @GetMapping("/{id}")
@@ -34,14 +34,14 @@ public class FloorPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public Optional<FloorPlan> getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+            @ApiResponse(code = 404, message = "TaskBase not found")})
+    public TaskBase getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
-        if (optionalFloorPlan.isPresent()) {
-            FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
-                return optionalFloorPlan;
+        Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
+        if (optionalTaskBase.isPresent()) {
+            TaskBase savedTaskBase = optionalTaskBase.get();
+            if (taskBaseService.hasAccess(user, savedTaskBase)) {
+                return optionalTaskBase.get();
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -51,10 +51,10 @@ public class FloorPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public FloorPlan create(@ApiParam("FloorPlan") @RequestBody FloorPlan floorPlanReq, HttpServletRequest req) {
+    public TaskBase create(@ApiParam("TaskBase") @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (floorPlanService.canCreate(user, floorPlanReq)) {
-            return floorPlanService.create(floorPlanReq);
+        if (taskBaseService.canCreate(user, taskBaseReq)) {
+            return taskBaseService.create(taskBaseReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -63,18 +63,18 @@ public class FloorPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public FloorPlan patch(@ApiParam("FloorPlan") @RequestBody FloorPlanPatchDTO floorPlan, @ApiParam("id") @PathVariable("id") Long id,
-                           HttpServletRequest req) {
+            @ApiResponse(code = 404, message = "TaskBase not found")})
+    public TaskBase patch(@ApiParam("TaskBase") @RequestBody TaskBasePatchDTO taskBase, @ApiParam("id") @PathVariable("id") Long id,
+                          HttpServletRequest req) {
         User user = userService.whoami(req);
-        Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
+        Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
 
-        if (optionalFloorPlan.isPresent()) {
-            FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan) && floorPlanService.canPatch(user, floorPlan)) {
-                return floorPlanService.update(id, floorPlan);
+        if (optionalTaskBase.isPresent()) {
+            TaskBase savedTaskBase = optionalTaskBase.get();
+            if (taskBaseService.hasAccess(user, savedTaskBase) && taskBaseService.canPatch(user, taskBase)) {
+                return taskBaseService.update(id, taskBase);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("TaskBase not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
@@ -82,19 +82,19 @@ public class FloorPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "FloorPlan not found")})
+            @ApiResponse(code = 404, message = "TaskBase not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
-        Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
-        if (optionalFloorPlan.isPresent()) {
-            FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
-                floorPlanService.delete(id);
+        Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
+        if (optionalTaskBase.isPresent()) {
+            TaskBase savedTaskBase = optionalTaskBase.get();
+            if (taskBaseService.hasAccess(user, savedTaskBase)) {
+                taskBaseService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("TaskBase not found", HttpStatus.NOT_FOUND);
     }
 
 }

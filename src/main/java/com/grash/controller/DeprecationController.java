@@ -6,7 +6,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.Deprecation;
 import com.grash.model.User;
 import com.grash.service.DeprecationService;
-import com.grash.service.LocationService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -29,7 +28,6 @@ public class DeprecationController {
 
     private final DeprecationService deprecationService;
     private final UserService userService;
-    private final LocationService locationService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")

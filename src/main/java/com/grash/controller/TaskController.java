@@ -7,7 +7,6 @@ import com.grash.model.Task;
 import com.grash.model.User;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,7 +28,6 @@ public class TaskController {
 
     private final TaskService taskService;
     private final UserService userService;
-    private final WorkOrderService workOrderService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
