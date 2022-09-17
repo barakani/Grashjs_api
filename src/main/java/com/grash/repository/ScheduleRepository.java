@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    @Query("SELECT s from Schedule s where s.preventiveMaintenance.company = :x ")
+    @Query("SELECT s from Schedule s where s.preventiveMaintenance.company.id = :x ")
     Collection<Schedule> findByCompany_Id(@Param("x") Long id);
 }

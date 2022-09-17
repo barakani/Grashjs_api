@@ -60,7 +60,7 @@ public class RoleService {
     public boolean hasAccess(User user, Role role) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(role.getCompanySettings().getId());
+        } else return user.getCompany().getId().equals(role.getCompanySettings().getCompany().getId());
     }
 
     public boolean canCreate(User user, Role roleReq) {
