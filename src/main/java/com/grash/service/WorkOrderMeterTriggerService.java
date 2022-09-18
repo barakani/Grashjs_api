@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMeterTriggerMapper;
 import com.grash.model.Meter;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
@@ -9,7 +10,6 @@ import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,7 @@ import java.util.Optional;
 public class WorkOrderMeterTriggerService {
     private final WorkOrderMeterTriggerRepository workOrderMeterTriggerRepository;
     private final WorkOrderService workOrderService;
+    private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final MeterService meterService;
 
 
@@ -34,9 +35,7 @@ public class WorkOrderMeterTriggerService {
     public WorkOrderMeterTrigger update(Long id, WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger) {
         if (workOrderMeterTriggerRepository.existsById(id)) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(workOrderMeterTrigger, savedWorkOrderMeterTrigger);
-            return workOrderMeterTriggerRepository.save(savedWorkOrderMeterTrigger);
+            return workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -68,7 +67,7 @@ public class WorkOrderMeterTriggerService {
         boolean first = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
         boolean second = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(workOrderMeterTriggerReq, WorkOrderMeterTriggerPatchDTO.class));
+        return first && second && canPatch(user, workOrderMeterTriggerMapper.toDto(workOrderMeterTriggerReq));
     }
 
     public boolean canPatch(User user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {

@@ -2,13 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.RoleMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RoleService {
     private final RoleRepository roleRepository;
+    private final RoleMapper roleMapper;
     private final ModelMapper modelMapper;
     private final CompanySettingsService companySettingsService;
 
@@ -30,9 +31,7 @@ public class RoleService {
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
             Role savedRole = roleRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(role, savedRole);
-            return roleRepository.save(savedRole);
+            return roleRepository.save(roleMapper.updateRole(savedRole, role));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -64,7 +63,7 @@ public class RoleService {
 
     public boolean canCreate(User user, Role roleReq) {
 
-        return canPatch(user, modelMapper.map(roleReq, RolePatchDTO.class));
+        return canPatch(user, roleMapper.toDto(roleReq));
     }
 
     public boolean canPatch(User user, RolePatchDTO roleReq) {
