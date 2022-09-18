@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class WorkOrderService {
     private final UserService userService;
     private final CompanyService companyService;
     private final PurchaseOrderService purchaseOrderService;
-    private final ModelMapper modelMapper;
+    private final WorkOrderMapper workOrderMapper;
 
     public WorkOrder create(WorkOrder WorkOrder) {
         return workOrderRepository.save(WorkOrder);
@@ -33,9 +32,7 @@ public class WorkOrderService {
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(workOrder, savedWorkOrder);
-            return workOrderRepository.save(savedWorkOrder);
+            return workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -73,7 +70,7 @@ public class WorkOrderService {
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         boolean third = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && canPatch(user, modelMapper.map(workOrderReq, WorkOrderPatchDTO.class));
+        return first && second && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
     }
 
     public boolean canPatch(User user, WorkOrderPatchDTO workOrderReq) {

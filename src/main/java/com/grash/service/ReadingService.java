@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.ReadingMapper;
 import com.grash.model.Meter;
 import com.grash.model.Reading;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ReadingRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReadingService {
     private final ReadingRepository readingRepository;
-
+    private final ReadingMapper readingMapper;
     private final MeterService meterService;
-    private ModelMapper modelMapper;
 
     public Reading create(Reading Reading) {
         return readingRepository.save(Reading);
@@ -31,9 +29,7 @@ public class ReadingService {
     public Reading update(Long id, ReadingPatchDTO reading) {
         if (readingRepository.existsById(id)) {
             Reading savedReading = readingRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(reading, savedReading);
-            return readingRepository.save(savedReading);
+            return readingRepository.save(readingMapper.updateReading(savedReading, reading));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -67,7 +63,7 @@ public class ReadingService {
         //@NotNull fields
         boolean first = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(readingReq, ReadingPatchDTO.class));
+        return first && canPatch(user, readingMapper.toDto(readingReq));
     }
 
     public boolean canPatch(User user, ReadingPatchDTO readingReq) {

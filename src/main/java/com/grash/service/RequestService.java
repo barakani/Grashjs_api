@@ -2,11 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ public class RequestService {
     private final UserService userService;
     private final TeamService teamService;
     private final AssetService assetService;
+    private final RequestMapper requestMapper;
 
     public Request create(Request request) {
         return requestRepository.save(request);
@@ -33,9 +34,7 @@ public class RequestService {
     public Request update(Long id, RequestPatchDTO request) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(request, savedRequest);
-            return requestRepository.save(savedRequest);
+            return requestRepository.save(requestMapper.updateRequest(savedRequest, request);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
