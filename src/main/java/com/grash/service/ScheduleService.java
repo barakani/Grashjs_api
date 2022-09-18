@@ -1,9 +1,7 @@
 package com.grash.service;
 
-import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.Asset;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.User;

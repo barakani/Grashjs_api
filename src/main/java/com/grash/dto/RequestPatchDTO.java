@@ -5,7 +5,6 @@ import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.OneToOne;
 import java.util.Date;
 
 @Data

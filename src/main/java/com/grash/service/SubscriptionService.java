@@ -2,7 +2,10 @@ package com.grash.service;
 
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.*;
+import com.grash.model.Company;
+import com.grash.model.Subscription;
+import com.grash.model.SubscriptionPlan;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;

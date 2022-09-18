@@ -1,14 +1,14 @@
 package com.grash.dto;
 
-import com.grash.model.Company;
+import com.grash.model.CompanySettings;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class MultiPartsPatchDTO {
+public class MeterCategoryPatchDTO {
 
     private String name;
 
-    private Company company;
+    private CompanySettings companySettings;
 }

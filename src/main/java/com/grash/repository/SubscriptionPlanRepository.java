@@ -1,6 +1,5 @@
 package com.grash.repository;
 
-import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

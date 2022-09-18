@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.Relation;
 import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
