@@ -38,11 +38,17 @@ public class SubscriptionService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Subscription> getAll() { return subscriptionRepository.findAll(); }
+    public Collection<Subscription> getAll() {
+        return subscriptionRepository.findAll();
+    }
 
-    public void delete(Long id){ subscriptionRepository.deleteById(id);}
+    public void delete(Long id) {
+        subscriptionRepository.deleteById(id);
+    }
 
-    public Optional<Subscription> findById(Long id) {return subscriptionRepository.findById(id); }
+    public Optional<Subscription> findById(Long id) {
+        return subscriptionRepository.findById(id);
+    }
 
     public Collection<Subscription> findByCompany(Long id) {
         return subscriptionRepository.findByCompany_Id(id);
@@ -69,11 +75,9 @@ public class SubscriptionService {
         Long companyId = user.getCompany().getId();
 
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionReq.getSubscriptionPlan() == null ? Optional.empty() : subscriptionPlanService.findById(subscriptionReq.getSubscriptionPlan().getId());
-        Optional<Company> optionalCompany = subscriptionReq.getCompany() == null ? Optional.empty() : companyService.findById(subscriptionReq.getCompany().getId());
 
         boolean first = subscriptionReq.getSubscriptionPlan() == null || (optionalSubscriptionPlan.isPresent() && optionalSubscriptionPlan.get().getCompany().getId().equals(companyId));
-        boolean second = subscriptionReq.getCompany() == null || (optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId));
 
-        return first && second;
+        return first;
     }
 }

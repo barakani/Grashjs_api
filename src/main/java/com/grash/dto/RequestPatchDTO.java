@@ -32,6 +32,4 @@ public class RequestPatchDTO {
     private String category;
 
     private Team team;
-
-    private Company company;
 }

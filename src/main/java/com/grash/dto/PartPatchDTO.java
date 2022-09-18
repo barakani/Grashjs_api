@@ -1,7 +1,6 @@
 package com.grash.dto;
 
 import com.grash.model.Asset;
-import com.grash.model.Company;
 import com.grash.model.Image;
 import com.grash.model.Location;
 import lombok.Data;
@@ -30,6 +29,4 @@ public class PartPatchDTO {
     private Image image;
 
     private Asset asset;
-
-    private Company company;
 }

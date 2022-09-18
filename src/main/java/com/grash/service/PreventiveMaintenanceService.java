@@ -78,18 +78,16 @@ public class PreventiveMaintenanceService {
     public boolean canPatch(User user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Company> optionalCompany = preventiveMaintenanceReq.getCompany() == null ? Optional.empty() : companyService.findById(preventiveMaintenanceReq.getCompany().getId());
-        Optional<Asset> optionalAsset = preventiveMaintenanceReq.getAsset() == null ? Optional.empty() :assetService.findById(preventiveMaintenanceReq.getAsset().getId());
+        Optional<Asset> optionalAsset = preventiveMaintenanceReq.getAsset() == null ? Optional.empty() : assetService.findById(preventiveMaintenanceReq.getAsset().getId());
         Optional<Team> optionalTeam = preventiveMaintenanceReq.getTeam() == null ? Optional.empty() : teamService.findById(preventiveMaintenanceReq.getTeam().getId());
         Optional<Location> optionalLocation = preventiveMaintenanceReq.getLocation() == null ? Optional.empty() : locationService.findById(preventiveMaintenanceReq.getLocation().getId());
         Optional<User> optionalPrimaryUser = preventiveMaintenanceReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(preventiveMaintenanceReq.getPrimaryUser().getId());
 
-        boolean first = preventiveMaintenanceReq.getCompany() ==  null || (optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId));
         boolean second = preventiveMaintenanceReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getId().equals(companyId));
         boolean third = preventiveMaintenanceReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
         boolean fourth = preventiveMaintenanceReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
         boolean fifth = preventiveMaintenanceReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
 
-        return first && second && third && fourth && fifth;
+        return second && third && fourth && fifth;
     }
 }

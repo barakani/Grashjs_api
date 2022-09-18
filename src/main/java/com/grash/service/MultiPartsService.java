@@ -38,11 +38,17 @@ public class MultiPartsService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<MultiParts> getAll() { return multiPartsRepository.findAll(); }
+    public Collection<MultiParts> getAll() {
+        return multiPartsRepository.findAll();
+    }
 
-    public void delete(Long id){ multiPartsRepository.deleteById(id);}
+    public void delete(Long id) {
+        multiPartsRepository.deleteById(id);
+    }
 
-    public Optional<MultiParts> findById(Long id) {return multiPartsRepository.findById(id); }
+    public Optional<MultiParts> findById(Long id) {
+        return multiPartsRepository.findById(id);
+    }
 
     public Collection<MultiParts> findByCompany(Long id) {
         return multiPartsRepository.findByCompany_Id(id);
@@ -64,12 +70,6 @@ public class MultiPartsService {
     }
 
     public boolean canPatch(User user, MultiPartsPatchDTO multiPartsReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = multiPartsReq.getCompany() == null ? Optional.empty() : companyService.findById(multiPartsReq.getCompany().getId());
-
-        boolean first = multiPartsReq.getCompany() == null || (optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 }

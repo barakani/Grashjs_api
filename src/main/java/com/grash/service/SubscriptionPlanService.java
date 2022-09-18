@@ -38,11 +38,17 @@ public class SubscriptionPlanService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<SubscriptionPlan> getAll() { return subscriptionPlanRepository.findAll(); }
+    public Collection<SubscriptionPlan> getAll() {
+        return subscriptionPlanRepository.findAll();
+    }
 
-    public void delete(Long id){ subscriptionPlanRepository.deleteById(id);}
+    public void delete(Long id) {
+        subscriptionPlanRepository.deleteById(id);
+    }
 
-    public Optional<SubscriptionPlan> findById(Long id) {return subscriptionPlanRepository.findById(id); }
+    public Optional<SubscriptionPlan> findById(Long id) {
+        return subscriptionPlanRepository.findById(id);
+    }
 
     public Collection<SubscriptionPlan> findByCompany(Long id) {
         return subscriptionPlanRepository.findByCompany_Id(id);
@@ -64,12 +70,6 @@ public class SubscriptionPlanService {
     }
 
     public boolean canPatch(User user, SubscriptionPlanPatchDTO subscriptionPlanReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = subscriptionPlanReq.getCompany() == null ? Optional.empty() : companyService.findById(subscriptionPlanReq.getCompany().getId());
-
-        boolean first = subscriptionPlanReq.getCompany() == null || (optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 }

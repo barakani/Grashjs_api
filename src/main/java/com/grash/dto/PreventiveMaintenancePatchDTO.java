@@ -25,5 +25,4 @@ public class PreventiveMaintenancePatchDTO {
     private Team team;
     private User primaryUser;
     private Asset asset;
-    private Company company;
 }

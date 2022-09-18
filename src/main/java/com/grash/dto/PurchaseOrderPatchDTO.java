@@ -48,6 +48,4 @@ public class PurchaseOrderPatchDTO {
     private Vendor vendor;
 
     private Company requesterInformation;
-
-    private Company company;
 }

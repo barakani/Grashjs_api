@@ -73,13 +73,7 @@ public class PurchaseOrderService {
     }
 
     public boolean canPatch(User user, PurchaseOrderPatchDTO purchaseOrderReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = purchaseOrderReq.getCompany() == null ? Optional.empty() : companyService.findById(purchaseOrderReq.getCompany().getId());
-
-        boolean first = purchaseOrderReq.getCompany() == null || (optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 
 }
