@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -17,7 +16,6 @@ public class Image extends FileAbstract {
     private Long id;
 
     @ManyToOne
-    @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Task task;
 }

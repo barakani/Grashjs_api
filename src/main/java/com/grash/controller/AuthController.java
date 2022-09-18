@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 import com.grash.dto.*;
+import com.grash.mapper.UserMapper;
 import com.grash.model.User;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
@@ -24,6 +25,8 @@ public class AuthController {
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
     private final ModelMapper modelMapper;
+
+    private final UserMapper userMapper;
 
     @PostMapping(
             path = "/signin",
@@ -89,7 +92,7 @@ public class AuthController {
             @ApiResponse(code = 404, message = "The user doesn't exist"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
-        return modelMapper.map(userService.search(username), UserResponseDTO.class);
+        return userMapper.toDto(userService.search(username));
     }
 
     @GetMapping(value = "/me")

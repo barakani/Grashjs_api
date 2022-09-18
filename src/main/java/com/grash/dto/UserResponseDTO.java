@@ -21,4 +21,6 @@ public class UserResponseDTO {
 
     private String phone;
 
+    private Long companyId;
+
 }
