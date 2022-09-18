@@ -2,11 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.AdditionalTimePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.AdditionalTimeMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalTimeRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,7 @@ public class AdditionalTimeService {
     private final TimeCategoryService timeCategoryService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
+    private final AdditionalTimeMapper additionalTimeMapper;
 
     public AdditionalTime create(AdditionalTime AdditionalTime) {
         return additionalTimeRepository.save(AdditionalTime);
@@ -32,9 +33,7 @@ public class AdditionalTimeService {
     public AdditionalTime update(Long id, AdditionalTimePatchDTO additionalTime) {
         if (additionalTimeRepository.existsById(id)) {
             AdditionalTime savedAdditionalTime = additionalTimeRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(additionalTime, savedAdditionalTime);
-            return additionalTimeRepository.save(savedAdditionalTime);
+            return additionalTimeRepository.save(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

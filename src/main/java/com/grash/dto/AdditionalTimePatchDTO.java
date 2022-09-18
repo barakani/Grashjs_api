@@ -16,6 +16,8 @@ public class AdditionalTimePatchDTO {
 
     private double hourlyRate;
 
+    private int duration;
+
     private Date startedAt;
     private TimeCategory timeCategory;
 }

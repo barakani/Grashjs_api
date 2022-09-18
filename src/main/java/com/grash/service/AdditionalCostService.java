@@ -63,12 +63,12 @@ public class AdditionalCostService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(additionalCostReq.getCompany().getId());
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getCompany().getId());
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-
+        
         return first && second && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class));
     }
 
