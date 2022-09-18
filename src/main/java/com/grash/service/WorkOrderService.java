@@ -32,7 +32,7 @@ public class WorkOrderService {
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
-            return workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
+            return workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
