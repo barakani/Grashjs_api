@@ -6,6 +6,7 @@ import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
 import com.grash.model.Company;
 import com.grash.model.User;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class AdditionalCostService {
     private final AdditionalCostRepository additionalCostRepository;
     private final CompanyService companyService;
     private final UserService userService;
+    private final WorkOrderService workOrderService;
     private final ModelMapper modelMapper;
 
 
@@ -61,11 +63,13 @@ public class AdditionalCostService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(additionalCostReq.getCompany().getId());
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getCompany().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class));
+        return first && second && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class));
     }
 
     public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {
