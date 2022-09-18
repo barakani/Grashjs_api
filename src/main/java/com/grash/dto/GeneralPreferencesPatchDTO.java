@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GeneralPreferencesDTO {
+public class GeneralPreferencesPatchDTO {
 
     private Language language;
     private Currency currency;
@@ -21,9 +21,9 @@ public class GeneralPreferencesDTO {
     private boolean autoAssignWorkOrders;
     private boolean autoAssignRequests;
     private boolean disableClosedWorkOrdersNotif;
-    private boolean askFeedBackOnWOClosed = true;
-    private boolean laborCostInTotalCost = true;
-    private boolean wOUpdateForRequesters = true;
+    private boolean askFeedBackOnWOClosed;
+    private boolean laborCostInTotalCost;
+    private boolean wOUpdateForRequesters;
 
 
 }

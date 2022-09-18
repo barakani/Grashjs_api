@@ -1,6 +1,6 @@
 package com.grash.service;
 
-import com.grash.dto.GeneralPreferencesDTO;
+import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.GeneralPreferences;
 import com.grash.model.User;
@@ -25,7 +25,7 @@ public class GeneralPreferencesService {
         return generalPreferencesRepository.save(GeneralPreferences);
     }
 
-    public GeneralPreferences update(Long id, GeneralPreferencesDTO GeneralPreferencesDto) {
+    public GeneralPreferences update(Long id, GeneralPreferencesPatchDTO GeneralPreferencesDto) {
         if (generalPreferencesRepository.existsById(id)) {
             GeneralPreferences savedGeneralPreferences = generalPreferencesRepository.findById(id).get();
             modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
