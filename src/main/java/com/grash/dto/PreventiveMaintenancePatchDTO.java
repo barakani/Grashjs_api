@@ -21,9 +21,9 @@ public class PreventiveMaintenancePatchDTO {
     private String title;
     private boolean requiredSignature;
 
-    private Location location;//
+    private Location location;
     private Team team;
     private User primaryUser;
-    private Asset asset;//
-    private Company company;//
+    private Asset asset;
+    private Company company;
 }

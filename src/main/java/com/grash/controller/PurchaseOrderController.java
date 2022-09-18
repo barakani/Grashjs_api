@@ -1,0 +1,115 @@
+package com.grash.controller;
+
+import com.grash.dto.PurchaseOrderPatchDTO;
+import com.grash.dto.SuccessResponse;
+import com.grash.exception.CustomException;
+import com.grash.model.PurchaseOrder;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
+import com.grash.service.PurchaseOrderService;
+import com.grash.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/purchaseOrders")
+@Api(tags = "purchaseOrder")
+@RequiredArgsConstructor
+public class PurchaseOrderController {
+
+    private final PurchaseOrderService purchaseOrderService;
+    private final UserService userService;
+
+    @GetMapping("")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
+    public Collection<PurchaseOrder> getAll(HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return purchaseOrderService.findByCompany(user.getCompany().getId());
+        } else return purchaseOrderService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
+    public PurchaseOrder getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
+        if (optionalPurchaseOrder.isPresent()) {
+            PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)) {
+                return optionalPurchaseOrder.get();
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("")
+    @PreAuthorize("hasPurchaseOrder('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied")})
+    public PurchaseOrder create(@ApiParam("PurchaseOrder") @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (purchaseOrderService.canCreate(user, purchaseOrderReq)) {
+            return purchaseOrderService.create(purchaseOrderReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasPurchaseOrder('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
+    public PurchaseOrder patch(@ApiParam("PurchaseOrder") @RequestBody PurchaseOrderPatchDTO purchaseOrder, @ApiParam("id") @PathVariable("id") Long id,
+                               HttpServletRequest req) {
+        User user = userService.whoami(req);
+        Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
+
+        if (optionalPurchaseOrder.isPresent()) {
+            PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)) {
+                return purchaseOrderService.update(id, purchaseOrder);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasPurchaseOrder('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "PurchaseOrder not found")})
+    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+
+        Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
+        if (optionalPurchaseOrder.isPresent()) {
+            PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)) {
+                purchaseOrderService.delete(id);
+                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                        HttpStatus.OK);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
+    }
+
+}
