@@ -18,7 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
-    private final LocationService locationService;
     private final VendorService vendorService;
     private final CustomerService customerService;
     private final CompanyService companyService;
@@ -74,7 +73,7 @@ public class LocationService {
     public boolean canPatch(User user, LocationPatchDTO locationReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Location> optionalLocation = locationReq.getParentLocation() == null ? Optional.empty() : locationService.findById(locationReq.getParentLocation().getId());
+        Optional<Location> optionalLocation = locationReq.getParentLocation() == null ? Optional.empty() : findById(locationReq.getParentLocation().getId());
         Optional<Vendor> optionalVendor = locationReq.getVendor() == null ? Optional.empty() : vendorService.findById(locationReq.getVendor().getId());
         Optional<Customer> optionalCustomer = locationReq.getCustomer() == null ? Optional.empty() : customerService.findById(locationReq.getCustomer().getId());
 

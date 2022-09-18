@@ -21,8 +21,6 @@ public class MeterService {
     private final MeterCategoryService meterCategoryService;
     private final ImageService imageService;
     private final AssetService assetService;
-    private final DeprecationService deprecationService;
-    private final UserService userService;
     private final CompanyService companyService;
     private final LocationService locationService;
 

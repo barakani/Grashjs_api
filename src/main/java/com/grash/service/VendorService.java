@@ -20,11 +20,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VendorService {
     private final VendorRepository vendorRepository;
-    private final LocationService locationService;
-    private final ImageService imageService;
-    private final AssetCategoryService assetCategoryService;
-    private final DeprecationService deprecationService;
-    private final UserService userService;
     private final CompanyService companyService;
     private final ModelMapper modelMapper;
 
