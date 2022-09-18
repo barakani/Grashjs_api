@@ -1,6 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.MeterCategoryPatchDTO;
+import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.MeterCategory;
@@ -79,7 +79,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "MeterCategory not found")})
-    public MeterCategory patch(@ApiParam("MeterCategory") @RequestBody MeterCategoryPatchDTO meterCategory, @ApiParam("id") @PathVariable("id") Long id,
+    public MeterCategory patch(@ApiParam("MeterCategory") @RequestBody CategoryPatchDTO meterCategory, @ApiParam("id") @PathVariable("id") Long id,
                                HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);

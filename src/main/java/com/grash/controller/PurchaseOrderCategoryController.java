@@ -1,6 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.PurchaseOrderCategoryPatchDTO;
+import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.PurchaseOrderCategory;
@@ -79,15 +79,15 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @RequestBody PurchaseOrderCategoryPatchDTO PurchaseOrderCategory, @ApiParam("id") @PathVariable("id") Long id,
+    public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
 
         if (optionalPurchaseOrderCategory.isPresent()) {
             PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
-            if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory) && PurchaseOrderCategoryService.canPatch(user, PurchaseOrderCategory)) {
-                return PurchaseOrderCategoryService.update(id, PurchaseOrderCategory);
+            if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory) && PurchaseOrderCategoryService.canPatch(user, categoryPatchDTO)) {
+                return PurchaseOrderCategoryService.update(id, categoryPatchDTO);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PurchaseOrderCategory not found", HttpStatus.NOT_FOUND);
     }
