@@ -65,15 +65,13 @@ public class PartService {
 
         Optional<Company> optionalCompany = companyService.findById(partReq.getCompany().getId());
         Optional<Asset> optionalAsset = assetService.findById(partReq.getAsset().getId());
-        Optional<Image> optionalImage = imageService.findById(partReq.getImage().getId());
         Optional<Location> optionalLocation = locationService.findById(partReq.getLocation().getId());
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
-        boolean third = optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId);
-        boolean fourth = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+        boolean third = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && fourth && canPatch(user, modelMapper.map(partReq, PartPatchDTO.class));
+        return first && second && third && canPatch(user, modelMapper.map(partReq, PartPatchDTO.class));
     }
 
     public boolean canPatch(User user, PartPatchDTO partReq) {

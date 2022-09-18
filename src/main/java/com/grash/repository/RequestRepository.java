@@ -1,6 +1,5 @@
 package com.grash.repository;
 
-import com.grash.model.Relation;
 import com.grash.model.Request;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

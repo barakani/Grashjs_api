@@ -1,7 +1,6 @@
 package com.grash.repository;
 
 import com.grash.model.MeterCategory;
-import com.grash.model.Reading;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

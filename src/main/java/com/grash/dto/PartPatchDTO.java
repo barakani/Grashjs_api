@@ -1,10 +1,11 @@
 package com.grash.dto;
 
-import com.grash.model.*;
+import com.grash.model.Asset;
+import com.grash.model.Company;
+import com.grash.model.Image;
+import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Collection;
 
 @Data
 @NoArgsConstructor

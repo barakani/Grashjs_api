@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
-import com.grash.model.Subscription;
 import com.grash.model.MultiParts;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;

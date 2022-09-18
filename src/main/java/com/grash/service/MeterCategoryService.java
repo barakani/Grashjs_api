@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.MeterCategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.Meter;
 import com.grash.model.MeterCategory;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
