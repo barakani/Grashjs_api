@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class ScheduleController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Schedule create(@ApiParam("Schedule") @RequestBody Schedule scheduleReq, HttpServletRequest req) {
+    public Schedule create(@ApiParam("Schedule") @Valid @RequestBody Schedule scheduleReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (scheduleService.canCreate(user, scheduleReq)) {
             return scheduleService.create(scheduleReq);
@@ -79,7 +80,7 @@ public class ScheduleController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Schedule not found")})
-    public Schedule patch(@ApiParam("Schedule") @RequestBody SchedulePatchDTO schedule, @ApiParam("id") @PathVariable("id") Long id,
+    public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);

@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborCostMapper;
-import com.grash.model.Company;
 import com.grash.model.LaborCost;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
@@ -19,7 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LaborCostService {
     private final LaborCostRepository laborCostRepository;
-    private final CompanyService companyService;
     private final LaborCostMapper laborCostMapper;
 
     public LaborCost create(LaborCost LaborCost) {
@@ -44,26 +42,11 @@ public class LaborCostService {
     public Optional<LaborCost> findById(Long id) {
         return laborCostRepository.findById(id);
     }
-
-    public Collection<LaborCost> findByCompany(Long id) {
-        return laborCostRepository.findByCompany_Id(id);
-    }
-
+    
     public boolean hasAccess(User user, LaborCost laborCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(laborCost.getCompany().getId());
-    }
-
-    public boolean canCreate(User user, LaborCost laborCostReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(laborCostReq.getCompany().getId());
-
-        //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, laborCostMapper.toDto(laborCostReq));
+        } else return user.getCompany().getId().equals(laborCost.getLabor().getCompany().getId());
     }
 
     public boolean canPatch(User user, LaborCostPatchDTO laborCostReq) {

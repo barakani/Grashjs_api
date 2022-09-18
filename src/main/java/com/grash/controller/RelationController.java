@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class RelationController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Relation create(@ApiParam("Relation") @RequestBody Relation relationReq, HttpServletRequest req) {
+    public Relation create(@ApiParam("Relation") @Valid @RequestBody Relation relationReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (relationService.canCreate(user, relationReq)) {
             return relationService.create(relationReq);
@@ -79,7 +80,7 @@ public class RelationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Relation not found")})
-    public Relation patch(@ApiParam("Relation") @RequestBody RelationPatchDTO relation,
+    public Relation patch(@ApiParam("Relation") @Valid @RequestBody RelationPatchDTO relation,
                           @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         User user = userService.whoami(req);

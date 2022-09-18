@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class TimeCategoryController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public TimeCategory create(@ApiParam("TimeCategory") @RequestBody TimeCategory timeCategoryReq, HttpServletRequest req) {
+    public TimeCategory create(@ApiParam("TimeCategory") @Valid @RequestBody TimeCategory timeCategoryReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (timeCategoryService.canCreate(user, timeCategoryReq)) {
             return timeCategoryService.create(timeCategoryReq);
@@ -79,7 +80,7 @@ public class TimeCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "TimeCategory not found")})
-    public TimeCategory patch(@ApiParam("TimeCategory") @RequestBody CategoryPatchDTO timeCategory, @ApiParam("id") @PathVariable("id") Long id,
+    public TimeCategory patch(@ApiParam("TimeCategory") @Valid @RequestBody CategoryPatchDTO timeCategory, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);

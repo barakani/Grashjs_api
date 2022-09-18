@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class AssetController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Asset create(@ApiParam("Asset") @RequestBody Asset assetReq, HttpServletRequest req) {
+    public Asset create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (assetService.canCreate(user, assetReq)) {
             return assetService.create(assetReq);
@@ -79,7 +80,7 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Asset not found")})
-    public Asset patch(@ApiParam("Asset") @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
+    public Asset patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
                        HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);

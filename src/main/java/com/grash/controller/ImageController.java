@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,7 @@ public class ImageController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Image create(@ApiParam("Image") @RequestBody Image imageReq, HttpServletRequest req) {
+    public Image create(@ApiParam("Image") @Valid @RequestBody Image imageReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (imageService.canCreate(user, imageReq)) {
             return imageService.create(imageReq);
@@ -64,7 +65,7 @@ public class ImageController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Image not found")})
-    public Image patch(@ApiParam("Image") @RequestBody ImagePatchDTO image, @ApiParam("id") @PathVariable("id") Long id,
+    public Image patch(@ApiParam("Image") @Valid @RequestBody ImagePatchDTO image, @ApiParam("id") @PathVariable("id") Long id,
                        HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Image> optionalImage = imageService.findById(id);

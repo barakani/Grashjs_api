@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,7 @@ public class DeprecationController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Deprecation create(@ApiParam("Deprecation") @RequestBody Deprecation deprecationReq, HttpServletRequest req) {
+    public Deprecation create(@ApiParam("Deprecation") @Valid @RequestBody Deprecation deprecationReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (deprecationService.canCreate(user, deprecationReq)) {
             return deprecationService.create(deprecationReq);
@@ -64,7 +65,7 @@ public class DeprecationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Deprecation not found")})
-    public Deprecation patch(@ApiParam("Deprecation") @RequestBody DeprecationPatchDTO deprecation, @ApiParam("id") @PathVariable("id") Long id,
+    public Deprecation patch(@ApiParam("Deprecation") @Valid @RequestBody DeprecationPatchDTO deprecation, @ApiParam("id") @PathVariable("id") Long id,
                              HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,7 @@ public class AdditionalCostController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AdditionalCost create(@ApiParam("AdditionalCost") @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
+    public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (additionalCostService.canCreate(user, additionalCostReq)) {
             return additionalCostService.create(additionalCostReq);
@@ -64,7 +65,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AdditionalCost not found")})
-    public AdditionalCost patch(@ApiParam("AdditionalCost") @RequestBody AdditionalCostPatchDTO additionalCost, @ApiParam("id") @PathVariable("id") Long id,
+    public AdditionalCost patch(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);

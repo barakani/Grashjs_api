@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -52,7 +53,7 @@ public class UserSettingsController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "UserSettings not found")})
-    public UserSettings patch(@ApiParam("UserSettings") @RequestBody UserSettings userSettings,
+    public UserSettings patch(@ApiParam("UserSettings") @Valid @RequestBody UserSettings userSettings,
                               @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);

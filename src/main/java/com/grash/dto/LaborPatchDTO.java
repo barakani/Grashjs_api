@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 public class LaborPatchDTO {
     private User worker;
 
+    private int duration;
+
 }

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -67,7 +68,7 @@ public class AssetCategoryController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AssetCategory create(@ApiParam("AssetCategory") @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
+    public AssetCategory create(@ApiParam("AssetCategory") @Valid @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (assetCategoryService.canCreate(user, assetCategoryReq)) {
             return assetCategoryService.create(assetCategoryReq);
@@ -80,7 +81,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public AssetCategory patch(@ApiParam("AssetCategory") @RequestBody CategoryPatchDTO assetCategory,
+    public AssetCategory patch(@ApiParam("AssetCategory") @Valid @RequestBody CategoryPatchDTO assetCategory,
                                @ApiParam("id") @PathVariable("id") Long id,
                                HttpServletRequest req) {
         User user = userService.whoami(req);

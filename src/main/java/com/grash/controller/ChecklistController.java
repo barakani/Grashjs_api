@@ -20,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -68,7 +69,7 @@ public class ChecklistController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Checklist create(@ApiParam("Checklist") @RequestBody Checklist checklistReq, HttpServletRequest req) {
+    public Checklist create(@ApiParam("Checklist") @Valid @RequestBody Checklist checklistReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (checklistService.canCreate(user, checklistReq)) {
             return checklistService.create(checklistReq);
@@ -81,7 +82,7 @@ public class ChecklistController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Checklist not found")})
-    public Checklist patch(@ApiParam("Checklist") @RequestBody ChecklistPatchDTO checklist, @ApiParam("id") @PathVariable("id") Long id,
+    public Checklist patch(@ApiParam("Checklist") @Valid @RequestBody ChecklistPatchDTO checklist, @ApiParam("id") @PathVariable("id") Long id,
                            HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Checklist> optionalChecklist = checklistService.findById(id);

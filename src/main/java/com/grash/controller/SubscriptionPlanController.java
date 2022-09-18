@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class SubscriptionPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public SubscriptionPlan create(@ApiParam("SubscriptionPlan") @RequestBody SubscriptionPlan subscriptionPlanReq, HttpServletRequest req) {
+    public SubscriptionPlan create(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlan subscriptionPlanReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (subscriptionPlanService.canCreate(user, subscriptionPlanReq)) {
             return subscriptionPlanService.create(subscriptionPlanReq);
@@ -79,7 +80,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
-    public SubscriptionPlan patch(@ApiParam("SubscriptionPlan") @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, @ApiParam("id") @PathVariable("id") Long id,
+    public SubscriptionPlan patch(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);

@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,7 +37,7 @@ public class AuthController {
             @ApiResponse(code = 422, message = "Invalid credentials")
     })
     public ResponseEntity<AuthResponse> login(
-            @ApiParam("AuthLoginRequest") @RequestBody UserLoginRequest userLoginRequest) {
+            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
         AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail(), userLoginRequest.getPassword(), userLoginRequest.getType()));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
@@ -51,7 +52,7 @@ public class AuthController {
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public SuccessResponse signup(@ApiParam("Signup User") @RequestBody UserSignupRequest user) {
+    public SuccessResponse signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
         return userService.signup(userMapper.toModel(user));
     }
 

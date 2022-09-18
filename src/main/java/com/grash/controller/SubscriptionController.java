@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class SubscriptionController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Subscription create(@ApiParam("Subscription") @RequestBody Subscription subscriptionReq, HttpServletRequest req) {
+    public Subscription create(@ApiParam("Subscription") @Valid @RequestBody Subscription subscriptionReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (subscriptionService.canCreate(user, subscriptionReq)) {
             return subscriptionService.create(subscriptionReq);
@@ -79,7 +80,7 @@ public class SubscriptionController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Subscription not found")})
-    public Subscription patch(@ApiParam("Subscription") @RequestBody SubscriptionPatchDTO subscription, @ApiParam("id") @PathVariable("id") Long id,
+    public Subscription patch(@ApiParam("Subscription") @Valid @RequestBody SubscriptionPatchDTO subscription, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Subscription> optionalSubscription = subscriptionService.findById(id);

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class TeamController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Team create(@ApiParam("Team") @RequestBody Team teamReq, HttpServletRequest req) {
+    public Team create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (teamService.canCreate(user, teamReq)) {
             return teamService.create(teamReq);
@@ -79,7 +80,7 @@ public class TeamController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Team not found")})
-    public Team patch(@ApiParam("Team") @RequestBody TeamPatchDTO team, @ApiParam("id") @PathVariable("id") Long id,
+    public Team patch(@ApiParam("Team") @Valid @RequestBody TeamPatchDTO team, @ApiParam("id") @PathVariable("id") Long id,
                       HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,7 @@ public class TaskBaseController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public TaskBase create(@ApiParam("TaskBase") @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
+    public TaskBase create(@ApiParam("TaskBase") @Valid @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (taskBaseService.canCreate(user, taskBaseReq)) {
             return taskBaseService.create(taskBaseReq);
@@ -64,7 +65,7 @@ public class TaskBaseController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "TaskBase not found")})
-    public TaskBase patch(@ApiParam("TaskBase") @RequestBody TaskBasePatchDTO taskBase, @ApiParam("id") @PathVariable("id") Long id,
+    public TaskBase patch(@ApiParam("TaskBase") @Valid @RequestBody TaskBasePatchDTO taskBase, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);

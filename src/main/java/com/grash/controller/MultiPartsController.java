@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class MultiPartsController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public MultiParts create(@ApiParam("MultiParts") @RequestBody MultiParts multiPartsReq, HttpServletRequest req) {
+    public MultiParts create(@ApiParam("MultiParts") @Valid @RequestBody MultiParts multiPartsReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (multiPartsService.canCreate(user, multiPartsReq)) {
             return multiPartsService.create(multiPartsReq);
@@ -79,7 +80,7 @@ public class MultiPartsController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "MultiParts not found")})
-    public MultiParts patch(@ApiParam("MultiParts") @RequestBody MultiPartsPatchDTO multiParts, @ApiParam("id") @PathVariable("id") Long id,
+    public MultiParts patch(@ApiParam("MultiParts") @Valid @RequestBody MultiPartsPatchDTO multiParts, @ApiParam("id") @PathVariable("id") Long id,
                             HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);

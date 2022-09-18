@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class PurchaseOrderCategoryController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public PurchaseOrderCategory create(@ApiParam("PurchaseOrderCategory") @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq, HttpServletRequest req) {
+    public PurchaseOrderCategory create(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (PurchaseOrderCategoryService.canCreate(user, PurchaseOrderCategoryReq)) {
             return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
@@ -79,7 +80,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
+    public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);

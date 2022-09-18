@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class PartController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Part create(@ApiParam("Part") @RequestBody Part partReq, HttpServletRequest req) {
+    public Part create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (partService.canCreate(user, partReq)) {
             return partService.create(partReq);
@@ -79,7 +80,7 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Part not found")})
-    public Part patch(@ApiParam("Part") @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
+    public Part patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
                       HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);

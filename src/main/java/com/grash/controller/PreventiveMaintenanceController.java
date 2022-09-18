@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class PreventiveMaintenanceController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public PreventiveMaintenance create(@ApiParam("PreventiveMaintenance") @RequestBody PreventiveMaintenance preventiveMaintenanceReq, HttpServletRequest req) {
+    public PreventiveMaintenance create(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenance preventiveMaintenanceReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (preventiveMaintenanceService.canCreate(user, preventiveMaintenanceReq)) {
             return preventiveMaintenanceService.create(preventiveMaintenanceReq);
@@ -79,7 +80,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
-    public PreventiveMaintenance patch(@ApiParam("PreventiveMaintenance") @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance, @ApiParam("id") @PathVariable("id") Long id,
+    public PreventiveMaintenance patch(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class CustomerController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Customer create(@ApiParam("Customer") @RequestBody Customer customerReq, HttpServletRequest req) {
+    public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (customerService.canCreate(user, customerReq)) {
             return customerService.create(customerReq);
@@ -79,7 +80,7 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Customer not found")})
-    public Customer patch(@ApiParam("Customer") @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
+    public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);

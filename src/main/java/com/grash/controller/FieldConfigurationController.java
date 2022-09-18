@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -33,7 +34,7 @@ public class FieldConfigurationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "FieldConfiguration not found")})
-    public FieldConfiguration patch(@ApiParam("FieldConfiguration") @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @ApiParam("id") @PathVariable("id") Long id,
+    public FieldConfiguration patch(@ApiParam("FieldConfiguration") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @ApiParam("id") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<FieldConfiguration> optionalFieldConfiguration = fieldConfigurationService.findById(id);

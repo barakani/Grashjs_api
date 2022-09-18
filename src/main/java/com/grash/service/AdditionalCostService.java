@@ -4,7 +4,6 @@ import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
-import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
@@ -54,20 +53,18 @@ public class AdditionalCostService {
     public boolean hasAccess(User user, AdditionalCost additionalCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(additionalCost.getCompany().getId());
+        } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompany().getId());
     }
 
     public boolean canCreate(User user, AdditionalCost additionalCostReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Company> optionalCompany = companyService.findById(additionalCostReq.getCompany().getId());
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
 
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
+        return second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
     }
 
     public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public class RequestController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Request create(@ApiParam("Request") @RequestBody Request requestReq, HttpServletRequest req) {
+    public Request create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
             return requestService.create(requestReq);
@@ -79,7 +80,7 @@ public class RequestController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Request not found")})
-    public Request patch(@ApiParam("Request") @RequestBody RequestPatchDTO request, @ApiParam("id") @PathVariable("id") Long id,
+    public Request patch(@ApiParam("Request") @Valid @RequestBody RequestPatchDTO request, @ApiParam("id") @PathVariable("id") Long id,
                          HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);

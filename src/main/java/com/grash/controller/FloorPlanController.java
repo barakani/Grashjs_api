@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,7 @@ public class FloorPlanController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public FloorPlan create(@ApiParam("FloorPlan") @RequestBody FloorPlan floorPlanReq, HttpServletRequest req) {
+    public FloorPlan create(@ApiParam("FloorPlan") @Valid @RequestBody FloorPlan floorPlanReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (floorPlanService.canCreate(user, floorPlanReq)) {
             return floorPlanService.create(floorPlanReq);
@@ -64,7 +65,7 @@ public class FloorPlanController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "FloorPlan not found")})
-    public FloorPlan patch(@ApiParam("FloorPlan") @RequestBody FloorPlanPatchDTO floorPlan, @ApiParam("id") @PathVariable("id") Long id,
+    public FloorPlan patch(@ApiParam("FloorPlan") @Valid @RequestBody FloorPlanPatchDTO floorPlan, @ApiParam("id") @PathVariable("id") Long id,
                            HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);

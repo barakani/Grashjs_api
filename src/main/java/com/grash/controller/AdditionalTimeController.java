@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -52,7 +53,7 @@ public class AdditionalTimeController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AdditionalTime create(@ApiParam("AdditionalTime") @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
+    public AdditionalTime create(@ApiParam("AdditionalTime") @Valid @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (additionalTimeService.canCreate(user, additionalTimeReq)) {
             return additionalTimeService.create(additionalTimeReq);
@@ -65,7 +66,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AdditionalTime not found")})
-    public AdditionalTime patch(@ApiParam("AdditionalTime") @RequestBody AdditionalTimePatchDTO additionalTime, @ApiParam("id") @PathVariable("id") Long id,
+    public AdditionalTime patch(@ApiParam("AdditionalTime") @Valid @RequestBody AdditionalTimePatchDTO additionalTime, @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
