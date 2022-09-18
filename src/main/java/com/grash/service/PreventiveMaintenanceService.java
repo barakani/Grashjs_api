@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class PreventiveMaintenanceService {
     private final CompanyService companyService;
     private final LocationService locationService;
 
-    private final ModelMapper modelMapper;
+    private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
 
     public PreventiveMaintenance create(PreventiveMaintenance PreventiveMaintenance) {
         return preventiveMaintenanceRepository.save(PreventiveMaintenance);
@@ -33,9 +32,7 @@ public class PreventiveMaintenanceService {
     public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance) {
         if (preventiveMaintenanceRepository.existsById(id)) {
             PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(preventiveMaintenance, savedPreventiveMaintenance);
-            return preventiveMaintenanceRepository.save(savedPreventiveMaintenance);
+            return preventiveMaintenanceRepository.save(preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance, preventiveMaintenance));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -72,7 +69,7 @@ public class PreventiveMaintenanceService {
         boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
         boolean third = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && canPatch(user, modelMapper.map(preventiveMaintenanceReq, PreventiveMaintenancePatchDTO.class));
+        return first && second && third && canPatch(user, preventiveMaintenanceMapper.toDto(preventiveMaintenanceReq));
     }
 
     public boolean canPatch(User user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {

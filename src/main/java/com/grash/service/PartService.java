@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.PartPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +21,7 @@ public class PartService {
     private final AssetService assetService;
     private final CompanyService companyService;
     private final LocationService locationService;
-
-    private final ModelMapper modelMapper;
+    private final PartMapper partMapper;
 
     public Part create(Part Part) {
         return partRepository.save(Part);
@@ -32,9 +30,7 @@ public class PartService {
     public Part update(Long id, PartPatchDTO part) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(part, savedPart);
-            return partRepository.save(savedPart);
+            return partRepository.save(partMapper.updatePart(savedPart, part));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -71,7 +67,7 @@ public class PartService {
         boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
         boolean third = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && canPatch(user, modelMapper.map(partReq, PartPatchDTO.class));
+        return first && second && third && canPatch(user, partMapper.toDto(partReq));
     }
 
     public boolean canPatch(User user, PartPatchDTO partReq) {

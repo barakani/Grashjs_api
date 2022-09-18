@@ -10,7 +10,6 @@ import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +23,6 @@ public class WorkOrderMeterTriggerService {
     private final WorkOrderService workOrderService;
     private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final MeterService meterService;
-
-
-    private final ModelMapper modelMapper;
 
     public WorkOrderMeterTrigger create(WorkOrderMeterTrigger WorkOrderMeterTrigger) {
         return workOrderMeterTriggerRepository.save(WorkOrderMeterTrigger);

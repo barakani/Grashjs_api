@@ -7,7 +7,6 @@ import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RequestService {
     private final RequestRepository requestRepository;
-    private final ModelMapper modelMapper;
     private final CompanyService companyService;
     private final ImageService imageService;
     private final LocationService locationService;
@@ -68,7 +66,7 @@ public class RequestService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(requestReq, RequestPatchDTO.class));
+        return first && canPatch(user, requestMapper.toDto(requestReq));
     }
 
     public boolean canPatch(User user, RequestPatchDTO requestReq) {

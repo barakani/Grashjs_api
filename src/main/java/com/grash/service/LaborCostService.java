@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.LaborCostMapper;
 import com.grash.model.Company;
 import com.grash.model.LaborCost;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LaborCostRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LaborCostService {
     private final LaborCostRepository laborCostRepository;
-    private final ModelMapper modelMapper;
     private final CompanyService companyService;
+    private final LaborCostMapper laborCostMapper;
 
     public LaborCost create(LaborCost LaborCost) {
         return laborCostRepository.save(LaborCost);
@@ -30,9 +29,7 @@ public class LaborCostService {
     public LaborCost update(Long id, LaborCostPatchDTO laborCostDTO) {
         if (laborCostRepository.existsById(id)) {
             LaborCost savedLaborCost = laborCostRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(laborCostDTO, savedLaborCost);
-            return laborCostRepository.save(savedLaborCost);
+            return laborCostRepository.save(laborCostMapper.updateLaborCost(savedLaborCost, laborCostDTO));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +63,7 @@ public class LaborCostService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(laborCostReq, LaborCostPatchDTO.class));
+        return first && canPatch(user, laborCostMapper.toDto(laborCostReq));
     }
 
     public boolean canPatch(User user, LaborCostPatchDTO laborCostReq) {

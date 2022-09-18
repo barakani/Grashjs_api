@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.LocationPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ public class LocationService {
     private final VendorService vendorService;
     private final CustomerService customerService;
     private final CompanyService companyService;
-
-    private final ModelMapper modelMapper;
+    private final LocationMapper locationMapper;
 
     public Location create(Location Location) {
         return locationRepository.save(Location);
@@ -31,9 +29,7 @@ public class LocationService {
     public Location update(Long id, LocationPatchDTO location) {
         if (locationRepository.existsById(id)) {
             Location savedLocation = locationRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(location, savedLocation);
-            return locationRepository.save(savedLocation);
+            return locationRepository.save(locationMapper.updateLocation(savedLocation, location));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -67,7 +63,7 @@ public class LocationService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(locationReq, LocationPatchDTO.class));
+        return first && canPatch(user, locationMapper.toDto(locationReq));
     }
 
     public boolean canPatch(User user, LocationPatchDTO locationReq) {

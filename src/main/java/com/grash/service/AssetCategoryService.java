@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ import java.util.Optional;
 public class AssetCategoryService {
     private final AssetCategoryRepository assetCategoryRepository;
     private final CompanySettingsService companySettingsService;
-
-    private final ModelMapper modelMapper;
+    private final AssetCategoryMapper assetCategoryMapper;
 
     public AssetCategory create(AssetCategory AssetCategory) {
         return assetCategoryRepository.save(AssetCategory);
@@ -31,9 +29,7 @@ public class AssetCategoryService {
     public AssetCategory update(Long id, CategoryPatchDTO assetCategory) {
         if (assetCategoryRepository.existsById(id)) {
             AssetCategory savedAssetCategory = assetCategoryRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(assetCategory, savedAssetCategory);
-            return assetCategoryRepository.save(savedAssetCategory);
+            return assetCategoryRepository.save(assetCategoryMapper.updateAssetCategory(savedAssetCategory, assetCategory));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +62,7 @@ public class AssetCategoryService {
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(
                 user.getCompany().getCompanySettings().getId());
 
-        return first && canPatch(user, modelMapper.map(assetCategoryReq, CategoryPatchDTO.class));
+        return first && canPatch(user, assetCategoryMapper.toDto(assetCategoryReq));
     }
 
     public boolean canPatch(User user, CategoryPatchDTO assetCategoryReq) {

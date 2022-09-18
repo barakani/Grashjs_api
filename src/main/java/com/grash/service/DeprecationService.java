@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.DeprecationPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.DeprecationMapper;
 import com.grash.model.Company;
 import com.grash.model.Deprecation;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.DeprecationRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ import java.util.Optional;
 public class DeprecationService {
     private final DeprecationRepository deprecationRepository;
     private final CompanyService companyService;
-
-    private final ModelMapper modelMapper;
+    private final DeprecationMapper deprecationMapper;
 
     public Deprecation create(Deprecation Deprecation) {
         return deprecationRepository.save(Deprecation);
@@ -31,9 +29,7 @@ public class DeprecationService {
     public Deprecation update(Long id, DeprecationPatchDTO deprecation) {
         if (deprecationRepository.existsById(id)) {
             Deprecation savedDeprecation = deprecationRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(deprecation, savedDeprecation);
-            return deprecationRepository.save(savedDeprecation);
+            return deprecationRepository.save(deprecationMapper.updateDeprecation(savedDeprecation, deprecation));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -63,7 +59,7 @@ public class DeprecationService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(deprecationReq, DeprecationPatchDTO.class));
+        return first && canPatch(user, deprecationMapper.toDto(deprecationReq));
     }
 
     public boolean canPatch(User user, DeprecationPatchDTO deprecationReq) {

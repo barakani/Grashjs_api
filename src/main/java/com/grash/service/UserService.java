@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
+import com.grash.mapper.UserMapper;
 import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.User;
@@ -13,8 +14,6 @@ import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
 import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -46,11 +45,10 @@ public class UserService {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final UserMapper userMapper;
 
     @Value("${api.host}")
     private String API_HOST;
-
-    private final ModelMapper modelMapper;
 
     public String signin(String email, String password, String type) {
         try {
@@ -141,9 +139,7 @@ public class UserService {
     public User update(Long id, UserSignupRequest user) {
         if (userRepository.existsById(id)) {
             User savedUser = userRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(user, savedUser);
-            return userRepository.save(savedUser);
+            return userRepository.save(userMapper.updateUser(savedUser, user));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

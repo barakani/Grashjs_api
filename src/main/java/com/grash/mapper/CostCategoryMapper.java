@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.CategoryPatchDTO;
+import com.grash.dto.CategoryPostDTO;
 import com.grash.model.CostCategory;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -12,4 +13,7 @@ public interface CostCategoryMapper {
 
     @Mappings({})
     CategoryPatchDTO toDto(CostCategory model);
+
+    @Mappings({})
+    CostCategory toModel(CategoryPostDTO model);
 }

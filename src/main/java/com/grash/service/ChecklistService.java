@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.ChecklistPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.ChecklistMapper;
 import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ import java.util.Optional;
 public class ChecklistService {
     private final CheckListRepository checklistRepository;
     private final CompanySettingsService companySettingsService;
-
-    private final ModelMapper modelMapper;
+    private final ChecklistMapper checklistMapper;
 
     public Checklist create(Checklist Checklist) {
         return checklistRepository.save(Checklist);
@@ -31,9 +29,7 @@ public class ChecklistService {
     public Checklist update(Long id, ChecklistPatchDTO checklist) {
         if (checklistRepository.existsById(id)) {
             Checklist savedChecklist = checklistRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(checklist, savedChecklist);
-            return checklistRepository.save(savedChecklist);
+            return checklistRepository.save(checklistMapper.updateChecklist(savedChecklist, checklist));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -65,7 +61,7 @@ public class ChecklistService {
         //@NotNull fields
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(user.getCompany().getCompanySettings().getId());
 
-        return first && canPatch(user, modelMapper.map(checklistReq, ChecklistPatchDTO.class));
+        return first && canPatch(user, checklistMapper.toDto(checklistReq));
     }
 
     public boolean canPatch(User user, ChecklistPatchDTO checklistReq) {

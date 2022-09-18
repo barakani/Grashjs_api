@@ -9,7 +9,6 @@ import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,6 @@ import java.util.Optional;
 public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
-    private final ModelMapper modelMapper;
     private final CompanySettingsService companySettingsService;
 
     public Role create(Role Role) {

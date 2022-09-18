@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CustomFieldMapper;
 import com.grash.model.CustomField;
 import com.grash.model.User;
 import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomFieldRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class CustomFieldService {
     private final CustomFieldRepository customFieldRepository;
     private final VendorService vendorService;
-    private final ModelMapper modelMapper;
+    private final CustomFieldMapper customFieldMapper;
 
     public CustomField create(CustomField CustomField) {
         return customFieldRepository.save(CustomField);
@@ -30,9 +29,7 @@ public class CustomFieldService {
     public CustomField update(Long id, CustomFieldPatchDTO customField) {
         if (customFieldRepository.existsById(id)) {
             CustomField savedCustomField = customFieldRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(customField, savedCustomField);
-            return customFieldRepository.save(savedCustomField);
+            return customFieldRepository.save(customFieldMapper.updateCustomField(savedCustomField, customField));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -62,7 +59,7 @@ public class CustomFieldService {
         //@NotNull fields
         boolean first = optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(customFieldReq, CustomFieldPatchDTO.class));
+        return first && canPatch(user, customFieldMapper.toDto(customFieldReq));
     }
 
     public boolean canPatch(User user, CustomFieldPatchDTO customFieldReq) {

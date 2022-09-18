@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.VendorMapper;
 import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
-    private final ModelMapper modelMapper;
+    private final VendorMapper vendorMapper;
 
     public Vendor create(Vendor Vendor) {
         return vendorRepository.save(Vendor);
@@ -30,9 +29,7 @@ public class VendorService {
     public Vendor update(Long id, VendorPatchDTO vendor) {
         if (vendorRepository.existsById(id)) {
             Vendor savedVendor = vendorRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(vendor, savedVendor);
-            return vendorRepository.save(savedVendor);
+            return vendorRepository.save(vendorMapper.updateVendor(savedVendor, vendor));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +63,7 @@ public class VendorService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(vendorReq, VendorPatchDTO.class));
+        return first && canPatch(user, vendorMapper.toDto(vendorReq));
     }
 
     public boolean canPatch(User user, VendorPatchDTO vendorReq) {

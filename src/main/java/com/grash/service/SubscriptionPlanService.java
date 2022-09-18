@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.SubscriptionPlanMapper;
 import com.grash.model.Company;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +19,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubscriptionPlanService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
-    private final ModelMapper modelMapper;
-    private final SubscriptionService subscriptionService;
     private final CompanyService companyService;
+    private final SubscriptionPlanMapper subscriptionPlanMapper;
 
 
     public SubscriptionPlan create(SubscriptionPlan SubscriptionPlan) {
         return subscriptionPlanRepository.save(SubscriptionPlan);
     }
 
-    public SubscriptionPlan update(Long id, SubscriptionPlanPatchDTO relation) {
+    public SubscriptionPlan update(Long id, SubscriptionPlanPatchDTO subscriptionPlanPatchDTO) {
         if (subscriptionPlanRepository.existsById(id)) {
             SubscriptionPlan savedSubscriptionPlan = subscriptionPlanRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(relation, savedSubscriptionPlan);
-            return subscriptionPlanRepository.save(savedSubscriptionPlan);
+            return subscriptionPlanRepository.save(subscriptionPlanMapper.updateSubscriptionPlan(savedSubscriptionPlan, subscriptionPlanPatchDTO));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +62,7 @@ public class SubscriptionPlanService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(subscriptionPlanReq, SubscriptionPlanPatchDTO.class));
+        return first && canPatch(user, subscriptionPlanMapper.toDto(subscriptionPlanReq));
     }
 
     public boolean canPatch(User user, SubscriptionPlanPatchDTO subscriptionPlanReq) {

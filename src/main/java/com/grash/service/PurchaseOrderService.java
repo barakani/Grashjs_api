@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.Company;
 import com.grash.model.PurchaseOrder;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
-
+    private final PurchaseOrderMapper purchaseOrderMapper;
     private final CompanyService companyService;
-    private final VendorService vendorService;
-
-
-    private final ModelMapper modelMapper;
 
     public PurchaseOrder create(PurchaseOrder purchaseOrder) {
         return purchaseOrderRepository.save(purchaseOrder);
@@ -34,9 +29,7 @@ public class PurchaseOrderService {
     public PurchaseOrder update(Long id, PurchaseOrderPatchDTO purchaseOrder) {
         if (purchaseOrderRepository.existsById(id)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(purchaseOrder, savedPurchaseOrder);
-            return purchaseOrderRepository.save(savedPurchaseOrder);
+            return purchaseOrderRepository.save(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder, purchaseOrder));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -69,7 +62,7 @@ public class PurchaseOrderService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(purchaseOrderReq, PurchaseOrderPatchDTO.class));
+        return first && canPatch(user, purchaseOrderMapper.toDto(purchaseOrderReq));
     }
 
     public boolean canPatch(User user, PurchaseOrderPatchDTO purchaseOrderReq) {

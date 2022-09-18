@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.TaskBaseMapper;
 import com.grash.model.Company;
 import com.grash.model.TaskBase;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskBaseRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class TaskBaseService {
     private final TaskBaseRepository taskBaseRepository;
     private final CompanyService companyService;
-    private final ModelMapper modelMapper;
+    private final TaskBaseMapper taskBaseMapper;
 
     public TaskBase create(TaskBase TaskBase) {
         return taskBaseRepository.save(TaskBase);
@@ -30,9 +29,7 @@ public class TaskBaseService {
     public TaskBase update(Long id, TaskBasePatchDTO taskBase) {
         if (taskBaseRepository.existsById(id)) {
             TaskBase savedTaskBase = taskBaseRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(taskBase, savedTaskBase);
-            return taskBaseRepository.save(savedTaskBase);
+            return taskBaseRepository.save(taskBaseMapper.updateTaskBase(savedTaskBase, taskBase));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -62,7 +59,7 @@ public class TaskBaseService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(taskBaseReq, TaskBasePatchDTO.class));
+        return first && canPatch(user, taskBaseMapper.toDto(taskBaseReq));
     }
 
     public boolean canPatch(User user, TaskBasePatchDTO taskBaseReq) {

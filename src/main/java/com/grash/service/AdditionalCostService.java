@@ -10,7 +10,6 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ public class AdditionalCostService {
     private final CompanyService companyService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
-    private final ModelMapper modelMapper;
 
 
     private final AdditionalCostMapper additionalCostMapper;
@@ -68,8 +66,8 @@ public class AdditionalCostService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-        
-        return first && second && canPatch(user, modelMapper.map(additionalCostReq, AdditionalCostPatchDTO.class));
+
+        return first && second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
     }
 
     public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {

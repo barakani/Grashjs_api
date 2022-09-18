@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.AssetPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +23,7 @@ public class AssetService {
     private final DeprecationService deprecationService;
     private final UserService userService;
     private final CompanyService companyService;
-
-
-    private final ModelMapper modelMapper;
+    private final AssetMapper assetMapper;
 
     public Asset create(Asset Asset) {
         return assetRepository.save(Asset);
@@ -35,9 +32,7 @@ public class AssetService {
     public Asset update(Long id, AssetPatchDTO asset) {
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(asset, savedAsset);
-            return assetRepository.save(savedAsset);
+            return assetRepository.save(assetMapper.updateAsset(savedAsset, asset));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -73,7 +68,7 @@ public class AssetService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(assetReq, AssetPatchDTO.class));
+        return first && second && canPatch(user, assetMapper.toDto(assetReq));
     }
 
     public boolean canPatch(User user, AssetPatchDTO assetReq) {

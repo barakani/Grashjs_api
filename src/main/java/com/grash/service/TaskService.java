@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.TaskMapper;
 import com.grash.model.Company;
 import com.grash.model.Task;
 import com.grash.model.User;
@@ -9,8 +10,6 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final WorkOrderService workOrderService;
     private final CompanyService companyService;
-    private final ModelMapper modelMapper;
+    private final TaskMapper taskMapper;
 
     public Task create(Task Task) {
         return taskRepository.save(Task);
@@ -32,9 +31,7 @@ public class TaskService {
     public Task update(Long id, TaskPatchDTO task) {
         if (taskRepository.existsById(id)) {
             Task savedTask = taskRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(task, savedTask);
-            return taskRepository.save(savedTask);
+            return taskRepository.save(taskMapper.updateTask(savedTask, task));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +63,7 @@ public class TaskService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(taskReq, TaskPatchDTO.class));
+        return first && second && canPatch(user, taskMapper.toDto(taskReq));
     }
 
     public boolean canPatch(User user, TaskPatchDTO taskReq) {

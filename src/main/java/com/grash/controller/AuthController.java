@@ -2,12 +2,10 @@ package com.grash.controller;
 
 import com.grash.dto.*;
 import com.grash.mapper.UserMapper;
-import com.grash.model.User;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +22,6 @@ public class AuthController {
 
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
-    private final ModelMapper modelMapper;
-
     private final UserMapper userMapper;
 
     @PostMapping(
@@ -56,7 +52,7 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 422, message = "Username is already in use")})
     public SuccessResponse signup(@ApiParam("Signup User") @RequestBody UserSignupRequest user) {
-        return userService.signup(modelMapper.map(user, User.class));
+        return userService.signup(userMapper.toModel(user));
     }
 
     @GetMapping("/activate-account")
@@ -103,7 +99,7 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO whoami(HttpServletRequest req) {
-        return modelMapper.map(userService.whoami(req), UserResponseDTO.class);
+        return userMapper.toDto(userService.whoami(req));
     }
 
     @GetMapping("/refresh")

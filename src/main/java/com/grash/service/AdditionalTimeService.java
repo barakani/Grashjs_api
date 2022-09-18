@@ -7,7 +7,6 @@ import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalTimeRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ import java.util.Optional;
 public class AdditionalTimeService {
     private final AdditionalTimeRepository additionalTimeRepository;
 
-    private final ModelMapper modelMapper;
     private final CompanyService companyService;
     private final TimeCategoryService timeCategoryService;
     private final UserService userService;
@@ -65,7 +63,7 @@ public class AdditionalTimeService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(additionalTimeReq, AdditionalTimePatchDTO.class));
+        return first && second && canPatch(user, additionalTimeMapper.toDto(additionalTimeReq));
     }
 
     public boolean canPatch(User user, AdditionalTimePatchDTO additionalTimeReq) {

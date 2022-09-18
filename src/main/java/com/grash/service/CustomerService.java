@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CustomerMapper;
 import com.grash.model.Company;
 import com.grash.model.Customer;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CompanyService companyService;
-
-    private final ModelMapper modelMapper;
+    private final CustomerMapper customerMapper;
 
     public Customer create(Customer Customer) {
         return customerRepository.save(Customer);
@@ -31,9 +29,7 @@ public class CustomerService {
     public Customer update(Long id, CustomerPatchDTO customer) {
         if (customerRepository.existsById(id)) {
             Customer savedCustomer = customerRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(customer, savedCustomer);
-            return customerRepository.save(savedCustomer);
+            return customerRepository.save(customerMapper.updateCustomer(savedCustomer, customer));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -67,7 +63,7 @@ public class CustomerService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(customerReq, CustomerPatchDTO.class));
+        return first && canPatch(user, customerMapper.toDto(customerReq));
     }
 
     public boolean canPatch(User user, CustomerPatchDTO customerReq) {

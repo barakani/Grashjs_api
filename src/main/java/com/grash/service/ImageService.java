@@ -9,7 +9,6 @@ import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +21,6 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final CompanyService companyService;
     private final ImageMapper imageMapper;
-
-
-    private final ModelMapper modelMapper;
 
     public Image create(Image Image) {
         return imageRepository.save(Image);

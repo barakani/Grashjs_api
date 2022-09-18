@@ -2,12 +2,11 @@ package com.grash.service;
 
 import com.grash.dto.MeterPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class MeterService {
     private final CompanyService companyService;
     private final LocationService locationService;
 
-    private final ModelMapper modelMapper;
+    private final MeterMapper meterMapper;
 
     public Meter create(Meter Meter) {
         return meterRepository.save(Meter);
@@ -33,9 +32,7 @@ public class MeterService {
     public Meter update(Long id, MeterPatchDTO meter) {
         if (meterRepository.existsById(id)) {
             Meter savedMeter = meterRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(meter, savedMeter);
-            return meterRepository.save(savedMeter);
+            return meterRepository.save(meterMapper.updateMeter(savedMeter, meter));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -71,7 +68,7 @@ public class MeterService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(meterReq, MeterPatchDTO.class));
+        return first && second && canPatch(user, meterMapper.toDto(meterReq));
     }
 
     public boolean canPatch(User user, MeterPatchDTO meterReq) {

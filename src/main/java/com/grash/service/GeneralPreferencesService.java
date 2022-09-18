@@ -2,13 +2,12 @@ package com.grash.service;
 
 import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.GeneralPreferencesMapper;
 import com.grash.model.GeneralPreferences;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.GeneralPreferencesRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +18,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GeneralPreferencesService {
     private final GeneralPreferencesRepository generalPreferencesRepository;
-    private final ModelMapper modelMapper;
+    private final GeneralPreferencesMapper generalPreferencesMapper;
 
     public GeneralPreferences create(GeneralPreferences GeneralPreferences) {
         return generalPreferencesRepository.save(GeneralPreferences);
     }
 
-    public GeneralPreferences update(Long id, GeneralPreferencesPatchDTO GeneralPreferencesDto) {
+    public GeneralPreferences update(Long id, GeneralPreferencesPatchDTO generalPreferencesPatchDTO) {
         if (generalPreferencesRepository.existsById(id)) {
             GeneralPreferences savedGeneralPreferences = generalPreferencesRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(GeneralPreferencesDto, savedGeneralPreferences);
-            return generalPreferencesRepository.save(savedGeneralPreferences);
+            return generalPreferencesRepository.save(generalPreferencesMapper.updateGeneralPreferences(savedGeneralPreferences, generalPreferencesPatchDTO));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.Company;
 import com.grash.model.MultiParts;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MultiPartsRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +19,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MultiPartsService {
     private final MultiPartsRepository multiPartsRepository;
-    private final ModelMapper modelMapper;
-    private final SubscriptionService subscriptionService;
     private final CompanyService companyService;
+    private final MultiPartsMapper multiPartsMapper;
 
 
     public MultiParts create(MultiParts MultiParts) {
         return multiPartsRepository.save(MultiParts);
     }
 
-    public MultiParts update(Long id, MultiPartsPatchDTO relation) {
+    public MultiParts update(Long id, MultiPartsPatchDTO multiPartsPatchDTO) {
         if (multiPartsRepository.existsById(id)) {
             MultiParts savedMultiParts = multiPartsRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(relation, savedMultiParts);
-            return multiPartsRepository.save(savedMultiParts);
+            return multiPartsRepository.save(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +62,7 @@ public class MultiPartsService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(multiPartsReq, MultiPartsPatchDTO.class));
+        return first && canPatch(user, multiPartsMapper.toDto(multiPartsReq));
     }
 
     public boolean canPatch(User user, MultiPartsPatchDTO multiPartsReq) {

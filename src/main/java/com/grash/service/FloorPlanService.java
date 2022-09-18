@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
 import com.grash.model.Image;
 import com.grash.model.Location;
@@ -9,8 +10,6 @@ import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +22,7 @@ public class FloorPlanService {
     private final FloorPlanRepository floorPlanRepository;
     private final ImageService imageService;
     private final LocationService locationService;
-
-    private final ModelMapper modelMapper;
+    private final FloorPlanMapper floorPlanMapper;
 
     public FloorPlan create(FloorPlan FloorPlan) {
         return floorPlanRepository.save(FloorPlan);
@@ -33,9 +31,7 @@ public class FloorPlanService {
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(floorPlan, savedFloorPlan);
-            return floorPlanRepository.save(savedFloorPlan);
+            return floorPlanRepository.save(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -65,7 +61,7 @@ public class FloorPlanService {
         //@NotNull fields
         boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(floorPlanReq, FloorPlanPatchDTO.class));
+        return first && canPatch(user, floorPlanMapper.toDto(floorPlanReq));
     }
 
     public boolean canPatch(User user, FloorPlanPatchDTO floorPlanReq) {

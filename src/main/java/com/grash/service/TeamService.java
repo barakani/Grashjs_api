@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.TeamPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.TeamMapper;
 import com.grash.model.Company;
 import com.grash.model.Team;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final CompanyService companyService;
-    private final ModelMapper modelMapper;
+    private final TeamMapper teamMapper;
 
     public Team create(Team Team) {
         return teamRepository.save(Team);
@@ -30,9 +29,7 @@ public class TeamService {
     public Team update(Long id, TeamPatchDTO team) {
         if (teamRepository.existsById(id)) {
             Team savedTeam = teamRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(team, savedTeam);
-            return teamRepository.save(savedTeam);
+            return teamRepository.save(teamMapper.updateTeam(savedTeam, team));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -66,7 +63,7 @@ public class TeamService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, modelMapper.map(teamReq, TeamPatchDTO.class));
+        return first && canPatch(user, teamMapper.toDto(teamReq));
     }
 
     public boolean canPatch(User user, TeamPatchDTO teamReq) {

@@ -4,6 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.CategoryPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
 import com.grash.model.User;
@@ -16,7 +17,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +34,7 @@ public class CostCategoryController {
 
     private final CostCategoryService costCategoryService;
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final CostCategoryMapper costCategoryMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -74,7 +74,7 @@ public class CostCategoryController {
     public CostCategory create(@ApiParam("CostCategory") @RequestBody CategoryPostDTO costCategoryReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES)) {
-            CostCategory costCategory = modelMapper.map(costCategoryReq, CostCategory.class);
+            CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
             costCategory.setCompanySettings(user.getCompany().getCompanySettings());
             return costCategoryService.create(costCategory);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

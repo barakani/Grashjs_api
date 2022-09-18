@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.LaborPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.LaborMapper;
 import com.grash.model.Company;
 import com.grash.model.Labor;
 import com.grash.model.User;
@@ -9,8 +10,6 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LaborRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ public class LaborService {
     private final WorkOrderService workOrderService;
     private final UserService userService;
     private final CompanyService companyService;
-    private final ModelMapper modelMapper;
+    private final LaborMapper laborMapper;
 
     public Labor create(Labor Labor) {
         return laborRepository.save(Labor);
@@ -33,9 +32,7 @@ public class LaborService {
     public Labor update(Long id, LaborPatchDTO labor) {
         if (laborRepository.existsById(id)) {
             Labor savedLabor = laborRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(labor, savedLabor);
-            return laborRepository.save(savedLabor);
+            return laborRepository.save(laborMapper.updateLabor(savedLabor, labor));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -67,7 +64,7 @@ public class LaborService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, modelMapper.map(laborReq, LaborPatchDTO.class));
+        return first && second && canPatch(user, laborMapper.toDto(laborReq));
     }
 
     public boolean canPatch(User user, LaborPatchDTO laborReq) {

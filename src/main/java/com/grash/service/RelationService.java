@@ -2,14 +2,13 @@ package com.grash.service;
 
 import com.grash.dto.RelationPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.RelationMapper;
 import com.grash.model.Relation;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RelationRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import java.util.Optional;
 public class RelationService {
     private final RelationRepository relationRepository;
     private final WorkOrderService workOrderService;
-    private final ModelMapper modelMapper;
+    private final RelationMapper relationMapper;
 
     public Relation create(Relation Relation) {
         return relationRepository.save(Relation);
@@ -30,9 +29,7 @@ public class RelationService {
     public Relation update(Long id, RelationPatchDTO relation) {
         if (relationRepository.existsById(id)) {
             Relation savedRelation = relationRepository.findById(id).get();
-            modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-            modelMapper.map(relation, savedRelation);
-            return relationRepository.save(savedRelation);
+            return relationRepository.save(relationMapper.updateRelation(savedRelation, relation));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -60,7 +57,7 @@ public class RelationService {
 
     public boolean canCreate(User user, Relation relationReq) {
 
-        return canPatch(user, modelMapper.map(relationReq, RelationPatchDTO.class));
+        return canPatch(user, relationMapper.toDto(relationReq));
     }
 
     public boolean canPatch(User user, RelationPatchDTO relationReq) {
