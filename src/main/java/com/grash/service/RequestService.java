@@ -34,7 +34,7 @@ public class RequestService {
     public Request update(Long id, RequestPatchDTO request) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
-            return requestRepository.save(requestMapper.updateRequest(savedRequest, request);
+            return requestRepository.save(requestMapper.updateRequest(savedRequest, request));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
