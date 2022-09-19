@@ -13,7 +13,8 @@ public interface UserMapper {
     User updateUser(@MappingTarget User entity, UserSignupRequest dto);
 
 
-    @Mappings({@Mapping(source = "company.id", target = "companyId")})
+    @Mappings({@Mapping(source = "company.id", target = "companyId"),
+            @Mapping(source = "company.companySettings.id", target = "companySettingsId")})
     UserResponseDTO toDto(User model);
 
     @Mappings({})

@@ -4,8 +4,8 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
-import com.grash.model.CompanySettings;
 import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -41,8 +41,9 @@ public class AssetCategoryController {
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
-        CompanySettings companySettings = user.getCompany().getCompanySettings();
-        return assetCategoryService.findByCompanySettings(companySettings.getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return assetCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+        } else return assetCategoryService.getAll();
     }
 
     @GetMapping("/{id}")
