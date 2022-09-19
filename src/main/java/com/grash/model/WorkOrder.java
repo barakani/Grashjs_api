@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class WorkOrder extends WorkOrderBase {
     private PurchaseOrder purchaseOrder;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_WorkOrder_File_Associations",
             joinColumns = @JoinColumn(name = "id_work_order"),
             inverseJoinColumns = @JoinColumn(name = "id_file"),

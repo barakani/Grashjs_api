@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class Location extends CompanyAudit {
     private String gps;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Location_Workers_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
             inverseJoinColumns = @JoinColumn(name = "id_worker"),
@@ -34,6 +36,7 @@ public class Location extends CompanyAudit {
     private Collection<User> workers;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Location_Team_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),

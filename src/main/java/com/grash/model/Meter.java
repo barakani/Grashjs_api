@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class Meter extends CompanyAudit {
     private Image image;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Meter_User_Associations",
             joinColumns = @JoinColumn(name = "id_meter"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),

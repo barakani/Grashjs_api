@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
@@ -45,6 +46,7 @@ public class Asset extends CompanyAudit {
     private User primaryUser;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_User_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),
@@ -55,6 +57,7 @@ public class Asset extends CompanyAudit {
     private Collection<User> assignedTo;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_Team_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),
@@ -65,6 +68,7 @@ public class Asset extends CompanyAudit {
     private Collection<Team> teams;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_Vendor_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_vendor"),
@@ -88,6 +92,7 @@ public class Asset extends CompanyAudit {
     private int downtime;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_File_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_file"),

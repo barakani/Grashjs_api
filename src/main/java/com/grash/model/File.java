@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.FileAbstract;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class File extends FileAbstract {
     private Long id;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_File_Associations",
             joinColumns = @JoinColumn(name = "id_file"),
             inverseJoinColumns = @JoinColumn(name = "id_asset"),
@@ -26,6 +28,7 @@ public class File extends FileAbstract {
     private Collection<Asset> asset;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_File_Associations",
             joinColumns = @JoinColumn(name = "id_file"),
             inverseJoinColumns = @JoinColumn(name = "id_part"),
@@ -36,6 +39,7 @@ public class File extends FileAbstract {
     private Collection<Part> parts;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Request_File_Associations",
             joinColumns = @JoinColumn(name = "id_file"),
             inverseJoinColumns = @JoinColumn(name = "id_request"),
@@ -46,6 +50,7 @@ public class File extends FileAbstract {
     private Collection<Request> Requests;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_WorkOrder_File_Associations",
             joinColumns = @JoinColumn(name = "id_file"),
             inverseJoinColumns = @JoinColumn(name = "id_work_order"),

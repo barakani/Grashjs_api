@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class MultiParts extends CompanyAudit {
     private Long id;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_MultiParts_Part_Associations",
             joinColumns = @JoinColumn(name = "id_multi_parts"),
             inverseJoinColumns = @JoinColumn(name = "id_part"),

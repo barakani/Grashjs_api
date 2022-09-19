@@ -54,6 +54,7 @@ public class User {
     private UserSettings userSettings = new UserSettings();
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_User_Associations",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_asset"),
@@ -64,6 +65,7 @@ public class User {
     private Collection<Asset> asset;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Location_User_Associations",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_location"),
@@ -74,6 +76,7 @@ public class User {
     private Collection<Location> locations;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Meter_User_Associations",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_meter"),
@@ -84,6 +87,7 @@ public class User {
     private Collection<Meter> meters;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_User_Associations",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_part"),
@@ -94,6 +98,7 @@ public class User {
     private Collection<Part> parts;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Team_User_Associations",
             joinColumns = @JoinColumn(name = "id_user"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),
@@ -104,9 +109,11 @@ public class User {
     private Collection<Team> teams;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<PreventiveMaintenance> preventiveMaintenances;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<WorkOrder> workOrders;
 
 

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Customer extends BasicInfos {
     private Currency billingCurrency;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_customer_Associations",
             joinColumns = @JoinColumn(name = "id_customer"),
             inverseJoinColumns = @JoinColumn(name = "id_part"),

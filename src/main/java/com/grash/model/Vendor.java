@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.BasicInfos;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class Vendor extends BasicInfos {
     private double rate;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Asset_Vendor_Associations",
             joinColumns = @JoinColumn(name = "id_vendor"),
             inverseJoinColumns = @JoinColumn(name = "id_asset"),

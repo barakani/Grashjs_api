@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class Team extends CompanyAudit {
     private Long id;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Team_User_Associations",
             joinColumns = @JoinColumn(name = "id_team"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),
@@ -32,6 +34,7 @@ public class Team extends CompanyAudit {
     private String description;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Team_Asset_Associations",
             joinColumns = @JoinColumn(name = "id_team"),
             inverseJoinColumns = @JoinColumn(name = "id_asset"),
@@ -42,6 +45,7 @@ public class Team extends CompanyAudit {
     private Collection<Asset> asset;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Location_Team_Associations",
             inverseJoinColumns = @JoinColumn(name = "id_team"),
             joinColumns = @JoinColumn(name = "id_location"),

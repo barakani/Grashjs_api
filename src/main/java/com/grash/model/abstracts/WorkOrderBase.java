@@ -1,5 +1,6 @@
 package com.grash.model.abstracts;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
@@ -24,6 +25,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private boolean requiredSignature;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<Part> parts;
 
     @ManyToOne
@@ -37,6 +39,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private User primaryUser;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<User> assignedTo;
 
     @ManyToOne

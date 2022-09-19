@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Part extends CompanyAudit {
 
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_User_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),
@@ -46,6 +48,7 @@ public class Part extends CompanyAudit {
     private Location location;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_File_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_file"),
@@ -59,6 +62,7 @@ public class Part extends CompanyAudit {
     private Image image;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_Customer_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_customer"),
@@ -69,14 +73,17 @@ public class Part extends CompanyAudit {
     private Collection<Customer> assignedCustomer;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<WorkOrder> workOrders;
 
     @ManyToMany
+    @JsonIgnore
     private Collection<PreventiveMaintenance> preventiveMaintenances;
 
     private int minQuantity;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_Part_Team_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),
@@ -92,6 +99,7 @@ public class Part extends CompanyAudit {
     private Asset asset;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(name = "T_MultiParts_Part_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_multi_parts"),
