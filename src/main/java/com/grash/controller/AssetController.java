@@ -118,7 +118,7 @@ public class AssetController {
                     && assignedTo.getCompany().getId().equals(user.getCompany().getId())) {
                 savedAsset.getAssignedTo().add(assignedTo);
                 notificationService.create(new Notification(
-                        "Asset " + savedAsset.getName() + " assigned to you",
+                        "Asset " + savedAsset.getName() + " has been assigned to you",
                         assignedTo, NotificationType.ASSET, savedAsset.getId()));
                 return assetService.save(savedAsset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

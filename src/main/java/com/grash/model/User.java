@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.Set;
 
 @Entity
 @Data
@@ -62,7 +62,7 @@ public class User {
                     @Index(name = "idx_user_asset_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_asset_asset_id", columnList = "id_asset")
             })
-    private Collection<Asset> asset;
+    private Set<Asset> asset;
 
     @ManyToMany
     @JsonIgnore
@@ -73,7 +73,7 @@ public class User {
                     @Index(name = "idx_user_location_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_location_location_id", columnList = "id_location")
             })
-    private Collection<Location> locations;
+    private Set<Location> locations;
 
     @ManyToMany
     @JsonIgnore
@@ -84,7 +84,7 @@ public class User {
                     @Index(name = "idx_user_meter_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_meter_meter_id", columnList = "id_meter")
             })
-    private Collection<Meter> meters;
+    private Set<Meter> meters;
 
     @ManyToMany
     @JsonIgnore
@@ -95,7 +95,7 @@ public class User {
                     @Index(name = "idx_user_part_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_part_part_id", columnList = "id_part")
             })
-    private Collection<Part> parts;
+    private Set<Part> parts;
 
     @ManyToMany
     @JsonIgnore
@@ -106,15 +106,15 @@ public class User {
                     @Index(name = "idx_user_team_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_team_team_id", columnList = "id_team")
             })
-    private Collection<Team> teams;
+    private Set<Team> teams;
 
     @ManyToMany
     @JsonIgnore
-    private Collection<PreventiveMaintenance> preventiveMaintenances;
+    private Set<PreventiveMaintenance> preventiveMaintenances;
 
     @ManyToMany
     @JsonIgnore
-    private Collection<WorkOrder> workOrders;
+    private Set<WorkOrder> workOrders;
 
 
 }

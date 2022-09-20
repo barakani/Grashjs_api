@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Data
@@ -35,7 +35,7 @@ public class Request extends CompanyAudit {
                     @Index(name = "idx_request_file_request_id", columnList = "id_request"),
                     @Index(name = "idx_request_file_file_id", columnList = "id_file")
             })
-    private Collection<File> files;
+    private Set<File> files;
     @OneToOne
     private Image image;
 
