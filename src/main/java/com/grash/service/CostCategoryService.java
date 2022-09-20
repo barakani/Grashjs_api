@@ -4,6 +4,8 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
+import com.grash.model.User;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.CostCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,5 +47,11 @@ public class CostCategoryService {
 
     public Collection<CostCategory> findByCompanySettings(Long id) {
         return costCategoryRepository.findByCompanySettings_Id(id);
+    }
+
+    public boolean hasAccess(User user, CostCategory costCategory) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(costCategory.getCompanySettings().getCompany().getId());
     }
 }

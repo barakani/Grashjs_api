@@ -1,6 +1,8 @@
 package com.grash.service;
 
+import com.grash.model.User;
 import com.grash.model.UserSettings;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.UserSettingsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,22 @@ public class UserSettingsService {
         return userSettingsRepository.save(UserSettings);
     }
 
-    public Collection<UserSettings> getAll() { return userSettingsRepository.findAll(); }
+    public Collection<UserSettings> getAll() {
+        return userSettingsRepository.findAll();
+    }
 
-    public void delete(Long id){ userSettingsRepository.deleteById(id);}
+    public void delete(Long id) {
+        userSettingsRepository.deleteById(id);
+    }
 
-    public Optional<UserSettings> findById(Long id) {return userSettingsRepository.findById(id); }
+    public Optional<UserSettings> findById(Long id) {
+        return userSettingsRepository.findById(id);
+    }
+
+    public boolean hasAccess(User user, UserSettings userSettings) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else
+            return user.getUserSettings().getId().equals(userSettings.getId());
+    }
 }

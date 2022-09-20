@@ -61,7 +61,8 @@ public class CostCategoryController {
         User user = userService.whoami(req);
         Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
         if (costCategoryOptional.isPresent()) {
-            if (costCategoryOptional.get().getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())) {
+            CostCategory costCategory = costCategoryOptional.get();
+            if (costCategoryService.hasAccess(user, costCategory)) {
                 return costCategoryService.findById(id).get();
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

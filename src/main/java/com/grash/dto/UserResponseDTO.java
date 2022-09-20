@@ -25,4 +25,6 @@ public class UserResponseDTO {
 
     private Long companySettingsId;
 
+    private Long userSettingsId;
+
 }
