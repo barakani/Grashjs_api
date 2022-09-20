@@ -5,6 +5,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -105,7 +106,8 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder)) {
+            if (workOrderService.hasAccess(user, savedWorkOrder) &&
+                    user.getRole().getPermissions().contains(BasicPermission.DELETE_WORK_ORDERS)) {
                 workOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

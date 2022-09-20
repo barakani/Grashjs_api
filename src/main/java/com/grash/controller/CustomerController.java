@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Customer;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
@@ -105,7 +106,8 @@ public class CustomerController {
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer)
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_VENDORS_AND_CUSTOMERS)) {
                 customerService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.PurchaseOrder;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PurchaseOrderService;
 import com.grash.service.UserService;
@@ -105,7 +106,8 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)) {
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PURCHASE_ORDERS)) {
                 purchaseOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

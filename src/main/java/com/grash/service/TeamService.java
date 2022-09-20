@@ -6,6 +6,7 @@ import com.grash.mapper.TeamMapper;
 import com.grash.model.Company;
 import com.grash.model.Team;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -63,10 +64,12 @@ public class TeamService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, teamMapper.toDto(teamReq));
+        boolean second = user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
+
+        return first && second && canPatch(user, teamMapper.toDto(teamReq));
     }
 
     public boolean canPatch(User user, TeamPatchDTO teamReq) {
-        return true;
+        return user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
     }
 }

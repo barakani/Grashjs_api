@@ -5,6 +5,7 @@ import com.grash.dto.TeamPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Team;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
@@ -105,7 +106,8 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (teamService.hasAccess(user, savedTeam)) {
+            if (teamService.hasAccess(user, savedTeam)
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PEOPLE_AND_TEAMS)) {
                 teamService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

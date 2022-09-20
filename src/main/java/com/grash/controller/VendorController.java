@@ -5,6 +5,7 @@ import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.Vendor;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
@@ -105,7 +106,8 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor)) {
+            if (vendorService.hasAccess(user, savedVendor)
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_VENDORS_AND_CUSTOMERS)) {
                 vendorService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

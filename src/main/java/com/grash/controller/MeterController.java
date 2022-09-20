@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Meter;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
@@ -105,7 +106,8 @@ public class MeterController {
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (meterService.hasAccess(user, savedMeter)) {
+            if (meterService.hasAccess(user, savedMeter)
+                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_METERS)) {
                 meterService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
