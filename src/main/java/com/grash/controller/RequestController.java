@@ -57,7 +57,7 @@ public class RequestController {
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (requestService.hasAccess(user, savedRequest)) {
-                return optionalRequest.get();
+                return savedRequest;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

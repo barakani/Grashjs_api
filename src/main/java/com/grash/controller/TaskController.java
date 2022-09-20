@@ -42,7 +42,7 @@ public class TaskController {
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
             if (taskService.hasAccess(user, savedTask)) {
-                return optionalTask.get();
+                return savedTask;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

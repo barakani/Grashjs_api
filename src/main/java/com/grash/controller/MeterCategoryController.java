@@ -57,7 +57,7 @@ public class MeterCategoryController {
         if (optionalMeterCategory.isPresent()) {
             MeterCategory savedMeterCategory = optionalMeterCategory.get();
             if (meterCategoryService.hasAccess(user, savedMeterCategory)) {
-                return optionalMeterCategory.get();
+                return savedMeterCategory;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

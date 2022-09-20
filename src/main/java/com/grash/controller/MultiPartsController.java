@@ -57,7 +57,7 @@ public class MultiPartsController {
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
             if (multiPartsService.hasAccess(user, savedMultiParts)) {
-                return optionalMultiParts.get();
+                return savedMultiParts;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

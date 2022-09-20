@@ -57,7 +57,7 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (locationService.hasAccess(user, savedLocation)) {
-                return optionalLocation.get();
+                return savedLocation;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

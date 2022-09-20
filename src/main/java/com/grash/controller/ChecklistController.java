@@ -59,7 +59,7 @@ public class ChecklistController {
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
             if (checklistService.hasAccess(user, savedChecklist)) {
-                return optionalChecklist.get();
+                return savedChecklist;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

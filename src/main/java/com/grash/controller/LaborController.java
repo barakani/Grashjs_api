@@ -43,7 +43,7 @@ public class LaborController {
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
             if (laborService.hasAccess(user, savedLabor)) {
-                return optionalLabor.get();
+                return savedLabor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

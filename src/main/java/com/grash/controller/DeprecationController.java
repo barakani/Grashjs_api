@@ -42,7 +42,7 @@ public class DeprecationController {
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
             if (deprecationService.hasAccess(user, savedDeprecation)) {
-                return optionalDeprecation.get();
+                return savedDeprecation;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

@@ -57,7 +57,7 @@ public class TimeCategoryController {
         if (optionalTimeCategory.isPresent()) {
             TimeCategory savedTimeCategory = optionalTimeCategory.get();
             if (timeCategoryService.hasAccess(user, savedTimeCategory)) {
-                return optionalTimeCategory.get();
+                return savedTimeCategory;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

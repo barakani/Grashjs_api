@@ -57,7 +57,7 @@ public class MeterController {
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
             if (meterService.hasAccess(user, savedMeter)) {
-                return optionalMeter.get();
+                return savedMeter;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

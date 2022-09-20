@@ -57,7 +57,7 @@ public class PurchaseOrderController {
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)) {
-                return optionalPurchaseOrder.get();
+                return savedPurchaseOrder;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

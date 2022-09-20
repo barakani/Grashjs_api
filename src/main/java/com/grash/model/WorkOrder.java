@@ -17,7 +17,8 @@ public class WorkOrder extends WorkOrderBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Long completedBy;
+    @ManyToOne
+    private User completedBy;
 
     private Date completedOn;
 

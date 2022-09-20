@@ -57,7 +57,7 @@ public class PreventiveMaintenanceController {
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance)) {
-                return optionalPreventiveMaintenance.get();
+                return savedPreventiveMaintenance;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

@@ -57,7 +57,7 @@ public class PurchaseOrderCategoryController {
         if (optionalPurchaseOrderCategory.isPresent()) {
             PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
             if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory)) {
-                return optionalPurchaseOrderCategory.get();
+                return savedPurchaseOrderCategory;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

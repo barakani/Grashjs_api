@@ -26,6 +26,7 @@ public class WorkOrderMeterTrigger {
     @NotNull
     private WorkOrder workOrder;
 
+    @NotNull
     private WorkOrderMeterTriggerCondition workOrderMeterTriggerCondition;
 
     private int value;

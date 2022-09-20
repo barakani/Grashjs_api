@@ -57,7 +57,7 @@ public class CustomerController {
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (customerService.hasAccess(user, savedCustomer)) {
-                return optionalCustomer.get();
+                return savedCustomer;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

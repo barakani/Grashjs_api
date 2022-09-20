@@ -57,7 +57,7 @@ public class ScheduleController {
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
             if (scheduleService.hasAccess(user, savedSchedule)) {
-                return optionalSchedule.get();
+                return savedSchedule;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

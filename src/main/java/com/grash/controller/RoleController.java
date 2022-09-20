@@ -57,7 +57,7 @@ public class RoleController {
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
             if (roleService.hasAccess(user, savedRole)) {
-                return optionalRole.get();
+                return savedRole;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

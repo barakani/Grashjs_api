@@ -42,7 +42,7 @@ public class TaskBaseController {
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
             if (taskBaseService.hasAccess(user, savedTaskBase)) {
-                return optionalTaskBase.get();
+                return savedTaskBase;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

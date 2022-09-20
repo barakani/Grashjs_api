@@ -42,7 +42,7 @@ public class CustomFieldController {
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
             if (customFieldService.hasAccess(user, savedCustomField)) {
-                return optionalCustomField.get();
+                return savedCustomField;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

@@ -42,7 +42,7 @@ public class WorkOrderHistoryController {
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
             if (hasAccess(user, savedWorkOrderHistory)) {
-                return optionalWorkOrderHistory.get();
+                return savedWorkOrderHistory;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

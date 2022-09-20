@@ -57,7 +57,7 @@ public class SubscriptionPlanController {
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
             if (subscriptionPlanService.hasAccess(user, savedSubscriptionPlan)) {
-                return optionalSubscriptionPlan.get();
+                return savedSubscriptionPlan;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

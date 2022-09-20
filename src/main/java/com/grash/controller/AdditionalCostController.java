@@ -42,7 +42,7 @@ public class AdditionalCostController {
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
             if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
-                return optionalAdditionalCost.get();
+                return savedAdditionalCost;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

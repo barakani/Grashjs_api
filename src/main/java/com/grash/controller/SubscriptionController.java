@@ -57,7 +57,7 @@ public class SubscriptionController {
         if (optionalSubscription.isPresent()) {
             Subscription savedSubscription = optionalSubscription.get();
             if (subscriptionService.hasAccess(user, savedSubscription)) {
-                return optionalSubscription.get();
+                return savedSubscription;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

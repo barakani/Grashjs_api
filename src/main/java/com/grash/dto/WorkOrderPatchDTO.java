@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class WorkOrderPatchDTO {
-    private Long completedBy;
+    private User completedBy;
     private Date completedOn;
     private boolean archived;
     private PurchaseOrder purchaseOrder;

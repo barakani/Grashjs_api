@@ -42,7 +42,7 @@ public class ImageController {
         if (optionalImage.isPresent()) {
             Image savedImage = optionalImage.get();
             if (imageService.hasAccess(user, savedImage)) {
-                return optionalImage.get();
+                return savedImage;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

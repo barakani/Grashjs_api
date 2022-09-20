@@ -42,7 +42,7 @@ public class AdditionalTimeController {
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
             if (additionalTimeService.hasAccess(user, savedAdditionalTime)) {
-                return optionalAdditionalTime.get();
+                return savedAdditionalTime;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 

@@ -43,7 +43,7 @@ public class WorkOrderMeterTriggerController {
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
             if (workOrderMeterTriggerService.hasAccess(user, savedWorkOrderMeterTrigger)) {
-                return optionalWorkOrderMeterTrigger.get();
+                return savedWorkOrderMeterTrigger;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }

@@ -57,7 +57,7 @@ public class VendorController {
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
             if (vendorService.hasAccess(user, savedVendor)) {
-                return optionalVendor.get();
+                return savedVendor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
