@@ -36,6 +36,10 @@ public class AssetService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public Asset save(Asset asset) {
+        return assetRepository.save(asset);
+    }
+
     public Collection<Asset> getAll() {
         return assetRepository.findAll();
     }

@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.NotificationType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,10 +24,16 @@ public class Notification extends Audit {
     @ManyToOne
     private User user;
 
+    private NotificationType notificationType;
 
-    public Notification(String message, User user) {
+    private Long resourceId;
+
+
+    public Notification(String message, User user, NotificationType notificationType, Long resourceId) {
         this.message = message;
         this.user = user;
+        this.notificationType = notificationType;
+        this.resourceId = resourceId;
     }
 
 }

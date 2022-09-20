@@ -40,7 +40,8 @@ public class Asset extends CompanyAudit {
     @ManyToOne
     private AssetCategory category;
 
-    private String description;
+    @NotNull
+    private String name;
 
     @ManyToOne
     private User primaryUser;
