@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Data
@@ -25,7 +26,7 @@ public class WorkOrder extends WorkOrderBase {
     private boolean archived;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<Task> taskList;
+    private Set<Task> taskList;
 
     @ManyToOne
     private Request parentRequest;
