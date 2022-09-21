@@ -43,4 +43,11 @@ public class AssetPatchDTO {
 
     private Set<User> assignedTo;
 
+    private Set<Vendor> vendors;
+
+    private Set<Team> teams;
+
+    private Set<File> files;
+
+
 }

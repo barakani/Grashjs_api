@@ -4,6 +4,7 @@ import com.grash.dto.AssetPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class AssetService {
     private final DeprecationService deprecationService;
     private final UserService userService;
     private final CompanyService companyService;
+    private final NotificationService notificationService;
     private final AssetMapper assetMapper;
 
     public Asset create(Asset Asset) {
@@ -104,5 +108,29 @@ public class AssetService {
         });
 
         return second && third && fourth && fifth && sixth && seventh && eighth;
+    }
+
+    public void notify(Asset asset) {
+        String message = "Asset " + asset.getName() + " has been assigned to you";
+        if (asset.getPrimaryUser() != null) {
+            notificationService.create(new Notification(message, asset.getPrimaryUser(), NotificationType.ASSET, asset.getId()));
+        }
+        if (asset.getAssignedTo() != null) {
+            asset.getAssignedTo().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.ASSET, asset.getId())));
+        }
+    }
+
+    public void patchNotify(Asset oldAsset, Asset newAsset) {
+        String message = "Asset " + newAsset.getName() + " has been assigned to you";
+        if (newAsset.getPrimaryUser() != null && !newAsset.getPrimaryUser().getId().equals(oldAsset.getPrimaryUser().getId())) {
+            notificationService.create(new Notification(message, newAsset.getPrimaryUser(), NotificationType.ASSET, newAsset.getId()));
+        }
+        if (newAsset.getAssignedTo() != null) {
+            List<User> newUsers = newAsset.getAssignedTo().stream().filter(
+                    user -> oldAsset.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newAsset.getId())));
+        }
     }
 }

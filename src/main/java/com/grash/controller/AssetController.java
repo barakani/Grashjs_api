@@ -4,13 +4,10 @@ import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
-import com.grash.model.Notification;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
-import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
-import com.grash.service.NotificationService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -35,7 +32,6 @@ public class AssetController {
 
     private final AssetService assetService;
     private final UserService userService;
-    private final NotificationService notificationService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -75,7 +71,9 @@ public class AssetController {
     public Asset create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (assetService.canCreate(user, assetReq)) {
-            return assetService.create(assetReq);
+            Asset createdAsset = assetService.create(assetReq);
+            assetService.notify(createdAsset);
+            return createdAsset;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -94,10 +92,7 @@ public class AssetController {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)) {
                 Asset patchedAsset = assetService.update(id, asset);
-                if (asset.getAssignedTo() != null) {
-                    asset.getAssignedTo().forEach(assignedUser ->
-                            notificationService.create(new Notification("Asset " + patchedAsset.getName() + " has been assigned to you", assignedUser, NotificationType.ASSET, id)));
-                }
+                assetService.patchNotify(savedAsset, patchedAsset);
                 return patchedAsset;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
