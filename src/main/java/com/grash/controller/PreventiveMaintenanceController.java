@@ -63,19 +63,21 @@ public class PreventiveMaintenanceController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasPreventiveMaintenance('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public PreventiveMaintenance create(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenance preventiveMaintenanceReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (preventiveMaintenanceService.canCreate(user, preventiveMaintenanceReq)) {
-            return preventiveMaintenanceService.create(preventiveMaintenanceReq);
+            PreventiveMaintenance createdPreventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenanceReq);
+            preventiveMaintenanceService.notify(createdPreventiveMaintenance);
+            return createdPreventiveMaintenance;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasPreventiveMaintenance('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -88,13 +90,15 @@ public class PreventiveMaintenanceController {
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance) && preventiveMaintenanceService.canPatch(user, preventiveMaintenance)) {
-                return preventiveMaintenanceService.update(id, preventiveMaintenance);
+                PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id, preventiveMaintenance);
+                preventiveMaintenanceService.patchNotify(savedPreventiveMaintenance, patchedPreventiveMaintenance);
+                return patchedPreventiveMaintenance;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPreventiveMaintenance('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

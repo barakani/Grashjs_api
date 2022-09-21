@@ -4,6 +4,7 @@ import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class PreventiveMaintenanceService {
     private final UserService userService;
     private final AssetService assetService;
     private final CompanyService companyService;
+    private final NotificationService notificationService;
     private final LocationService locationService;
 
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
@@ -86,5 +90,38 @@ public class PreventiveMaintenanceService {
         boolean fifth = preventiveMaintenanceReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth && fifth;
+    }
+
+    public void notify(PreventiveMaintenance preventiveMaintenance) {
+
+        String message = "PreventiveMaintenance " + preventiveMaintenance.getTitle() + " has been assigned to you";
+        if (preventiveMaintenance.getPrimaryUser() != null) {
+            notificationService.create(new Notification(message, preventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId()));
+        }
+        if (preventiveMaintenance.getAssignedTo() != null) {
+            preventiveMaintenance.getAssignedTo().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId())));
+        }
+        if (preventiveMaintenance.getTeam() != null) {
+            preventiveMaintenance.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId())));
+        }
+    }
+
+    public void patchNotify(PreventiveMaintenance oldPreventiveMaintenance, PreventiveMaintenance newPreventiveMaintenance) {
+        String message = "PreventiveMaintenance " + newPreventiveMaintenance.getTitle() + " has been assigned to you";
+        if (newPreventiveMaintenance.getPrimaryUser() != null && !newPreventiveMaintenance.getPrimaryUser().getId().equals(oldPreventiveMaintenance.getPrimaryUser().getId())) {
+            notificationService.create(new Notification(message, newPreventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId()));
+        }
+        if (newPreventiveMaintenance.getAssignedTo() != null) {
+            List<User> newUsers = newPreventiveMaintenance.getAssignedTo().stream().filter(
+                    user -> oldPreventiveMaintenance.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId())));
+        }
+        if (newPreventiveMaintenance.getTeam() != null && !newPreventiveMaintenance.getTeam().getId().equals(oldPreventiveMaintenance.getTeam().getId())) {
+            newPreventiveMaintenance.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId())));
+        }
     }
 }
