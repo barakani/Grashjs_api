@@ -4,6 +4,7 @@ import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class RequestService {
     private final UserService userService;
     private final TeamService teamService;
     private final AssetService assetService;
+    private final NotificationService notificationService;
     private final RequestMapper requestMapper;
 
     public Request create(Request request) {
@@ -86,5 +88,20 @@ public class RequestService {
         boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
 
         return first && second && third && fourth && fifth;
+    }
+
+    public void notify(Request request) {
+
+        String message = "Request " + request.getTitle() + " has been assigned to you";
+        if (request.getAssignedTo() != null) {
+            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
+        }
+    }
+
+    public void patchNotify(Request oldRequest, Request newRequest) {
+        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
+        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
+            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
+        }
     }
 }

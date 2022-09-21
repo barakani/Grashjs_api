@@ -57,6 +57,7 @@ public class RequestController {
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (requestService.hasAccess(user, savedRequest)) {
+                requestService.notify(savedRequest);
                 return savedRequest;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -70,7 +71,8 @@ public class RequestController {
     public Request create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
-            return requestService.create(requestReq);
+            Request createdRequest = requestService.create(requestReq);
+            return createdRequest;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -88,7 +90,9 @@ public class RequestController {
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request)) {
-                return requestService.update(id, request);
+                Request patchedRequest = requestService.update(id, request);
+                requestService.patchNotify(savedRequest, patchedRequest);
+                return patchedRequest;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
