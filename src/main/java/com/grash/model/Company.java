@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "companySettings")
 public class Company extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -116,6 +116,8 @@ public class User {
     @JsonIgnore
     private Set<WorkOrder> workOrders;
 
-
+    public int hashCode() {
+        return Math.toIntExact(id);
+    }
 }
 

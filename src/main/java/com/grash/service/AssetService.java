@@ -72,7 +72,12 @@ public class AssetService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, assetMapper.toDto(assetReq));
+        boolean third = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
+            Optional<User> optionalUser = userService.findById(user1.getId());
+            return optionalUser.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
+        });
+
+        return first && second && third && canPatch(user, assetMapper.toDto(assetReq));
     }
 
     public boolean canPatch(User user, AssetPatchDTO assetReq) {
@@ -93,6 +98,11 @@ public class AssetService {
         boolean sixth = assetReq.getPrimaryUser() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
         boolean seventh = assetReq.getDeprecation() == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
 
-        return second && third && fourth && fifth && sixth && seventh;
+        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
+            Optional<User> optionalUser1 = userService.findById(user1.getId());
+            return optionalUser1.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
+        });
+
+        return second && third && fourth && fifth && sixth && seventh && eighth;
     }
 }

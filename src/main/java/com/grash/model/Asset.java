@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
@@ -47,7 +48,7 @@ public class Asset extends CompanyAudit {
     private User primaryUser;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Asset_User_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -39,5 +40,7 @@ public class AssetPatchDTO {
     private int uptime;
 
     private int downtime;
+
+    private Set<User> assignedTo;
 
 }
