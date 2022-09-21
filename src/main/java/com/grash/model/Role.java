@@ -21,6 +21,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private RoleType roleType;
 
     @NotNull
@@ -30,6 +31,7 @@ public class Role {
     private Collection<BasicPermission> permissions;
 
     @ManyToOne
+    @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
 

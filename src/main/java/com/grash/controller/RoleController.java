@@ -5,6 +5,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Role;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
@@ -105,7 +106,7 @@ public class RoleController {
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole)) {
+            if (roleService.hasAccess(user, savedRole) && user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
                 roleService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

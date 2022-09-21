@@ -6,6 +6,7 @@ import com.grash.mapper.RoleMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.Role;
 import com.grash.model.User;
+import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +61,9 @@ public class RoleService {
     }
 
     public boolean canCreate(User user, Role roleReq) {
-
-        return canPatch(user, roleMapper.toDto(roleReq));
+        if (user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
+            return canPatch(user, roleMapper.toDto(roleReq));
+        } else return false;
     }
 
     public boolean canPatch(User user, RolePatchDTO roleReq) {
