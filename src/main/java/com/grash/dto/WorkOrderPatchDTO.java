@@ -6,6 +6,7 @@ import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Date;
 
 @Data
@@ -30,4 +31,10 @@ public class WorkOrderPatchDTO {
     private User primaryUser;
 
     private Asset asset;
+
+    private Collection<User> assignedTo;
+
+    private Collection<Part> parts;
+
+    private Collection<File> files;
 }

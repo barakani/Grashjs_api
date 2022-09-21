@@ -5,8 +5,8 @@ import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -41,13 +41,13 @@ public class AssetPatchDTO {
 
     private int downtime;
 
-    private Set<User> assignedTo;
+    private Collection<User> assignedTo;
 
-    private Set<Vendor> vendors;
+    private Collection<Vendor> vendors;
 
-    private Set<Team> teams;
+    private Collection<Team> teams;
 
-    private Set<File> files;
+    private Collection<File> files;
 
 
 }

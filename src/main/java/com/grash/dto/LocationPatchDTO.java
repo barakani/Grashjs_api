@@ -1,10 +1,10 @@
 package com.grash.dto;
 
-import com.grash.model.Customer;
-import com.grash.model.Location;
-import com.grash.model.Vendor;
+import com.grash.model.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -20,5 +20,9 @@ public class LocationPatchDTO {
     private Vendor vendor;
 
     private Customer customer;
+
+    private Collection<User> workers;
+
+    private Collection<Team> teams;
 
 }

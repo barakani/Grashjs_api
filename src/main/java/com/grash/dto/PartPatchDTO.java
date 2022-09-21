@@ -1,10 +1,10 @@
 package com.grash.dto;
 
-import com.grash.model.Asset;
-import com.grash.model.Image;
-import com.grash.model.Location;
+import com.grash.model.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +29,12 @@ public class PartPatchDTO {
     private Image image;
 
     private Asset asset;
+
+    private Collection<User> assignedTo;
+
+    private Collection<File> files;
+
+    private Collection<Customer> assignedCustomers;
+
+    private Collection<Team> teams;
 }

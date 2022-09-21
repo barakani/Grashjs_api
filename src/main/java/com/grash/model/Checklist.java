@@ -17,7 +17,7 @@ public class Checklist {
     private Long id;
 
     @OneToMany
-    private Collection<TaskBase> taskBaseList;
+    private Collection<TaskBase> taskBases;
 
     @NotNull
     private String name;

@@ -5,6 +5,7 @@ import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Date;
 
 @Data
@@ -32,4 +33,6 @@ public class RequestPatchDTO {
     private String category;
 
     private Team team;
+
+    private Collection<File> files;
 }

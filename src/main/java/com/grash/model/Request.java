@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.Priority;
 import lombok.Data;
@@ -27,7 +27,7 @@ public class Request extends CompanyAudit {
     private Priority priority = Priority.NONE;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Request_File_Associations",
             joinColumns = @JoinColumn(name = "id_request"),
             inverseJoinColumns = @JoinColumn(name = "id_file"),

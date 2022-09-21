@@ -25,7 +25,7 @@ public class Part extends CompanyAudit {
 
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Part_User_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_user"),
@@ -48,7 +48,7 @@ public class Part extends CompanyAudit {
     private Location location;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Part_File_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_file"),
@@ -62,7 +62,7 @@ public class Part extends CompanyAudit {
     private Image image;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Part_Customer_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_customer"),
@@ -70,7 +70,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_customer_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
             })
-    private Collection<Customer> assignedCustomer;
+    private Collection<Customer> assignedCustomers;
 
     @ManyToMany
     @JsonIgnore
@@ -83,7 +83,7 @@ public class Part extends CompanyAudit {
     private int minQuantity;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Part_Team_Associations",
             joinColumns = @JoinColumn(name = "id_part"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),

@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public class Location extends CompanyAudit {
     private String gps;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Location_Workers_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
             inverseJoinColumns = @JoinColumn(name = "id_worker"),
@@ -36,7 +36,7 @@ public class Location extends CompanyAudit {
     private Collection<User> workers;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Location_Team_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
             inverseJoinColumns = @JoinColumn(name = "id_team"),
@@ -44,7 +44,7 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_team_location_id", columnList = "id_location"),
                     @Index(name = "idx_location_team_team_id", columnList = "id_team")
             })
-    private Collection<Team> teamList;
+    private Collection<Team> teams;
 
     @ManyToOne
     private Location parentLocation;
