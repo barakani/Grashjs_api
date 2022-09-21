@@ -24,6 +24,7 @@ public class RequestService {
     private final UserService userService;
     private final TeamService teamService;
     private final AssetService assetService;
+    private final WorkOrderService workOrderService;
     private final NotificationService notificationService;
     private final RequestMapper requestMapper;
 
@@ -103,5 +104,22 @@ public class RequestService {
         if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
             notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
         }
+    }
+
+    public void createWorkOrderFromRequest(Request request) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setCompany(request.getCompany());
+        workOrder.setParentRequest(request);
+        workOrder.setTitle(request.getTitle());
+        workOrder.setDescription(request.getDescription());
+        workOrder.setPriority(request.getPriority());
+        workOrder.setFiles(request.getFiles());
+        workOrder.setAsset(request.getAsset());
+        workOrder.setLocation(request.getLocation());
+        //workOrder.setAssignedTo(request.getAssignedTo());
+        workOrder.setTeam(request.getTeam());
+        WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+        workOrderService.notify(savedWorkOrder);
+
     }
 }

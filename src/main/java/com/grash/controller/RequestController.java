@@ -69,6 +69,7 @@ public class RequestController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Request create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
+        requestReq.setApproved(false);
         User user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
             Request createdRequest = requestService.create(requestReq);
@@ -89,9 +90,15 @@ public class RequestController {
 
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
+            if (savedRequest.isApproved()) {
+                throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
+            }
             if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request)) {
                 Request patchedRequest = requestService.update(id, request);
                 requestService.patchNotify(savedRequest, patchedRequest);
+                if (patchedRequest.isApproved()) {
+                    requestService.createWorkOrderFromRequest(patchedRequest);
+                }
                 return patchedRequest;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

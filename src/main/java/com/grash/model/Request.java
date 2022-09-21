@@ -19,6 +19,8 @@ public class Request extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private boolean approved;
+
     @NotNull
     private String title;
 

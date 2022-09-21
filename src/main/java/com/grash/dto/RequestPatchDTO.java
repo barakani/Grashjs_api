@@ -16,6 +16,9 @@ public class RequestPatchDTO {
 
     private String description;
 
+    private boolean approved;
+
+
     private Priority priority;
 
     private Image image;
