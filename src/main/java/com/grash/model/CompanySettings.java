@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -40,14 +40,13 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Collection<Role> roleList = Arrays.asList(
+    private Set<Role> roleList = new HashSet<>(Arrays.asList(
             createRole("Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES))
-    );
+            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES))));
 
     public CompanySettings(Company company) {
         this.company = company;
@@ -55,11 +54,11 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Collection<CostCategory> costCategories = createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost"));
+    private Set<CostCategory> costCategories = new HashSet<>(createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost")));
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Collection<TimeCategory> timeCategories = createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time"));
+    private Set<TimeCategory> timeCategories = new HashSet<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
 
     private Role createRole(String name, List<BasicPermission> basicPermissions) {
         return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);

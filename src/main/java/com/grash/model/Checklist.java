@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.Set;
 
 @Entity
 @Data
@@ -17,7 +17,7 @@ public class Checklist {
     private Long id;
 
     @OneToMany
-    private Collection<TaskBase> taskBaseList;
+    private Set<TaskBase> taskBaseList;
 
     @NotNull
     private String name;
