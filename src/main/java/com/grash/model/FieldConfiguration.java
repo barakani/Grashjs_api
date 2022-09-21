@@ -2,6 +2,8 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.FieldType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @EqualsAndHashCode(exclude = {"workOrderConfiguration", "WorkOrderRequestConfiguration"})
 
 public class FieldConfiguration {
@@ -29,24 +33,19 @@ public class FieldConfiguration {
 
     @ManyToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private WorkOrderRequestConfiguration WorkOrderRequestConfiguration;
+    private WorkOrderRequestConfiguration workOrderRequestConfiguration;
 
     @ManyToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrderConfiguration workOrderConfiguration;
 
-    public FieldConfiguration(String fieldName, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration
-    ) {
-        this.fieldName = fieldName;
-        this.workOrderConfiguration = workOrderConfiguration;
-        this.WorkOrderRequestConfiguration = workOrderRequestConfiguration;
-    }
-
-    public FieldConfiguration(String fieldName) {
-        this.fieldName = fieldName;
-    }
 
     public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
-        return fieldNames.stream().map(fieldName -> new FieldConfiguration(fieldName, workOrderRequestConfiguration, workOrderConfiguration)).collect(Collectors.toList());
+        return fieldNames.stream().map(fieldName -> FieldConfiguration
+                .builder()
+                .fieldName(fieldName)
+                .workOrderRequestConfiguration(workOrderRequestConfiguration)
+                .workOrderConfiguration(workOrderConfiguration)
+                .build()).collect(Collectors.toList());
     }
 }
