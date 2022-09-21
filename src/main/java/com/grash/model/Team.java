@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -26,7 +26,7 @@ public class Team extends CompanyAudit {
                     @Index(name = "idx_team_user_team_id", columnList = "id_team"),
                     @Index(name = "idx_team_user_user_id", columnList = "id_user")
             })
-    private Set<User> users;
+    private Collection<User> users;
 
     @NotNull
     private String name;
@@ -42,7 +42,7 @@ public class Team extends CompanyAudit {
                     @Index(name = "idx_team_asset_team_id", columnList = "id_team"),
                     @Index(name = "idx_team_asset_asset_id", columnList = "id_asset")
             })
-    private Set<Asset> asset;
+    private Collection<Asset> asset;
 
     @ManyToMany
     @JsonIgnore
@@ -53,5 +53,5 @@ public class Team extends CompanyAudit {
                     @Index(name = "idx_team_location_team_id", columnList = "id_team"),
                     @Index(name = "idx_team_location_location_id", columnList = "id_location")
             })
-    private Set<Location> locations;
+    private Collection<Location> locations;
 }

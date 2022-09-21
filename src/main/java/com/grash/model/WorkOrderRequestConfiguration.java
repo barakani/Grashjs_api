@@ -2,25 +2,27 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import static com.grash.model.FieldConfiguration.createFieldConfigurations;
 
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "companySettings")
 public class WorkOrderRequestConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "WorkOrderRequestConfiguration", fetch = FetchType.LAZY)
-    private Set<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "worker", "dueDate", "category", "team"), this, null));
+    private Collection<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "worker", "dueDate", "category", "team"), this, null));
 
     @OneToOne
     @JsonIgnore

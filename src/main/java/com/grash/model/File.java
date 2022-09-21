@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -25,7 +25,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_asset_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_asset_asset_id", columnList = "id_asset")
             })
-    private Set<Asset> asset;
+    private Collection<Asset> asset;
 
     @ManyToMany
     @JsonIgnore
@@ -36,7 +36,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_part_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_part_part_id", columnList = "id_part")
             })
-    private Set<Part> parts;
+    private Collection<Part> parts;
 
     @ManyToMany
     @JsonIgnore
@@ -47,7 +47,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_request_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_request_request_id", columnList = "id_request")
             })
-    private Set<Request> Requests;
+    private Collection<Request> Requests;
 
     @ManyToMany
     @JsonIgnore
@@ -58,7 +58,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_work_order_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_work_order_work_order_id", columnList = "id_work_order")
             })
-    private Set<WorkOrder> workOrders;
+    private Collection<WorkOrder> workOrders;
 
 
 }

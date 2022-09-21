@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -41,7 +41,7 @@ public class Meter extends CompanyAudit {
                     @Index(name = "idx_meter_user_meter_id", columnList = "id_meter"),
                     @Index(name = "idx_meter_user_user_id", columnList = "id_user")
             })
-    private Set<User> users;
+    private Collection<User> users;
 
     @ManyToOne
     private Location location;

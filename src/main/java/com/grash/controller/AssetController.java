@@ -4,8 +4,10 @@ import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
+import com.grash.model.Notification;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
 import com.grash.service.NotificationService;
@@ -91,7 +93,12 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)) {
-                return assetService.update(id, asset);
+                Asset patchedAsset = assetService.update(id, asset);
+                if (asset.getAssignedTo() != null) {
+                    asset.getAssignedTo().forEach(assignedUser ->
+                            notificationService.create(new Notification("Asset " + patchedAsset.getName() + " has been assigned to you", assignedUser, NotificationType.ASSET, id)));
+                }
+                return patchedAsset;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
     }

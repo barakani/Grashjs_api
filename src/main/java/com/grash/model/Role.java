@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "companySettings")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +27,7 @@ public class Role {
     private String name;
 
     @ElementCollection(targetClass = BasicPermission.class)
-    private Set<BasicPermission> permissions;
+    private Collection<BasicPermission> permissions;
 
     @ManyToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.FieldType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"workOrderConfiguration", "WorkOrderRequestConfiguration"})
+
 public class FieldConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

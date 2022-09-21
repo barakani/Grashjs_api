@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -33,7 +33,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_user_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_user_user_id", columnList = "id_user")
             })
-    private Set<User> assignedTo;
+    private Collection<User> assignedTo;
 
     private String barcode;
 
@@ -56,7 +56,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_file_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_file_file_id", columnList = "id_file")
             })
-    private Set<File> files;
+    private Collection<File> files;
 
     @OneToOne
     private Image image;
@@ -70,15 +70,15 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_customer_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
             })
-    private Set<Customer> assignedCustomer;
+    private Collection<Customer> assignedCustomer;
 
     @ManyToMany
     @JsonIgnore
-    private Set<WorkOrder> workOrders;
+    private Collection<WorkOrder> workOrders;
 
     @ManyToMany
     @JsonIgnore
-    private Set<PreventiveMaintenance> preventiveMaintenances;
+    private Collection<PreventiveMaintenance> preventiveMaintenances;
 
     private int minQuantity;
 
@@ -91,7 +91,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_team_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_team_team_id", columnList = "id_team")
             })
-    private Set<Team> teams;
+    private Collection<Team> teams;
 
     @ManyToOne
     @NotNull
@@ -107,5 +107,5 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_multi_parts_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_multi_parts_multi_parts_id", columnList = "id_multi_parts")
             })
-    private Set<MultiParts> multiParts;
+    private Collection<MultiParts> multiParts;
 }

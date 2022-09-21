@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -62,7 +62,7 @@ public class User {
                     @Index(name = "idx_user_asset_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_asset_asset_id", columnList = "id_asset")
             })
-    private Set<Asset> asset;
+    private Collection<Asset> asset;
 
     @ManyToMany
     @JsonIgnore
@@ -73,7 +73,7 @@ public class User {
                     @Index(name = "idx_user_location_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_location_location_id", columnList = "id_location")
             })
-    private Set<Location> locations;
+    private Collection<Location> locations;
 
     @ManyToMany
     @JsonIgnore
@@ -84,7 +84,7 @@ public class User {
                     @Index(name = "idx_user_meter_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_meter_meter_id", columnList = "id_meter")
             })
-    private Set<Meter> meters;
+    private Collection<Meter> meters;
 
     @ManyToMany
     @JsonIgnore
@@ -95,7 +95,7 @@ public class User {
                     @Index(name = "idx_user_part_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_part_part_id", columnList = "id_part")
             })
-    private Set<Part> parts;
+    private Collection<Part> parts;
 
     @ManyToMany
     @JsonIgnore
@@ -106,15 +106,15 @@ public class User {
                     @Index(name = "idx_user_team_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_team_team_id", columnList = "id_team")
             })
-    private Set<Team> teams;
+    private Collection<Team> teams;
 
     @ManyToMany
     @JsonIgnore
-    private Set<PreventiveMaintenance> preventiveMaintenances;
+    private Collection<PreventiveMaintenance> preventiveMaintenances;
 
     @ManyToMany
     @JsonIgnore
-    private Set<WorkOrder> workOrders;
+    private Collection<WorkOrder> workOrders;
 
     public int hashCode() {
         return Math.toIntExact(id);

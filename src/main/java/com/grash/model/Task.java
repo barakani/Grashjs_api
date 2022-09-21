@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -22,7 +22,7 @@ public class Task extends TaskBase {
     private String note;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    private Set<Image> images;
+    private Collection<Image> images;
 
     @ManyToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

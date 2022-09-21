@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Data
@@ -56,7 +56,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_user_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_user_user_id", columnList = "id_user")
             })
-    private Set<User> assignedTo;
+    private Collection<User> assignedTo;
 
     @ManyToMany
     @JsonIgnore
@@ -67,7 +67,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_team_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_team_team_id", columnList = "id_team")
             })
-    private Set<Team> teams;
+    private Collection<Team> teams;
 
     @ManyToMany
     @JsonIgnore
@@ -78,7 +78,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_vendor_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_vendor_vendor_id", columnList = "id_vendor")
             })
-    private Set<Vendor> vendors;
+    private Collection<Vendor> vendors;
 
     @OneToOne
     private Deprecation deprecation;
@@ -102,7 +102,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_file_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_file_file_id", columnList = "id_file")
             })
-    private Set<File> files;
+    private Collection<File> files;
 
 }
 

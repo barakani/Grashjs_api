@@ -25,7 +25,7 @@ public class AssetPatchDTO {
 
     private AssetCategory category;
 
-    private String description;
+    private String name;
 
     private User primaryUser;
 

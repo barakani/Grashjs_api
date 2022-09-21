@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -40,7 +40,7 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Role> roleList = new HashSet<>(Arrays.asList(
+    private Collection<Role> roleList = new HashSet<>(Arrays.asList(
             createRole("Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
@@ -54,11 +54,11 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<CostCategory> costCategories = new HashSet<>(createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost")));
+    private Collection<CostCategory> costCategories = new HashSet<>(createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost")));
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<TimeCategory> timeCategories = new HashSet<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
+    private Collection<TimeCategory> timeCategories = new HashSet<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
 
     private Role createRole(String name, List<BasicPermission> basicPermissions) {
         return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);

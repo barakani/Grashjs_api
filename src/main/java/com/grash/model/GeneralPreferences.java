@@ -5,6 +5,7 @@ import com.grash.model.enums.BusinessType;
 import com.grash.model.enums.DateFormat;
 import com.grash.model.enums.Language;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "companySettings")
 public class GeneralPreferences {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
