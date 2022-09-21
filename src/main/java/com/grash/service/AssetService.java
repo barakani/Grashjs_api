@@ -111,6 +111,7 @@ public class AssetService {
     }
 
     public void notify(Asset asset) {
+
         String message = "Asset " + asset.getName() + " has been assigned to you";
         if (asset.getPrimaryUser() != null) {
             notificationService.create(new Notification(message, asset.getPrimaryUser(), NotificationType.ASSET, asset.getId()));
@@ -118,6 +119,10 @@ public class AssetService {
         if (asset.getAssignedTo() != null) {
             asset.getAssignedTo().forEach(assignedUser ->
                     notificationService.create(new Notification(message, assignedUser, NotificationType.ASSET, asset.getId())));
+        }
+        if (asset.getTeams() != null) {
+            asset.getTeams().forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.ASSET, asset.getId()))));
         }
     }
 
@@ -131,6 +136,12 @@ public class AssetService {
                     user -> oldAsset.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newAsset.getId())));
+        }
+        if (newAsset.getTeams() != null) {
+            List<Team> newTeams = newAsset.getTeams().stream().filter(
+                    team -> oldAsset.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
+            newTeams.forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newAsset.getId()))));
         }
     }
 }
