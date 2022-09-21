@@ -4,6 +4,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class WorkOrderService {
     private final UserService userService;
     private final CompanyService companyService;
     private final PurchaseOrderService purchaseOrderService;
+    private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
 
     public WorkOrder create(WorkOrder WorkOrder) {
@@ -89,5 +93,38 @@ public class WorkOrderService {
         boolean sixth = workOrderReq.getPurchaseOrder() == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth && fifth && sixth;
+    }
+
+    public void notify(WorkOrder workOrder) {
+
+        String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
+        if (workOrder.getPrimaryUser() != null) {
+            notificationService.create(new Notification(message, workOrder.getPrimaryUser(), NotificationType.WORK_ORDER, workOrder.getId()));
+        }
+        if (workOrder.getAssignedTo() != null) {
+            workOrder.getAssignedTo().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.WORK_ORDER, workOrder.getId())));
+        }
+        if (workOrder.getTeam() != null) {
+            workOrder.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
+        }
+    }
+
+    public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
+        String message = "WorkOrder " + newWorkOrder.getTitle() + " has been assigned to you";
+        if (newWorkOrder.getPrimaryUser() != null && !newWorkOrder.getPrimaryUser().getId().equals(oldWorkOrder.getPrimaryUser().getId())) {
+            notificationService.create(new Notification(message, newWorkOrder.getPrimaryUser(), NotificationType.WORK_ORDER, newWorkOrder.getId()));
+        }
+        if (newWorkOrder.getAssignedTo() != null) {
+            List<User> newUsers = newWorkOrder.getAssignedTo().stream().filter(
+                    user -> oldWorkOrder.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.WORK_ORDER, newWorkOrder.getId())));
+        }
+        if (newWorkOrder.getTeam() != null && !newWorkOrder.getTeam().getId().equals(oldWorkOrder.getTeam().getId())) {
+            newWorkOrder.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
+        }
     }
 }

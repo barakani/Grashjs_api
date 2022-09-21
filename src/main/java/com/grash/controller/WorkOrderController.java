@@ -71,7 +71,9 @@ public class WorkOrderController {
     public WorkOrder create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder workOrderReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (workOrderService.canCreate(user, workOrderReq)) {
-            return workOrderService.create(workOrderReq);
+            WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
+            workOrderService.notify(createdWorkOrder);
+            return createdWorkOrder;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -89,7 +91,9 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
-                return workOrderService.update(id, workOrder);
+                WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder);
+                workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
+                return patchedWorkOrder;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }
