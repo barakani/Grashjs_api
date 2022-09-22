@@ -77,7 +77,7 @@ public class PartService {
         Optional<Image> optionalImage = partReq.getImage() == null ? Optional.empty() : imageService.findById(partReq.getImage().getId());
         Optional<Location> optionalLocation = partReq.getLocation() == null ? Optional.empty() : locationService.findById(partReq.getLocation().getId());
 
-        boolean second = partReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getId().equals(companyId));
+        boolean second = partReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
         boolean third = partReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
         boolean fourth = partReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
 

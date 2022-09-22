@@ -64,7 +64,7 @@ public class PartController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasPart('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -76,7 +76,7 @@ public class PartController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasPart('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -95,7 +95,7 @@ public class PartController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasPart('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

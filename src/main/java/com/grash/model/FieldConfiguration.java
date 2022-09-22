@@ -2,11 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.FieldType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"workOrderConfiguration", "WorkOrderRequestConfiguration"})
+@EqualsAndHashCode(exclude = {"workOrderConfiguration", "workOrderRequestConfiguration"})
 
 public class FieldConfiguration {
     @Id

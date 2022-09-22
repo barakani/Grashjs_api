@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/multiPartss")
+@RequestMapping("/multi-parts")
 @Api(tags = "multiParts")
 @RequiredArgsConstructor
 public class MultiPartsController {
@@ -64,7 +64,7 @@ public class MultiPartsController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasMultiParts('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -76,7 +76,7 @@ public class MultiPartsController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasMultiParts('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -95,7 +95,7 @@ public class MultiPartsController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasMultiParts('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
