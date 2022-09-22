@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/preventiveMaintenances")
+@RequestMapping("/preventive-maintenances")
 @Api(tags = "preventiveMaintenance")
 @RequiredArgsConstructor
 public class PreventiveMaintenanceController {

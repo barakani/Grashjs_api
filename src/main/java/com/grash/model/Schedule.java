@@ -27,6 +27,7 @@ public class Schedule {
     @NotNull
     private Date endsOn;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private PreventiveMaintenance preventiveMaintenance;
+
 }

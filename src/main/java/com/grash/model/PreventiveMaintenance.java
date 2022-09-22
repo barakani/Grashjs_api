@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -14,7 +15,8 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Schedule schedule = new Schedule();
+    @OneToOne
+    @NotNull
+    private Schedule schedule;
 
 }
