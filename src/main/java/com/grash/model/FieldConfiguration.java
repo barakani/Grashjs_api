@@ -25,6 +25,7 @@ public class FieldConfiguration {
     @NotNull
     private String fieldName;
 
+    @Builder.Default
     private FieldType fieldType = FieldType.OPTIONAL;
 
     @ManyToOne
