@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -31,6 +32,6 @@ public class Vendor extends BasicInfos {
                     @Index(name = "idx_vendor_asset_vendor_id", columnList = "id_vendor"),
                     @Index(name = "idx_vendor_asset_asset_id", columnList = "id_asset")
             })
-    private Collection<Asset> asset;
+    private List<Asset> assets = new ArrayList<>();
 
 }

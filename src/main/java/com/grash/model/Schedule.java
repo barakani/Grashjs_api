@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Schedule {
+public class Schedule extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

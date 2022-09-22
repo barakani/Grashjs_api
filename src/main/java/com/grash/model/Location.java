@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,14 +27,14 @@ public class Location extends CompanyAudit {
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JoinTable(name = "T_Location_Workers_Associations",
+    @JoinTable(name = "T_Location_User_Associations",
             joinColumns = @JoinColumn(name = "id_location"),
-            inverseJoinColumns = @JoinColumn(name = "id_worker"),
+            inverseJoinColumns = @JoinColumn(name = "id_user"),
             indexes = {
                     @Index(name = "idx_location_worker_location_id", columnList = "id_location"),
-                    @Index(name = "idx_location_worker_worker_id", columnList = "id_worker")
+                    @Index(name = "idx_location_worker_worker_id", columnList = "id_user")
             })
-    private Collection<User> workers;
+    private List<User> workers = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -44,7 +45,7 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_team_location_id", columnList = "id_location"),
                     @Index(name = "idx_location_team_team_id", columnList = "id_team")
             })
-    private Collection<Team> teams;
+    private List<Team> teams = new ArrayList<>();
 
     @ManyToOne
     private Location parentLocation;

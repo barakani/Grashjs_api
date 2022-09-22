@@ -10,8 +10,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @MappedSuperclass
@@ -26,7 +27,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Collection<Part> parts;
+    private List<Part> parts = new ArrayList<>();
 
     @ManyToOne
     @NotNull
@@ -40,7 +41,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Collection<User> assignedTo;
+    private List<User> assignedTo = new ArrayList<>();
 
     @ManyToOne
     @NotNull

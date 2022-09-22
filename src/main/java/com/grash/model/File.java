@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,7 +26,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_asset_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_asset_asset_id", columnList = "id_asset")
             })
-    private Collection<Asset> asset;
+    private List<Asset> asset = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -36,7 +37,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_part_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_part_part_id", columnList = "id_part")
             })
-    private Collection<Part> parts;
+    private List<Part> parts = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -47,7 +48,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_request_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_request_request_id", columnList = "id_request")
             })
-    private Collection<Request> Requests;
+    private List<Request> Requests = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -58,7 +59,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_work_order_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_work_order_work_order_id", columnList = "id_work_order")
             })
-    private Collection<WorkOrder> workOrders;
+    private List<WorkOrder> workOrders = new ArrayList<>();
 
 
 }

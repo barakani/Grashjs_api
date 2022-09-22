@@ -6,8 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,7 +26,7 @@ public class WorkOrder extends WorkOrderBase {
     private boolean archived;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private Collection<Task> taskList;
+    private List<Task> taskList = new ArrayList<>();
 
     @ManyToOne
     private Request parentRequest;
@@ -42,7 +43,7 @@ public class WorkOrder extends WorkOrderBase {
                     @Index(name = "idx_work_order_file_work_order_id", columnList = "id_work_order"),
                     @Index(name = "idx_work_order_file_file_id", columnList = "id_file")
             })
-    private Collection<File> files;
+    private List<File> files = new ArrayList<>();
 
     @ManyToOne
     private PreventiveMaintenance parentPreventiveMaintenance;

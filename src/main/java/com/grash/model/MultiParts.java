@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,7 +27,7 @@ public class MultiParts extends CompanyAudit {
                     @Index(name = "idx_multi_parts_part_multi_parts_id", columnList = "id_multi_parts"),
                     @Index(name = "idx_multi_parts_part_part_id", columnList = "id_part")
             })
-    private Collection<Part> parts;
+    private List<Part> parts = new ArrayList<>();
 
     @NotNull
     private String name;

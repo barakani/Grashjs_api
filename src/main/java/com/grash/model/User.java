@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -62,7 +63,7 @@ public class User {
                     @Index(name = "idx_user_asset_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_asset_asset_id", columnList = "id_asset")
             })
-    private Collection<Asset> asset;
+    private List<Asset> asset = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -73,7 +74,7 @@ public class User {
                     @Index(name = "idx_user_location_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_location_location_id", columnList = "id_location")
             })
-    private Collection<Location> locations;
+    private List<Location> locations = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -84,7 +85,7 @@ public class User {
                     @Index(name = "idx_user_meter_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_meter_meter_id", columnList = "id_meter")
             })
-    private Collection<Meter> meters;
+    private List<Meter> meters = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -95,7 +96,7 @@ public class User {
                     @Index(name = "idx_user_part_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_part_part_id", columnList = "id_part")
             })
-    private Collection<Part> parts;
+    private List<Part> parts = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -106,15 +107,15 @@ public class User {
                     @Index(name = "idx_user_team_user_id", columnList = "id_user"),
                     @Index(name = "idx_user_team_team_id", columnList = "id_team")
             })
-    private Collection<Team> teams;
+    private List<Team> teams = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
-    private Collection<PreventiveMaintenance> preventiveMaintenances;
+    private List<PreventiveMaintenance> preventiveMaintenances = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
-    private Collection<WorkOrder> workOrders;
+    private List<WorkOrder> workOrders = new ArrayList<>();
 
     public int hashCode() {
         return Math.toIntExact(id);

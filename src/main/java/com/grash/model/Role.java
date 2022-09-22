@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -28,13 +28,13 @@ public class Role {
     private String name;
 
     @ElementCollection(targetClass = BasicPermission.class)
-    private Collection<BasicPermission> permissions;
+    private Set<BasicPermission> permissions = new HashSet<>();
 
     @ManyToOne
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
-    
+
     public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings) {
         this.name = name;
         this.roleType = roleType;

@@ -52,7 +52,7 @@ public class ScheduleService {
     public boolean hasAccess(User user, Schedule schedule) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(schedule.getPreventiveMaintenance().getCompany().getId());
+        } else return user.getCompany().getId().equals(schedule.getCompany().getId());
     }
 
     public boolean canCreate(User user, Schedule scheduleReq) {

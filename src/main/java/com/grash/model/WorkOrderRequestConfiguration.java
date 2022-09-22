@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import static com.grash.model.FieldConfiguration.createFieldConfigurations;
 
@@ -22,7 +22,7 @@ public class WorkOrderRequestConfiguration {
     private Long id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderRequestConfiguration", fetch = FetchType.LAZY)
-    private Collection<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "worker", "dueDate", "category", "team"), this, null));
+    private Set<FieldConfiguration> fieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("asset", "location", "worker", "dueDate", "category", "team"), this, null));
 
     @OneToOne
     @JsonIgnore

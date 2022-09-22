@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -33,7 +34,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_user_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_user_user_id", columnList = "id_user")
             })
-    private Collection<User> assignedTo;
+    private List<User> assignedTo = new ArrayList<>();
 
     private String barcode;
 
@@ -56,7 +57,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_file_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_file_file_id", columnList = "id_file")
             })
-    private Collection<File> files;
+    private List<File> files = new ArrayList<>();
 
     @OneToOne
     private Image image;
@@ -70,15 +71,15 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_customer_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
             })
-    private Collection<Customer> assignedCustomers;
+    private List<Customer> assignedCustomers = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
-    private Collection<WorkOrder> workOrders;
+    private List<WorkOrder> workOrders = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
-    private Collection<PreventiveMaintenance> preventiveMaintenances;
+    private List<PreventiveMaintenance> preventiveMaintenances = new ArrayList<>();
 
     private int minQuantity;
 
@@ -91,7 +92,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_team_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_team_team_id", columnList = "id_team")
             })
-    private Collection<Team> teams;
+    private List<Team> teams = new ArrayList<>();
 
     @ManyToOne
     @NotNull
@@ -107,5 +108,5 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_multi_parts_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_multi_parts_multi_parts_id", columnList = "id_multi_parts")
             })
-    private Collection<MultiParts> multiParts;
+    private List<MultiParts> multiParts = new ArrayList<>();
 }
