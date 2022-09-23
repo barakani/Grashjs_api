@@ -63,7 +63,7 @@ public class SubscriptionController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasSubscription('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -75,7 +75,7 @@ public class SubscriptionController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasSubscription('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -94,7 +94,7 @@ public class SubscriptionController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasSubscription('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

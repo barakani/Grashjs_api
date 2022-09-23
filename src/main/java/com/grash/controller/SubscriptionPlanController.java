@@ -5,7 +5,6 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -24,7 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/subscriptionPlans")
+@RequestMapping("/subscription-plans")
 @Api(tags = "subscriptionPlan")
 @RequiredArgsConstructor
 public class SubscriptionPlanController {
@@ -39,10 +38,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "SubscriptionPlanCategory not found")})
     public Collection<SubscriptionPlan> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return subscriptionPlanService.findByCompany(user.getCompany().getId());
-        } else return subscriptionPlanService.getAll();
+        return subscriptionPlanService.getAll();
     }
 
     @GetMapping("/{id}")
@@ -63,7 +59,7 @@ public class SubscriptionPlanController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasSubscriptionPlan('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -75,7 +71,7 @@ public class SubscriptionPlanController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasSubscriptionPlan('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -94,7 +90,7 @@ public class SubscriptionPlanController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasSubscriptionPlan('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

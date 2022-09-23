@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
 import com.grash.model.Subscription;
-import com.grash.model.SubscriptionPlan;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
@@ -20,8 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private SubscriptionPlanService subscriptionPlanService;
-    private CompanyService companyService;
+    private final CompanyService companyService;
     private final SubscriptionMapper subscriptionMapper;
 
     public Subscription create(Subscription Subscription) {
@@ -59,22 +57,14 @@ public class SubscriptionService {
 
     public boolean canCreate(User user, Subscription subscriptionReq) {
         Long companyId = user.getCompany().getId();
-        Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(subscriptionReq.getSubscriptionPlan().getId());
         Optional<Company> optionalCompany = companyService.findById(subscriptionReq.getCompany().getId());
 
-        boolean first = optionalSubscriptionPlan.isPresent() && optionalSubscriptionPlan.get().getCompany().getId().equals(companyId);
         boolean second = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && second && canPatch(user, subscriptionMapper.toDto(subscriptionReq));
+        return second && canPatch(user, subscriptionMapper.toDto(subscriptionReq));
     }
 
     public boolean canPatch(User user, SubscriptionPatchDTO subscriptionReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionReq.getSubscriptionPlan() == null ? Optional.empty() : subscriptionPlanService.findById(subscriptionReq.getSubscriptionPlan().getId());
-
-        boolean first = subscriptionReq.getSubscriptionPlan() == null || (optionalSubscriptionPlan.isPresent() && optionalSubscriptionPlan.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 }

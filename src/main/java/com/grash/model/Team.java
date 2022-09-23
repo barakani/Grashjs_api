@@ -49,8 +49,8 @@ public class Team extends CompanyAudit {
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "T_Location_Team_Associations",
-            inverseJoinColumns = @JoinColumn(name = "id_team"),
-            joinColumns = @JoinColumn(name = "id_location"),
+            joinColumns = @JoinColumn(name = "id_team"),
+            inverseJoinColumns = @JoinColumn(name = "id_location"),
             indexes = {
                     @Index(name = "idx_team_location_team_id", columnList = "id_team"),
                     @Index(name = "idx_team_location_location_id", columnList = "id_location")
