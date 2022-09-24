@@ -56,7 +56,9 @@ public class LaborController {
     public Labor create(@ApiParam("Labor") @RequestBody @Validated Labor laborReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (laborService.canCreate(user, laborReq)) {
-            return laborService.create(laborReq);
+            Labor createdLabor = laborService.create(laborReq);
+            laborService.notify(createdLabor);
+            return createdLabor;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -74,7 +76,9 @@ public class LaborController {
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
             if (laborService.hasAccess(user, savedLabor) && laborService.canPatch(user, labor)) {
-                return laborService.update(id, labor);
+                Labor patchedLabor = laborService.update(id, labor);
+                laborService.patchNotify(savedLabor, patchedLabor);
+                return patchedLabor;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
     }
