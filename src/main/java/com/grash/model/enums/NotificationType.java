@@ -8,5 +8,6 @@ public enum NotificationType {
     PREVENTIVE_MAINTENANCE,
 
     PART,
-    METER
+    METER,
+    LOCATION
 }

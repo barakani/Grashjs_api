@@ -4,6 +4,7 @@ import com.grash.dto.LocationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class LocationService {
     private final CustomerService customerService;
     private final CompanyService companyService;
     private final LocationMapper locationMapper;
+    private final NotificationService notificationService;
 
     public Location create(Location Location) {
         return locationRepository.save(Location);
@@ -79,5 +83,34 @@ public class LocationService {
         boolean fourth = locationReq.getCustomer() == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth;
+    }
+
+    public void notify(Location location) {
+
+        String message = "Location " + location.getName() + " has been assigned to you";
+        if (location.getWorkers() != null) {
+            location.getWorkers().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.LOCATION, location.getId())));
+        }
+        if (location.getTeams() != null) {
+            location.getTeams().forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.LOCATION, location.getId()))));
+        }
+    }
+
+    public void patchNotify(Location oldLocation, Location newLocation) {
+        String message = "Location " + newLocation.getName() + " has been assigned to you";
+        if (newLocation.getWorkers() != null) {
+            List<User> newUsers = newLocation.getWorkers().stream().filter(
+                    user -> oldLocation.getWorkers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newLocation.getId())));
+        }
+        if (newLocation.getTeams() != null) {
+            List<Team> newTeams = newLocation.getTeams().stream().filter(
+                    team -> oldLocation.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
+            newTeams.forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newLocation.getId()))));
+        }
     }
 }
