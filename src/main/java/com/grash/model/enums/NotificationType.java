@@ -6,8 +6,8 @@ public enum NotificationType {
     REQUEST,
     WORK_ORDER,
     PREVENTIVE_MAINTENANCE,
-
     PART,
     METER,
-    LOCATION
+    LOCATION,
+    TEAM
 }

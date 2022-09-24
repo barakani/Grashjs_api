@@ -104,13 +104,13 @@ public class LocationService {
             List<User> newUsers = newLocation.getWorkers().stream().filter(
                     user -> oldLocation.getWorkers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
-                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newLocation.getId())));
+                    notificationService.create(new Notification(message, newUser, NotificationType.LOCATION, newLocation.getId())));
         }
         if (newLocation.getTeams() != null) {
             List<Team> newTeams = newLocation.getTeams().stream().filter(
                     team -> oldLocation.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
             newTeams.forEach(team -> team.getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newLocation.getId()))));
+                    notificationService.create(new Notification(message, user, NotificationType.LOCATION, newLocation.getId()))));
         }
     }
 }
