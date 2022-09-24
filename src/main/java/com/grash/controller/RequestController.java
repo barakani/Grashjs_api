@@ -73,6 +73,7 @@ public class RequestController {
         User user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
             Request createdRequest = requestService.create(requestReq);
+            requestService.notify(createdRequest);
             return createdRequest;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
