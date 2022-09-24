@@ -5,5 +5,7 @@ public enum NotificationType {
     ASSET,
     REQUEST,
     WORK_ORDER,
-    PREVENTIVE_MAINTENANCE
+    PREVENTIVE_MAINTENANCE,
+
+    PART
 }
