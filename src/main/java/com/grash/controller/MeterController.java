@@ -71,7 +71,9 @@ public class MeterController {
     public Meter create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (meterService.canCreate(user, meterReq)) {
-            return meterService.create(meterReq);
+            Meter savedMeter = meterService.create(meterReq);
+            meterService.notify(savedMeter);
+            return savedMeter;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -89,7 +91,9 @@ public class MeterController {
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
             if (meterService.hasAccess(user, savedMeter) && meterService.canPatch(user, meter)) {
-                return meterService.update(id, meter);
+                Meter patchedMeter = meterService.update(id, meter);
+                meterService.patchNotify(savedMeter,patchedMeter);
+                return patchedMeter;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }

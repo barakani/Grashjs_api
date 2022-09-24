@@ -4,6 +4,7 @@ import com.grash.dto.MeterPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,8 @@ public class MeterService {
     private final LocationService locationService;
 
     private final MeterMapper meterMapper;
+
+    private final NotificationService notificationService;
 
     public Meter create(Meter Meter) {
         return meterRepository.save(Meter);
@@ -84,5 +89,24 @@ public class MeterService {
         boolean fourth = meterReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth;
+    }
+
+    public void notify(Meter meter) {
+
+        String message = "Meter " + meter.getName() + " has been assigned to you";
+        if (meter.getUsers() != null) {
+            meter.getUsers().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.METER, meter.getId())));
+        }
+    }
+
+    public void patchNotify(Meter oldMeter, Meter newMeter) {
+        String message = "Meter " + newMeter.getName() + " has been assigned to you";
+        if (newMeter.getUsers() != null) {
+            List<User> newUsers = newMeter.getUsers().stream().filter(
+                    user -> oldMeter.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())));
+        }
     }
 }

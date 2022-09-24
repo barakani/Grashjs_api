@@ -7,5 +7,6 @@ public enum NotificationType {
     WORK_ORDER,
     PREVENTIVE_MAINTENANCE,
 
-    PART
+    PART,
+    METER
 }
