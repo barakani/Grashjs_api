@@ -3,10 +3,8 @@ package com.grash.service;
 import com.grash.dto.LaborPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborMapper;
-import com.grash.model.Company;
-import com.grash.model.Labor;
-import com.grash.model.User;
-import com.grash.model.WorkOrder;
+import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LaborRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,8 @@ public class LaborService {
     private final UserService userService;
     private final CompanyService companyService;
     private final LaborMapper laborMapper;
+
+    private final NotificationService notificationService;
 
     public Labor create(Labor Labor) {
         return laborRepository.save(Labor);
@@ -74,5 +74,20 @@ public class LaborService {
         boolean first = laborReq.getWorker() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return first;
+    }
+
+    public void notify(Labor labor) {
+
+        String message = "Labor " + labor.getId() + " has been assigned to you";
+        if (labor.getWorker() != null) {
+            notificationService.create(new Notification(message, labor.getWorker(), NotificationType.Labor, labor.getId()));
+        }
+    }
+
+    public void patchNotify(Labor oldLabor, Labor newLabor) {
+        String message = "Labor " + newLabor.getId() + " has been assigned to you";
+        if (newLabor.getWorker() != null && !newLabor.getWorker().getId().equals(oldLabor.getWorker().getId())) {
+            notificationService.create(new Notification(message, newLabor.getWorker(), NotificationType.ASSET, newLabor.getId()));
+        }
     }
 }
