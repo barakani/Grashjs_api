@@ -17,7 +17,7 @@ public class Customer extends BasicInfos {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String vendorType;
+    private String customerType;
 
     private String description;
 

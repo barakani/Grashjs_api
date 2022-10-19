@@ -80,7 +80,7 @@ public class LaborService {
 
         String message = "Labor " + labor.getId() + " has been assigned to you";
         if (labor.getWorker() != null) {
-            notificationService.create(new Notification(message, labor.getWorker(), NotificationType.Labor, labor.getId()));
+            notificationService.create(new Notification(message, labor.getWorker(), NotificationType.LABOR, labor.getId()));
         }
     }
 

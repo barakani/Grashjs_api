@@ -41,7 +41,7 @@ public class CompanySettings {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Role> roleList = new HashSet<>(Arrays.asList(
-            createRole("Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
+            createRole("Administrator", Arrays.asList(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS, BasicPermission.CREATE_EDIT_CATEGORIES, BasicPermission.DELETE_WORK_ORDERS, BasicPermission.DELETE_PREVENTIVE_MAINTENANCE_TRIGGERS, BasicPermission.DELETE_ASSETS, BasicPermission.DELETE_PARTS_AND_MULTI_PARTS, BasicPermission.DELETE_PURCHASE_ORDERS, BasicPermission.DELETE_METERS, BasicPermission.DELETE_VENDORS_AND_CUSTOMERS, BasicPermission.DELETE_CATEGORIES, BasicPermission.DELETE_FILES, BasicPermission.DELETE_PEOPLE_AND_TEAMS, BasicPermission.ACCESS_SETTINGS)),
             createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
             createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),

@@ -9,5 +9,6 @@ public enum NotificationType {
     PART,
     METER,
     LOCATION,
+    LABOR,
     TEAM
 }
