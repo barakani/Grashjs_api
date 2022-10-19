@@ -71,7 +71,9 @@ public class TeamController {
     public Team create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (teamService.canCreate(user, teamReq)) {
-            return teamService.create(teamReq);
+            Team savedTeam = teamService.create(teamReq);
+            teamService.notify(savedTeam);
+            return savedTeam;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -85,11 +87,12 @@ public class TeamController {
                       HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
-
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
             if (teamService.hasAccess(user, savedTeam) && teamService.canPatch(user, team)) {
-                return teamService.update(id, team);
+                Team patchTeam = teamService.update(id, team);
+                teamService.patchNotify(savedTeam, patchTeam);
+                return patchTeam;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
     }

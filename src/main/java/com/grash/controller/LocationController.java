@@ -70,7 +70,9 @@ public class LocationController {
     public Location create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (locationService.canCreate(user, locationReq)) {
-            return locationService.create(locationReq);
+            Location savedLocation = locationService.create(locationReq);
+            locationService.notify(savedLocation);
+            return savedLocation;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -84,11 +86,12 @@ public class LocationController {
                           HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
-
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (locationService.hasAccess(user, savedLocation) && locationService.canPatch(user, location)) {
-                return locationService.update(id, location);
+                Location patchedLocation = locationService.update(id, location);
+                locationService.patchNotify(savedLocation, patchedLocation);
+                return patchedLocation;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
     }

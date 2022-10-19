@@ -91,21 +91,6 @@ public class RequestService {
         return first && second && third && fourth && fifth;
     }
 
-    public void notify(Request request) {
-
-        String message = "Request " + request.getTitle() + " has been assigned to you";
-        if (request.getAssignedTo() != null) {
-            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
-        }
-    }
-
-    public void patchNotify(Request oldRequest, Request newRequest) {
-        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
-        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
-            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
-        }
-    }
-
     public void createWorkOrderFromRequest(Request request) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.setCompany(request.getCompany());
@@ -121,5 +106,28 @@ public class RequestService {
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
         workOrderService.notify(savedWorkOrder);
 
+    }
+
+    public void notify(Request request) {
+
+        String message = "Request " + request.getTitle() + " has been assigned to you";
+        if (request.getAssignedTo() != null) {
+            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
+        }
+        if (request.getTeam() != null) {
+            request.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, request.getId())));
+        }
+    }
+
+    public void patchNotify(Request oldRequest, Request newRequest) {
+        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
+        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
+            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
+        }
+        if (newRequest.getTeam() != null) {
+            newRequest.getTeam().getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, newRequest.getId())));
+        }
     }
 }

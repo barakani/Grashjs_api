@@ -71,7 +71,9 @@ public class PartController {
     public Part create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (partService.canCreate(user, partReq)) {
-            return partService.create(partReq);
+            Part savedPart = partService.create(partReq);
+            partService.notify(savedPart);
+            return savedPart;
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -89,7 +91,9 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)) {
-                return partService.update(id, part);
+                Part patchedPart = partService.update(id, part);
+                partService.patchNotify(savedPart, patchedPart);
+                return patchedPart;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
     }

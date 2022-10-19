@@ -4,6 +4,7 @@ import com.grash.dto.PartPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,8 @@ public class PartService {
     private final CompanyService companyService;
     private final LocationService locationService;
     private final PartMapper partMapper;
+
+    private final NotificationService notificationService;
 
     public Part create(Part Part) {
         return partRepository.save(Part);
@@ -82,5 +87,34 @@ public class PartService {
         boolean fourth = partReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
 
         return second && third && fourth;
+    }
+
+    public void notify(Part part) {
+
+        String message = "Part " + part.getName() + " has been assigned to you";
+        if (part.getAssignedTo() != null) {
+            part.getAssignedTo().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.PART, part.getId())));
+        }
+        if (part.getTeams() != null) {
+            part.getTeams().forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.PART, part.getId()))));
+        }
+    }
+
+    public void patchNotify(Part oldPart, Part newPart) {
+        String message = "Part " + newPart.getName() + " has been assigned to you";
+        if (newPart.getAssignedTo() != null) {
+            List<User> newUsers = newPart.getAssignedTo().stream().filter(
+                    user -> oldPart.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newPart.getId())));
+        }
+        if (newPart.getTeams() != null) {
+            List<Team> newTeams = newPart.getTeams().stream().filter(
+                    team -> oldPart.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
+            newTeams.forEach(team -> team.getUsers().forEach(user ->
+                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newPart.getId()))));
+        }
     }
 }

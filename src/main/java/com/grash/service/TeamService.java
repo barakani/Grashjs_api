@@ -4,9 +4,11 @@ import com.grash.dto.TeamPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
 import com.grash.model.Company;
+import com.grash.model.Notification;
 import com.grash.model.Team;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final CompanyService companyService;
     private final TeamMapper teamMapper;
+    private final NotificationService notificationService;
 
     public Team create(Team Team) {
         return teamRepository.save(Team);
@@ -71,5 +76,23 @@ public class TeamService {
 
     public boolean canPatch(User user, TeamPatchDTO teamReq) {
         return user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
+    }
+
+    public void notify(Team team) {
+        String message = "Team " + team.getName() + " has been assigned to you";
+        if (team.getUsers() != null) {
+            team.getUsers().forEach(assignedUser ->
+                    notificationService.create(new Notification(message, assignedUser, NotificationType.TEAM, team.getId())));
+        }
+    }
+
+    public void patchNotify(Team oldTeam, Team newTeam) {
+        String message = "Team " + newTeam.getName() + " has been assigned to you";
+        if (newTeam.getUsers() != null) {
+            List<User> newUsers = newTeam.getUsers().stream().filter(
+                    user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+            newUsers.forEach(newUser ->
+                    notificationService.create(new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())));
+        }
     }
 }
