@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.UserResponseDTO;
+import com.grash.dto.UserShowDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.model.User;
 import org.mapstruct.Mapper;
@@ -20,4 +21,6 @@ public interface UserMapper {
 
     @Mappings({})
     User toModel(UserSignupRequest dto);
+
+    UserShowDTO toShowDto(User user);
 }

@@ -2,7 +2,9 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
+import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-orders")
@@ -31,6 +34,7 @@ import java.util.Optional;
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
+    private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -39,11 +43,11 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public Collection<WorkOrder> getAll(HttpServletRequest req) {
+    public Collection<WorkOrderShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return workOrderService.findByCompany(user.getCompany().getId());
-        } else return workOrderService.getAll();
+            return workOrderService.findByCompany(user.getCompany().getId()).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+        } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
