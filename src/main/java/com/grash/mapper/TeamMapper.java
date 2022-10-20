@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.TeamPatchDTO;
+import com.grash.dto.TeamShowDTO;
 import com.grash.model.Team;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -12,4 +13,6 @@ public interface TeamMapper {
 
     @Mappings({})
     TeamPatchDTO toDto(Team model);
+    
+    TeamShowDTO toShowDto(Team model);
 }

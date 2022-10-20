@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -161,4 +158,7 @@ public class UserService {
         return new SuccessResponse(true, "Password changed successfully");
     }
 
+    public Collection<User> findByCompany(Long id) {
+        return userRepository.findByCompany_Id(id);
+    }
 }

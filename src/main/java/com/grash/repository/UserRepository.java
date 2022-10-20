@@ -1,8 +1,11 @@
 package com.grash.repository;
+
 import com.grash.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -15,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    Collection<User> findByCompany_Id(Long id);
+
 }

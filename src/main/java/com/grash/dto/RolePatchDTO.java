@@ -14,4 +14,6 @@ public class RolePatchDTO {
     private String name;
 
     private CompanySettings companySettings;
+
+    private String externalId;
 }

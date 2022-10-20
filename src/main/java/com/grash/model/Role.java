@@ -27,6 +27,8 @@ public class Role {
     @NotNull
     private String name;
 
+    private String externalId;
+
     @ElementCollection(targetClass = BasicPermission.class)
     private Set<BasicPermission> permissions = new HashSet<>();
 

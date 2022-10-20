@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class})
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class, TeamMapper.class})
 public interface LocationMapper {
     Location updateLocation(@MappingTarget Location entity, LocationPatchDTO dto);
 
