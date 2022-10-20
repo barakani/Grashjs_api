@@ -21,7 +21,9 @@ public class LocationShowDTO {
 
     private String address;
 
-    private String gps;
+    private Double longitude;
+
+    private Double latitude;
 
     private List<User> workers = new ArrayList<>();
 

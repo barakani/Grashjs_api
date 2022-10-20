@@ -23,7 +23,9 @@ public class Location extends CompanyAudit {
 
     private String address;
 
-    private String gps;
+    private Double longitude;
+
+    private Double latitude;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

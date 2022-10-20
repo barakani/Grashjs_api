@@ -56,13 +56,13 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public WorkOrder getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public WorkOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder)) {
-                return savedWorkOrder;
+                return workOrderMapper.toShowDto(savedWorkOrder);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -72,12 +72,12 @@ public class WorkOrderController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public WorkOrder create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder workOrderReq, HttpServletRequest req) {
+    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder workOrderReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (workOrderService.canCreate(user, workOrderReq)) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             workOrderService.notify(createdWorkOrder);
-            return createdWorkOrder;
+            return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -87,8 +87,8 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public WorkOrder patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO workOrder, @ApiParam("id") @PathVariable("id") Long id,
-                           HttpServletRequest req) {
+    public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO workOrder, @ApiParam("id") @PathVariable("id") Long id,
+                                  HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
 
@@ -97,7 +97,7 @@ public class WorkOrderController {
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder);
                 workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
-                return patchedWorkOrder;
+                return workOrderMapper.toShowDto(patchedWorkOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }

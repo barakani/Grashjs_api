@@ -56,13 +56,13 @@ public class LocationController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Location not found")})
-    public Location getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public LocationShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (locationService.hasAccess(user, savedLocation)) {
-                return savedLocation;
+                return locationMapper.toShowDto(savedLocation);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -72,12 +72,12 @@ public class LocationController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Location create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
+    public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (locationService.canCreate(user, locationReq)) {
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation);
-            return savedLocation;
+            return locationMapper.toShowDto(savedLocation);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

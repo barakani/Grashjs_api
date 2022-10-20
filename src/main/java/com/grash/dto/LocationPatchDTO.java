@@ -13,7 +13,9 @@ public class LocationPatchDTO {
 
     private String address;
 
-    private String gps;
+    private Double longitude;
+
+    private Double latitude;
 
     private Location parentLocation;
 
