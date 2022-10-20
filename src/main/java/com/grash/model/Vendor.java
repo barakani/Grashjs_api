@@ -19,6 +19,8 @@ public class Vendor extends BasicInfos {
 
     private String vendorType;
 
+    private String companyName;
+
     private String description;
 
     private double rate;
@@ -33,5 +35,16 @@ public class Vendor extends BasicInfos {
                     @Index(name = "idx_vendor_asset_asset_id", columnList = "id_asset")
             })
     private List<Asset> assets = new ArrayList<>();
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Location_Vendor_Associations",
+            joinColumns = @JoinColumn(name = "id_vendor"),
+            inverseJoinColumns = @JoinColumn(name = "id_location"),
+            indexes = {
+                    @Index(name = "idx_vendor_location_vendor_id", columnList = "id_vendor"),
+                    @Index(name = "idx_vendor_location_location_id", columnList = "id_location")
+            })
+    private List<Location> locations = new ArrayList<>();
 
 }

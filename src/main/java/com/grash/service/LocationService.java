@@ -74,15 +74,10 @@ public class LocationService {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = locationReq.getParentLocation() == null ? Optional.empty() : findById(locationReq.getParentLocation().getId());
-        Optional<Vendor> optionalVendor = locationReq.getVendor() == null ? Optional.empty() : vendorService.findById(locationReq.getVendor().getId());
-        Optional<Customer> optionalCustomer = locationReq.getCustomer() == null ? Optional.empty() : customerService.findById(locationReq.getCustomer().getId());
-
         //optional fields
         boolean second = locationReq.getParentLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean third = locationReq.getVendor() == null || (optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId));
-        boolean fourth = locationReq.getCustomer() == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
 
-        return second && third && fourth;
+        return second;
     }
 
     public void notify(Location location) {

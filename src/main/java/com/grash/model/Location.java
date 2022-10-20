@@ -50,10 +50,26 @@ public class Location extends CompanyAudit {
     @ManyToOne
     private Location parentLocation;
 
-    @ManyToOne
-    private Vendor vendor;
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Location_Vendor_Associations",
+            joinColumns = @JoinColumn(name = "id_location"),
+            inverseJoinColumns = @JoinColumn(name = "id_vendor"),
+            indexes = {
+                    @Index(name = "idx_location_vendor_location_id", columnList = "id_location"),
+                    @Index(name = "idx_location_vendor_vendor_id", columnList = "id_vendor")
+            })
+    private List<Vendor> vendors = new ArrayList<>();
 
-    @ManyToOne
-    private Customer customer;
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Location_Customer_Associations",
+            joinColumns = @JoinColumn(name = "id_location"),
+            inverseJoinColumns = @JoinColumn(name = "id_customer"),
+            indexes = {
+                    @Index(name = "idx_location_customer_location_id", columnList = "id_location"),
+                    @Index(name = "idx_location_customer_customer_id", columnList = "id_customer")
+            })
+    private List<Customer> customers = new ArrayList<>();
 }
 

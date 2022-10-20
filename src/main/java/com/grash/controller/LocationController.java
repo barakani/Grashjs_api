@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.LocationMapper;
 import com.grash.model.Location;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
@@ -20,8 +22,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/locations")
@@ -30,6 +33,7 @@ import java.util.Optional;
 public class LocationController {
 
     private final LocationService locationService;
+    private final LocationMapper locationMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -38,11 +42,12 @@ public class LocationController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "LocationCategory not found")})
-    public Collection<Location> getAll(HttpServletRequest req) {
+    public List<LocationShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return locationService.findByCompany(user.getCompany().getId());
-        } else return locationService.getAll();
+            return locationService.findByCompany(user.getCompany().getId()).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+        } else
+            return locationService.getAll().stream().map(locationMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -82,8 +87,8 @@ public class LocationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Location not found")})
-    public Location patch(@ApiParam("Location") @Valid @RequestBody LocationPatchDTO location, @ApiParam("id") @PathVariable("id") Long id,
-                          HttpServletRequest req) {
+    public LocationShowDTO patch(@ApiParam("Location") @Valid @RequestBody LocationPatchDTO location, @ApiParam("id") @PathVariable("id") Long id,
+                                 HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
@@ -91,7 +96,7 @@ public class LocationController {
             if (locationService.hasAccess(user, savedLocation) && locationService.canPatch(user, location)) {
                 Location patchedLocation = locationService.update(id, location);
                 locationService.patchNotify(savedLocation, patchedLocation);
-                return patchedLocation;
+                return locationMapper.toShowDto(patchedLocation);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
     }

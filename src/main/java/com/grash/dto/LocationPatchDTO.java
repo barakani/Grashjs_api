@@ -17,12 +17,12 @@ public class LocationPatchDTO {
 
     private Location parentLocation;
 
-    private Vendor vendor;
-
-    private Customer customer;
-
     private Collection<User> workers;
 
     private Collection<Team> teams;
+
+    private Collection<Vendor> vendors;
+
+    private Collection<Customer> customers;
 
 }

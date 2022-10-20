@@ -1,15 +1,18 @@
 package com.grash.mapper;
 
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationShowDTO;
 import com.grash.model.Location;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class})
 public interface LocationMapper {
     Location updateLocation(@MappingTarget Location entity, LocationPatchDTO dto);
 
     @Mappings({})
     LocationPatchDTO toDto(Location model);
+
+    LocationShowDTO toShowDto(Location model);
 }
