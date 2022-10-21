@@ -1,7 +1,7 @@
 package com.grash.mapper;
 
+import com.grash.dto.VendorMiniDTO;
 import com.grash.dto.VendorPatchDTO;
-import com.grash.dto.VendorShowDTO;
 import com.grash.model.Vendor;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -14,5 +14,5 @@ public interface VendorMapper {
     @Mappings({})
     VendorPatchDTO toDto(Vendor model);
 
-    VendorShowDTO toShowDto(Vendor model);
+    VendorMiniDTO toShowDto(Vendor model);
 }

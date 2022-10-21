@@ -1,7 +1,7 @@
 package com.grash.mapper;
 
+import com.grash.dto.CustomerMiniDTO;
 import com.grash.dto.CustomerPatchDTO;
-import com.grash.dto.CustomerShowDTO;
 import com.grash.model.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -14,5 +14,5 @@ public interface CustomerMapper {
     @Mappings({})
     CustomerPatchDTO toDto(Customer model);
 
-    CustomerShowDTO toShowDto(Customer model);
+    CustomerMiniDTO toShowDto(Customer model);
 }

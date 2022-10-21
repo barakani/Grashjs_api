@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VendorShowDTO {
-    private String companyName;
-    private Long id;
+public class TeamMiniDTO {
+    Long id;
+    String name;
 }

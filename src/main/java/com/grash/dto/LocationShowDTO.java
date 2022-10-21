@@ -23,13 +23,13 @@ public class LocationShowDTO {
 
     private Double latitude;
 
-    private List<TeamShowDTO> teams = new ArrayList<>();
+    private List<TeamMiniDTO> teams = new ArrayList<>();
 
     private Location parentLocation;
 
-    private List<VendorShowDTO> vendors = new ArrayList<>();
+    private List<VendorMiniDTO> vendors = new ArrayList<>();
 
-    private List<CustomerShowDTO> customers = new ArrayList<>();
+    private List<CustomerMiniDTO> customers = new ArrayList<>();
 
-    private List<UserShowDTO> workers = new ArrayList<>();
+    private List<UserMiniDTO> workers = new ArrayList<>();
 }

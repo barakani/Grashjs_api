@@ -1,7 +1,7 @@
 package com.grash.mapper;
 
+import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
-import com.grash.dto.PartShowDTO;
 import com.grash.model.Part;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -15,5 +15,5 @@ public interface PartMapper {
     PartPatchDTO toDto(Part model);
 
     @Mappings({})
-    PartShowDTO toShowDto(Part model);
+    PartMiniDTO toShowDto(Part model);
 }

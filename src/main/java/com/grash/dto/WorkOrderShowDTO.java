@@ -46,8 +46,8 @@ public class WorkOrderShowDTO {
     private User primaryUser;
 
 
-    private List<UserShowDTO> assignedTo;
+    private List<UserMiniDTO> assignedTo;
 
     private Asset asset;
-    private List<PartShowDTO> parts;
+    private List<PartMiniDTO> parts;
 }
