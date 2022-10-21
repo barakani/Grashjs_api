@@ -60,6 +60,10 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id);
     }
 
+    public Collection<Asset> findAssetChildren(Long id) {
+        return assetRepository.findByParentAsset_Id(id);
+    }
+
     public boolean hasAccess(User user, Asset asset) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
@@ -80,8 +84,9 @@ public class AssetService {
             Optional<User> optionalUser = userService.findById(user1.getId());
             return optionalUser.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
         });
+        boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
 
-        return first && second && third && canPatch(user, assetMapper.toDto(assetReq));
+        return first && second && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
     }
 
     public boolean canPatch(User user, AssetPatchDTO assetReq) {

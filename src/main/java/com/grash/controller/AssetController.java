@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/assets")
@@ -63,6 +64,27 @@ public class AssetController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/children/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Asset not found")})
+    public Collection<Asset> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).collect(Collectors.toList());
+        }
+        Optional<Asset> optionalAsset = assetService.findById(id);
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            if (assetService.hasAccess(user, savedAsset)) {
+                return assetService.findAssetChildren(id);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
@@ -71,6 +93,12 @@ public class AssetController {
     public Asset create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (assetService.canCreate(user, assetReq)) {
+            if (assetReq.getParentAsset() != null) {
+                Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
+                Asset parentAsset = optionalParentAsset.get();
+                parentAsset.setHasChildren(true);
+                assetService.save(parentAsset);
+            }
             Asset createdAsset = assetService.create(assetReq);
             assetService.notify(createdAsset);
             return createdAsset;
