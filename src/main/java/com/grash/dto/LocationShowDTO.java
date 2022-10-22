@@ -5,6 +5,7 @@ import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,4 +33,12 @@ public class LocationShowDTO {
     private List<CustomerMiniDTO> customers = new ArrayList<>();
 
     private List<UserMiniDTO> workers = new ArrayList<>();
+
+    private Long createdBy;
+
+    private Long updatedBy;
+
+    private Instant createdAt;
+
+    private Instant updatedAt;
 }

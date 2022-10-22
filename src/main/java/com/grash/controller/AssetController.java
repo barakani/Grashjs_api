@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 public class AssetController {
 
     private final AssetService assetService;
+    private final AssetMapper assetMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -40,11 +43,11 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<Asset> getAll(HttpServletRequest req) {
+    public Collection<AssetShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId());
-        } else return assetService.getAll();
+            return assetService.findByCompany(user.getCompany().getId()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+        } else return assetService.getAll().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -53,13 +56,13 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public Asset getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public AssetShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset)) {
-                return savedAsset;
+                return assetMapper.toShowDto(savedAsset);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -70,16 +73,16 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public Collection<Asset> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).collect(Collectors.toList());
+            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).collect(Collectors.toList()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset)) {
-                return assetService.findAssetChildren(id);
+                return assetService.findAssetChildren(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -90,7 +93,7 @@ public class AssetController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Asset create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
+    public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (assetService.canCreate(user, assetReq)) {
             if (assetReq.getParentAsset() != null) {
@@ -101,7 +104,7 @@ public class AssetController {
             }
             Asset createdAsset = assetService.create(assetReq);
             assetService.notify(createdAsset);
-            return createdAsset;
+            return assetMapper.toShowDto(createdAsset);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -111,8 +114,8 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Asset not found")})
-    public Asset patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
-                       HttpServletRequest req) {
+    public AssetShowDTO patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
+                              HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
 
@@ -121,7 +124,7 @@ public class AssetController {
             if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)) {
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset);
-                return patchedAsset;
+                return assetMapper.toShowDto(patchedAsset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
     }

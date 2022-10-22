@@ -20,8 +20,6 @@ public class Asset extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Date createAt;
-
     private boolean archived;
 
     private boolean hasChildren;
@@ -37,6 +35,8 @@ public class Asset extends CompanyAudit {
     private Asset parentAsset;
 
     private String area;
+
+    private String description;
 
     private String barCode;
 
@@ -87,7 +87,11 @@ public class Asset extends CompanyAudit {
 
     private Date warrantyExpirationDate;
 
+    private Date inServiceDate;
+
     private String additionalInfos;
+
+    private String model;
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
 

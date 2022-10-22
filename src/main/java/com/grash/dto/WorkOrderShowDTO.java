@@ -6,6 +6,7 @@ import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -50,4 +51,12 @@ public class WorkOrderShowDTO {
 
     private Asset asset;
     private List<PartMiniDTO> parts;
+
+    private Long createdBy;
+
+    private Long updatedBy;
+
+    private Instant createdAt;
+
+    private Instant updatedAt;
 }

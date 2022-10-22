@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PartMiniDTO {
+public class PreventiveMaintenanceMiniDTO {
+    private String title;
     private Long id;
-    private String name;
-    private String description;
-    private double cost;
 }
