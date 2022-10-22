@@ -1,6 +1,5 @@
 package com.grash.dto;
 
-import com.grash.model.Company;
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.Vendor;
 import lombok.Data;
@@ -47,5 +46,5 @@ public class PurchaseOrderPatchDTO {
 
     private Vendor vendor;
 
-    private Company requesterInformation;
+    // private Company requesterInformation;
 }

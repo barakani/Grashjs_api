@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/purchaseOrders")
+@RequestMapping("/purchase-orders")
 @Api(tags = "purchaseOrder")
 @RequiredArgsConstructor
 public class PurchaseOrderController {

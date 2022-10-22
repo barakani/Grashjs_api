@@ -55,7 +55,7 @@ public class PurchaseOrder extends CompanyAudit {
     @ManyToOne
     private Vendor vendor;
 
-    @ManyToOne
-    private Company requesterInformation;
+//    @ManyToOne
+//    private Company requesterInformation;
 
 }
