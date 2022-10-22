@@ -22,5 +22,5 @@ public interface UserMapper {
     @Mappings({})
     User toModel(UserSignupRequest dto);
 
-    UserMiniDTO toShowDto(User user);
+    UserMiniDTO toMiniDto(User user);
 }

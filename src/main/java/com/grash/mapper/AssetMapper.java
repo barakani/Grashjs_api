@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.model.Asset;
@@ -15,4 +16,6 @@ public interface AssetMapper {
     AssetPatchDTO toDto(Asset model);
 
     AssetShowDTO toShowDto(Asset model);
+
+    AssetMiniDTO toMiniDto(Asset model);
 }

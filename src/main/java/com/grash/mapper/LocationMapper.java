@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationShowDTO;
 import com.grash.model.Location;
@@ -15,4 +16,6 @@ public interface LocationMapper {
     LocationPatchDTO toDto(Location model);
 
     LocationShowDTO toShowDto(Location model);
+
+    LocationMiniDTO toMiniDto(Location model);
 }

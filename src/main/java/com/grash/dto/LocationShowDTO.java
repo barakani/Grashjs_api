@@ -5,13 +5,12 @@ import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class LocationShowDTO {
+public class LocationShowDTO extends AuditShowDTO {
     private Company company;
 
     private Long id;
@@ -34,11 +33,4 @@ public class LocationShowDTO {
 
     private List<UserMiniDTO> workers = new ArrayList<>();
 
-    private Long createdBy;
-
-    private Long updatedBy;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
 }

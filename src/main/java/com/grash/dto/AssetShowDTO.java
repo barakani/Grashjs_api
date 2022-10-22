@@ -5,14 +5,13 @@ import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class AssetShowDTO {
+public class AssetShowDTO extends AuditShowDTO {
     private Long id;
 
     private boolean archived;
@@ -61,11 +60,4 @@ public class AssetShowDTO {
 
     private List<FileMiniDTO> files = new ArrayList<>();
 
-    private Long createdBy;
-
-    private Long updatedBy;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
 }

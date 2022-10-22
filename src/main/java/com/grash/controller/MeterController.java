@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.MeterPatchDTO;
+import com.grash.dto.MeterShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.MeterMapper;
 import com.grash.model.Meter;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/meters")
@@ -31,6 +34,7 @@ import java.util.Optional;
 public class MeterController {
 
     private final MeterService meterService;
+    private final MeterMapper meterMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -39,11 +43,11 @@ public class MeterController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MeterCategory not found")})
-    public Collection<Meter> getAll(HttpServletRequest req) {
+    public Collection<MeterShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return meterService.findByCompany(user.getCompany().getId());
-        } else return meterService.getAll();
+            return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toShowDto).collect(Collectors.toList());
+        } else return meterService.getAll().stream().map(meterMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -52,13 +56,13 @@ public class MeterController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Meter not found")})
-    public Meter getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public MeterShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
             if (meterService.hasAccess(user, savedMeter)) {
-                return savedMeter;
+                return meterMapper.toShowDto(savedMeter);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -68,12 +72,12 @@ public class MeterController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Meter create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
+    public MeterShowDTO create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (meterService.canCreate(user, meterReq)) {
             Meter savedMeter = meterService.create(meterReq);
             meterService.notify(savedMeter);
-            return savedMeter;
+            return meterMapper.toShowDto(savedMeter);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -83,8 +87,8 @@ public class MeterController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Meter not found")})
-    public Meter patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter, @ApiParam("id") @PathVariable("id") Long id,
-                       HttpServletRequest req) {
+    public MeterShowDTO patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter, @ApiParam("id") @PathVariable("id") Long id,
+                              HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
 
@@ -92,8 +96,8 @@ public class MeterController {
             Meter savedMeter = optionalMeter.get();
             if (meterService.hasAccess(user, savedMeter) && meterService.canPatch(user, meter)) {
                 Meter patchedMeter = meterService.update(id, meter);
-                meterService.patchNotify(savedMeter,patchedMeter);
-                return patchedMeter;
+                meterService.patchNotify(savedMeter, patchedMeter);
+                return meterMapper.toShowDto(patchedMeter);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }
