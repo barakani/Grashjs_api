@@ -14,13 +14,19 @@ public class PartPatchDTO {
 
     private double cost;
 
+    private String category;
+
+    private boolean nonStock;
+
     private String barcode;
 
     private String description;
 
     private int quantity;
 
-    private double area;
+    private String additionalInfos;
+
+    private String area;
 
     private int minQuantity;
 
@@ -34,7 +40,7 @@ public class PartPatchDTO {
 
     private Collection<File> files;
 
-    private Collection<Customer> assignedCustomers;
+    private Collection<Customer> customers;
 
     private Collection<Team> teams;
 }

@@ -40,9 +40,15 @@ public class Part extends CompanyAudit {
 
     private String description;
 
+    private String category;
+
     private int quantity;
 
-    private double area;
+    private String area;
+
+    private String additionalInfos;
+
+    private boolean nonStock;
 
     @ManyToOne
     @NotNull
@@ -71,7 +77,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_customer_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_customer_customer_id", columnList = "id_customer")
             })
-    private List<Customer> assignedCustomers = new ArrayList<>();
+    private List<Customer> customers = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
