@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartMapper;
 import com.grash.model.Part;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/parts")
@@ -31,6 +34,7 @@ import java.util.Optional;
 public class PartController {
 
     private final PartService partService;
+    private final PartMapper partMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -39,11 +43,11 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PartCategory not found")})
-    public Collection<Part> getAll(HttpServletRequest req) {
+    public Collection<PartShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return partService.findByCompany(user.getCompany().getId());
-        } else return partService.getAll();
+            return partService.findByCompany(user.getCompany().getId()).stream().map(partMapper::toShowDto).collect(Collectors.toList());
+        } else return partService.getAll().stream().map(partMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -52,13 +56,13 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Part not found")})
-    public Part getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public PartShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (partService.hasAccess(user, savedPart)) {
-                return savedPart;
+                return partMapper.toShowDto(savedPart);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -68,12 +72,12 @@ public class PartController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Part create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
+    public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (partService.canCreate(user, partReq)) {
             Part savedPart = partService.create(partReq);
             partService.notify(savedPart);
-            return savedPart;
+            return partMapper.toShowDto(savedPart);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -83,8 +87,8 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Part not found")})
-    public Part patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
-                      HttpServletRequest req) {
+    public PartShowDTO patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
+                             HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
 
@@ -93,7 +97,7 @@ public class PartController {
             if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)) {
                 Part patchedPart = partService.update(id, part);
                 partService.patchNotify(savedPart, patchedPart);
-                return patchedPart;
+                return partMapper.toShowDto(patchedPart);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
     }

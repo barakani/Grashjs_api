@@ -65,28 +65,22 @@ public class PartService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(partReq.getCompany().getId());
-        Optional<Asset> optionalAsset = assetService.findById(partReq.getAsset().getId());
-        Optional<Location> optionalLocation = locationService.findById(partReq.getLocation().getId());
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
-        boolean third = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && canPatch(user, partMapper.toDto(partReq));
+        return first && canPatch(user, partMapper.toDto(partReq));
     }
 
     public boolean canPatch(User user, PartPatchDTO partReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Asset> optionalAsset = partReq.getAsset() == null ? Optional.empty() : assetService.findById(partReq.getAsset().getId());
         Optional<Image> optionalImage = partReq.getImage() == null ? Optional.empty() : imageService.findById(partReq.getImage().getId());
         Optional<Location> optionalLocation = partReq.getLocation() == null ? Optional.empty() : locationService.findById(partReq.getLocation().getId());
 
-        boolean second = partReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
         boolean third = partReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
         boolean fourth = partReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
 
-        return second && third && fourth;
+        return third && fourth;
     }
 
     public void notify(Part part) {

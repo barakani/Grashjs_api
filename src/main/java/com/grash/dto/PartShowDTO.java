@@ -1,6 +1,8 @@
 package com.grash.dto;
 
-import com.grash.model.*;
+import com.grash.model.File;
+import com.grash.model.Image;
+import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +10,8 @@ import java.util.Collection;
 
 @Data
 @NoArgsConstructor
-public class PartPatchDTO {
+public class PartShowDTO extends AuditShowDTO {
+    private Long id;
 
     private String name;
 
@@ -34,13 +37,13 @@ public class PartPatchDTO {
 
     private Image image;
 
-    private Collection<User> assignedTo;
+    private Collection<UserMiniDTO> assignedTo;
 
     private Collection<File> files;
 
-    private Collection<Customer> customers;
+    private Collection<CustomerMiniDTO> customers;
 
-    private Collection<Vendor> vendors;
+    private Collection<VendorMiniDTO> vendors;
 
-    private Collection<Team> teams;
+    private Collection<TeamMiniDTO> teams;
 }

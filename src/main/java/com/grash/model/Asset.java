@@ -82,6 +82,17 @@ public class Asset extends CompanyAudit {
             })
     private List<Vendor> vendors = new ArrayList<>();
 
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Asset_Part_Associations",
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_part"),
+            indexes = {
+                    @Index(name = "idx_asset_part_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_part_part_id", columnList = "id_part")
+            })
+    private List<Part> parts = new ArrayList<>();
+
     @OneToOne
     private Deprecation deprecation;
 

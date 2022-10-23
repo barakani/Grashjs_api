@@ -50,10 +50,6 @@ public class Part extends CompanyAudit {
 
     private boolean nonStock;
 
-    @ManyToOne
-    @NotNull
-    private Location location;
-
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Part_File_Associations",
@@ -80,6 +76,17 @@ public class Part extends CompanyAudit {
     private List<Customer> customers = new ArrayList<>();
 
     @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Part_Vendor_Associations",
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_vendor"),
+            indexes = {
+                    @Index(name = "idx_part_vendor_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_vendor_vendor_id", columnList = "id_vendor")
+            })
+    private List<Vendor> vendors = new ArrayList<>();
+
+    @ManyToMany
     @JsonIgnore
     private List<WorkOrder> workOrders = new ArrayList<>();
 
@@ -100,10 +107,16 @@ public class Part extends CompanyAudit {
             })
     private List<Team> teams = new ArrayList<>();
 
-    @ManyToOne
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Asset asset;
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Asset_Part_Associations",
+            joinColumns = @JoinColumn(name = "id_part"),
+            inverseJoinColumns = @JoinColumn(name = "id_asset"),
+            indexes = {
+                    @Index(name = "idx_part_asset_part_id", columnList = "id_part"),
+                    @Index(name = "idx_part_asset_asset_id", columnList = "id_asset")
+            })
+    private List<Asset> assets = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore

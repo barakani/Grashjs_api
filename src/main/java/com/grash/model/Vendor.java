@@ -47,4 +47,14 @@ public class Vendor extends BasicInfos {
             })
     private List<Location> locations = new ArrayList<>();
 
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Part_vendor_Associations",
+            joinColumns = @JoinColumn(name = "id_vendor"),
+            inverseJoinColumns = @JoinColumn(name = "id_part"),
+            indexes = {
+                    @Index(name = "idx_vendor_part_vendor_id", columnList = "id_vendor"),
+                    @Index(name = "idx_vendor_part_part_id", columnList = "id_part")
+            })
+    private List<Part> parts = new ArrayList<>();
 }

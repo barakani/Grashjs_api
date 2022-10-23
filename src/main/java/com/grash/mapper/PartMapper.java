@@ -2,12 +2,13 @@ package com.grash.mapper;
 
 import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartShowDTO;
 import com.grash.model.Part;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class, TeamMapper.class})
 public interface PartMapper {
     Part updatePart(@MappingTarget Part entity, PartPatchDTO dto);
 
@@ -15,5 +16,7 @@ public interface PartMapper {
     PartPatchDTO toDto(Part model);
 
     @Mappings({})
-    PartMiniDTO toShowDto(Part model);
+    PartMiniDTO toMiniDto(Part model);
+
+    PartShowDTO toShowDto(Part model);
 }
