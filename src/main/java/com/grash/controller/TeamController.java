@@ -2,7 +2,9 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.TeamPatchDTO;
+import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.TeamMapper;
 import com.grash.model.Team;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/teams")
@@ -31,6 +34,7 @@ import java.util.Optional;
 public class TeamController {
 
     private final TeamService teamService;
+    private final TeamMapper teamMapper;
     private final UserService userService;
 
     @GetMapping("")
@@ -39,11 +43,11 @@ public class TeamController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public Collection<Team> getAll(HttpServletRequest req) {
+    public Collection<TeamShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return teamService.findByCompany(user.getCompany().getId());
-        } else return teamService.getAll();
+            return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+        } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -52,13 +56,13 @@ public class TeamController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Team not found")})
-    public Team getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public TeamShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
             if (teamService.hasAccess(user, savedTeam)) {
-                return savedTeam;
+                return teamMapper.toShowDto(savedTeam);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -68,12 +72,12 @@ public class TeamController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Team create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
+    public TeamShowDTO create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (teamService.canCreate(user, teamReq)) {
             Team savedTeam = teamService.create(teamReq);
             teamService.notify(savedTeam);
-            return savedTeam;
+            return teamMapper.toShowDto(savedTeam);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -83,8 +87,8 @@ public class TeamController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Team not found")})
-    public Team patch(@ApiParam("Team") @Valid @RequestBody TeamPatchDTO team, @ApiParam("id") @PathVariable("id") Long id,
-                      HttpServletRequest req) {
+    public TeamShowDTO patch(@ApiParam("Team") @Valid @RequestBody TeamPatchDTO team, @ApiParam("id") @PathVariable("id") Long id,
+                             HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
@@ -92,7 +96,7 @@ public class TeamController {
             if (teamService.hasAccess(user, savedTeam) && teamService.canPatch(user, team)) {
                 Team patchTeam = teamService.update(id, team);
                 teamService.patchNotify(savedTeam, patchTeam);
-                return patchTeam;
+                return teamMapper.toShowDto(patchTeam);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
     }

@@ -26,7 +26,7 @@ public class GeneralPreferences {
     @ManyToOne
     private Currency currency;
 
-    private BusinessType businessType;
+    private BusinessType businessType = BusinessType.GENERAL_ASSET_MANAGEMENT;
 
     private String timeZone;
 
@@ -40,7 +40,7 @@ public class GeneralPreferences {
 
     private boolean laborCostInTotalCost = true;
 
-    private boolean wOUpdateForRequesters = true;
+    private boolean woUpdateForRequesters = true;
 
     @OneToOne
     @JsonIgnore

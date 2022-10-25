@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.GeneralPreferences;
@@ -13,12 +14,10 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -62,5 +61,30 @@ public class GeneralPreferencesController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "GeneralPreferences not found")})
+    public GeneralPreferences patch(@ApiParam("GeneralPreferences") @Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
+                                    @ApiParam("id") @PathVariable("id") Long id,
+                                    HttpServletRequest req) {
+        User user = userService.whoami(req);
+
+        Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
+
+        if (optionalGeneralPreferences.isPresent()) {
+            GeneralPreferences savedGeneralPreferences = optionalGeneralPreferences.get();
+            if (savedGeneralPreferences.getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())) {
+                return generalPreferencesService.update(id, generalPreferences);
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("Can't get someone else's generalPreferences", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+    }
 
 }

@@ -46,7 +46,9 @@ public class FieldConfigurationService {
     public boolean hasAccess(User user, FieldConfiguration fieldConfiguration) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else
+        } else if (fieldConfiguration.getWorkOrderConfiguration() != null)
             return user.getCompany().getId().equals(fieldConfiguration.getWorkOrderConfiguration().getCompanySettings().getCompany().getId());
+        else
+            return user.getCompany().getId().equals(fieldConfiguration.getWorkOrderRequestConfiguration().getCompanySettings().getCompany().getId());
     }
 }
