@@ -1,19 +1,21 @@
 package com.grash.dto;
 
-import com.grash.model.CompanySettings;
-import com.grash.model.enums.RoleType;
+import com.grash.model.enums.BasicPermission;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 public class RolePatchDTO {
 
-    private RoleType roleType;
-
     private String name;
 
-    private CompanySettings companySettings;
+    private String description;
 
     private String externalId;
+
+    private Set<BasicPermission> permissions;
+
 }

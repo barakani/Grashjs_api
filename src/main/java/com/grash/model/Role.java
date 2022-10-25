@@ -27,6 +27,8 @@ public class Role {
     @NotNull
     private String name;
 
+    private String description;
+
     private String externalId;
 
     @ElementCollection(targetClass = BasicPermission.class)

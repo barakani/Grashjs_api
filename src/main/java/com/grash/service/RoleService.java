@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
-import com.grash.model.CompanySettings;
 import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
@@ -61,6 +60,9 @@ public class RoleService {
     }
 
     public boolean canCreate(User user, Role roleReq) {
+        if (roleReq.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return false;
+        }
         if (user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
             return canPatch(user, roleMapper.toDto(roleReq));
         } else return false;
@@ -68,11 +70,6 @@ public class RoleService {
 
     public boolean canPatch(User user, RolePatchDTO roleReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<CompanySettings> optionalCompanySettings = roleReq.getCompanySettings() == null ? Optional.empty() : companySettingsService.findById(roleReq.getCompanySettings().getId());
-
-        boolean first = roleReq.getCompanySettings() == null || (optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 }
