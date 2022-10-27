@@ -13,12 +13,12 @@ import java.util.Optional;
 public class WorkOrderHistoryService {
     private final WorkOrderHistoryRepository workOrderHistoryRepository;
 
-    public WorkOrderHistory create(WorkOrderHistory WorkOrderHistory) {
-        return workOrderHistoryRepository.save(WorkOrderHistory);
+    public WorkOrderHistory create(WorkOrderHistory workOrderHistory) {
+        return workOrderHistoryRepository.save(workOrderHistory);
     }
 
-    public WorkOrderHistory update(WorkOrderHistory WorkOrderHistory) {
-        return workOrderHistoryRepository.save(WorkOrderHistory);
+    public WorkOrderHistory update(WorkOrderHistory workOrderHistory) {
+        return workOrderHistoryRepository.save(workOrderHistory);
     }
 
     public Collection<WorkOrderHistory> getAll() { return workOrderHistoryRepository.findAll(); }

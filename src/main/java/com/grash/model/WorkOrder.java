@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.WorkOrderBase;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Builder
 public class WorkOrder extends WorkOrderBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
