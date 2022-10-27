@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = "companySettings")
+@EqualsAndHashCode(exclude = "companySettings", callSuper = false)
 public class Company extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
