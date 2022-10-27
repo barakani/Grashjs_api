@@ -54,6 +54,9 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     private UserSettings userSettings = new UserSettings();
 
+    @ManyToOne
+    private Location location;
+
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "T_Asset_User_Associations",
