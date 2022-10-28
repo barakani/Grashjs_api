@@ -6,6 +6,7 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
+import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WorkOrderService {
     private final WorkOrderRepository workOrderRepository;
+    private final WorkOrderHistoryRepository workOrderHistoryRepository;
     private final LocationService locationService;
     private final TeamService teamService;
     private final AssetService assetService;
@@ -29,14 +31,20 @@ public class WorkOrderService {
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
 
-    public WorkOrder create(WorkOrder WorkOrder) {
-        return workOrderRepository.save(WorkOrder);
+    public WorkOrder create(WorkOrder workOrder) {
+        return workOrderRepository.save(workOrder);
     }
 
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
-            return workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
+                    .name("updating "+ workOrder.getTitle())
+                    .workOrder(WorkOrder.builder().id(id).build())
+                    .build();
+            WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            workOrderHistoryRepository.save(workOrderHistory);
+            return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
