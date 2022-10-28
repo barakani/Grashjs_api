@@ -39,7 +39,7 @@ public class WorkOrderService {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
-                    .name("updating "+ workOrder.getTitle())
+                    .name("Updating " + workOrder.getTitle())
                     .workOrder(WorkOrder.builder().id(id).build())
                     .build();
             WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));

@@ -50,6 +50,8 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String additionalInfos;
 
+    private String serialNumber;
+
     private String model;
 
     private AssetStatus status = AssetStatus.OPERATIONAL;

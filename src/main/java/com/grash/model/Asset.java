@@ -102,6 +102,8 @@ public class Asset extends CompanyAudit {
 
     private String additionalInfos;
 
+    private String serialNumber;
+
     private String model;
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
