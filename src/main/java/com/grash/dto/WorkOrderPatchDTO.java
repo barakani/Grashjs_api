@@ -15,7 +15,6 @@ public class WorkOrderPatchDTO {
     private User completedBy;
     private Date completedOn;
     private boolean archived;
-    private PurchaseOrder purchaseOrder;
     private Date dueDate;
     private Status status;
     private Priority priority;

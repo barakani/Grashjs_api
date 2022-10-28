@@ -35,9 +35,6 @@ public class WorkOrder extends WorkOrderBase {
     @ManyToOne
     private Request parentRequest;
 
-    @ManyToOne
-    private PurchaseOrder purchaseOrder;
-
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_WorkOrder_File_Associations",

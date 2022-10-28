@@ -38,11 +38,11 @@ public class WorkOrderService {
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
+            WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .name("Updating " + workOrder.getTitle())
-                    .workOrder(WorkOrder.builder().id(id).build())
+                    .workOrder(updatedWorkOrder)
                     .build();
-            WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             workOrderHistoryRepository.save(workOrderHistory);
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -74,15 +74,13 @@ public class WorkOrderService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-        Optional<Location> optionalLocation = locationService.findById(workOrderReq.getLocation().getId());
         Optional<Asset> optionalAsset = assetService.findById(workOrderReq.getAsset().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         boolean third = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && second && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
+        return first && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
     }
 
     public boolean canPatch(User user, WorkOrderPatchDTO workOrderReq) {
@@ -92,15 +90,13 @@ public class WorkOrderService {
         Optional<Team> optionalTeam = workOrderReq.getTeam() == null ? Optional.empty() : teamService.findById(workOrderReq.getTeam().getId());
         Optional<User> optionalUser = workOrderReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(workOrderReq.getPrimaryUser().getId());
         Optional<Asset> optionalAsset = workOrderReq.getAsset() == null ? Optional.empty() : assetService.findById(workOrderReq.getAsset().getId());
-        Optional<PurchaseOrder> optionalPurchaseOrder = workOrderReq.getPurchaseOrder() == null ? Optional.empty() : purchaseOrderService.findById(workOrderReq.getPurchaseOrder().getId());
 
         boolean second = workOrderReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
         boolean third = workOrderReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
         boolean fourth = workOrderReq.getPrimaryUser() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
         boolean fifth = workOrderReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-        boolean sixth = workOrderReq.getPurchaseOrder() == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
 
-        return second && third && fourth && fifth && sixth;
+        return second && third && fourth && fifth;
     }
 
     public void notify(WorkOrder workOrder) {

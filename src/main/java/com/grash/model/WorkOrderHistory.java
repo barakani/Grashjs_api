@@ -1,7 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.abstracts.Audit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WorkOrderHistory extends CompanyAudit {
+public class WorkOrderHistory extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

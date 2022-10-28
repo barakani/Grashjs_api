@@ -30,7 +30,6 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private List<Part> parts = new ArrayList<>();
 
     @ManyToOne
-    @NotNull
     private Location location;
 
     @ManyToOne

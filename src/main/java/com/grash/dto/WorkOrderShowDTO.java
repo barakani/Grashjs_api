@@ -24,8 +24,6 @@ public class WorkOrderShowDTO extends AuditShowDTO {
 
     private Request parentRequest;
 
-    private PurchaseOrder purchaseOrder;
-
     //TODO
     //private List<File> files = new ArrayList<>();
 
@@ -50,5 +48,7 @@ public class WorkOrderShowDTO extends AuditShowDTO {
 
     private Asset asset;
     private List<PartMiniDTO> parts;
+
+    private List<FileMiniDTO> files;
 
 }
