@@ -49,5 +49,7 @@ public class AssetPatchDTO {
 
     private Collection<File> files;
 
+    private Collection<Part> parts;
+
 
 }

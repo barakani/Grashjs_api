@@ -60,4 +60,6 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private List<FileMiniDTO> files = new ArrayList<>();
 
+    private List<PartMiniDTO> parts = new ArrayList<>();
+
 }
