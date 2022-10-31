@@ -1,7 +1,6 @@
 package com.grash.controller;
 
-import com.grash.advencedsearch.SpecificationBuilder;
-import com.grash.advencedsearch.FilterField;
+import com.grash.advancedsearch.FilterField;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
@@ -19,18 +18,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +61,6 @@ public class WorkOrderController {
                                                   @RequestBody List<FilterField> filterFields) {
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(filterFields, pageNum, pageSize));
     }
-
 
 
     @GetMapping("/{id}")

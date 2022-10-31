@@ -1,4 +1,4 @@
-package com.grash.advencedsearch;
+package com.grash.advancedsearch;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

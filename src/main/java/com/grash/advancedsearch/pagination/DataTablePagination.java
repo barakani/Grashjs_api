@@ -1,4 +1,4 @@
-package com.grash.advencedsearch.pagination;
+package com.grash.advancedsearch.pagination;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

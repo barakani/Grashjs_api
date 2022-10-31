@@ -1,4 +1,4 @@
-package com.grash.advencedsearch;
+package com.grash.advancedsearch;
 
 import org.springframework.data.jpa.domain.Specification;
 

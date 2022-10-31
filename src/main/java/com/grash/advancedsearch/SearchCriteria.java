@@ -1,7 +1,7 @@
-package com.grash.advencedsearch;
+package com.grash.advancedsearch;
 
 
-import com.grash.advencedsearch.pagination.Order;
+import com.grash.advancedsearch.pagination.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
