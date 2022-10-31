@@ -1,6 +1,6 @@
 package com.grash.service;
 
-import com.grash.advancedsearch.FilterField;
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
@@ -15,12 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -142,13 +139,10 @@ public class WorkOrderService {
     }
 
     //todo move 'pageNum' & 'pageSize' in SearchCriteria
-    public Page<WorkOrderShowDTO> findBySearchCriteria(List<FilterField> filterFields, int pageNum, int pageSize) {
-        if (CollectionUtils.isEmpty(filterFields)) {
-            filterFields = new ArrayList<>();
-        }
+    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
-        filterFields.forEach(builder::with);
-        Pageable page = PageRequest.of(pageNum, pageSize, Sort.DEFAULT_DIRECTION, "id");
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
     }
 }

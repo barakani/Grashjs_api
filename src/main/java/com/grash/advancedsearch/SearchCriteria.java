@@ -1,11 +1,13 @@
 package com.grash.advancedsearch;
 
 
-import com.grash.advancedsearch.pagination.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Sort.Direction;
+
+import java.util.List;
 
 
 @Data
@@ -13,9 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SearchCriteria {
-    private FilterField[] filterFields;
-    private Boolean advancedSearch;
+    private List<FilterField> filterFields;
+    private boolean advancedSearch;
     private String searchTerm;
     private String sortedBy;
-    private Order order;
+    private Direction direction = Direction.ASC;
+    private int pageNum = 0;
+    private int pageSize = 10;
 }

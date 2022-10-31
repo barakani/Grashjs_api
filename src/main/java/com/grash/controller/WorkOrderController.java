@@ -1,6 +1,6 @@
 package com.grash.controller;
 
-import com.grash.advancedsearch.FilterField;
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,11 +55,8 @@ public class WorkOrderController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
-                                                         @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
-                                                         //todo to be replaced by SearchCrireria
-                                                         @RequestBody List<FilterField> filterFields) {
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(filterFields, pageNum, pageSize));
+    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria) {
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
     }
 
 
@@ -122,7 +118,7 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -131,7 +127,7 @@ public class WorkOrderController {
             if (workOrderService.hasAccess(user, savedWorkOrder) &&
                     user.getRole().getPermissions().contains(BasicPermission.DELETE_WORK_ORDERS)) {
                 workOrderService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);

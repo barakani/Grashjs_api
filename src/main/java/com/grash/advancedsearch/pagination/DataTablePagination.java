@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Sort.Direction;
 
 import java.io.Serializable;
 
@@ -15,12 +16,12 @@ import java.io.Serializable;
 public class DataTablePagination implements Serializable {
     private int page;
     private String sortField;
-    private SortDirection sortDirection;
+    private Direction sortDirection;
     private int pageSize;
 
     @JsonIgnore
     public static DataTablePagination paginationStreamPagination() {
-        return DataTablePagination.builder().page(0).pageSize(50).sortDirection(SortDirection.ASC)
+        return DataTablePagination.builder().page(0).pageSize(50).sortDirection(Direction.ASC)
                 .sortField("id").build();
     }
 
