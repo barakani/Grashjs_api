@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class WorkOrderController {
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            searchCriteria.getFilterFields().add(new FilterField("company", user.getCompany().getId(), "eq"));
+            searchCriteria.getFilterFields().add(new FilterField("company", user.getCompany().getId(), "eq", new ArrayList<>()));
         }
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
     }

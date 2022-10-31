@@ -2,11 +2,11 @@ package com.grash.advancedsearch;
 
 public enum SearchOperation {
     CONTAINS, DOES_NOT_CONTAIN, EQUAL, NOT_EQUAL, BEGINS_WITH, DOES_NOT_BEGIN_WITH, ENDS_WITH,
-    DOES_NOT_END_WITH, NUL, NOT_NULL, GREATER_THAN, GREATER_THAN_EQUAL, LESS_THAN, LESS_THAN_EQUAL,
+    DOES_NOT_END_WITH, NUL, NOT_NULL, GREATER_THAN, GREATER_THAN_EQUAL, LESS_THAN, LESS_THAN_EQUAL, IN,
     ANY, ALL;
 
     public static final String[] SIMPLE_OPERATION_SET = {"cn", "nc", "eq", "ne", "bw", "bn", "ew",
-            "en", "nu", "nn", "gt", "ge", "lt", "le"};
+            "en", "nu", "nn", "gt", "ge", "lt", "le", "in"};
 
     public static SearchOperation getDataOption(final String dataOption) {
         switch (dataOption) {
@@ -49,7 +49,8 @@ public enum SearchOperation {
                 return LESS_THAN;
             case "le":
                 return LESS_THAN_EQUAL;
-
+            case "in":
+                return IN;
             default:
                 return null;
         }
