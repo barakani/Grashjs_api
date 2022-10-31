@@ -138,7 +138,6 @@ public class WorkOrderService {
         }
     }
 
-    //todo move 'pageNum' & 'pageSize' in SearchCriteria
     public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

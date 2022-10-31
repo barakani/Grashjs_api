@@ -22,10 +22,8 @@ public class SpecificationBuilder<T> {
         if (CollectionUtils.isEmpty(filterFields)) {
             return null;
         }
-        //todo check this before get(0)
-        Specification<T> result = new WrapperSpecification<>(filterFields.get(0));
-        for (int idx = 1; idx < filterFields.size(); idx++) {
-            FilterField criteria = filterFields.get(idx);
+        Specification<T> result = (root, query, criteriaBuilder) -> null;
+        for (FilterField criteria : filterFields) {
             result = Specification.where(result).and(new WrapperSpecification<>(criteria));
         }
         return result;
