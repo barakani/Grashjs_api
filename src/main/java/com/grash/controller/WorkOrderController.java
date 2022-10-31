@@ -55,10 +55,11 @@ public class WorkOrderController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Page<WorkOrder>> search(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
-                                                  @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
-                                                  //todo to be replaced by SearchCrireria
-                                                  @RequestBody List<FilterField> filterFields) {
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+                                                         @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+                                                         //todo to be replaced by SearchCrireria
+                                                         @RequestBody List<FilterField> filterFields) {
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(filterFields, pageNum, pageSize));
     }
 

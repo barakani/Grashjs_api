@@ -13,7 +13,7 @@ public class SpecificationBuilder<T> {
         this.filterFields = new ArrayList<>();
     }
 
-    public final SpecificationBuilder with(FilterField filterField) {
+    public final SpecificationBuilder<T> with(FilterField filterField) {
         filterFields.add(filterField);
         return this;
     }
@@ -23,10 +23,10 @@ public class SpecificationBuilder<T> {
             return null;
         }
         //todo check this before get(0)
-        Specification<T> result = new WrapperSpecification(filterFields.get(0));
+        Specification<T> result = new WrapperSpecification<>(filterFields.get(0));
         for (int idx = 1; idx < filterFields.size(); idx++) {
             FilterField criteria = filterFields.get(idx);
-            result = Specification.where(result).and(new WrapperSpecification(criteria));
+            result = Specification.where(result).and(new WrapperSpecification<>(criteria));
         }
         return result;
     }

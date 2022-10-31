@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
+import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -141,13 +142,13 @@ public class WorkOrderService {
     }
 
     //todo move 'pageNum' & 'pageSize' in SearchCriteria
-    public Page findBySearchCriteria(List<FilterField> filterFields, int pageNum, int pageSize) {
+    public Page<WorkOrderShowDTO> findBySearchCriteria(List<FilterField> filterFields, int pageNum, int pageSize) {
         if (CollectionUtils.isEmpty(filterFields)) {
             filterFields = new ArrayList<>();
         }
-        SpecificationBuilder builder = new SpecificationBuilder();
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         filterFields.forEach(builder::with);
-        Pageable page = PageRequest.of(pageNum, pageSize, Sort.DEFAULT_DIRECTION);
-        return workOrderRepository.findAll(builder.build(), page);
+        Pageable page = PageRequest.of(pageNum, pageSize, Sort.DEFAULT_DIRECTION, "id");
+        return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
     }
 }
