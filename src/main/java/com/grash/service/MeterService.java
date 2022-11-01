@@ -57,13 +57,13 @@ public class MeterService {
         return meterRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Meter meter) {
+    public boolean hasAccess(OwnUser user, Meter meter) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(meter.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Meter meterReq) {
+    public boolean canCreate(OwnUser user, Meter meterReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(meterReq.getCompany().getId());
@@ -76,7 +76,7 @@ public class MeterService {
         return first && second && canPatch(user, meterMapper.toDto(meterReq));
     }
 
-    public boolean canPatch(User user, MeterPatchDTO meterReq) {
+    public boolean canPatch(OwnUser user, MeterPatchDTO meterReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<MeterCategory> optionalMeterCategory = meterReq.getMeterCategory() == null ? Optional.empty() : meterCategoryService.findById(meterReq.getMeterCategory().getId());
@@ -103,7 +103,7 @@ public class MeterService {
     public void patchNotify(Meter oldMeter, Meter newMeter) {
         String message = "Meter " + newMeter.getName() + " has been assigned to you";
         if (newMeter.getUsers() != null) {
-            List<User> newUsers = newMeter.getUsers().stream().filter(
+            List<OwnUser> newUsers = newMeter.getUsers().stream().filter(
                     user -> oldMeter.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())));

@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,5 +12,5 @@ public class TeamPatchDTO {
     String name;
     String description;
 
-    Collection<User> users;
+    Collection<OwnUser> users;
 }

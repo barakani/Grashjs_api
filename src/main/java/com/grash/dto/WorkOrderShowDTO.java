@@ -14,7 +14,7 @@ import java.util.List;
 public class WorkOrderShowDTO extends AuditShowDTO {
     private Long id;
 
-    private User completedBy;
+    private OwnUser completedBy;
 
     private Date completedOn;
 
@@ -41,7 +41,7 @@ public class WorkOrderShowDTO extends AuditShowDTO {
 
     private Team team;
 
-    private User primaryUser;
+    private OwnUser primaryUser;
 
 
     private List<UserMiniDTO> assignedTo;

@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PreventiveMaintenanceCategory not found")})
     public Collection<PreventiveMaintenance> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return preventiveMaintenanceService.findByCompany(user.getCompany().getId());
         } else return preventiveMaintenanceService.getAll();
@@ -52,7 +52,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
     public PreventiveMaintenance getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
@@ -68,7 +68,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public PreventiveMaintenance create(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenance preventiveMaintenanceReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (preventiveMaintenanceService.canCreate(user, preventiveMaintenanceReq)) {
             PreventiveMaintenance createdPreventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenanceReq);
             preventiveMaintenanceService.notify(createdPreventiveMaintenance);
@@ -84,7 +84,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
     public PreventiveMaintenance patch(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenancePatchDTO preventiveMaintenance, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
 
         if (optionalPreventiveMaintenance.isPresent()) {
@@ -104,7 +104,7 @@ public class PreventiveMaintenanceController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PreventiveMaintenance not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {

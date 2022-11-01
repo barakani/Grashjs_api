@@ -24,10 +24,10 @@ public class PreventiveMaintenancePatchDTO {
 
     private Location location;
     private Team team;
-    private User primaryUser;
+    private OwnUser primaryUser;
     private Asset asset;
 
-    private Collection<User> assignedTo;
+    private Collection<OwnUser> assignedTo;
 
     private Collection<Part> parts;
 }

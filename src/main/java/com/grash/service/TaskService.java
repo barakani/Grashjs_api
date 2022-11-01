@@ -4,8 +4,8 @@ import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.Task;
-import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskRepository;
@@ -47,13 +47,13 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, Task task) {
+    public boolean hasAccess(OwnUser user, Task task) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(task.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Task taskReq) {
+    public boolean canCreate(OwnUser user, Task taskReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(taskReq.getCompany().getId());
@@ -66,7 +66,7 @@ public class TaskService {
         return first && second && canPatch(user, taskMapper.toDto(taskReq));
     }
 
-    public boolean canPatch(User user, TaskPatchDTO taskReq) {
+    public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {
         return true;
     }
 }

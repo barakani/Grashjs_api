@@ -5,8 +5,8 @@ import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Part;
-import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PartService;
@@ -44,7 +44,7 @@ public class PartController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PartCategory not found")})
     public Collection<PartShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return partService.findByCompany(user.getCompany().getId()).stream().map(partMapper::toShowDto).collect(Collectors.toList());
         } else return partService.getAll().stream().map(partMapper::toShowDto).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class PartController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Part not found")})
     public PartShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
@@ -73,7 +73,7 @@ public class PartController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (partService.canCreate(user, partReq)) {
             Part savedPart = partService.create(partReq);
             partService.notify(savedPart);
@@ -89,7 +89,7 @@ public class PartController {
             @ApiResponse(code = 404, message = "Part not found")})
     public PartShowDTO patch(@ApiParam("Part") @Valid @RequestBody PartPatchDTO part, @ApiParam("id") @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
 
         if (optionalPart.isPresent()) {
@@ -109,7 +109,7 @@ public class PartController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Part not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {

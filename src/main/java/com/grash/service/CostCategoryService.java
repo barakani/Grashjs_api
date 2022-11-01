@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CostCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class CostCategoryService {
         return costCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, CostCategory costCategory) {
+    public boolean hasAccess(OwnUser user, CostCategory costCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(costCategory.getCompanySettings().getCompany().getId());

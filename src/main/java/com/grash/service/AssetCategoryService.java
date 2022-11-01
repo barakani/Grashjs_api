@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
 import com.grash.model.CompanySettings;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public class AssetCategoryService {
         return assetCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, AssetCategory assetCategory) {
+    public boolean hasAccess(OwnUser user, AssetCategory assetCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(assetCategory.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, AssetCategory assetCategoryReq) {
+    public boolean canCreate(OwnUser user, AssetCategory assetCategoryReq) {
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(assetCategoryReq.getCompanySettings().getId());
 
         //Post only fields
@@ -65,7 +65,7 @@ public class AssetCategoryService {
         return first && canPatch(user, assetCategoryMapper.toDto(assetCategoryReq));
     }
 
-    public boolean canPatch(User user, CategoryPatchDTO assetCategoryReq) {
+    public boolean canPatch(OwnUser user, CategoryPatchDTO assetCategoryReq) {
         return true;
     }
 }

@@ -29,7 +29,7 @@ public class RequestPatchDTO {
 
     private Location location;
 
-    private User assignedTo;
+    private OwnUser assignedTo;
 
     private Date dueDate;
 

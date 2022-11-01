@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.RolePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.Role;
-import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
@@ -40,7 +40,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "RoleCategory not found")})
     public Collection<Role> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return roleService.findByCompany(user.getCompany().getId());
         } else return roleService.getAll();
@@ -53,7 +53,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Role not found")})
     public Role getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
@@ -69,7 +69,7 @@ public class RoleController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (roleService.canCreate(user, roleReq)) {
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -83,7 +83,7 @@ public class RoleController {
             @ApiResponse(code = 404, message = "Role not found")})
     public Role patch(@ApiParam("Role") @Valid @RequestBody RolePatchDTO role, @ApiParam("id") @PathVariable("id") Long id,
                       HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Role> optionalRole = roleService.findById(id);
 
         if (optionalRole.isPresent()) {
@@ -101,7 +101,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Role not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {

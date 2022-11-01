@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.ScheduleMapper;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,18 +49,18 @@ public class ScheduleService {
         return scheduleRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Schedule schedule) {
+    public boolean hasAccess(OwnUser user, Schedule schedule) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(schedule.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Schedule scheduleReq) {
+    public boolean canCreate(OwnUser user, Schedule scheduleReq) {
 
         return canPatch(user, scheduleMapper.toDto(scheduleReq));
     }
 
-    public boolean canPatch(User user, SchedulePatchDTO scheduleReq) {
+    public boolean canPatch(OwnUser user, SchedulePatchDTO scheduleReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = scheduleReq.getPreventiveMaintenance() == null ? Optional.empty() : preventiveMaintenanceService.findById(scheduleReq.getPreventiveMaintenance().getId());

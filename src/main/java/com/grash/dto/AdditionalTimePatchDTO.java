@@ -1,7 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.TimeCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class AdditionalTimePatchDTO {
-    private User assignedTo;
+    private OwnUser assignedTo;
 
     private boolean includeToTotalTime;
 

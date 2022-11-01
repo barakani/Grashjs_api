@@ -1,6 +1,6 @@
 package com.grash.service;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.UserSettings;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.UserSettingsRepository;
@@ -35,7 +35,7 @@ public class UserSettingsService {
         return userSettingsRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, UserSettings userSettings) {
+    public boolean hasAccess(OwnUser user, UserSettings userSettings) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else

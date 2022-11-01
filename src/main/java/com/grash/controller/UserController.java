@@ -1,6 +1,6 @@
 package com.grash.controller;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -29,8 +29,8 @@ public class UserController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public Collection<User> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public Collection<OwnUser> getAll(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return userService.findByCompany(user.getCompany().getId());
         } else return userService.getAll();

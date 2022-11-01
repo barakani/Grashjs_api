@@ -34,7 +34,7 @@ public class PartPatchDTO {
 
     private Image image;
 
-    private Collection<User> assignedTo;
+    private Collection<OwnUser> assignedTo;
 
     private Collection<File> files;
 

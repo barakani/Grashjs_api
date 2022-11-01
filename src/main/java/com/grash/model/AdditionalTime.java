@@ -18,7 +18,7 @@ public class AdditionalTime extends Time {
     private Long id;
 
     @ManyToOne
-    private User assignedTo;
+    private OwnUser assignedTo;
 
     private boolean includeToTotalTime;
 

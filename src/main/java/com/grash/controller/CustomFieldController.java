@@ -4,7 +4,7 @@ import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.CustomField;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.CustomFieldService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class CustomFieldController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CustomField not found")})
     public CustomField getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
@@ -53,7 +53,7 @@ public class CustomFieldController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public CustomField create(@ApiParam("CustomField") @Valid @RequestBody CustomField customFieldReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (customFieldService.canCreate(user, customFieldReq)) {
             return customFieldService.create(customFieldReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -67,7 +67,7 @@ public class CustomFieldController {
             @ApiResponse(code = 404, message = "CustomField not found")})
     public CustomField patch(@ApiParam("CustomField") @Valid @RequestBody CustomFieldPatchDTO customField, @ApiParam("id") @PathVariable("id") Long id,
                              HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
 
         if (optionalCustomField.isPresent()) {
@@ -85,7 +85,7 @@ public class CustomFieldController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "CustomField not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {

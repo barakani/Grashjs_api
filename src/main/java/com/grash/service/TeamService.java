@@ -5,8 +5,8 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
 import com.grash.model.Company;
 import com.grash.model.Notification;
+import com.grash.model.OwnUser;
 import com.grash.model.Team;
-import com.grash.model.User;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
@@ -55,13 +55,13 @@ public class TeamService {
         return teamRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Team team) {
+    public boolean hasAccess(OwnUser user, Team team) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(team.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Team teamReq) {
+    public boolean canCreate(OwnUser user, Team teamReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(teamReq.getCompany().getId());
@@ -74,7 +74,7 @@ public class TeamService {
         return first && second && canPatch(user, teamMapper.toDto(teamReq));
     }
 
-    public boolean canPatch(User user, TeamPatchDTO teamReq) {
+    public boolean canPatch(OwnUser user, TeamPatchDTO teamReq) {
         return user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
     }
 
@@ -89,7 +89,7 @@ public class TeamService {
     public void patchNotify(Team oldTeam, Team newTeam) {
         String message = "Team " + newTeam.getName() + " has been assigned to you";
         if (newTeam.getUsers() != null) {
-            List<User> newUsers = newTeam.getUsers().stream().filter(
+            List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())));

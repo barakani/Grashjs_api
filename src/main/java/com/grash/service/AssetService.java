@@ -64,13 +64,13 @@ public class AssetService {
         return assetRepository.findByParentAsset_Id(id);
     }
 
-    public boolean hasAccess(User user, Asset asset) {
+    public boolean hasAccess(OwnUser user, Asset asset) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(asset.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Asset assetReq) {
+    public boolean canCreate(OwnUser user, Asset assetReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
@@ -81,7 +81,7 @@ public class AssetService {
         boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
         boolean third = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
-            Optional<User> optionalUser = userService.findById(user1.getId());
+            Optional<OwnUser> optionalUser = userService.findById(user1.getId());
             return optionalUser.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
         });
         boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
@@ -89,14 +89,14 @@ public class AssetService {
         return first && second && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
     }
 
-    public boolean canPatch(User user, AssetPatchDTO assetReq) {
+    public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = assetReq.getLocation() == null ? Optional.empty() : locationService.findById(assetReq.getLocation().getId());
         Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
         Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
         Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
-        Optional<User> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
+        Optional<OwnUser> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
         Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
 
         //optional fields
@@ -108,7 +108,7 @@ public class AssetService {
         boolean seventh = assetReq.getDeprecation() == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
 
         boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
-            Optional<User> optionalUser1 = userService.findById(user1.getId());
+            Optional<OwnUser> optionalUser1 = userService.findById(user1.getId());
             return optionalUser1.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
         });
 
@@ -137,7 +137,7 @@ public class AssetService {
             notificationService.create(new Notification(message, newAsset.getPrimaryUser(), NotificationType.ASSET, newAsset.getId()));
         }
         if (newAsset.getAssignedTo() != null) {
-            List<User> newUsers = newAsset.getAssignedTo().stream().filter(
+            List<OwnUser> newUsers = newAsset.getAssignedTo().stream().filter(
                     user -> oldAsset.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newAsset.getId())));

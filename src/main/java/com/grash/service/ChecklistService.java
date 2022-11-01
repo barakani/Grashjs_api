@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.ChecklistMapper;
 import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public class ChecklistService {
         return checklistRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, Checklist checklist) {
+    public boolean hasAccess(OwnUser user, Checklist checklist) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(checklist.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, Checklist checklistReq) {
+    public boolean canCreate(OwnUser user, Checklist checklistReq) {
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(checklistReq.getCompanySettings().getId());
 
         //@NotNull fields
@@ -64,7 +64,7 @@ public class ChecklistService {
         return first && canPatch(user, checklistMapper.toDto(checklistReq));
     }
 
-    public boolean canPatch(User user, ChecklistPatchDTO checklistReq) {
+    public boolean canPatch(OwnUser user, ChecklistPatchDTO checklistReq) {
         return true;
     }
 }

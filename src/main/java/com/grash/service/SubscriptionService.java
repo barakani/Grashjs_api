@@ -4,8 +4,8 @@ import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public class SubscriptionService {
         return subscriptionRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Subscription subscription) {
+    public boolean hasAccess(OwnUser user, Subscription subscription) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(subscription.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Subscription subscriptionReq) {
+    public boolean canCreate(OwnUser user, Subscription subscriptionReq) {
         Long companyId = user.getCompany().getId();
         Optional<Company> optionalCompany = companyService.findById(subscriptionReq.getCompany().getId());
 
@@ -64,7 +64,7 @@ public class SubscriptionService {
         return second && canPatch(user, subscriptionMapper.toDto(subscriptionReq));
     }
 
-    public boolean canPatch(User user, SubscriptionPatchDTO subscriptionReq) {
+    public boolean canPatch(OwnUser user, SubscriptionPatchDTO subscriptionReq) {
         return true;
     }
 }

@@ -6,7 +6,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
@@ -44,7 +44,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetService.findByCompany(user.getCompany().getId()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         } else return assetService.getAll().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
     public AssetShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
@@ -74,7 +74,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
     public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).collect(Collectors.toList()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         }
@@ -94,7 +94,7 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (assetService.canCreate(user, assetReq)) {
             if (assetReq.getParentAsset() != null) {
                 Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
@@ -116,7 +116,7 @@ public class AssetController {
             @ApiResponse(code = 404, message = "Asset not found")})
     public AssetShowDTO patch(@ApiParam("Asset") @Valid @RequestBody AssetPatchDTO asset, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
 
         if (optionalAsset.isPresent()) {
@@ -136,7 +136,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Asset not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {

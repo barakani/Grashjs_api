@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrderCategory;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PurchaseOrderCategoryService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PurchaseOrderCategoryCategory not found")})
     public Collection<PurchaseOrderCategory> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return PurchaseOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
         } else return PurchaseOrderCategoryService.getAll();
@@ -52,7 +52,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
     public PurchaseOrderCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
         if (optionalPurchaseOrderCategory.isPresent()) {
             PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
@@ -68,7 +68,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public PurchaseOrderCategory create(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (PurchaseOrderCategoryService.canCreate(user, PurchaseOrderCategoryReq)) {
             return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -82,7 +82,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
     public PurchaseOrderCategory patch(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
 
         if (optionalPurchaseOrderCategory.isPresent()) {
@@ -100,7 +100,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
         if (optionalPurchaseOrderCategory.isPresent()) {

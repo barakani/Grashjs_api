@@ -6,7 +6,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.Location;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -43,7 +43,7 @@ public class LocationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "LocationCategory not found")})
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return locationService.findByCompany(user.getCompany().getId()).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
         } else
@@ -57,7 +57,7 @@ public class LocationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Location not found")})
     public LocationShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
@@ -73,7 +73,7 @@ public class LocationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (locationService.canCreate(user, locationReq)) {
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation);
@@ -89,7 +89,7 @@ public class LocationController {
             @ApiResponse(code = 404, message = "Location not found")})
     public LocationShowDTO patch(@ApiParam("Location") @Valid @RequestBody LocationPatchDTO location, @ApiParam("id") @PathVariable("id") Long id,
                                  HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
@@ -108,7 +108,7 @@ public class LocationController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Location not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {

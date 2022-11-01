@@ -3,8 +3,8 @@ package com.grash.service;
 import com.grash.dto.RelationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RelationMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Relation;
-import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RelationRepository;
@@ -49,18 +49,18 @@ public class RelationService {
         return relationRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Relation relation) {
+    public boolean hasAccess(OwnUser user, Relation relation) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(relation.getChild().getCompany().getId());
     }
 
-    public boolean canCreate(User user, Relation relationReq) {
+    public boolean canCreate(OwnUser user, Relation relationReq) {
 
         return canPatch(user, relationMapper.toDto(relationReq));
     }
 
-    public boolean canPatch(User user, RelationPatchDTO relationReq) {
+    public boolean canPatch(OwnUser user, RelationPatchDTO relationReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<WorkOrder> optionalParentWorkOrder = relationReq.getParent() == null ? Optional.empty() : workOrderService.findById(relationReq.getParent().getId());

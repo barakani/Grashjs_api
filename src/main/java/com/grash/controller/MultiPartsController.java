@@ -6,7 +6,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MultiPartsService;
@@ -44,7 +44,7 @@ public class MultiPartsController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MultiPartsCategory not found")})
     public Collection<MultiPartsShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return multiPartsService.findByCompany(user.getCompany().getId()).stream().map(multiPartsMapper::toShowDto).collect(Collectors.toList());
         } else return multiPartsService.getAll().stream().map(multiPartsMapper::toShowDto).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class MultiPartsController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MultiParts not found")})
     public MultiPartsShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
@@ -73,7 +73,7 @@ public class MultiPartsController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public MultiPartsShowDTO create(@ApiParam("MultiParts") @Valid @RequestBody MultiParts multiPartsReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (multiPartsService.canCreate(user, multiPartsReq)) {
             return multiPartsMapper.toShowDto(multiPartsService.create(multiPartsReq));
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -87,7 +87,7 @@ public class MultiPartsController {
             @ApiResponse(code = 404, message = "MultiParts not found")})
     public MultiPartsShowDTO patch(@ApiParam("MultiParts") @Valid @RequestBody MultiPartsPatchDTO multiParts, @ApiParam("id") @PathVariable("id") Long id,
                                    HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
 
         if (optionalMultiParts.isPresent()) {
@@ -105,7 +105,7 @@ public class MultiPartsController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "MultiParts not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {

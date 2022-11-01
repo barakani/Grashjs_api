@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.Task;
-import com.grash.model.User;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class TaskController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Task not found")})
     public Task getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
@@ -53,7 +53,7 @@ public class TaskController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Task create(@ApiParam("Task") @Valid @RequestBody Task taskReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (taskService.canCreate(user, taskReq)) {
             return taskService.create(taskReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -67,7 +67,7 @@ public class TaskController {
             @ApiResponse(code = 404, message = "Task not found")})
     public Task patch(@ApiParam("Task") @Valid @RequestBody TaskPatchDTO task, @ApiParam("id") @PathVariable("id") Long id,
                       HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Task> optionalTask = taskService.findById(id);
 
         if (optionalTask.isPresent()) {
@@ -85,7 +85,7 @@ public class TaskController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Task not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {

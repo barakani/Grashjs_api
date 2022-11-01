@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
 import com.grash.model.Company;
 import com.grash.model.Customer;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +49,13 @@ public class CustomerService {
         return customerRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Customer customer) {
+    public boolean hasAccess(OwnUser user, Customer customer) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(customer.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Customer customerReq) {
+    public boolean canCreate(OwnUser user, Customer customerReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
@@ -66,7 +66,7 @@ public class CustomerService {
         return first && canPatch(user, customerMapper.toDto(customerReq));
     }
 
-    public boolean canPatch(User user, CustomerPatchDTO customerReq) {
+    public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {
         return true;
     }
 }

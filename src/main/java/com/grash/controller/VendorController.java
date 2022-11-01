@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
@@ -40,7 +40,7 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Vendor> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return vendorService.findByCompany(user.getCompany().getId());
         } else return vendorService.getAll();
@@ -53,7 +53,7 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Vendor not found")})
     public Vendor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
@@ -69,7 +69,7 @@ public class VendorController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Vendor create(@ApiParam("Vendor") @Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (vendorService.canCreate(user, vendorReq)) {
             return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -83,7 +83,7 @@ public class VendorController {
             @ApiResponse(code = 404, message = "Vendor not found")})
     public Vendor patch(@ApiParam("Vendor") @Valid @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable("id") Long id,
                         HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
 
         if (optionalVendor.isPresent()) {
@@ -101,7 +101,7 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Vendor not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {

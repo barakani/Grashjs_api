@@ -2,7 +2,7 @@ package com.grash.service;
 
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CompanySettingsRepository;
@@ -39,7 +39,7 @@ public class CompanySettingsService {
         return companySettingsRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, CompanySettings companySettings) {
+    public boolean hasAccess(OwnUser user, CompanySettings companySettings) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else if (user.getCompany().getCompanySettings().getId().equals(companySettings.getId())) {

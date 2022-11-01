@@ -41,7 +41,7 @@ public class Meter extends CompanyAudit {
                     @Index(name = "idx_meter_user_meter_id", columnList = "id_meter"),
                     @Index(name = "idx_meter_user_user_id", columnList = "id_user")
             })
-    private List<User> users = new ArrayList<>();
+    private List<OwnUser> users = new ArrayList<>();
 
     @ManyToOne
     private Location location;

@@ -27,7 +27,7 @@ public class AssetPatchDTO {
 
     private String name;
 
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     private Deprecation deprecation;
 
@@ -43,7 +43,7 @@ public class AssetPatchDTO {
 
     private int downtime;
 
-    private Collection<User> assignedTo;
+    private Collection<OwnUser> assignedTo;
 
     private Collection<Vendor> vendors;
 

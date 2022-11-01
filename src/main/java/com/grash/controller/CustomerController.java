@@ -4,7 +4,7 @@ import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Customer;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
@@ -40,7 +40,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Customer> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return customerService.findByCompany(user.getCompany().getId());
         } else return customerService.getAll();
@@ -53,7 +53,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Customer not found")})
     public Customer getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
@@ -69,7 +69,7 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (customerService.canCreate(user, customerReq)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -83,7 +83,7 @@ public class CustomerController {
             @ApiResponse(code = 404, message = "Customer not found")})
     public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
 
         if (optionalCustomer.isPresent()) {
@@ -101,7 +101,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Customer not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {

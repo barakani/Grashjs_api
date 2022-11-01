@@ -36,11 +36,11 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private Team team;
 
     @ManyToOne
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private List<User> assignedTo = new ArrayList<>();
+    private List<OwnUser> assignedTo = new ArrayList<>();
 
     @ManyToOne
     @NotNull

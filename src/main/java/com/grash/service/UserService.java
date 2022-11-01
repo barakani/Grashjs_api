@@ -5,8 +5,8 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.Role;
-import com.grash.model.User;
 import com.grash.model.VerificationToken;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
@@ -59,7 +59,7 @@ public class UserService {
         }
     }
 
-    public SuccessResponse signup(User user) {
+    public SuccessResponse signup(OwnUser user) {
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
@@ -105,15 +105,15 @@ public class UserService {
         userRepository.deleteByUsername(username);
     }
 
-    public User search(String email) {
-        User user = userRepository.findUserByEmail(email);
+    public OwnUser search(String email) {
+        OwnUser user = userRepository.findUserByEmail(email);
         if (user == null) {
             throw new CustomException("The user doesn't exist", HttpStatus.NOT_FOUND);
         }
         return user;
     }
 
-    public User whoami(HttpServletRequest req) {
+    public OwnUser whoami(HttpServletRequest req) {
         return userRepository.findUserByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
     }
 
@@ -121,7 +121,7 @@ public class UserService {
         return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findUserByEmail(username).getRole().getRoleType()));
     }
 
-    public List<User> getAll() {
+    public List<OwnUser> getAll() {
         return userRepository.findAll();
     }
 
@@ -129,25 +129,25 @@ public class UserService {
         return userRepository.count();
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<OwnUser> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    public User update(Long id, UserSignupRequest user) {
+    public OwnUser update(Long id, UserSignupRequest user) {
         if (userRepository.existsById(id)) {
-            User savedUser = userRepository.findById(id).get();
+            OwnUser savedUser = userRepository.findById(id).get();
             return userRepository.save(userMapper.updateUser(savedUser, user));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public void enableUser(String email) {
-        User user = userRepository.findUserByEmail(email);
+        OwnUser user = userRepository.findUserByEmail(email);
         user.setEnabled(true);
         userRepository.save(user);
     }
 
     public SuccessResponse resetPassword(String email) {
-        User user = search(email);
+        OwnUser user = search(email);
         Helper helper = new Helper();
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
@@ -158,7 +158,7 @@ public class UserService {
         return new SuccessResponse(true, "Password changed successfully");
     }
 
-    public Collection<User> findByCompany(Long id) {
+    public Collection<OwnUser> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
     }
 }

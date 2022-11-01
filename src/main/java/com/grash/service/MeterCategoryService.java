@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.MeterCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,13 +50,13 @@ public class MeterCategoryService {
         return meterCategoryRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, MeterCategory meterCategory) {
+    public boolean hasAccess(OwnUser user, MeterCategory meterCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(meterCategory.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, MeterCategory meterCategoryReq) {
+    public boolean canCreate(OwnUser user, MeterCategory meterCategoryReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(meterCategoryReq.getCompanySettings().getId());
@@ -66,7 +66,7 @@ public class MeterCategoryService {
         return first && canPatch(user, meterCategoryMapper.toDto(meterCategoryReq));
     }
 
-    public boolean canPatch(User user, CategoryPatchDTO meterCategoryReq) {
+    public boolean canPatch(OwnUser user, CategoryPatchDTO meterCategoryReq) {
         return true;
     }
 

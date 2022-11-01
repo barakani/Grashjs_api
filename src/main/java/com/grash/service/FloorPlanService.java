@@ -6,7 +6,7 @@ import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
 import com.grash.model.Image;
 import com.grash.model.Location;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,13 +47,13 @@ public class FloorPlanService {
         return floorPlanRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, FloorPlan floorPlan) {
+    public boolean hasAccess(OwnUser user, FloorPlan floorPlan) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
     }
 
-    public boolean canCreate(User user, FloorPlan floorPlanReq) {
+    public boolean canCreate(OwnUser user, FloorPlan floorPlanReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = locationService.findById(floorPlanReq.getLocation().getId());
@@ -64,7 +64,7 @@ public class FloorPlanService {
         return first && canPatch(user, floorPlanMapper.toDto(floorPlanReq));
     }
 
-    public boolean canPatch(User user, FloorPlanPatchDTO floorPlanReq) {
+    public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {
         Long companyId = user.getCompany().getId();
         Optional<Image> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : imageService.findById(floorPlanReq.getImage().getId());
 

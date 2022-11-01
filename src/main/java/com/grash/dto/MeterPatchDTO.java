@@ -3,7 +3,7 @@ package com.grash.dto;
 import com.grash.model.Image;
 import com.grash.model.Location;
 import com.grash.model.MeterCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +24,6 @@ public class MeterPatchDTO {
 
     private Location location;
 
-    private Collection<User> users;
+    private Collection<OwnUser> users;
 
 }

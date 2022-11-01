@@ -17,7 +17,7 @@ public class Labor extends Time {
     private Long id;
 
     @ManyToOne
-    private User worker;
+    private OwnUser worker;
 
     @OneToOne(cascade = CascadeType.ALL)
     private LaborCost laborCost = new LaborCost(this);

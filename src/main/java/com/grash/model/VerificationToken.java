@@ -19,9 +19,9 @@ public class VerificationToken {
 
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @OneToOne(targetEntity = OwnUser.class, fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private OwnUser user;
 
     private Date createdAt;
 
@@ -31,7 +31,7 @@ public class VerificationToken {
         super();
     }
 
-    public VerificationToken(final String token, final User user) {
+    public VerificationToken(final String token, final OwnUser user) {
         super();
         Calendar calendar = Calendar.getInstance();
 

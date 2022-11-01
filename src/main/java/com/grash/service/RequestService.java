@@ -55,13 +55,13 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Request request) {
+    public boolean hasAccess(OwnUser user, Request request) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(request.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Request requestReq) {
+    public boolean canCreate(OwnUser user, Request requestReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(requestReq.getCompany().getId());
@@ -72,13 +72,13 @@ public class RequestService {
         return first && canPatch(user, requestMapper.toDto(requestReq));
     }
 
-    public boolean canPatch(User user, RequestPatchDTO requestReq) {
+    public boolean canPatch(OwnUser user, RequestPatchDTO requestReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
         Optional<Image> optionalImage = requestReq.getImage() == null ? Optional.empty() : imageService.findById(requestReq.getImage().getId());
         Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
-        Optional<User> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
+        Optional<OwnUser> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
         Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
 
         //optional fields

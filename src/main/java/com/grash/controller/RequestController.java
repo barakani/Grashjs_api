@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.Request;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "RequestCategory not found")})
     public Collection<Request> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return requestService.findByCompany(user.getCompany().getId());
         } else return requestService.getAll();
@@ -52,7 +52,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Request not found")})
     public Request getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
@@ -70,7 +70,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Request create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         requestReq.setApproved(false);
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
             Request createdRequest = requestService.create(requestReq);
             requestService.notify(createdRequest);
@@ -86,7 +86,7 @@ public class RequestController {
             @ApiResponse(code = 404, message = "Request not found")})
     public Request patch(@ApiParam("Request") @Valid @RequestBody RequestPatchDTO request, @ApiParam("id") @PathVariable("id") Long id,
                          HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
 
         if (optionalRequest.isPresent()) {
@@ -112,7 +112,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Request not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {

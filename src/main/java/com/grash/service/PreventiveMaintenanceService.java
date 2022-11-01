@@ -56,13 +56,13 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, PreventiveMaintenance preventiveMaintenance) {
+    public boolean hasAccess(OwnUser user, PreventiveMaintenance preventiveMaintenance) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(preventiveMaintenance.getCompany().getId());
     }
 
-    public boolean canCreate(User user, PreventiveMaintenance preventiveMaintenanceReq) {
+    public boolean canCreate(OwnUser user, PreventiveMaintenance preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(preventiveMaintenanceReq.getCompany().getId());
@@ -76,13 +76,13 @@ public class PreventiveMaintenanceService {
         return first && second && third && canPatch(user, preventiveMaintenanceMapper.toDto(preventiveMaintenanceReq));
     }
 
-    public boolean canPatch(User user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {
+    public boolean canPatch(OwnUser user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Asset> optionalAsset = preventiveMaintenanceReq.getAsset() == null ? Optional.empty() : assetService.findById(preventiveMaintenanceReq.getAsset().getId());
         Optional<Team> optionalTeam = preventiveMaintenanceReq.getTeam() == null ? Optional.empty() : teamService.findById(preventiveMaintenanceReq.getTeam().getId());
         Optional<Location> optionalLocation = preventiveMaintenanceReq.getLocation() == null ? Optional.empty() : locationService.findById(preventiveMaintenanceReq.getLocation().getId());
-        Optional<User> optionalPrimaryUser = preventiveMaintenanceReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(preventiveMaintenanceReq.getPrimaryUser().getId());
+        Optional<OwnUser> optionalPrimaryUser = preventiveMaintenanceReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(preventiveMaintenanceReq.getPrimaryUser().getId());
 
         boolean second = preventiveMaintenanceReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
         boolean third = preventiveMaintenanceReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
@@ -114,7 +114,7 @@ public class PreventiveMaintenanceService {
             notificationService.create(new Notification(message, newPreventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId()));
         }
         if (newPreventiveMaintenance.getAssignedTo() != null) {
-            List<User> newUsers = newPreventiveMaintenance.getAssignedTo().stream().filter(
+            List<OwnUser> newUsers = newPreventiveMaintenance.getAssignedTo().stream().filter(
                     user -> oldPreventiveMaintenance.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId())));

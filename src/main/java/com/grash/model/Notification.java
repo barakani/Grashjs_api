@@ -22,14 +22,14 @@ public class Notification extends Audit {
     private boolean isRead;
 
     @ManyToOne
-    private User user;
+    private OwnUser user;
 
     private NotificationType notificationType;
 
     private Long resourceId;
 
 
-    public Notification(String message, User user, NotificationType notificationType, Long resourceId) {
+    public Notification(String message, OwnUser user, NotificationType notificationType, Long resourceId) {
         this.message = message;
         this.user = user;
         this.notificationType = notificationType;

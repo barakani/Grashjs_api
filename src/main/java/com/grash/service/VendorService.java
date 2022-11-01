@@ -4,7 +4,7 @@ import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
 import com.grash.model.Company;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
@@ -49,13 +49,13 @@ public class VendorService {
         return vendorRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Vendor vendor) {
+    public boolean hasAccess(OwnUser user, Vendor vendor) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(vendor.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Vendor vendorReq) {
+    public boolean canCreate(OwnUser user, Vendor vendorReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(vendorReq.getCompany().getId());
@@ -66,7 +66,7 @@ public class VendorService {
         return first && canPatch(user, vendorMapper.toDto(vendorReq));
     }
 
-    public boolean canPatch(User user, VendorPatchDTO vendorReq) {
+    public boolean canPatch(OwnUser user, VendorPatchDTO vendorReq) {
         return true;
     }
 }

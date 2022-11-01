@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.ImageMapper;
 import com.grash.model.Company;
 import com.grash.model.Image;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +45,13 @@ public class ImageService {
         return imageRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, Image image) {
+    public boolean hasAccess(OwnUser user, Image image) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(image.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Image imageReq) {
+    public boolean canCreate(OwnUser user, Image imageReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(imageReq.getCompany().getId());
@@ -62,7 +62,7 @@ public class ImageService {
         return first && canPatch(user, imageMapper.toDto(imageReq));
     }
 
-    public boolean canPatch(User user, ImagePatchDTO imageReq) {
+    public boolean canPatch(OwnUser user, ImagePatchDTO imageReq) {
         return true;
     }
 }

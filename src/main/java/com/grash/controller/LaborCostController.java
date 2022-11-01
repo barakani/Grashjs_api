@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.LaborCost;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.LaborCostService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -38,7 +38,7 @@ public class LaborCostController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "LaborCost not found")})
     public Collection<LaborCost> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         return laborCostService.getAll().stream().filter(laborCost ->
                 laborCost.getLabor().getCompany().getId().equals(user.getCompany().getId())).collect(Collectors.toList());
     }
@@ -50,7 +50,7 @@ public class LaborCostController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "LaborCost not found")})
     public LaborCost getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<LaborCost> optionalLaborCost = laborCostService.findById(id);
         if (optionalLaborCost.isPresent()) {
             if (laborCostService.hasAccess(user, optionalLaborCost.get())) {
@@ -71,7 +71,7 @@ public class LaborCostController {
     public LaborCost patch(@ApiParam("LaborCost") @Valid @RequestBody LaborCostPatchDTO laborCost,
                            @ApiParam("id") @PathVariable("id") Long id,
                            HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<LaborCost> optionalLaborCost = laborCostService.findById(id);
 
         if (optionalLaborCost.isPresent()) {

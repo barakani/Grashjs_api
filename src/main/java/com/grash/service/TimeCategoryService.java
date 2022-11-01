@@ -4,8 +4,8 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TimeCategoryMapper;
 import com.grash.model.CompanySettings;
+import com.grash.model.OwnUser;
 import com.grash.model.TimeCategory;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TimeCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,13 +50,13 @@ public class TimeCategoryService {
 
     }
 
-    public boolean hasAccess(User user, TimeCategory timeCategory) {
+    public boolean hasAccess(OwnUser user, TimeCategory timeCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(timeCategory.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, TimeCategory timeCategoryReq) {
+    public boolean canCreate(OwnUser user, TimeCategory timeCategoryReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(timeCategoryReq.getCompanySettings().getId());
@@ -67,7 +67,7 @@ public class TimeCategoryService {
         return first && canPatch(user, timeCategoryMapper.toDto(timeCategoryReq));
     }
 
-    public boolean canPatch(User user, CategoryPatchDTO timeCategoryReq) {
+    public boolean canPatch(OwnUser user, CategoryPatchDTO timeCategoryReq) {
         return true;
     }
 }

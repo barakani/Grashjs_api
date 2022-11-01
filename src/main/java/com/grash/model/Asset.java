@@ -47,7 +47,7 @@ public class Asset extends CompanyAudit {
     private String name;
 
     @ManyToOne
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -58,7 +58,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_user_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_user_user_id", columnList = "id_user")
             })
-    private List<User> assignedTo = new ArrayList<>();
+    private List<OwnUser> assignedTo = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

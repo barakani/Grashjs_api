@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.MeterCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterCategoryService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MeterCategoryCategory not found")})
     public Collection<MeterCategory> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return meterCategoryService.findByCompany(user.getCompany().getId());
         } else return meterCategoryService.getAll();
@@ -52,7 +52,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MeterCategory not found")})
     public MeterCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {
             MeterCategory savedMeterCategory = optionalMeterCategory.get();
@@ -68,7 +68,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterCategory create(@ApiParam("MeterCategory") @Valid @RequestBody MeterCategory meterCategoryReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (meterCategoryService.canCreate(user, meterCategoryReq)) {
             return meterCategoryService.create(meterCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -82,7 +82,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 404, message = "MeterCategory not found")})
     public MeterCategory patch(@ApiParam("MeterCategory") @Valid @RequestBody CategoryPatchDTO meterCategory, @ApiParam("id") @PathVariable("id") Long id,
                                HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
 
         if (optionalMeterCategory.isPresent()) {
@@ -100,7 +100,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "MeterCategory not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {

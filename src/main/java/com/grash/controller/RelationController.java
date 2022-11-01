@@ -4,7 +4,7 @@ import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Relation;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.RelationService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -39,7 +39,7 @@ public class RelationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Relation not found")})
     public Collection<Relation> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Long companyId = user.getCompany().getId();
         return relationService.findByCompany(companyId);
     }
@@ -51,7 +51,7 @@ public class RelationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Relation not found")})
     public Relation getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
             if (relationService.hasAccess(user, optionalRelation.get())) {
@@ -68,7 +68,7 @@ public class RelationController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Relation create(@ApiParam("Relation") @Valid @RequestBody Relation relationReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (relationService.canCreate(user, relationReq)) {
             return relationService.create(relationReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -83,7 +83,7 @@ public class RelationController {
     public Relation patch(@ApiParam("Relation") @Valid @RequestBody RelationPatchDTO relation,
                           @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
 
         if (optionalRelation.isPresent()) {
@@ -107,7 +107,7 @@ public class RelationController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Relation not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {

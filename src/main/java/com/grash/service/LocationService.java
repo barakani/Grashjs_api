@@ -53,13 +53,13 @@ public class LocationService {
         return locationRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Location location) {
+    public boolean hasAccess(OwnUser user, Location location) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(location.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Location locationReq) {
+    public boolean canCreate(OwnUser user, Location locationReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(locationReq.getCompany().getId());
@@ -70,7 +70,7 @@ public class LocationService {
         return first && canPatch(user, locationMapper.toDto(locationReq));
     }
 
-    public boolean canPatch(User user, LocationPatchDTO locationReq) {
+    public boolean canPatch(OwnUser user, LocationPatchDTO locationReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = locationReq.getParentLocation() == null ? Optional.empty() : findById(locationReq.getParentLocation().getId());
@@ -96,7 +96,7 @@ public class LocationService {
     public void patchNotify(Location oldLocation, Location newLocation) {
         String message = "Location " + newLocation.getName() + " has been assigned to you";
         if (newLocation.getWorkers() != null) {
-            List<User> newUsers = newLocation.getWorkers().stream().filter(
+            List<OwnUser> newUsers = newLocation.getWorkers().stream().filter(
                     user -> oldLocation.getWorkers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.LOCATION, newLocation.getId())));

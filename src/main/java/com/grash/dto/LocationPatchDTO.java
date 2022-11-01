@@ -19,7 +19,7 @@ public class LocationPatchDTO {
 
     private Location parentLocation;
 
-    private Collection<User> workers;
+    private Collection<OwnUser> workers;
 
     private Collection<Team> teams;
 

@@ -4,7 +4,7 @@ import com.grash.dto.LaborCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborCostMapper;
 import com.grash.model.LaborCost;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LaborCostRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,13 +43,13 @@ public class LaborCostService {
         return laborCostRepository.findById(id);
     }
     
-    public boolean hasAccess(User user, LaborCost laborCost) {
+    public boolean hasAccess(OwnUser user, LaborCost laborCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(laborCost.getLabor().getCompany().getId());
     }
 
-    public boolean canPatch(User user, LaborCostPatchDTO laborCostReq) {
+    public boolean canPatch(OwnUser user, LaborCostPatchDTO laborCostReq) {
         return true;
     }
 }

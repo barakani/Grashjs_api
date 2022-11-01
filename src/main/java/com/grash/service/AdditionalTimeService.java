@@ -47,13 +47,13 @@ public class AdditionalTimeService {
         return additionalTimeRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, AdditionalTime additionalTime) {
+    public boolean hasAccess(OwnUser user, AdditionalTime additionalTime) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(additionalTime.getCompany().getId());
     }
 
-    public boolean canCreate(User user, AdditionalTime additionalTimeReq) {
+    public boolean canCreate(OwnUser user, AdditionalTime additionalTimeReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(additionalTimeReq.getCompany().getId());
@@ -66,11 +66,11 @@ public class AdditionalTimeService {
         return first && second && canPatch(user, additionalTimeMapper.toDto(additionalTimeReq));
     }
 
-    public boolean canPatch(User user, AdditionalTimePatchDTO additionalTimeReq) {
+    public boolean canPatch(OwnUser user, AdditionalTimePatchDTO additionalTimeReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<TimeCategory> optionalTimeCategory = additionalTimeReq.getTimeCategory() == null ? Optional.empty() : timeCategoryService.findById(additionalTimeReq.getTimeCategory().getId());
-        Optional<User> optionalUser = additionalTimeReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalTimeReq.getAssignedTo().getId());
+        Optional<OwnUser> optionalUser = additionalTimeReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalTimeReq.getAssignedTo().getId());
 
         //optional fields
         boolean third = additionalTimeReq.getTimeCategory() == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));

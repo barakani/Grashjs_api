@@ -48,13 +48,13 @@ public class LaborService {
         return laborRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, Labor labor) {
+    public boolean hasAccess(OwnUser user, Labor labor) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(labor.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Labor laborReq) {
+    public boolean canCreate(OwnUser user, Labor laborReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(laborReq.getCompany().getId());
@@ -67,10 +67,10 @@ public class LaborService {
         return first && second && canPatch(user, laborMapper.toDto(laborReq));
     }
 
-    public boolean canPatch(User user, LaborPatchDTO laborReq) {
+    public boolean canPatch(OwnUser user, LaborPatchDTO laborReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<User> optionalUser = laborReq.getWorker() == null ? Optional.empty() : userService.findById(laborReq.getWorker().getId());
+        Optional<OwnUser> optionalUser = laborReq.getWorker() == null ? Optional.empty() : userService.findById(laborReq.getWorker().getId());
         boolean first = laborReq.getWorker() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return first;

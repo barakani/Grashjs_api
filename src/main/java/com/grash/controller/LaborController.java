@@ -4,7 +4,7 @@ import com.grash.dto.LaborPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Labor;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -38,7 +38,7 @@ public class LaborController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Labor not found")})
     public Labor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
@@ -54,7 +54,7 @@ public class LaborController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Labor create(@ApiParam("Labor") @RequestBody @Validated Labor laborReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (laborService.canCreate(user, laborReq)) {
             Labor createdLabor = laborService.create(laborReq);
             laborService.notify(createdLabor);
@@ -70,7 +70,7 @@ public class LaborController {
             @ApiResponse(code = 404, message = "Labor not found")})
     public Labor patch(@ApiParam("Labor") @Valid @RequestBody LaborPatchDTO labor, @ApiParam("id") @PathVariable("id") Long id,
                        HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Labor> optionalLabor = laborService.findById(id);
 
         if (optionalLabor.isPresent()) {
@@ -90,7 +90,7 @@ public class LaborController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Labor not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {

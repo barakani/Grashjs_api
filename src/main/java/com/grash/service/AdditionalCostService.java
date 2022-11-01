@@ -4,7 +4,7 @@ import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
@@ -50,13 +50,13 @@ public class AdditionalCostService {
         return additionalCostRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, AdditionalCost additionalCost) {
+    public boolean hasAccess(OwnUser user, AdditionalCost additionalCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompany().getId());
     }
 
-    public boolean canCreate(User user, AdditionalCost additionalCostReq) {
+    public boolean canCreate(OwnUser user, AdditionalCost additionalCostReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
@@ -67,9 +67,9 @@ public class AdditionalCostService {
         return second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
     }
 
-    public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {
+    public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {
         Long companyId = user.getCompany().getId();
-        Optional<User> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
+        Optional<OwnUser> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
 
         boolean first = additionalCostReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 

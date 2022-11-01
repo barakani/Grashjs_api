@@ -4,7 +4,7 @@ import com.grash.dto.NotificationPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class NotificationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "NotificationCategory not found")})
     public Collection<Notification> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return notificationService.findByUser(user.getId());
         } else return notificationService.getAll();
@@ -52,7 +52,7 @@ public class NotificationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Notification not found")})
     public Notification getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
         if (optionalNotification.isPresent()) {
             Notification savedNotification = optionalNotification.get();
@@ -70,7 +70,7 @@ public class NotificationController {
             @ApiResponse(code = 404, message = "Notification not found")})
     public Notification patch(@ApiParam("Notification") @Valid @RequestBody NotificationPatchDTO notification, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Notification> optionalNotification = notificationService.findById(id);
 
         if (optionalNotification.isPresent()) {

@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.DeprecationMapper;
 import com.grash.model.Company;
 import com.grash.model.Deprecation;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.DeprecationRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +45,13 @@ public class DeprecationService {
         return deprecationRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, Deprecation deprecation) {
+    public boolean hasAccess(OwnUser user, Deprecation deprecation) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(deprecation.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Deprecation deprecationReq) {
+    public boolean canCreate(OwnUser user, Deprecation deprecationReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(deprecationReq.getCompany().getId());
@@ -62,7 +62,7 @@ public class DeprecationService {
         return first && canPatch(user, deprecationMapper.toDto(deprecationReq));
     }
 
-    public boolean canPatch(User user, DeprecationPatchDTO deprecationReq) {
+    public boolean canPatch(OwnUser user, DeprecationPatchDTO deprecationReq) {
         return true;
     }
 }

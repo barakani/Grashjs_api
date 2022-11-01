@@ -55,13 +55,13 @@ public class PartService {
         return partRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Part part) {
+    public boolean hasAccess(OwnUser user, Part part) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(part.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Part partReq) {
+    public boolean canCreate(OwnUser user, Part partReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(partReq.getCompany().getId());
@@ -71,7 +71,7 @@ public class PartService {
         return first && canPatch(user, partMapper.toDto(partReq));
     }
 
-    public boolean canPatch(User user, PartPatchDTO partReq) {
+    public boolean canPatch(OwnUser user, PartPatchDTO partReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Image> optionalImage = partReq.getImage() == null ? Optional.empty() : imageService.findById(partReq.getImage().getId());
@@ -99,7 +99,7 @@ public class PartService {
     public void patchNotify(Part oldPart, Part newPart) {
         String message = "Part " + newPart.getName() + " has been assigned to you";
         if (newPart.getAssignedTo() != null) {
-            List<User> newUsers = newPart.getAssignedTo().stream().filter(
+            List<OwnUser> newUsers = newPart.getAssignedTo().stream().filter(
                     user -> oldPart.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newPart.getId())));

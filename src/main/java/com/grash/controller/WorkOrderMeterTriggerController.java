@@ -3,7 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderMeterTriggerService;
@@ -38,7 +38,7 @@ public class WorkOrderMeterTriggerController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderMeterTrigger not found")})
     public WorkOrderMeterTrigger getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
@@ -54,7 +54,7 @@ public class WorkOrderMeterTriggerController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public WorkOrderMeterTrigger create(@ApiParam("WorkOrderMeterTrigger") @Valid @RequestBody WorkOrderMeterTrigger workOrderMeterTriggerReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (workOrderMeterTriggerService.canCreate(user, workOrderMeterTriggerReq)) {
             return workOrderMeterTriggerService.create(workOrderMeterTriggerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -68,7 +68,7 @@ public class WorkOrderMeterTriggerController {
             @ApiResponse(code = 404, message = "WorkOrderMeterTrigger not found")})
     public WorkOrderMeterTrigger patch(@ApiParam("WorkOrderMeterTrigger") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger, @ApiParam("id") @PathVariable("id") Long id,
                                        HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
 
         if (optionalWorkOrderMeterTrigger.isPresent()) {
@@ -86,7 +86,7 @@ public class WorkOrderMeterTriggerController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrderMeterTrigger not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {

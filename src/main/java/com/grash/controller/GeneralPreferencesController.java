@@ -4,7 +4,7 @@ import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.GeneralPreferences;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.GeneralPreferencesService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -38,7 +38,7 @@ public class GeneralPreferencesController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "GeneralPreferences not found")})
     public Collection<GeneralPreferences> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         CompanySettings companySettings = user.getCompany().getCompanySettings();
         return generalPreferencesService.findByCompanySettings(companySettings.getId());
     }
@@ -50,7 +50,7 @@ public class GeneralPreferencesController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "GeneralPreferences not found")})
     public GeneralPreferences getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
         if (optionalGeneralPreferences.isPresent()) {
             if (generalPreferencesService.hasAccess(user, optionalGeneralPreferences.get())) {
@@ -70,7 +70,7 @@ public class GeneralPreferencesController {
     public GeneralPreferences patch(@ApiParam("GeneralPreferences") @Valid @RequestBody GeneralPreferencesPatchDTO generalPreferences,
                                     @ApiParam("id") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
 

@@ -4,7 +4,7 @@ import com.grash.dto.ImagePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Image;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.ImageService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class ImageController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Image not found")})
     public Image getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Image> optionalImage = imageService.findById(id);
         if (optionalImage.isPresent()) {
             Image savedImage = optionalImage.get();
@@ -53,7 +53,7 @@ public class ImageController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Image create(@ApiParam("Image") @Valid @RequestBody Image imageReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (imageService.canCreate(user, imageReq)) {
             return imageService.create(imageReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -67,7 +67,7 @@ public class ImageController {
             @ApiResponse(code = 404, message = "Image not found")})
     public Image patch(@ApiParam("Image") @Valid @RequestBody ImagePatchDTO image, @ApiParam("id") @PathVariable("id") Long id,
                        HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Image> optionalImage = imageService.findById(id);
 
         if (optionalImage.isPresent()) {
@@ -85,7 +85,7 @@ public class ImageController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Image not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Image> optionalImage = imageService.findById(id);
         if (optionalImage.isPresent()) {

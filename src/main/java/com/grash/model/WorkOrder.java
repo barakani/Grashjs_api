@@ -23,7 +23,7 @@ public class WorkOrder extends WorkOrderBase {
     private Long id;
 
     @ManyToOne
-    private User completedBy;
+    private OwnUser completedBy;
 
     private Date completedOn;
 

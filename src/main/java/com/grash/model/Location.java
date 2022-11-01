@@ -36,7 +36,7 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_worker_location_id", columnList = "id_location"),
                     @Index(name = "idx_location_worker_worker_id", columnList = "id_user")
             })
-    private List<User> workers = new ArrayList<>();
+    private List<OwnUser> workers = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

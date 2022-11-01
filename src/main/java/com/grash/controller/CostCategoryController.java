@@ -7,7 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
@@ -44,7 +44,7 @@ public class CostCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<CostCategory> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             CompanySettings companySettings = user.getCompany().getCompanySettings();
             return costCategoryService.findByCompanySettings(companySettings.getId());
@@ -58,7 +58,7 @@ public class CostCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CostCategory not found")})
     public CostCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
         if (costCategoryOptional.isPresent()) {
             CostCategory costCategory = costCategoryOptional.get();
@@ -74,7 +74,7 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public CostCategory create(@ApiParam("CostCategory") @Valid @RequestBody CategoryPostDTO costCategoryReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES)) {
             CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
             costCategory.setCompanySettings(user.getCompany().getCompanySettings());
@@ -90,7 +90,7 @@ public class CostCategoryController {
             @ApiResponse(code = 404, message = "CostCategory not found")})
     public CostCategory patch(@ApiParam("CostCategory") @Valid @RequestBody CategoryPatchDTO costCategory, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (costCategoryService.findById(id).isPresent()) {
             CostCategory savedCostCategory = costCategoryService.findById(id).get();
             if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES) &&
@@ -107,7 +107,7 @@ public class CostCategoryController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "CostCategory not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
         if (optionalCostCategory.isPresent()) {

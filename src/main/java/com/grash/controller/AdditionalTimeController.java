@@ -4,7 +4,7 @@ import com.grash.dto.AdditionalTimePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AdditionalTime not found")})
     public AdditionalTime getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {
             AdditionalTime savedAdditionalTime = optionalAdditionalTime.get();
@@ -54,7 +54,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalTime create(@ApiParam("AdditionalTime") @Valid @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (additionalTimeService.canCreate(user, additionalTimeReq)) {
             return additionalTimeService.create(additionalTimeReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -68,7 +68,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 404, message = "AdditionalTime not found")})
     public AdditionalTime patch(@ApiParam("AdditionalTime") @Valid @RequestBody AdditionalTimePatchDTO additionalTime, @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
 
         if (optionalAdditionalTime.isPresent()) {
@@ -86,7 +86,7 @@ public class AdditionalTimeController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AdditionalTime not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findById(id);
         if (optionalAdditionalTime.isPresent()) {

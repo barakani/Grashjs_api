@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AssetCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetCategoryService;
 import com.grash.service.UserService;
@@ -40,7 +40,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
         } else return assetCategoryService.getAll();
@@ -53,7 +53,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public AssetCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {
             if (assetCategoryService.hasAccess(user, optionalAssetCategory.get())) {
@@ -70,7 +70,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetCategory create(@ApiParam("AssetCategory") @Valid @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (assetCategoryService.canCreate(user, assetCategoryReq)) {
             return assetCategoryService.create(assetCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -85,7 +85,7 @@ public class AssetCategoryController {
     public AssetCategory patch(@ApiParam("AssetCategory") @Valid @RequestBody CategoryPatchDTO assetCategory,
                                @ApiParam("id") @PathVariable("id") Long id,
                                HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
 
         if (optionalAssetCategory.isPresent()) {
@@ -109,7 +109,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {

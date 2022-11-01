@@ -1,7 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.AuthResponse;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.VerificationToken;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -25,12 +25,12 @@ public class VerificationTokenService {
         return verificationTokenRepository.findVerificationTokenEntityByToken(token);
     }
 
-    public void deleteVerificationTokenEntity(User user) {
+    public void deleteVerificationTokenEntity(OwnUser user) {
         ArrayList<VerificationToken> verificationToken = verificationTokenRepository.findAllVerificationTokenEntityByUser(user);
         verificationTokenRepository.deleteAll(verificationToken);
     }
 
-    public void createVerificationToken(User user, String token) {
+    public void createVerificationToken(OwnUser user, String token) {
         VerificationToken newUserToken = new VerificationToken(token, user);
         verificationTokenRepository.save(newUserToken);
     }
@@ -45,7 +45,7 @@ public class VerificationTokenService {
         }
 
         //expired token
-        User user = verificationToken.getUser();
+        OwnUser user = verificationToken.getUser();
         Calendar calendar = Calendar.getInstance();
         if((verificationToken.getExpiryDate().getTime() - calendar.getTime().getTime())<=0){
             String message = "Expired activation link!";

@@ -4,7 +4,7 @@ import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.SubscriptionPlan;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -48,7 +48,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
     public SubscriptionPlan getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
@@ -64,7 +64,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public SubscriptionPlan create(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlan subscriptionPlanReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (subscriptionPlanService.canCreate(user, subscriptionPlanReq)) {
             return subscriptionPlanService.create(subscriptionPlanReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -78,7 +78,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
     public SubscriptionPlan patch(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlanPatchDTO subscriptionPlan, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
 
         if (optionalSubscriptionPlan.isPresent()) {
@@ -96,7 +96,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "SubscriptionPlan not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {

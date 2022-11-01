@@ -34,7 +34,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_user_part_id", columnList = "id_part"),
                     @Index(name = "idx_part_user_user_id", columnList = "id_user")
             })
-    private List<User> assignedTo = new ArrayList<>();
+    private List<OwnUser> assignedTo = new ArrayList<>();
 
     private String barcode;
 

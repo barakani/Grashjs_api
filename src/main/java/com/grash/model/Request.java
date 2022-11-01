@@ -53,7 +53,7 @@ public class Request extends CompanyAudit {
     private Location location;
 
     @ManyToOne
-    private User assignedTo;
+    private OwnUser assignedTo;
 
     private Date dueDate;
 

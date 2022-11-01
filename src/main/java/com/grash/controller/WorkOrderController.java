@@ -5,7 +5,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
@@ -44,7 +44,7 @@ public class WorkOrderController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
     public Collection<WorkOrderShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return workOrderService.findByCompany(user.getCompany().getId()).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class WorkOrderController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrder not found")})
     public WorkOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
@@ -73,7 +73,7 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder workOrderReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (workOrderService.canCreate(user, workOrderReq)) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             workOrderService.notify(createdWorkOrder);
@@ -89,7 +89,7 @@ public class WorkOrderController {
             @ApiResponse(code = 404, message = "WorkOrder not found")})
     public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO workOrder, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
 
         if (optionalWorkOrder.isPresent()) {
@@ -109,7 +109,7 @@ public class WorkOrderController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrder not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {

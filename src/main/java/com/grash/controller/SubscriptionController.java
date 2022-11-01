@@ -4,7 +4,7 @@ import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Subscription;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class SubscriptionController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "SubscriptionCategory not found")})
     public Collection<Subscription> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return subscriptionService.findByCompany(user.getCompany().getId());
         } else return subscriptionService.getAll();
@@ -52,7 +52,7 @@ public class SubscriptionController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Subscription not found")})
     public Subscription getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription = subscriptionService.findById(id);
         if (optionalSubscription.isPresent()) {
             Subscription savedSubscription = optionalSubscription.get();
@@ -68,7 +68,7 @@ public class SubscriptionController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Subscription create(@ApiParam("Subscription") @Valid @RequestBody Subscription subscriptionReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (subscriptionService.canCreate(user, subscriptionReq)) {
             return subscriptionService.create(subscriptionReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -82,7 +82,7 @@ public class SubscriptionController {
             @ApiResponse(code = 404, message = "Subscription not found")})
     public Subscription patch(@ApiParam("Subscription") @Valid @RequestBody SubscriptionPatchDTO subscription, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription = subscriptionService.findById(id);
 
         if (optionalSubscription.isPresent()) {
@@ -100,7 +100,7 @@ public class SubscriptionController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Subscription not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Subscription> optionalSubscription = subscriptionService.findById(id);
         if (optionalSubscription.isPresent()) {

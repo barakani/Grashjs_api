@@ -64,13 +64,13 @@ public class WorkOrderService {
         return workOrderRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, WorkOrder workOrder) {
+    public boolean hasAccess(OwnUser user, WorkOrder workOrder) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(workOrder.getCompany().getId());
     }
 
-    public boolean canCreate(User user, WorkOrder workOrderReq) {
+    public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
@@ -83,12 +83,12 @@ public class WorkOrderService {
         return first && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
     }
 
-    public boolean canPatch(User user, WorkOrderPatchDTO workOrderReq) {
+    public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = workOrderReq.getLocation() == null ? Optional.empty() : locationService.findById(workOrderReq.getLocation().getId());
         Optional<Team> optionalTeam = workOrderReq.getTeam() == null ? Optional.empty() : teamService.findById(workOrderReq.getTeam().getId());
-        Optional<User> optionalUser = workOrderReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(workOrderReq.getPrimaryUser().getId());
+        Optional<OwnUser> optionalUser = workOrderReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(workOrderReq.getPrimaryUser().getId());
         Optional<Asset> optionalAsset = workOrderReq.getAsset() == null ? Optional.empty() : assetService.findById(workOrderReq.getAsset().getId());
 
         boolean second = workOrderReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
@@ -121,7 +121,7 @@ public class WorkOrderService {
             notificationService.create(new Notification(message, newWorkOrder.getPrimaryUser(), NotificationType.WORK_ORDER, newWorkOrder.getId()));
         }
         if (newWorkOrder.getAssignedTo() != null) {
-            List<User> newUsers = newWorkOrder.getAssignedTo().stream().filter(
+            List<OwnUser> newUsers = newWorkOrder.getAssignedTo().stream().filter(
                     user -> oldWorkOrder.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.WORK_ORDER, newWorkOrder.getId())));

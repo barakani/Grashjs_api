@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.Company;
 import com.grash.model.MultiParts;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MultiPartsRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,13 +50,13 @@ public class MultiPartsService {
         return multiPartsRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, MultiParts multiParts) {
+    public boolean hasAccess(OwnUser user, MultiParts multiParts) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(multiParts.getCompany().getId());
     }
 
-    public boolean canCreate(User user, MultiParts multiPartsReq) {
+    public boolean canCreate(OwnUser user, MultiParts multiPartsReq) {
         Long companyId = user.getCompany().getId();
         Optional<Company> optionalCompany = companyService.findById(multiPartsReq.getCompany().getId());
 
@@ -65,7 +65,7 @@ public class MultiPartsService {
         return first && canPatch(user, multiPartsMapper.toDto(multiPartsReq));
     }
 
-    public boolean canPatch(User user, MultiPartsPatchDTO multiPartsReq) {
+    public boolean canPatch(OwnUser user, MultiPartsPatchDTO multiPartsReq) {
         return true;
     }
 }

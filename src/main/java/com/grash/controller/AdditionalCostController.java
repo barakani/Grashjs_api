@@ -4,7 +4,7 @@ import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AdditionalCost not found")})
     public AdditionalCost getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
@@ -53,7 +53,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (additionalCostService.canCreate(user, additionalCostReq)) {
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -67,7 +67,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 404, message = "AdditionalCost not found")})
     public AdditionalCost patch(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCostPatchDTO additionalCost, @ApiParam("id") @PathVariable("id") Long id,
                                 HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
 
         if (optionalAdditionalCost.isPresent()) {
@@ -85,7 +85,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "AdditionalCost not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {

@@ -6,7 +6,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.Meter;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterService;
@@ -44,7 +44,7 @@ public class MeterController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "MeterCategory not found")})
     public Collection<MeterShowDTO> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toShowDto).collect(Collectors.toList());
         } else return meterService.getAll().stream().map(meterMapper::toShowDto).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class MeterController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Meter not found")})
     public MeterShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
@@ -73,7 +73,7 @@ public class MeterController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterShowDTO create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (meterService.canCreate(user, meterReq)) {
             Meter savedMeter = meterService.create(meterReq);
             meterService.notify(savedMeter);
@@ -89,7 +89,7 @@ public class MeterController {
             @ApiResponse(code = 404, message = "Meter not found")})
     public MeterShowDTO patch(@ApiParam("Meter") @Valid @RequestBody MeterPatchDTO meter, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
 
         if (optionalMeter.isPresent()) {
@@ -109,7 +109,7 @@ public class MeterController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Meter not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {

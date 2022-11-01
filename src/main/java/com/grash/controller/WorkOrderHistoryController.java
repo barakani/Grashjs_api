@@ -1,7 +1,7 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderHistory;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
@@ -37,7 +37,7 @@ public class WorkOrderHistoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderHistory not found")})
     public WorkOrderHistory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
@@ -48,7 +48,7 @@ public class WorkOrderHistoryController {
     }
 
 
-    private boolean hasAccess(User user, WorkOrderHistory workOrderHistory) {
+    private boolean hasAccess(OwnUser user, WorkOrderHistory workOrderHistory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());

@@ -34,7 +34,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String name;
 
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     private List<UserMiniDTO> assignedTo = new ArrayList<>();
 

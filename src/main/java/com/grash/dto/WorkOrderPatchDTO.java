@@ -12,7 +12,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class WorkOrderPatchDTO {
-    private User completedBy;
+    private OwnUser completedBy;
     private Date completedOn;
     private boolean archived;
     private Date dueDate;
@@ -27,11 +27,11 @@ public class WorkOrderPatchDTO {
 
     private Team team;
 
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     private Asset asset;
 
-    private Collection<User> assignedTo;
+    private Collection<OwnUser> assignedTo;
 
     private Collection<Part> parts;
 
