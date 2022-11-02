@@ -15,4 +15,5 @@ public enum BasicPermission {
     DELETE_PEOPLE_AND_TEAMS,
     ACCESS_SETTINGS,
     DELETE_LOCATIONS,
+    DELETE_CURRENCIES,
 }
