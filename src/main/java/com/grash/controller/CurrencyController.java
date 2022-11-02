@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.Currency;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.RoleType;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -105,7 +106,7 @@ public class CurrencyController {
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
             if (currencyService.hasAccess(user)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_CURRENCIES)) {
+                    && user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
                 currencyService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
