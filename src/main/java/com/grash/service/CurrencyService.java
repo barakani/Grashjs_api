@@ -4,7 +4,7 @@ import com.grash.dto.CurrencyPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CurrencyMapper;
 import com.grash.model.Currency;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CurrencyRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,16 +43,16 @@ public class CurrencyService {
         return currencyRepository.findById(id);
     }
 
-    public boolean hasAccess(User user) {
+    public boolean hasAccess(OwnUser user) {
         return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) ||
                 user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT);
     }
 
-    public boolean canCreate(User user) {
+    public boolean canCreate(OwnUser user) {
         return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
     }
 
-    public boolean canPatch(User user) {
+    public boolean canPatch(OwnUser user) {
         return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
     }
 }

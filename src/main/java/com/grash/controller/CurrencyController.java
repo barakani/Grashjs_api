@@ -4,7 +4,7 @@ import com.grash.dto.CurrencyPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Currency;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
@@ -51,7 +51,7 @@ public class CurrencyController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
     public Currency getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
             Currency savedCurrency = optionalCurrency.get();
@@ -68,7 +68,7 @@ public class CurrencyController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Currency create(@ApiParam("Asset") @Valid @RequestBody Currency currency, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (currencyService.canCreate(user)) {
             return currencyService.create(currency);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -82,7 +82,7 @@ public class CurrencyController {
             @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
     public Currency patch(@ApiParam("Asset") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
 
         if (optionalCurrency.isPresent()) {
@@ -100,7 +100,7 @@ public class CurrencyController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
