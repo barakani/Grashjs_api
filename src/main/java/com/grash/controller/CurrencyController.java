@@ -5,7 +5,6 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Currency;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CurrencyService;
 import com.grash.service.UserService;
@@ -59,12 +58,12 @@ public class CurrencyController {
             if (currencyService.hasAccess(user)) {
                 return savedCurrency;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
@@ -76,7 +75,7 @@ public class CurrencyController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
@@ -87,20 +86,19 @@ public class CurrencyController {
         Optional<Currency> optionalCurrency = currencyService.findById(id);
 
         if (optionalCurrency.isPresent()) {
-            Currency currency = optionalCurrency.get();
             if (currencyService.hasAccess(user) && currencyService.canPatch(user)) {
                 return currencyService.update(id, currencyPatchDTO);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Currency not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = CURRENCY_NOT_FOUND)})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Currency> optionalCurrency = currencyService.findById(id);
@@ -108,7 +106,7 @@ public class CurrencyController {
             if (currencyService.hasAccess(user)
                     && user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
                 currencyService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
