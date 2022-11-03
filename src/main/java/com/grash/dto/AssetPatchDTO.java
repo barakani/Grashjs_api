@@ -34,7 +34,7 @@ public class AssetPatchDTO {
     private Date warrantyExpirationDate;
 
     private String additionalInfos;
-    
+
     private String serialNumber;
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
@@ -44,6 +44,8 @@ public class AssetPatchDTO {
     private int downtime;
 
     private Collection<OwnUser> assignedTo;
+
+    private Collection<Customer> customers;
 
     private Collection<Vendor> vendors;
 

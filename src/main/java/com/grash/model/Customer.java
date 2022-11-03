@@ -55,4 +55,15 @@ public class Customer extends BasicInfos {
             })
     private List<Location> locations = new ArrayList<>();
 
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Asset_Customer_Associations",
+            joinColumns = @JoinColumn(name = "id_customer"),
+            inverseJoinColumns = @JoinColumn(name = "id_asset"),
+            indexes = {
+                    @Index(name = "idx_customer_asset_customer_id", columnList = "id_customer"),
+                    @Index(name = "idx_customer_asset_asset_id", columnList = "id_asset")
+            })
+    private List<Asset> assets = new ArrayList<>();
+
 }

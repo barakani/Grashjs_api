@@ -84,6 +84,17 @@ public class Asset extends CompanyAudit {
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Asset_Customer_Associations",
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_customer"),
+            indexes = {
+                    @Index(name = "idx_asset_customer_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_customer_customer_id", columnList = "id_customer")
+            })
+    private List<Customer> customers = new ArrayList<>();
+
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Asset_Part_Associations",
             joinColumns = @JoinColumn(name = "id_asset"),
             inverseJoinColumns = @JoinColumn(name = "id_part"),

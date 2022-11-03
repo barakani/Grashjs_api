@@ -42,6 +42,8 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private List<VendorMiniDTO> vendors = new ArrayList<>();
 
+    private List<CustomerMiniDTO> customers = new ArrayList<>();
+
     private Deprecation deprecation;
 
     private Date warrantyExpirationDate;
