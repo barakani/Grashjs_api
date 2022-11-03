@@ -23,7 +23,7 @@ public class WorkOrderConfiguration {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "workOrderConfiguration", fetch = FetchType.LAZY)
     private Set<FieldConfiguration> workOrderFieldConfigurations = new HashSet<>(createFieldConfigurations(Arrays.asList("description",
-            "priority", "images", "assigned", "additionalAssigned", "team", "asset", "files", "tasks", "time", "parts", "cost"), null, this));
+            "priority", "images", "primaryUser", "additionalAssigned", "team", "location", "dueDate", "category", "purchaseOrder", "files", "signature", "completeFiles", "completeTasks", "completeTime", "completeParts", "completeCost"), null, this));
 
     @OneToOne
     @JsonIgnore
