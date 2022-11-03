@@ -25,10 +25,6 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private String title;
     private boolean requiredSignature;
 
-    @ManyToMany
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private List<Part> parts = new ArrayList<>();
-
     @ManyToOne
     private Location location;
 

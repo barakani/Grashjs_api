@@ -49,8 +49,7 @@ public class WorkOrderShowDTO extends AuditShowDTO {
     private List<CustomerMiniDTO> customers;
 
     private Asset asset;
-    private List<PartMiniDTO> parts;
-
+    
     private List<FileMiniDTO> files;
 
 }
