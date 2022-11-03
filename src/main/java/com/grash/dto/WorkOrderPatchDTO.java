@@ -33,6 +33,8 @@ public class WorkOrderPatchDTO {
 
     private Collection<OwnUser> assignedTo;
 
+    private Collection<Customer> customers;
+
     private Collection<Part> parts;
 
     private Collection<File> files;
