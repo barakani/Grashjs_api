@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,10 +14,13 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class Task extends TaskBase {
+public class Task extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @ManyToOne
+    private TaskBase taskBase;
 
     private Status status = Status.OPEN;
 

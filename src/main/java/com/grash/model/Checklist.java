@@ -25,6 +25,8 @@ public class Checklist {
 
     private String description;
 
+    private String category;
+
     @ManyToOne
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
