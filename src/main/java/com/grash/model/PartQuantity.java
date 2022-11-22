@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -17,6 +18,7 @@ public class PartQuantity extends CompanyAudit {
     private int quantity;
 
     @ManyToOne
+    @NotNull
     private Part part;
 
     @ManyToOne
