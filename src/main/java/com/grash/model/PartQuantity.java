@@ -26,4 +26,12 @@ public class PartQuantity extends CompanyAudit {
 
     @ManyToOne
     private WorkOrder workOrder;
+
+    public PartQuantity(Company company, Part part, WorkOrder workOrder, PurchaseOrder purchaseOrder, int quantity) {
+        this.setCompany(company);
+        this.part = part;
+        this.workOrder = workOrder;
+        this.purchaseOrder = purchaseOrder;
+        this.quantity = quantity;
+    }
 }

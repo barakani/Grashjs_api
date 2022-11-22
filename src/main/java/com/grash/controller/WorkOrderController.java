@@ -1,14 +1,20 @@
 package com.grash.controller;
 
+import com.grash.dto.PartQuantityShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.OwnUser;
+import com.grash.model.Part;
+import com.grash.model.PartQuantity;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
+import com.grash.service.PartQuantityService;
+import com.grash.service.PartService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
@@ -24,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,8 +41,11 @@ import java.util.stream.Collectors;
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
+    private final PartService partService;
     private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
+    private final PartQuantityMapper partQuantityMapper;
+    private final PartQuantityService partQuantityService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -98,6 +108,43 @@ public class WorkOrderController {
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder);
                 workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
                 return workOrderMapper.toShowDto(patchedWorkOrder);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/{id}/part-quantities")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public Collection<PartQuantityShowDTO> patchPartQuantities(@ApiParam("PartQuantities") @Valid @RequestBody List<Long> parts, @ApiParam("id") @PathVariable("id") Long id,
+                                                               HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (workOrderService.hasAccess(user, savedWorkOrder)) {
+                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
+                Collection<Long> partQuantityMappedPartIds = partQuantities.stream().map
+                        (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
+                parts.forEach(partId -> {
+                    if (!partQuantityMappedPartIds.contains(partId)) {
+                        Optional<Part> optionalPart = partService.findById(partId);
+                        if (optionalPart.isPresent()) {
+                            PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), savedWorkOrder, null, 1);
+                            partQuantityService.create(partQuantity);
+                        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+                    }
+                });
+                partQuantityMappedPartIds.forEach(partId -> {
+                    if (!parts.contains(partId)) {
+                        partQuantityService.delete(partQuantities.stream().filter(partQuantity ->
+                                partQuantity.getPart().getId().equals(partId)).findFirst().get().getId());
+                    }
+                });
+                return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }

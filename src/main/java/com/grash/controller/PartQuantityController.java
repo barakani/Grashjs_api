@@ -7,10 +7,11 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartQuantityMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.PartQuantity;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
-import com.grash.model.enums.RoleType;
 import com.grash.service.PartQuantityService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,19 +37,20 @@ public class PartQuantityController {
     private final PartQuantityService partQuantityService;
     private final PartQuantityMapper partQuantityMapper;
     private final UserService userService;
+    private final WorkOrderService workOrderService;
 
-    @GetMapping("")
+    @GetMapping("/work-order/{id}")
     @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PartQuantityCategory not found")})
-    public Collection<PartQuantityShowDTO> getAll(HttpServletRequest req) {
+    public Collection<PartQuantityShowDTO> getAll(HttpServletRequest req, @ApiParam("id") @PathVariable("id") Long id) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return partQuantityService.findByCompany(user.getCompany().getId()).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
-        } else
-            return partQuantityService.getAll().stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")

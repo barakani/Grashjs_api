@@ -50,6 +50,10 @@ public class PartQuantityService {
         return partQuantityRepository.findByCompany_Id(id);
     }
 
+    public Collection<PartQuantity> findByWorkOrder(Long id) {
+        return partQuantityRepository.findByWorkOrder_Id(id);
+    }
+
     public boolean hasAccess(OwnUser user, PartQuantity partQuantity) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
