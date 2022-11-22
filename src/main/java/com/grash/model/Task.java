@@ -20,6 +20,7 @@ public class Task extends CompanyAudit {
     private Long id;
 
     @ManyToOne
+    @NotNull
     private TaskBase taskBase;
 
     private Status status = Status.OPEN;
