@@ -6,9 +6,11 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.TimeStatus;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -22,7 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/additional-times")
@@ -63,6 +67,46 @@ public class AdditionalTimeController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
             return additionalTimeService.findByWorkOrder(optionalWorkOrder.get().getId());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/work-order/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AdditionalTime not found")})
+    public AdditionalTime controlTimer(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req, @RequestParam(defaultValue = "true") boolean start) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findByWorkOrder(id).stream().filter(AdditionalTime::isPrimaryTime).findFirst();
+            if (start) {
+                if (optionalAdditionalTime.isPresent()) {
+                    AdditionalTime additionalTime = optionalAdditionalTime.get();
+                    if (additionalTime.getStatus().equals(TimeStatus.RUNNING)) {
+                        return additionalTime;
+                    } else {
+                        additionalTime.setStartedAt(new Date());
+                        additionalTime.setStatus(TimeStatus.RUNNING);
+                        return additionalTimeService.save(additionalTime);
+                    }
+                } else {
+                    AdditionalTime additionalTime = new AdditionalTime(user, user.getRate(), new Date(), optionalWorkOrder.get(), user.getCompany(), true, TimeStatus.RUNNING);
+                    return additionalTimeService.create(additionalTime);
+                }
+            } else {
+                if (optionalAdditionalTime.isPresent()) {
+                    AdditionalTime additionalTime = optionalAdditionalTime.get();
+                    if (additionalTime.getStatus().equals(TimeStatus.STOPPED)) {
+                        return additionalTime;
+                    } else {
+                        additionalTime.setStatus(TimeStatus.STOPPED);
+                        additionalTime.setDuration(additionalTime.getDuration() + Helper.getDateDiff(additionalTime.getStartedAt(), new Date(), TimeUnit.SECONDS));
+                        return additionalTimeService.save(additionalTime);
+                    }
+                } else throw new CustomException("No timer to stop", HttpStatus.NOT_FOUND);
+            }
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

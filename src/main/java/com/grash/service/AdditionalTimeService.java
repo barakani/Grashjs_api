@@ -35,6 +35,10 @@ public class AdditionalTimeService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public AdditionalTime save(AdditionalTime additionalTime) {
+        return additionalTimeRepository.save(additionalTime);
+    }
+
     public Collection<AdditionalTime> getAll() {
         return additionalTimeRepository.findAll();
     }
