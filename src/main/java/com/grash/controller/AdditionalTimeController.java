@@ -5,8 +5,10 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
+import com.grash.model.WorkOrder;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,7 @@ public class AdditionalTimeController {
 
     private final AdditionalTimeService additionalTimeService;
     private final UserService userService;
+    private final WorkOrderService workOrderService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -46,6 +50,20 @@ public class AdditionalTimeController {
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
+    }
+
+    @GetMapping("/work-order/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AdditionalTime not found")})
+    public Collection<AdditionalTime> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            return additionalTimeService.findByWorkOrder(optionalWorkOrder.get().getId());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")

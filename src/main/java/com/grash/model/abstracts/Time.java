@@ -10,5 +10,7 @@ import javax.validation.constraints.NotNull;
 public abstract class Time extends CompanyAudit {
 
     @NotNull
-    private int duration;
+    private int hours;
+    @NotNull
+    private int minutes;
 }

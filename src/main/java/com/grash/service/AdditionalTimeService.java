@@ -78,4 +78,8 @@ public class AdditionalTimeService {
 
         return third && sixth;
     }
+
+    public Collection<AdditionalTime> findByWorkOrder(Long id) {
+        return additionalTimeRepository.findByWorkOrder_Id(id);
+    }
 }
