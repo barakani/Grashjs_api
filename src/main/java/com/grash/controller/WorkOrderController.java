@@ -5,10 +5,12 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.model.Asset;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
+import com.grash.service.AssetService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
@@ -36,6 +38,7 @@ public class WorkOrderController {
     private final WorkOrderService workOrderService;
     private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
+    private final AssetService assetService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -48,6 +51,20 @@ public class WorkOrderController {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return workOrderService.findByCompany(user.getCompany().getId()).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/asset/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public Collection<WorkOrder> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Asset> optionalAsset = assetService.findById(id);
+        if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
+            return workOrderService.findByAsset(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")

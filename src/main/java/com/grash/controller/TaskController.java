@@ -65,7 +65,7 @@ public class TaskController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/work-order/{id}")
+    @PatchMapping("/work-order/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
@@ -74,6 +74,7 @@ public class TaskController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            taskService.findByWorkOrder(id).forEach(task -> taskService.delete(task.getId()));
             Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO -> {
                 TaskBase taskBase = TaskBase.builder()
                         .label(taskBaseDTO.getLabel())

@@ -131,4 +131,8 @@ public class WorkOrderService {
                     notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
         }
     }
+
+    public Collection<WorkOrder> findByAsset(Long id) {
+        return workOrderRepository.findByAsset_Id(id);
+    }
 }

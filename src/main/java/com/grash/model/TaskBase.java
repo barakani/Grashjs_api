@@ -4,6 +4,7 @@ import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.Collection;
 
 @Entity
 @NoArgsConstructor
+@Data
 @AllArgsConstructor
 @Builder
 public class TaskBase extends CompanyAudit {
