@@ -69,4 +69,8 @@ public class TaskService {
     public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {
         return true;
     }
+
+    public Collection<Task> findByWorkOrder(Long id) {
+        return taskRepository.findByWorkOrder_Id(id);
+    }
 }
