@@ -59,11 +59,11 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public Collection<WorkOrder> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public Collection<WorkOrderShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
-            return workOrderService.findByAsset(id);
+            return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
