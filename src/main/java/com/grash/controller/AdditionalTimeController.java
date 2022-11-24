@@ -66,7 +66,7 @@ public class AdditionalTimeController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
-            return additionalTimeService.findByWorkOrder(optionalWorkOrder.get().getId());
+            return additionalTimeService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
