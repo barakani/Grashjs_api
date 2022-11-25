@@ -6,11 +6,13 @@ import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.Asset;
+import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
+import com.grash.service.LocationService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
@@ -39,6 +41,7 @@ public class WorkOrderController {
     private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
     private final AssetService assetService;
+    private final LocationService locationService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -64,6 +67,20 @@ public class WorkOrderController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
             return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/location/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrder not found")})
+    public Collection<WorkOrderShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Location> optionalLocation = locationService.findById(id);
+        if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
+            return workOrderService.findByLocation(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

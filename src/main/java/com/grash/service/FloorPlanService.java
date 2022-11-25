@@ -73,4 +73,8 @@ public class FloorPlanService {
 
         return third;
     }
+
+    public Collection<FloorPlan> findByLocation(Long id) {
+        return floorPlanRepository.findByLocation_Id(id);
+    }
 }

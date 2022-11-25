@@ -161,4 +161,8 @@ public class UserService {
     public Collection<OwnUser> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
     }
+
+    public Collection<OwnUser> findByLocation(Long id) {
+        return userRepository.findByLocation_Id(id);
+    }
 }

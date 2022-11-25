@@ -149,4 +149,8 @@ public class AssetService {
                     notificationService.create(new Notification(message, user, NotificationType.ASSET, newAsset.getId()))));
         }
     }
+
+    public Collection<Asset> findByLocation(Long id) {
+        return assetRepository.findByLocation_Id(id);
+    }
 }

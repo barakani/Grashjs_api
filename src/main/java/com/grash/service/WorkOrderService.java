@@ -135,4 +135,8 @@ public class WorkOrderService {
     public Collection<WorkOrder> findByAsset(Long id) {
         return workOrderRepository.findByAsset_Id(id);
     }
+
+    public Collection<WorkOrder> findByLocation(Long id) {
+        return workOrderRepository.findByLocation_Id(id);
+    }
 }
