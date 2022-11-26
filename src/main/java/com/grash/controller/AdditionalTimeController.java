@@ -80,7 +80,7 @@ public class AdditionalTimeController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
-            Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findByWorkOrder(id).stream().filter(AdditionalTime::isPrimaryTime).findFirst();
+            Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findByWorkOrder(id).stream().filter(additionalTime -> additionalTime.isPrimaryTime() && additionalTime.getAssignedTo().getId().equals(user.getId())).findFirst();
             if (start) {
                 if (optionalAdditionalTime.isPresent()) {
                     AdditionalTime additionalTime = optionalAdditionalTime.get();
