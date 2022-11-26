@@ -35,13 +35,14 @@ public class WorkOrderService {
         return workOrderRepository.save(workOrder);
     }
 
-    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
+    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .name("Updating " + workOrder.getTitle())
                     .workOrder(updatedWorkOrder)
+                    .user(user)
                     .build();
             workOrderHistoryRepository.save(workOrderHistory);
             return updatedWorkOrder;

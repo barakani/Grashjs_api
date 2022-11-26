@@ -129,7 +129,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
-                WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder);
+                WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
                 workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
                 return workOrderMapper.toShowDto(patchedWorkOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
