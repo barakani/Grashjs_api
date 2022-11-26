@@ -4,8 +4,14 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.TaskBaseDTO;
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.*;
-import com.grash.service.*;
+import com.grash.model.OwnUser;
+import com.grash.model.Task;
+import com.grash.model.TaskBase;
+import com.grash.model.WorkOrder;
+import com.grash.service.TaskBaseService;
+import com.grash.service.TaskService;
+import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -30,7 +36,6 @@ public class TaskController {
 
     private final TaskService taskService;
     private final UserService userService;
-    private final TaskOptionService taskOptionService;
     private final TaskBaseService taskBaseService;
     private final WorkOrderService workOrderService;
 
@@ -75,26 +80,8 @@ public class TaskController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
             taskService.findByWorkOrder(id).forEach(task -> taskService.delete(task.getId()));
-            Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO -> {
-                TaskBase taskBase = TaskBase.builder()
-                        .label(taskBaseDTO.getLabel())
-                        .taskType(taskBaseDTO.getTaskType())
-                        .user(taskBaseDTO.getUser())
-                        .asset(taskBaseDTO.getAsset())
-                        .meter(taskBaseDTO.getMeter())
-                        .build();
-                taskBase.setCompany(user.getCompany());
-                TaskBase savedTaskBase = taskBaseService.create(taskBase);
-
-                if (taskBaseDTO.getOptions() != null) {
-                    taskBaseDTO.getOptions().forEach(option -> {
-                        TaskOption taskOption = new TaskOption(option, user.getCompany(), savedTaskBase);
-                        taskOptionService.create(taskOption);
-                    });
-                }
-                return savedTaskBase;
-
-            }).collect(Collectors.toList());
+            Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
+                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
             return taskBases.stream().map(taskBase -> {
                 Task task = new Task(taskBase, optionalWorkOrder.get(), user.getCompany());
                 return taskService.create(task);

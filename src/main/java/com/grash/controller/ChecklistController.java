@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 import com.grash.dto.ChecklistPatchDTO;
+import com.grash.dto.ChecklistPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
@@ -69,10 +70,10 @@ public class ChecklistController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Checklist create(@ApiParam("Checklist") @Valid @RequestBody Checklist checklistReq, HttpServletRequest req) {
+    public Checklist create(@ApiParam("Checklist") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (checklistService.canCreate(user, checklistReq)) {
-            return checklistService.create(checklistReq);
+            return checklistService.createPost(checklistReq, user.getCompany());
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -90,7 +91,7 @@ public class ChecklistController {
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
             if (checklistService.hasAccess(user, savedChecklist) && checklistService.canPatch(user, checklist)) {
-                return checklistService.update(id, checklist);
+                return checklistService.update(id, checklist, user.getCompany().getCompanySettings(), user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }
@@ -101,7 +102,7 @@ public class ChecklistController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Checklist not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
@@ -109,7 +110,7 @@ public class ChecklistController {
             Checklist savedChecklist = optionalChecklist.get();
             if (checklistService.hasAccess(user, savedChecklist)) {
                 checklistService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);

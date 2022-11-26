@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.TaskType;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class TaskBase extends CompanyAudit {
     private TaskType taskType = TaskType.SUBTASK;
 
     @OneToMany
+    @JsonManagedReference
     private Collection<TaskOption> options = new ArrayList<>();
 
     @ManyToOne

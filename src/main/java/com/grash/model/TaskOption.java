@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ public class TaskOption extends CompanyAudit {
     private String label;
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     private TaskBase taskBase;
 
     public TaskOption(String label, Company company, TaskBase taskBase) {
