@@ -92,6 +92,7 @@ public class RelationService {
                 .parent(parent)
                 .child(child)
                 .relationType(relationType).build();
+        relation.setCompany(relationReq.getCompany());
         return create(relation);
     }
 
@@ -119,7 +120,7 @@ public class RelationService {
     public Collection<Relation> findByWorkOrder(Long id) {
         Collection<Relation> whereParent = relationRepository.findByParent_Id(id);
         Collection<Relation> whereChild = relationRepository.findByChild_Id(id);
-        
+
         return Stream.concat(whereParent.stream(), whereChild.stream())
                 .collect(Collectors.toList());
     }

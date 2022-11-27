@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.model.Company;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RelationType;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,6 @@ public class RelationPostDTO {
 
     @NotNull
     private RelationType relationType = RelationType.RELATED_TO;
+
+    private Company company;
 }
