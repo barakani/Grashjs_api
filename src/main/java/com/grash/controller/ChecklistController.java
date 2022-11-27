@@ -91,7 +91,7 @@ public class ChecklistController {
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
             if (checklistService.hasAccess(user, savedChecklist) && checklistService.canPatch(user, checklist)) {
-                return checklistService.update(id, checklist, user.getCompany().getCompanySettings(), user.getCompany());
+                return checklistService.update(id, checklist, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
     }

@@ -39,17 +39,15 @@ public class ChecklistService {
         return checklistRepository.save(checklist);
     }
 
-    public Checklist update(Long id, ChecklistPatchDTO checklist, CompanySettings companySettings, Company company) {
+    public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
         if (checklistRepository.existsById(id)) {
-            ChecklistPostDTO checklistPostDTO = ChecklistPostDTO.builder()
-                    .name(checklist.getName())
-                    .description(checklist.getDescription())
-                    .taskBases(checklist.getTaskBases())
-                    .category(checklist.getCategory())
-                    .companySettings(companySettings).build();
-            Checklist newChecklist = createPost(checklistPostDTO, company);
-            checklistRepository.deleteById(id);
-            return newChecklist;
+            Checklist savedChecklist = checklistRepository.getById(id);
+            savedChecklist.getTaskBases().forEach(taskBase -> taskBaseService.delete(taskBase.getId()));
+            List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
+                    .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
+            savedChecklist.setTaskBases(taskBases);
+            return checklistRepository.save(savedChecklist);
+
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
