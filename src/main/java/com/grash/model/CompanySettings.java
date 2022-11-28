@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,12 +39,12 @@ public class CompanySettings {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Role> roleList = new HashSet<>(Arrays.asList(
-            createRole("Administrator", Arrays.asList(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS, BasicPermission.CREATE_EDIT_CATEGORIES, BasicPermission.DELETE_LOCATIONS, BasicPermission.DELETE_WORK_ORDERS, BasicPermission.DELETE_PREVENTIVE_MAINTENANCE_TRIGGERS, BasicPermission.DELETE_ASSETS, BasicPermission.DELETE_PARTS_AND_MULTI_PARTS, BasicPermission.DELETE_PURCHASE_ORDERS, BasicPermission.DELETE_METERS, BasicPermission.DELETE_VENDORS_AND_CUSTOMERS, BasicPermission.DELETE_CATEGORIES, BasicPermission.DELETE_FILES, BasicPermission.DELETE_PEOPLE_AND_TEAMS, BasicPermission.ACCESS_SETTINGS)),
-            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES)),
-            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES))));
+            createRole("Administrator", Arrays.asList(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS, BasicPermission.CREATE_EDIT_CATEGORIES, BasicPermission.DELETE_LOCATIONS, BasicPermission.DELETE_WORK_ORDERS, BasicPermission.DELETE_PREVENTIVE_MAINTENANCE_TRIGGERS, BasicPermission.DELETE_ASSETS, BasicPermission.DELETE_PARTS_AND_MULTI_PARTS, BasicPermission.DELETE_PURCHASE_ORDERS, BasicPermission.DELETE_METERS, BasicPermission.DELETE_VENDORS_AND_CUSTOMERS, BasicPermission.DELETE_CATEGORIES, BasicPermission.DELETE_FILES, BasicPermission.DELETE_PEOPLE_AND_TEAMS, BasicPermission.ACCESS_SETTINGS), RoleCode.ADMIN),
+            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_ADMIN),
+            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.TECHNICIAN),
+            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_TECHNICIAN),
+            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.VIEW_ONLY),
+            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.REQUESTER)));
 
     public CompanySettings(Company company) {
         this.company = company;
@@ -57,8 +58,8 @@ public class CompanySettings {
     @JsonIgnore
     private List<TimeCategory> timeCategories = new ArrayList<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
 
-    private Role createRole(String name, List<BasicPermission> basicPermissions) {
-        return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this);
+    private Role createRole(String name, List<BasicPermission> basicPermissions, RoleCode code) {
+        return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this, code);
     }
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {

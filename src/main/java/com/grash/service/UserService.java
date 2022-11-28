@@ -38,6 +38,7 @@ public class UserService {
     private final EmailService emailService;
     private final RoleService roleService;
     private final CompanyService companyService;
+    private final CurrencyService currencyService;
     private final UserInvitationService userInvitationService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final UserMapper userMapper;
@@ -66,6 +67,7 @@ public class UserService {
             if (user.getRole() == null) {
                 //create company with default roles
                 Company company = new Company();
+                company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("USD").get());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);

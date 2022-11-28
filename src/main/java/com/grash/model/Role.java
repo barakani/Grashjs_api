@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,8 @@ public class Role {
     @NotNull
     private RoleType roleType;
 
+    private RoleCode code = RoleCode.USER_CREATED;
+
     @NotNull
     private String name;
 
@@ -39,10 +42,11 @@ public class Role {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CompanySettings companySettings;
 
-    public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings) {
+    public Role(RoleType roleType, String name, HashSet<BasicPermission> basicPermissions, CompanySettings companySettings, RoleCode code) {
         this.name = name;
         this.roleType = roleType;
         this.companySettings = companySettings;
         this.permissions = basicPermissions;
+        this.code = code;
     }
 }

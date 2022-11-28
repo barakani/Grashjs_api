@@ -2,6 +2,7 @@ package com.grash;
 
 import com.grash.model.Company;
 import com.grash.model.Role;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CompanyService;
 import com.grash.service.RoleService;
@@ -31,7 +32,7 @@ public class ApiApplication implements CommandLineRunner {
     public void run(String... args) {
         if (!roleService.findByName(superAdminRole).isPresent()) {
             Company company = companyService.create(new Company());
-            roleService.create(new Role(RoleType.ROLE_SUPER_ADMIN, superAdminRole, new HashSet<>(), company.getCompanySettings()));
+            roleService.create(new Role(RoleType.ROLE_SUPER_ADMIN, superAdminRole, new HashSet<>(), company.getCompanySettings(), RoleCode.ADMIN));
         }
     }
 }
