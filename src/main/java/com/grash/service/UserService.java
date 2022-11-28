@@ -4,10 +4,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.Role;
-import com.grash.model.VerificationToken;
+import com.grash.model.*;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -41,11 +38,14 @@ public class UserService {
     private final EmailService emailService;
     private final RoleService roleService;
     private final CompanyService companyService;
+    private final UserInvitationService userInvitationService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final UserMapper userMapper;
 
     @Value("${api.host}")
     private String API_HOST;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public String signin(String email, String password, String type) {
         try {
@@ -73,16 +73,19 @@ public class UserService {
             } else {
                 Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
                 if (optionalRole.isPresent()) {
-                    user.setRole(optionalRole.get());
-                    if (optionalRole.get().getCompanySettings() != null) {
+                    if (userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail()).isEmpty()) {
+                        throw new CustomException("You are not invited to this organization for this role", HttpStatus.NOT_ACCEPTABLE);
+                    } else {
+                        user.setRole(optionalRole.get());
                         user.setCompany(optionalRole.get().getCompanySettings().getCompany());
                     }
+
                 } else throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
             }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
                 userRepository.save(user);
-                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
+                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
             } else {
                 //send mail
                 String token = UUID.randomUUID().toString();
@@ -164,5 +167,12 @@ public class UserService {
 
     public Collection<OwnUser> findByLocation(Long id) {
         return userRepository.findByLocation_Id(id);
+    }
+
+    public void invite(String email, Role role) {
+        if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
+            userInvitationService.create(new UserInvitation(email, role));
+            emailService.send(email, "Invitation to use Grash CMMS", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+        }
     }
 }
