@@ -9,7 +9,6 @@ import lombok.Data;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +42,6 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private List<Customer> customers = new ArrayList<>();
 
     @ManyToOne
-    @NotNull
     private Asset asset;
 
 }

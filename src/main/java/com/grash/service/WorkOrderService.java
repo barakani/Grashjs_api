@@ -75,13 +75,11 @@ public class WorkOrderService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-        Optional<Asset> optionalAsset = assetService.findById(workOrderReq.getAsset().getId());
-
+        
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean third = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
+        return first && canPatch(user, workOrderMapper.toDto(workOrderReq));
     }
 
     public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {

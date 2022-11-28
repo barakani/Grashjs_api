@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.WorkOrderBase;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,7 @@ public class WorkOrder extends WorkOrderBase {
     private List<Task> taskList = new ArrayList<>();
 
     @ManyToOne
+    @JsonIgnore
     private Request parentRequest;
 
     @ManyToMany

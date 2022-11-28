@@ -2,7 +2,9 @@ package com.grash.controller;
 
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
 import com.grash.model.enums.RoleType;
@@ -31,6 +33,7 @@ public class RequestController {
 
     private final RequestService requestService;
     private final UserService userService;
+    private final WorkOrderMapper workOrderMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -69,7 +72,6 @@ public class RequestController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Request create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
-        requestReq.setApproved(false);
         OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq)) {
             Request createdRequest = requestService.create(requestReq);
@@ -91,16 +93,60 @@ public class RequestController {
 
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (savedRequest.isApproved()) {
+            if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
             }
             if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request)) {
                 Request patchedRequest = requestService.update(id, request);
                 requestService.patchNotify(savedRequest, patchedRequest);
-                if (patchedRequest.isApproved()) {
-                    requestService.createWorkOrderFromRequest(patchedRequest);
-                }
                 return patchedRequest;
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public WorkOrderShowDTO approve(@ApiParam("id") @PathVariable("id") Long id,
+                                    HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Request> optionalRequest = requestService.findById(id);
+
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.getWorkOrder() != null) {
+                throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (requestService.hasAccess(user, savedRequest)) {
+                return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest));
+
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "Request not found")})
+    public Request cancel(@ApiParam("id") @PathVariable("id") Long id,
+                          HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Request> optionalRequest = requestService.findById(id);
+
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.getWorkOrder() != null) {
+                throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (requestService.hasAccess(user, savedRequest)) {
+                savedRequest.setCancelled(true);
+                return requestService.save(savedRequest);
+
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }

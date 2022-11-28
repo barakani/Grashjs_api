@@ -20,14 +20,14 @@ public class Request extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private boolean approved;
-
     @NotNull
     private String title;
 
     private String description;
 
     private Priority priority = Priority.NONE;
+
+    private boolean cancelled;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -61,5 +61,8 @@ public class Request extends CompanyAudit {
 
     @ManyToOne
     private Team team;
+
+    @OneToOne
+    private WorkOrder workOrder;
 
 }

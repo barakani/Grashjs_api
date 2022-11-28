@@ -91,21 +91,27 @@ public class RequestService {
         return first && second && third && fourth && fifth;
     }
 
-    public void createWorkOrderFromRequest(Request request) {
+    public WorkOrder createWorkOrderFromRequest(Request request) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.setCompany(request.getCompany());
         workOrder.setParentRequest(request);
         workOrder.setTitle(request.getTitle());
         workOrder.setDescription(request.getDescription());
         workOrder.setPriority(request.getPriority());
-        workOrder.setFiles(request.getFiles());
+        //TODO
+        //workOrder.setFiles(request.getFiles());
         workOrder.setAsset(request.getAsset());
         workOrder.setLocation(request.getLocation());
-        //workOrder.setAssignedTo(request.getAssignedTo());
+        workOrder.setPrimaryUser(request.getAssignedTo());
         workOrder.setTeam(request.getTeam());
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+
         workOrderService.notify(savedWorkOrder);
 
+        request.setWorkOrder(savedWorkOrder);
+        requestRepository.save(request);
+
+        return savedWorkOrder;
     }
 
     public void notify(Request request) {
@@ -129,5 +135,9 @@ public class RequestService {
             newRequest.getTeam().getUsers().forEach(user ->
                     notificationService.create(new Notification(message, user, NotificationType.REQUEST, newRequest.getId())));
         }
+    }
+
+    public Request save(Request request) {
+        return requestRepository.save(request);
     }
 }
