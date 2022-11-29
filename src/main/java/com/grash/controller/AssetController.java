@@ -8,10 +8,12 @@ import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
+import com.grash.model.Part;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
 import com.grash.service.LocationService;
+import com.grash.service.PartService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -39,6 +41,7 @@ public class AssetController {
     private final AssetMapper assetMapper;
     private final UserService userService;
     private final LocationService locationService;
+    private final PartService partService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -81,6 +84,21 @@ public class AssetController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
             return assetService.findByLocation(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+
+    @GetMapping("/part/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Assets for this part not found")})
+    public Collection<AssetShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Part> optionalPart = partService.findById(id);
+        if (optionalPart.isPresent() && partService.hasAccess(user, optionalPart.get())) {
+            return optionalPart.get().getAssets().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
