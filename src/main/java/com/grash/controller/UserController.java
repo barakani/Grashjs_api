@@ -2,20 +2,23 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
-import com.grash.mapper.UserMapper;
+import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
+import com.grash.model.Role;
 import com.grash.model.enums.RoleType;
-import com.grash.service.LocationService;
+import com.grash.service.RoleService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -24,8 +27,7 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
-    private final LocationService locationService;
-    private final UserMapper userMapper;
+    private final RoleService roleService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -48,7 +50,11 @@ public class UserController {
             @ApiResponse(code = 404, message = "TeamCategory not found")})
     public SuccessResponse invite(HttpServletRequest req, @RequestBody UserInvitationDTO invitation) {
         OwnUser user = userService.whoami(req);
-        invitation.getEmails().forEach(email -> userService.invite(email, invitation.getRole()));
-        return new SuccessResponse(true, "Users have been invited");
+        Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
+        if (optionalRole.isPresent() && user.getCompany().getCompanySettings().getId().equals(optionalRole.get().getCompanySettings().getId())) {
+            invitation.getEmails().forEach(email -> userService.invite(email, optionalRole.get()));
+            return new SuccessResponse(true, "Users have been invited");
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+
     }
 }
