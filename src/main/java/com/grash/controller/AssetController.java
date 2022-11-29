@@ -111,7 +111,7 @@ public class AssetController {
     public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).collect(Collectors.toList()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(assetMapper::toShowDto).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
@@ -133,9 +133,12 @@ public class AssetController {
         if (assetService.canCreate(user, assetReq)) {
             if (assetReq.getParentAsset() != null) {
                 Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
-                Asset parentAsset = optionalParentAsset.get();
-                parentAsset.setHasChildren(true);
-                assetService.save(parentAsset);
+                if (optionalParentAsset.isPresent()) {
+                    Asset parentAsset = optionalParentAsset.get();
+                    parentAsset.setHasChildren(true);
+                    assetService.save(parentAsset);
+                } else throw new CustomException("Parent Asset not found", HttpStatus.NOT_FOUND);
+
             }
             Asset createdAsset = assetService.create(assetReq);
             assetService.notify(createdAsset);

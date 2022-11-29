@@ -42,8 +42,6 @@ public class Request extends CompanyAudit {
     @OneToOne
     private Image image;
 
-    private Long createdBy;
-
 //  optionalfields;
 
     @ManyToOne

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +51,27 @@ public class LocationController {
             return locationService.getAll().stream().map(locationMapper::toShowDto).collect(Collectors.toList());
     }
 
+    @GetMapping("/children/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Location not found")})
+    public Collection<LocationShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> location.getParentLocation() == null).map(locationMapper::toShowDto).collect(Collectors.toList());
+        }
+        Optional<Location> optionalLocation = locationService.findById(id);
+        if (optionalLocation.isPresent()) {
+            Location savedLocation = optionalLocation.get();
+            if (locationService.hasAccess(user, savedLocation)) {
+                return locationService.findLocationChildren(id).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
@@ -75,6 +97,17 @@ public class LocationController {
     public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (locationService.canCreate(user, locationReq)) {
+            if (locationReq.getParentLocation() != null) {
+                Optional<Location> optionalParentLocation = locationService.findById(locationReq.getParentLocation().getId());
+                if (optionalParentLocation.isPresent()) {
+                    Location parentLocation = optionalParentLocation.get();
+                    if (parentLocation.getParentLocation() != null) {
+                        throw new CustomException("Parent location has a Parent Location ", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                    parentLocation.setHasChildren(true);
+                    locationService.save(parentLocation);
+                } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+            }
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation);
             return locationMapper.toShowDto(savedLocation);

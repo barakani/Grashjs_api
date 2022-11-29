@@ -108,4 +108,12 @@ public class LocationService {
                     notificationService.create(new Notification(message, user, NotificationType.LOCATION, newLocation.getId()))));
         }
     }
+
+    public Collection<Location> findLocationChildren(Long id) {
+        return locationRepository.findByParentLocation_Id(id);
+    }
+
+    public void save(Location location) {
+        locationRepository.save(location);
+    }
 }
