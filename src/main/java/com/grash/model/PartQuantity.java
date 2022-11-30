@@ -15,6 +15,7 @@ public class PartQuantity extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
     private int quantity;
 
     @ManyToOne
