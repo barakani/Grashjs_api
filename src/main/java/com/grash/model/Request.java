@@ -40,7 +40,7 @@ public class Request extends CompanyAudit {
             })
     private List<File> files = new ArrayList<>();
     @OneToOne
-    private Image image;
+    private File image;
 
 //  optionalfields;
 

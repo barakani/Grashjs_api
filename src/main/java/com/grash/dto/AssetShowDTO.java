@@ -20,7 +20,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String description;
 
-    private Image image;
+    private File image;
 
     private Location location;
 

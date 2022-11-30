@@ -62,7 +62,7 @@ public class Part extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

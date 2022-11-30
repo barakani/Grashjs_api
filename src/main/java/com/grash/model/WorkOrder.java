@@ -27,9 +27,9 @@ public class WorkOrder extends WorkOrderBase {
     private OwnUser completedBy;
 
     private Date completedOn;
-    
+
     @OneToOne
-    private Image signature;
+    private File signature;
 
     private boolean archived;
 

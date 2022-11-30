@@ -19,7 +19,7 @@ import java.util.Optional;
 public class RequestService {
     private final RequestRepository requestRepository;
     private final CompanyService companyService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final LocationService locationService;
     private final UserService userService;
     private final TeamService teamService;
@@ -76,7 +76,7 @@ public class RequestService {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
-        Optional<Image> optionalImage = requestReq.getImage() == null ? Optional.empty() : imageService.findById(requestReq.getImage().getId());
+        Optional<File> optionalImage = requestReq.getImage() == null ? Optional.empty() : fileService.findById(requestReq.getImage().getId());
         Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
         Optional<OwnUser> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
         Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());

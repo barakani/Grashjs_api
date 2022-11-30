@@ -22,7 +22,7 @@ public class WorkOrderPatchDTO {
     private String description;
     private String title;
     private boolean requiredSignature;
-    private Image signature;
+    private File signature;
 
     private Location location;
 

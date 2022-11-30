@@ -31,7 +31,7 @@ public class Task extends CompanyAudit {
     private String value;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
+    private List<File> images = new ArrayList<>();
 
     @ManyToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

@@ -174,7 +174,8 @@ public class UserService {
     public void invite(String email, Role role) {
         if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
             userInvitationService.create(new UserInvitation(email, role));
-            emailService.send(email, "Invitation to use Grash CMMS", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+            //TODO
+            //emailService.send(email, "Invitation to use Grash CMMS", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
         }
     }
 }

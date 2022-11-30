@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.File;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.FileType;
 import com.grash.model.enums.RoleType;
 import com.grash.service.FileService;
 import com.grash.service.GCPService;
@@ -39,12 +40,12 @@ public class FileController {
     private final UserService userService;
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req) {
+    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType) {
         OwnUser user = userService.whoami(req);
         Collection<File> result = new ArrayList<>();
         Arrays.asList(filesReq).forEach(fileReq -> {
             String url = gcp.upload(fileReq, folder);
-            result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany())));
+            result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType)));
         });
         return result;
     }

@@ -21,7 +21,7 @@ public class RequestPatchDTO {
 
     private Priority priority;
 
-    private Image image;
+    private File image;
 
     private Long createdBy;
 

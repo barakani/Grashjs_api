@@ -24,7 +24,7 @@ public class Company extends Audit {
     private String email;
 
     @OneToOne
-    private Image logo;
+    private File logo;
 
     private String city;
 

@@ -13,7 +13,7 @@ import java.util.Date;
 public class AssetPatchDTO {
     private boolean archived;
 
-    private Image image;
+    private File image;
 
     private Location location;
 

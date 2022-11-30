@@ -25,7 +25,7 @@ public class Asset extends CompanyAudit {
     private boolean hasChildren;
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToOne
     @NotNull

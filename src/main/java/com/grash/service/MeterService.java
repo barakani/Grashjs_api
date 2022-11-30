@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class MeterService {
     private final MeterRepository meterRepository;
     private final MeterCategoryService meterCategoryService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final AssetService assetService;
     private final CompanyService companyService;
     private final LocationService locationService;
@@ -80,7 +80,7 @@ public class MeterService {
         Long companyId = user.getCompany().getId();
 
         Optional<MeterCategory> optionalMeterCategory = meterReq.getMeterCategory() == null ? Optional.empty() : meterCategoryService.findById(meterReq.getMeterCategory().getId());
-        Optional<Image> optionalImage = meterReq.getImage() == null ? Optional.empty() : imageService.findById(meterReq.getImage().getId());
+        Optional<File> optionalImage = meterReq.getImage() == null ? Optional.empty() : fileService.findById(meterReq.getImage().getId());
         Optional<Location> optionalLocation = meterReq.getLocation() == null ? Optional.empty() : locationService.findById(meterReq.getLocation().getId());
 
         //optional fields

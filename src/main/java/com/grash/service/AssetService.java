@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class AssetService {
     private final AssetRepository assetRepository;
     private final LocationService locationService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final AssetCategoryService assetCategoryService;
     private final DeprecationService deprecationService;
     private final UserService userService;
@@ -93,7 +93,7 @@ public class AssetService {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = assetReq.getLocation() == null ? Optional.empty() : locationService.findById(assetReq.getLocation().getId());
-        Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
+        Optional<File> optionalImage = assetReq.getImage() == null ? Optional.empty() : fileService.findById(assetReq.getImage().getId());
         Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
         Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
         Optional<OwnUser> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
