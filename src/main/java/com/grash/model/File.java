@@ -61,5 +61,7 @@ public class File extends FileAbstract {
             })
     private List<WorkOrder> workOrders = new ArrayList<>();
 
-
+    public File(String name, String url, Company company) {
+        super(name, url, company);
+    }
 }

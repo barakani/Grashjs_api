@@ -4,6 +4,10 @@ spring:
   #      max-active: 50
   #      max-idle: 20
   #      min-idle: 15
+  servlet:
+    multipart:
+      max-request-size: 7MB
+      max-file-size: 7MB
   profiles:
     active: dev
   mvc:
