@@ -11,6 +11,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.Status;
 import com.grash.service.AssetService;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -129,6 +131,10 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
+                if (workOrder.getStatus().equals(Status.COMPLETE)) {
+                    workOrder.setCompletedBy(user);
+                    workOrder.setCompletedOn(new Date());
+                }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
                 workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
                 return workOrderMapper.toShowDto(patchedWorkOrder);

@@ -22,6 +22,7 @@ public class WorkOrderPatchDTO {
     private String description;
     private String title;
     private boolean requiredSignature;
+    private Image signature;
 
     private Location location;
 
@@ -34,6 +35,6 @@ public class WorkOrderPatchDTO {
     private Collection<OwnUser> assignedTo;
 
     private Collection<Customer> customers;
-    
+
     private Collection<File> files;
 }
