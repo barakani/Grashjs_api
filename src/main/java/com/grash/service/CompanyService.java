@@ -1,6 +1,8 @@
 package com.grash.service;
 
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,5 +33,11 @@ public class CompanyService {
 
     public Optional<Company> findById(Long id) {
         return companyRepository.findById(id);
+    }
+
+    public boolean hasAccess(OwnUser user, Company company) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(company.getId());
     }
 }

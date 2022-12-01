@@ -23,6 +23,8 @@ public class Company extends Audit {
     private String website;
     private String email;
 
+    private int employeesCount;
+
     @OneToOne
     private File logo;
 
@@ -41,4 +43,11 @@ public class Company extends Audit {
     @OneToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private BankCard bankCard;
+
+    public Company(String companyName, int employeesCount, Subscription subscription) {
+        this.name = companyName;
+        this.employeesCount = employeesCount;
+        this.subscription = subscription;
+
+    }
 }

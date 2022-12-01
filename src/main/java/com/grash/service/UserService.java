@@ -42,6 +42,8 @@ public class UserService {
     private final CurrencyService currencyService;
     private final UserInvitationService userInvitationService;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
 
     @Value("${api.host}")
@@ -68,7 +70,10 @@ public class UserService {
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
                 //create company with default roles
-                Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount());
+                Subscription subscription = Subscription.builder().usersCount(3).monthly(true)
+                        .subscriptionPlan(subscriptionPlanService.findByCode("FREE").get()).build();
+                subscriptionService.create(subscription);
+                Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
                 company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
                 companyService.create(company);
                 user.setOwnsCompany(true);
