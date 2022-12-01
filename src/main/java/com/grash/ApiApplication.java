@@ -44,5 +44,26 @@ public class ApiApplication implements CommandLineRunner {
                     .monthlyCostPerUser(0)
                     .yearlyCostPerUser(0).build());
         }
+        if (!subscriptionPlanService.existByCode("STARTER")) {
+            subscriptionPlanService.create(SubscriptionPlan.builder()
+                    .code("STARTER")
+                    .name("Starter")
+                    .monthlyCostPerUser(20)
+                    .yearlyCostPerUser(200).build());
+        }
+        if (!subscriptionPlanService.existByCode("PRO")) {
+            subscriptionPlanService.create(SubscriptionPlan.builder()
+                    .code("PRO")
+                    .name("Professional")
+                    .monthlyCostPerUser(40)
+                    .yearlyCostPerUser(400).build());
+        }
+        if (!subscriptionPlanService.existByCode("BUS")) {
+            subscriptionPlanService.create(SubscriptionPlan.builder()
+                    .code("BUS")
+                    .name("Business")
+                    .monthlyCostPerUser(80)
+                    .yearlyCostPerUser(800).build());
+        }
     }
 }
