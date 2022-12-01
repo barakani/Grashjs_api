@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -60,14 +61,15 @@ public class UserService {
         }
     }
 
-    public SuccessResponse signup(OwnUser user) {
+    public SuccessResponse signup(UserSignupRequest userReq) {
+        OwnUser user = userMapper.toModel(userReq);
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
                 //create company with default roles
-                Company company = new Company();
-                company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("USD").get());
+                Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount());
+                company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);
@@ -138,13 +140,6 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public OwnUser update(Long id, UserSignupRequest user) {
-        if (userRepository.existsById(id)) {
-            OwnUser savedUser = userRepository.findById(id).get();
-            return userRepository.save(userMapper.updateUser(savedUser, user));
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
     public void enableUser(String email) {
         OwnUser user = userRepository.findUserByEmail(email);
         user.setEnabled(true);
@@ -177,5 +172,16 @@ public class UserService {
             //TODO
             //emailService.send(email, "Invitation to use Grash CMMS", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
         }
+    }
+
+    public OwnUser update(Long id, UserPatchDTO userReq) {
+        if (userRepository.existsById(id)) {
+            OwnUser savedUser = userRepository.findById(id).get();
+            return userRepository.save(userMapper.updateUser(savedUser, userReq));
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public void save(OwnUser user) {
+        userRepository.save(user);
     }
 }

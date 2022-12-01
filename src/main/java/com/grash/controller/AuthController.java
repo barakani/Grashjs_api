@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.dto.*;
 import com.grash.mapper.UserMapper;
+import com.grash.model.OwnUser;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
 
@@ -53,7 +56,7 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 422, message = "Username is already in use")})
     public SuccessResponse signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
-        return userService.signup(userMapper.toModel(user));
+        return userService.signup(user);
     }
 
     @GetMapping("/activate-account")
@@ -113,5 +116,21 @@ public class AuthController {
     @GetMapping(value = "/resetpwd", produces = "application/json")
     public SuccessResponse resetPassword(@RequestParam String email) {
         return userService.resetPassword(email);
+    }
+
+    @PreAuthorize("permitAll()")
+    @PostMapping(value = "/updatepwd", produces = "application/json")
+    public ResponseEntity<SuccessResponse> updatePassword(@Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        String password = user.getPassword();
+        String oldPassword = updatePasswordRequest.getOldPassword();
+        if (passwordEncoder.matches(oldPassword, password)) {
+            user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+            userService.save(user);
+            return ResponseEntity.ok(new SuccessResponse(true, "Password changed successfully"));
+        } else {
+            return new ResponseEntity(new SuccessResponse(false, "Bad credentials"),
+                    HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 }
