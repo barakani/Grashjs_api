@@ -28,7 +28,6 @@ public class Asset extends CompanyAudit {
     private File image;
 
     @ManyToOne
-    @NotNull
     private Location location;
 
     @ManyToOne

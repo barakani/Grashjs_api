@@ -74,11 +74,9 @@ public class AssetService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
         boolean third = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
             Optional<OwnUser> optionalUser = userService.findById(user1.getId());
@@ -86,7 +84,7 @@ public class AssetService {
         });
         boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
 
-        return first && second && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
+        return first && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
     }
 
     public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {
