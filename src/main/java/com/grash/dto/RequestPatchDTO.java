@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class RequestPatchDTO extends WorkOrderBasePatchDTO {
-    private boolean approved;
+    private boolean cancelled;
 }

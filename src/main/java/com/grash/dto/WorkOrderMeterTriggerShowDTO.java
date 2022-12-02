@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class WorkOrderMeterTriggerPatchDTO extends WorkOrderBasePatchDTO {
+public class WorkOrderMeterTriggerShowDTO extends WorkOrderBaseShowDTO {
     private boolean recurrent;
 
     private String name;
