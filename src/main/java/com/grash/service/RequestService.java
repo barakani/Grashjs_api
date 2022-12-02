@@ -78,14 +78,14 @@ public class RequestService {
         Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
         Optional<File> optionalImage = requestReq.getImage() == null ? Optional.empty() : fileService.findById(requestReq.getImage().getId());
         Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
-        Optional<OwnUser> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
+        Optional<OwnUser> optionalPrimaryUser = requestReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(requestReq.getPrimaryUser().getId());
         Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
 
         //optional fields
         boolean first = requestReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
         boolean second = requestReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
         boolean third = requestReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = requestReq.getAssignedTo() == null || (optionalAssignedTo.isPresent() && optionalAssignedTo.get().getCompany().getId().equals(companyId));
+        boolean fourth = requestReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
         boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
 
         return first && second && third && fourth && fifth;
@@ -102,7 +102,7 @@ public class RequestService {
         //workOrder.setFiles(request.getFiles());
         workOrder.setAsset(request.getAsset());
         workOrder.setLocation(request.getLocation());
-        workOrder.setPrimaryUser(request.getAssignedTo());
+        workOrder.setPrimaryUser(request.getPrimaryUser());
         workOrder.setTeam(request.getTeam());
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
 
@@ -117,8 +117,8 @@ public class RequestService {
     public void notify(Request request) {
 
         String message = "Request " + request.getTitle() + " has been assigned to you";
-        if (request.getAssignedTo() != null) {
-            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
+        if (request.getPrimaryUser() != null) {
+            notificationService.create(new Notification(message, request.getPrimaryUser(), NotificationType.REQUEST, request.getId()));
         }
         if (request.getTeam() != null) {
             request.getTeam().getUsers().forEach(user ->
@@ -128,8 +128,8 @@ public class RequestService {
 
     public void patchNotify(Request oldRequest, Request newRequest) {
         String message = "Request " + newRequest.getTitle() + " has been assigned to you";
-        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
-            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
+        if (newRequest.getPrimaryUser() != null && !newRequest.getPrimaryUser().getId().equals(oldRequest.getPrimaryUser().getId())) {
+            notificationService.create(new Notification(message, newRequest.getPrimaryUser(), NotificationType.REQUEST, newRequest.getId()));
         }
         if (newRequest.getTeam() != null) {
             newRequest.getTeam().getUsers().forEach(user ->
