@@ -53,6 +53,7 @@ public class CompanySettings {
     private List<TimeCategory> timeCategories = new ArrayList<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
 
     private Role createRole(String name,
+                            boolean paid,
                             RoleCode code,
                             List<PermissionEntity> createPermissions,
                             List<PermissionEntity> editOtherPermissions,
@@ -65,6 +66,7 @@ public class CompanySettings {
                 .companySettings(this)
                 .code(code)
                 .name(name)
+                .paid(paid)
                 .createPermissions(new HashSet<>(createPermissions))
                 .editOtherPermissions(new HashSet<>(editOtherPermissions))
                 .deleteOtherPermissions(new HashSet<>(deleteOtherPermissions))
@@ -83,14 +85,14 @@ public class CompanySettings {
     }
 
     private Set<Role> getDefaultRoles() {
-        List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.CATEGORIES, PermissionEntity.WORK_ORDERS, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.PURCHASE_ORDERS, PermissionEntity.METERS, PermissionEntity.VENDORS_AND_CUSTOMERS, PermissionEntity.FILES, PermissionEntity.LOCATIONS, PermissionEntity.SETTINGS, PermissionEntity.REQUESTS);
+        List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.values());
         return new HashSet<>(Arrays.asList(
-                createRole("Administrator", RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
-                createRole("Limited Administrator", RoleCode.LIMITED_ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Technician", RoleCode.TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
-                createRole("Limited Technician", RoleCode.LIMITED_TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
-                createRole("View Only", RoleCode.VIEW_ONLY, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Requester", RoleCode.REQUESTER, allEntities, allEntities, allEntities, allEntities, Collections.singletonList(PermissionEntity.REQUESTS))
+                createRole("Administrator", true, RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
+                createRole("Limited Administrator", true, RoleCode.LIMITED_ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Technician", true, RoleCode.TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
+                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
+                createRole("View Only", false, RoleCode.VIEW_ONLY, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Requester", false, RoleCode.REQUESTER, allEntities, allEntities, allEntities, allEntities, Collections.singletonList(PermissionEntity.REQUESTS))
         ));
 //            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_ADMIN),
 //            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.TECHNICIAN),

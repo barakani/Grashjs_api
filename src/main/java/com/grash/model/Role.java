@@ -27,6 +27,9 @@ public class Role {
 
     private RoleCode code = RoleCode.USER_CREATED;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean paid;
+
     @NotNull
     private String name;
 

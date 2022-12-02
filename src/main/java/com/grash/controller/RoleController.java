@@ -70,6 +70,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
+        roleReq.setPaid(true);
         if (roleService.canCreate(user, roleReq)) {
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
