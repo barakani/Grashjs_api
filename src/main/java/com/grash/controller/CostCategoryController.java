@@ -8,7 +8,7 @@ import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
 import com.grash.service.UserService;
@@ -75,7 +75,7 @@ public class CostCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public CostCategory create(@ApiParam("CostCategory") @Valid @RequestBody CategoryPostDTO costCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
             costCategory.setCompanySettings(user.getCompany().getCompanySettings());
             return costCategoryService.create(costCategory);
@@ -93,7 +93,7 @@ public class CostCategoryController {
         OwnUser user = userService.whoami(req);
         if (costCategoryService.findById(id).isPresent()) {
             CostCategory savedCostCategory = costCategoryService.findById(id).get();
-            if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES) &&
+            if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES) &&
                     user.getRole().getCompanySettings().getId().equals(savedCostCategory.getCompanySettings().getId())) {
                 return costCategoryService.update(id, costCategory);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -112,7 +112,7 @@ public class CostCategoryController {
         Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
         if (optionalCostCategory.isPresent()) {
             if (user.getCompany().getCompanySettings().getId().equals(optionalCostCategory.get().getCompanySettings().getId())
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_CATEGORIES)) {
+                    && user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 costCategoryService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

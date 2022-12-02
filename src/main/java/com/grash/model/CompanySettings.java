@@ -2,7 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import lombok.Data;
@@ -38,13 +38,7 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Role> roleList = new HashSet<>(Arrays.asList(
-            createRole("Administrator", Arrays.asList(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS, BasicPermission.CREATE_EDIT_CATEGORIES, BasicPermission.DELETE_LOCATIONS, BasicPermission.DELETE_WORK_ORDERS, BasicPermission.DELETE_PREVENTIVE_MAINTENANCE_TRIGGERS, BasicPermission.DELETE_ASSETS, BasicPermission.DELETE_PARTS_AND_MULTI_PARTS, BasicPermission.DELETE_PURCHASE_ORDERS, BasicPermission.DELETE_METERS, BasicPermission.DELETE_VENDORS_AND_CUSTOMERS, BasicPermission.DELETE_CATEGORIES, BasicPermission.DELETE_FILES, BasicPermission.DELETE_PEOPLE_AND_TEAMS, BasicPermission.ACCESS_SETTINGS), RoleCode.ADMIN),
-            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_ADMIN),
-            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.TECHNICIAN),
-            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_TECHNICIAN),
-            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.VIEW_ONLY),
-            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.REQUESTER)));
+    private Set<Role> roleList = getDefaultRoles();
 
     public CompanySettings(Company company) {
         this.company = company;
@@ -58,8 +52,26 @@ public class CompanySettings {
     @JsonIgnore
     private List<TimeCategory> timeCategories = new ArrayList<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
 
-    private Role createRole(String name, List<BasicPermission> basicPermissions, RoleCode code) {
-        return new Role(RoleType.ROLE_CLIENT, name, new HashSet<>(basicPermissions), this, code);
+    private Role createRole(String name,
+                            RoleCode code,
+                            List<PermissionEntity> createPermissions,
+                            List<PermissionEntity> editOtherPermissions,
+                            List<PermissionEntity> deleteOtherPermissions,
+                            List<PermissionEntity> viewOtherPermissions,
+                            List<PermissionEntity> viewPermissions
+    ) {
+        return Role.builder()
+                .roleType(RoleType.ROLE_CLIENT)
+                .companySettings(this)
+                .code(code)
+                .name(name)
+                .createPermissions(new HashSet<>(createPermissions))
+                .editOtherPermissions(new HashSet<>(editOtherPermissions))
+                .deleteOtherPermissions(new HashSet<>(deleteOtherPermissions))
+                .viewOtherPermissions(new HashSet<>(viewOtherPermissions))
+                .viewPermissions(new HashSet<>(viewPermissions))
+                .build();
+
     }
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {
@@ -68,5 +80,23 @@ public class CompanySettings {
 
     private List<TimeCategory> createTimeCategories(List<String> timeCategories) {
         return timeCategories.stream().map(timeCategory -> new TimeCategory(timeCategory, this)).collect(Collectors.toList());
+    }
+
+    private Set<Role> getDefaultRoles() {
+        List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.CATEGORIES, PermissionEntity.WORK_ORDERS, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.PURCHASE_ORDERS, PermissionEntity.METERS, PermissionEntity.VENDORS_AND_CUSTOMERS, PermissionEntity.FILES, PermissionEntity.LOCATIONS, PermissionEntity.SETTINGS, PermissionEntity.REQUESTS);
+        return new HashSet<>(Arrays.asList(
+                createRole("Administrator", RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
+                createRole("Limited Administrator", RoleCode.LIMITED_ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Technician", RoleCode.TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
+                createRole("Limited Technician", RoleCode.LIMITED_TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
+                createRole("View Only", RoleCode.VIEW_ONLY, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Requester", RoleCode.REQUESTER, allEntities, allEntities, allEntities, allEntities, Collections.singletonList(PermissionEntity.REQUESTS))
+        ));
+//            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_ADMIN),
+//            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.TECHNICIAN),
+//            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_TECHNICIAN),
+//            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.VIEW_ONLY),
+//            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.REQUESTER)));
+
     }
 }

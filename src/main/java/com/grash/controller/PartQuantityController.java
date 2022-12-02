@@ -9,7 +9,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Part;
 import com.grash.model.PartQuantity;
 import com.grash.model.WorkOrder;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.service.PartQuantityService;
 import com.grash.service.PartService;
 import com.grash.service.UserService;
@@ -161,8 +161,9 @@ public class PartQuantityController {
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
-            if (partQuantityService.hasAccess(user, savedPartQuantity)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PARTS_AND_MULTI_PARTS)) {
+            if (partQuantityService.hasAccess(user, savedPartQuantity) &&
+                    (user.getId().equals(savedPartQuantity.getCreatedBy())
+                            || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS))) {
                 partQuantityService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

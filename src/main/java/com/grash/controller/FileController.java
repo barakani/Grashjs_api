@@ -5,8 +5,8 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.File;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.FileType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.FileService;
 import com.grash.service.GCPService;
@@ -112,7 +112,8 @@ public class FileController {
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
             if (fileService.hasAccess(user, savedFile)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_METERS)) {
+                    && (user.getId().equals(savedFile.getCreatedBy())
+                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.FILES))) {
                 fileService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

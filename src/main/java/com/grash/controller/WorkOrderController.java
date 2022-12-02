@@ -9,7 +9,7 @@ import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.Status;
 import com.grash.service.AssetService;
@@ -154,8 +154,9 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) &&
-                    user.getRole().getPermissions().contains(BasicPermission.DELETE_WORK_ORDERS)) {
+            if (workOrderService.hasAccess(user, savedWorkOrder) && (
+                    user.getId().equals(savedWorkOrder.getCreatedBy()) ||
+                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS))) {
                 workOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

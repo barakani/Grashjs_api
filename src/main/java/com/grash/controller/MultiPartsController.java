@@ -7,7 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MultiPartsService;
 import com.grash.service.UserService;
@@ -111,7 +111,7 @@ public class MultiPartsController {
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
             if (multiPartsService.hasAccess(user, savedMultiParts)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PARTS_AND_MULTI_PARTS)) {
+                    && user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 multiPartsService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

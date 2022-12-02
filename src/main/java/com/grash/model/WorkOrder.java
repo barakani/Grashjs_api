@@ -9,9 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Data
@@ -34,9 +32,6 @@ public class WorkOrder extends WorkOrderBase {
     private File signature;
 
     private boolean archived;
-
-    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private List<Task> taskList = new ArrayList<>();
 
     @ManyToOne
     @JsonIgnore

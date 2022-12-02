@@ -9,7 +9,7 @@ import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
 import com.grash.service.LocationService;
@@ -179,8 +179,8 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_ASSETS)) {
+            if (assetService.hasAccess(user, savedAsset) && (savedAsset.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS))) {
                 assetService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

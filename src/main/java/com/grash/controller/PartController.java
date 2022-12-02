@@ -7,7 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PartService;
 import com.grash.service.UserService;
@@ -115,7 +115,7 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (partService.hasAccess(user, savedPart)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PARTS_AND_MULTI_PARTS)) {
+                    && (savedPart.getId().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS))) {
                 partService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

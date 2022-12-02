@@ -14,8 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.HashSet;
-
 @SpringBootApplication
 @RequiredArgsConstructor
 public class ApiApplication implements CommandLineRunner {
@@ -35,7 +33,12 @@ public class ApiApplication implements CommandLineRunner {
     public void run(String... args) {
         if (!roleService.findByName(superAdminRole).isPresent()) {
             Company company = companyService.create(new Company());
-            roleService.create(new Role(RoleType.ROLE_SUPER_ADMIN, superAdminRole, new HashSet<>(), company.getCompanySettings(), RoleCode.ADMIN));
+            roleService.create(Role.builder().
+                    name(superAdminRole)
+                    .companySettings(company.getCompanySettings())
+                    .code(RoleCode.ADMIN)
+                    .roleType(RoleType.ROLE_SUPER_ADMIN)
+                    .build());
         }
         if (!subscriptionPlanService.existByCode("FREE")) {
             subscriptionPlanService.create(SubscriptionPlan.builder()
