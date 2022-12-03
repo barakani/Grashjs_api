@@ -88,17 +88,14 @@ public class CompanySettings {
         List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.values());
         return new HashSet<>(Arrays.asList(
                 createRole("Administrator", true, RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
-                createRole("Limited Administrator", true, RoleCode.LIMITED_ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Technician", true, RoleCode.TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
-                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, allEntities, allEntities, allEntities, allEntities, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
-                createRole("View Only", false, RoleCode.VIEW_ONLY, allEntities, allEntities, allEntities, allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Requester", false, RoleCode.REQUESTER, allEntities, allEntities, allEntities, allEntities, Collections.singletonList(PermissionEntity.REQUESTS))
+                createRole("Limited Administrator", true, RoleCode.LIMITED_ADMIN,
+                        allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
+                        allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
+                        Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
+                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.WORK_ORDERS)),
+                createRole("View Only", false, RoleCode.VIEW_ONLY, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
+                createRole("Requester", false, RoleCode.REQUESTER, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.REQUESTS))
         ));
-//            createRole("Limited Administrator", Arrays.asList(BasicPermission.ACCESS_SETTINGS, BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_ADMIN),
-//            createRole("Technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.TECHNICIAN),
-//            createRole("Limited technician", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.LIMITED_TECHNICIAN),
-//            createRole("View only", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.VIEW_ONLY),
-//            createRole("Requester", Arrays.asList(BasicPermission.CREATE_EDIT_CATEGORIES), RoleCode.REQUESTER)));
-
     }
 }
