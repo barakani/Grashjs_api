@@ -1,0 +1,15 @@
+package com.grash.model.enums;
+
+public enum PlanFeatures {
+    PREVENTIVE_MAINTENANCE,
+    CHECKLIST,
+    FILE,
+    PURCHASE_ORDER,
+    METER,
+    CATEGORIES,
+    REQUEST_CONFIGURATION,
+    ADDITIONAL_TIME,
+    ADDITIONAL_COST,
+    ANALYTICS,
+    REQUEST_PORTAL
+}

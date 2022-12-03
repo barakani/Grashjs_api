@@ -95,7 +95,7 @@ public class CompanySettings {
                 createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
                 createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.WORK_ORDERS)),
                 createRole("View Only", false, RoleCode.VIEW_ONLY, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Requester", false, RoleCode.REQUESTER, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.REQUESTS))
+                createRole("Requester", false, RoleCode.REQUESTER, Collections.singletonList(PermissionEntity.REQUESTS), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.REQUESTS))
         ));
     }
 }

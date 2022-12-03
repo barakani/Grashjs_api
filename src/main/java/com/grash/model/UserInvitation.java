@@ -1,6 +1,6 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.DateAudit;
+import com.grash.model.abstracts.Audit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class UserInvitation extends DateAudit {
+public class UserInvitation extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

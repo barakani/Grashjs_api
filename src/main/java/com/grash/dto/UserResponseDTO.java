@@ -23,6 +23,8 @@ public class UserResponseDTO {
 
     private String phone;
 
+    private boolean ownsCompany;
+
     private Long companyId;
 
     private Long companySettingsId;
