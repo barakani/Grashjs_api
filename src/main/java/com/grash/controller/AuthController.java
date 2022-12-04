@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.*;
+import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
+import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +31,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
+    private final EmailService2 emailService2;
 
     @PostMapping(
             path = "/signin",
@@ -57,6 +62,33 @@ public class AuthController {
             @ApiResponse(code = 422, message = "Username is already in use")})
     public SuccessResponse signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
         return userService.signup(user);
+    }
+
+    @PostMapping(
+            path = "/sendMail",
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            })
+    @ApiOperation(value = "${AuthController.signup}")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 400, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 422, message = "Username is already in use")})
+    public void sendMail(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
+        String email = "ibracool99@gmail.com";
+        String subject = "GG";
+        Map<String, Object> variables = new HashMap<String, Object>() {{
+            put("recipientName", "TEXT");
+            put("regards", "REGARDS");
+            put("senderName", "GSjk");
+            put("text", "bssiuh");
+        }};
+        try {
+            emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CustomException("Couldn't send email", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/activate-account")
