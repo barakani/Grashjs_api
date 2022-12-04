@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -32,6 +33,6 @@ public class SubscriptionPlan {
     private String code;
 
     @ElementCollection(targetClass = PlanFeatures.class)
-    private Set<PlanFeatures> features;
+    private Set<PlanFeatures> features = new HashSet<>();
 
 }

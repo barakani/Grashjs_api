@@ -3,6 +3,7 @@ package com.grash;
 import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.SubscriptionPlan;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CompanyService;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -50,7 +54,9 @@ public class ApiApplication implements CommandLineRunner {
         if (!subscriptionPlanService.existByCode("STARTER")) {
             subscriptionPlanService.create(SubscriptionPlan.builder()
                     .code("STARTER")
-                    .name("Starter")
+                    .name("Starter").features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
+                            PlanFeatures.CHECKLIST,
+                            PlanFeatures.FILE)))
                     .monthlyCostPerUser(20)
                     .yearlyCostPerUser(200).build());
         }
@@ -59,6 +65,12 @@ public class ApiApplication implements CommandLineRunner {
                     .code("PRO")
                     .name("Professional")
                     .monthlyCostPerUser(40)
+                    .features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
+                            PlanFeatures.CHECKLIST,
+                            PlanFeatures.FILE,
+                            PlanFeatures.REQUEST_CONFIGURATION,
+                            PlanFeatures.ADDITIONAL_TIME
+                    )))
                     .yearlyCostPerUser(400).build());
         }
         if (!subscriptionPlanService.existByCode("BUS")) {
@@ -66,6 +78,7 @@ public class ApiApplication implements CommandLineRunner {
                     .code("BUS")
                     .name("Business")
                     .monthlyCostPerUser(80)
+                    .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
                     .yearlyCostPerUser(800).build());
         }
     }

@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -44,11 +45,13 @@ public class OwnUser {
     @NotNull
     private String password;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean enabled;
 
     @ManyToOne
     private Company company;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean ownsCompany;
 
     @OneToOne(cascade = CascadeType.ALL)
