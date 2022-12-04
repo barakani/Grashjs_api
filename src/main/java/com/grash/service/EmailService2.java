@@ -23,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailService2 {
 
-    private static final String NOREPLY_ADDRESS = "noreply@baeldung.com";
+    private static final String NOREPLY_ADDRESS = "noreply@grash.com";
 
     private final JavaMailSender emailSender;
 
@@ -80,13 +80,13 @@ public class EmailService2 {
 
 
     public void sendMessageUsingThymeleafTemplate(
-            String to, String subject, Map<String, Object> templateModel)
+            String to, String subject, Map<String, Object> templateModel, String template)
             throws MessagingException {
 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
 
-        String htmlBody = thymeleafTemplateEngine.process("signup.html", thymeleafContext);
+        String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
 
         sendHtmlMessage(to, subject, htmlBody);
     }
@@ -100,7 +100,7 @@ public class EmailService2 {
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlBody, true);
-        helper.addInline("attachment.png", resourceFile);
+        //helper.addInline("attachment.png", resourceFile);
         emailSender.send(message);
     }
 

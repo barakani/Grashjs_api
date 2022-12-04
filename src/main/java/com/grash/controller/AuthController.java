@@ -85,7 +85,7 @@ public class AuthController {
             put("featuresLink", "s");
         }};
         try {
-            emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables);
+            emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables, "signup.html");
         } catch (Exception e) {
             e.printStackTrace();
             throw new CustomException("Couldn't send email", HttpStatus.INTERNAL_SERVER_ERROR);

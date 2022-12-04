@@ -103,10 +103,10 @@ public class UserService {
                 String link = API_HOST + "/auth/activate-account?token=" + token;
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("verifyTokenLink", link);
-                    put("featuresLink", frontendUrl);
+                    put("featuresLink", frontendUrl + "/#key-features");
                 }};
                 try {
-                    emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables);
+                    emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
                 } catch (MessagingException exception) {
                     return new SuccessResponse(false, "Couldn't send the email");
 
@@ -180,11 +180,19 @@ public class UserService {
         return userRepository.findByLocation_Id(id);
     }
 
-    public void invite(String email, Role role) {
+    public void invite(String email, Role role, OwnUser inviter) {
         if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
             userInvitationService.create(new UserInvitation(email, role));
-            //TODO
-            //emailService.send(email, "Invitation to use Grash CMMS", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+                put("featuresLink", frontendUrl + "/#key-features");
+                put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
+                put("company", inviter.getCompany().getName());
+            }};
+            try {
+                emailService2.sendMessageUsingThymeleafTemplate(email, "Invitation to use Grash", variables, "invite.html");
+            } catch (MessagingException ignored) {
+            }
         }
     }
 
@@ -197,5 +205,9 @@ public class UserService {
 
     public void save(OwnUser user) {
         userRepository.save(user);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
