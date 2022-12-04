@@ -21,6 +21,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
@@ -37,6 +38,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
+    private final EmailService2 emailService2;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final CurrencyService currencyService;
@@ -99,9 +101,16 @@ public class UserService {
                 //send mail
                 String token = UUID.randomUUID().toString();
                 String link = API_HOST + "/auth/activate-account?token=" + token;
+                Map<String, Object> variables = new HashMap<String, Object>() {{
+                    put("verifyTokenLink", link);
+                    put("featuresLink", frontendUrl);
+                }};
+                try {
+                    emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables);
+                } catch (MessagingException exception) {
+                    return new SuccessResponse(false, "Couldn't send the email");
 
-                emailService.send(user.getEmail(), "Email de confirmation", emailService.buildEmail("Confirmation", "Confirmez votre  adresse mail", link));
-
+                }
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
                 userRepository.save(user);

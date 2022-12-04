@@ -9,6 +9,7 @@ import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +34,8 @@ public class AuthController {
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
     private final EmailService2 emailService2;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @PostMapping(
             path = "/signin",
@@ -66,9 +70,8 @@ public class AuthController {
 
     @PostMapping(
             path = "/sendMail",
-            produces = {
-                    MediaType.APPLICATION_JSON_VALUE
-            })
+            produces = "text/html;charset=UTF-8"
+    )
     @ApiOperation(value = "${AuthController.signup}")
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
@@ -78,10 +81,8 @@ public class AuthController {
         String email = "ibracool99@gmail.com";
         String subject = "GG";
         Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("recipientName", "TEXT");
-            put("regards", "REGARDS");
-            put("senderName", "GSjk");
-            put("text", "bssiuh");
+            put("verifyTokenLink", "gg");
+            put("featuresLink", "s");
         }};
         try {
             emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables);
@@ -96,10 +97,16 @@ public class AuthController {
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public AuthResponse activateAcount(
-            @ApiParam("token") @RequestParam String token
+    public void activateAcount(
+            @ApiParam("token") @RequestParam String token, HttpServletResponse httpServletResponse
     ) throws Exception {
-        return verificationTokenService.confirmMail(token);
+        try {
+            verificationTokenService.confirmMail(token);
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/login");
+        } catch (Exception ex) {
+            httpServletResponse.setHeader("Location", frontendUrl + "/signup");
+        }
+        httpServletResponse.setStatus(302);
     }
 
     @DeleteMapping(value = "/{username}")

@@ -31,7 +31,7 @@ public class EmailService2 {
 
     private final SpringTemplateEngine thymeleafTemplateEngine;
 
-    @Value("classpath:/logo.png")
+    @Value("classpath:/static/images/logo.png")
     private Resource resourceFile;
 
     public void sendSimpleMessage(String to, String subject, String text) {
@@ -86,7 +86,7 @@ public class EmailService2 {
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
 
-        String htmlBody = thymeleafTemplateEngine.process("template-thymeleaf.html", thymeleafContext);
+        String htmlBody = thymeleafTemplateEngine.process("signup.html", thymeleafContext);
 
         sendHtmlMessage(to, subject, htmlBody);
     }
