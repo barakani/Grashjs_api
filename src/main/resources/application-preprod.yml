@@ -12,4 +12,6 @@ spring:
     init:
       data-locations: classpath:data-preprod.sql
 api:
-  host: http://localhost:8080
+  host: ${API_HOST}
+frontend:
+  url: ${FRONT_URL}
