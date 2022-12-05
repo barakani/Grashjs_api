@@ -28,7 +28,11 @@ public class TaskBase extends CompanyAudit {
 
     private TaskType taskType = TaskType.SUBTASK;
 
-    @OneToMany
+    @OneToMany(
+            mappedBy = "taskBase",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JsonManagedReference
     private Collection<TaskOption> options = new ArrayList<>();
 
