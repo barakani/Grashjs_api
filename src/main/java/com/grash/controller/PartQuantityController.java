@@ -137,6 +137,7 @@ public class PartQuantityController {
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             if (partQuantityService.hasAccess(user, savedPartQuantity) && partQuantityService.canPatch(user, partQuantity)) {
+                partService.reduceQuantity(savedPartQuantity.getPart(), partQuantity.getQuantity() - savedPartQuantity.getQuantity());
                 PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
                 return partQuantityMapper.toShowDto(patchedPartQuantity);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

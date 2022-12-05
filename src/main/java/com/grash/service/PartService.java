@@ -39,6 +39,18 @@ public class PartService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public Part reduceQuantity(Part part, int quantity) {
+        if (part.getQuantity() >= quantity) {
+            part.setQuantity(part.getQuantity() - quantity);
+            if (part.getQuantity() < part.getMinQuantity()) {
+                part.getAssignedTo().forEach(user ->
+                        notificationService.create(new Notification(part.getName() + " is getting Low", user, NotificationType.PART, part.getId()))
+                );
+            }
+            return partRepository.save(part);
+        } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
+    }
+
     public Collection<Part> getAll() {
         return partRepository.findAll();
     }
