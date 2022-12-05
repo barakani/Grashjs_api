@@ -14,4 +14,6 @@ public interface RelationRepository extends JpaRepository<Relation, Long> {
     Collection<Relation> findByParent_Id(Long id);
 
     Collection<Relation> findByChild_Id(Long id);
+
+    Collection<Relation> findByParent_IdAndChild_Id(Long parentId, Long childId);
 }

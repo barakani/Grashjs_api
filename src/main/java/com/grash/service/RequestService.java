@@ -98,8 +98,7 @@ public class RequestService {
         workOrder.setTitle(request.getTitle());
         workOrder.setDescription(request.getDescription());
         workOrder.setPriority(request.getPriority());
-        //TODO
-        //workOrder.setFiles(request.getFiles());
+        workOrder.setFiles(request.getFiles());
         workOrder.setAsset(request.getAsset());
         workOrder.setLocation(request.getLocation());
         workOrder.setPrimaryUser(request.getPrimaryUser());

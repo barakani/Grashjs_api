@@ -203,8 +203,8 @@ public class UserService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public void save(OwnUser user) {
-        userRepository.save(user);
+    public OwnUser save(OwnUser user) {
+        return userRepository.save(user);
     }
 
     public boolean existsByEmail(String email) {

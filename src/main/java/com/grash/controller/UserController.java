@@ -8,6 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Role;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
@@ -90,6 +91,34 @@ public class UserController {
             }
         } else {
             throw new CustomException("Can't get someone else's user", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+    }
+
+    @PatchMapping("/{id}/role")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "User not found")})
+    public UserResponseDTO patchRole(@ApiParam("id") @PathVariable("id") Long id,
+                                     @RequestParam("role") Long roleId,
+                                     HttpServletRequest req) {
+        OwnUser requester = userService.whoami(req);
+
+        Optional<OwnUser> optionalUserToPatch = userService.findById(id);
+        Optional<Role> optionalRole = roleService.findById(roleId);
+
+        if (optionalUserToPatch.isPresent() && optionalRole.isPresent()) {
+            OwnUser userToPatch = optionalUserToPatch.get();
+            if (userToPatch.getCompany().getId().equals(requester.getCompany().getId()) && requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                userToPatch.setRole(optionalRole.get());
+                return userMapper.toDto(userService.save(userToPatch));
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
         }
 
     }

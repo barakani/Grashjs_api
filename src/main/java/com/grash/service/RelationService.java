@@ -124,4 +124,9 @@ public class RelationService {
         return Stream.concat(whereParent.stream(), whereChild.stream())
                 .collect(Collectors.toList());
     }
+
+    public Collection<Relation> findByParentAndChild(Long parentId, Long childId) {
+        return relationRepository.findByParent_IdAndChild_Id(parentId, childId);
+    }
+
 }

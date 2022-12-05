@@ -88,7 +88,12 @@ public class RelationController {
     public Relation create(@ApiParam("Relation") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (relationService.canCreate(user, relationReq)) {
-            return relationService.createPost(relationReq);
+            Long parentId = relationReq.getParent().getId();
+            Long childId = relationReq.getChild().getId();
+            if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
+                return relationService.createPost(relationReq);
+            } else
+                throw new CustomException("There already is a relation between these 2 Work Orders", HttpStatus.NOT_ACCEPTABLE);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
