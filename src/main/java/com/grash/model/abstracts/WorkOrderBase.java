@@ -28,7 +28,8 @@ public abstract class WorkOrderBase extends CompanyAudit {
     @OneToOne
     private File image;
 
-    private String category;
+    @ManyToOne
+    private WorkOrderCategory category;
 
     @ManyToOne
     private Location location;

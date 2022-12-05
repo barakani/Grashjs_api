@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
     private String description;
     private String title;
     private boolean requiredSignature;
+    
+    private WorkOrderCategory category;
 
     private LocationMiniDTO location;
 

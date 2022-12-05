@@ -98,15 +98,7 @@ public class LocationController {
         OwnUser user = userService.whoami(req);
         if (locationService.canCreate(user, locationReq)) {
             if (locationReq.getParentLocation() != null) {
-                Optional<Location> optionalParentLocation = locationService.findById(locationReq.getParentLocation().getId());
-                if (optionalParentLocation.isPresent()) {
-                    Location parentLocation = optionalParentLocation.get();
-                    if (parentLocation.getParentLocation() != null) {
-                        throw new CustomException("Parent location has a Parent Location ", HttpStatus.NOT_ACCEPTABLE);
-                    }
-                    parentLocation.setHasChildren(true);
-                    locationService.save(parentLocation);
-                } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                checkParentLocation(locationReq.getParentLocation().getId());
             }
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation);
@@ -127,6 +119,9 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (locationService.hasAccess(user, savedLocation) && locationService.canPatch(user, location)) {
+                if (location.getParentLocation() != null) {
+                    checkParentLocation(location.getParentLocation().getId());
+                }
                 Location patchedLocation = locationService.update(id, location);
                 locationService.patchNotify(savedLocation, patchedLocation);
                 return locationMapper.toShowDto(patchedLocation);
@@ -160,6 +155,18 @@ public class LocationController {
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void checkParentLocation(Long id) throws CustomException {
+        Optional<Location> optionalParentLocation = locationService.findById(id);
+        if (optionalParentLocation.isPresent()) {
+            Location parentLocation = optionalParentLocation.get();
+            if (parentLocation.getParentLocation() != null) {
+                throw new CustomException("Parent location has a Parent Location ", HttpStatus.NOT_ACCEPTABLE);
+            }
+            parentLocation.setHasChildren(true);
+            locationService.save(parentLocation);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
 }

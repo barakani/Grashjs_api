@@ -21,7 +21,7 @@ public class WorkOrderBasePatchDTO {
 
     private File image;
 
-    private String category;
+    private WorkOrderCategory category;
 
     private Location location;
 
