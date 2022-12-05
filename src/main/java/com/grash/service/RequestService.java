@@ -92,21 +92,10 @@ public class RequestService {
     }
 
     public WorkOrder createWorkOrderFromRequest(Request request) {
-        WorkOrder workOrder = new WorkOrder();
-        workOrder.setCompany(request.getCompany());
+        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         workOrder.setParentRequest(request);
-        workOrder.setTitle(request.getTitle());
-        workOrder.setDescription(request.getDescription());
-        workOrder.setPriority(request.getPriority());
-        workOrder.setFiles(request.getFiles());
-        workOrder.setAsset(request.getAsset());
-        workOrder.setLocation(request.getLocation());
-        workOrder.setPrimaryUser(request.getPrimaryUser());
-        workOrder.setTeam(request.getTeam());
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-
         workOrderService.notify(savedWorkOrder);
-
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
 

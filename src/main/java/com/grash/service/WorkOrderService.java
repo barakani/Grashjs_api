@@ -4,6 +4,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
@@ -141,5 +142,20 @@ public class WorkOrderService {
 
     public void save(WorkOrder workOrder) {
         workOrderRepository.save(workOrder);
+    }
+
+    public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setCompany(workOrderBase.getCompany());
+        workOrder.setTitle(workOrderBase.getTitle());
+        workOrder.setDescription(workOrderBase.getDescription());
+        workOrder.setPriority(workOrderBase.getPriority());
+        //TODO
+        //workOrder.setFiles(workOrderBase.getFiles());
+        workOrder.setAsset(workOrderBase.getAsset());
+        workOrder.setLocation(workOrderBase.getLocation());
+        workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
+        workOrder.setTeam(workOrderBase.getTeam());
+        return workOrder;
     }
 }
