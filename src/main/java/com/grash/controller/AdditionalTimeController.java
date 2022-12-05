@@ -6,11 +6,11 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.Status;
 import com.grash.model.enums.TimeStatus;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
-import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -26,7 +26,6 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/additional-times")
@@ -82,6 +81,11 @@ public class AdditionalTimeController {
         if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
             Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findByWorkOrder(id).stream().filter(additionalTime -> additionalTime.isPrimaryTime() && additionalTime.getAssignedTo().getId().equals(user.getId())).findFirst();
             if (start) {
+                WorkOrder workOrder = optionalWorkOrder.get();
+                if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
+                    workOrder.setStatus(Status.IN_PROGRESS);
+                    workOrderService.save(workOrder);
+                }
                 if (optionalAdditionalTime.isPresent()) {
                     AdditionalTime additionalTime = optionalAdditionalTime.get();
                     if (additionalTime.getStatus().equals(TimeStatus.RUNNING)) {
@@ -101,9 +105,7 @@ public class AdditionalTimeController {
                     if (additionalTime.getStatus().equals(TimeStatus.STOPPED)) {
                         return additionalTime;
                     } else {
-                        additionalTime.setStatus(TimeStatus.STOPPED);
-                        additionalTime.setDuration(additionalTime.getDuration() + Helper.getDateDiff(additionalTime.getStartedAt(), new Date(), TimeUnit.SECONDS));
-                        return additionalTimeService.save(additionalTime);
+                        return additionalTimeService.stop(additionalTime);
                     }
                 } else throw new CustomException("No timer to stop", HttpStatus.NOT_FOUND);
             }

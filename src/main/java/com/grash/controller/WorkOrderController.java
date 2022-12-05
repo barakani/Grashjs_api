@@ -5,17 +5,11 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
-import com.grash.model.Asset;
-import com.grash.model.Location;
-import com.grash.model.OwnUser;
-import com.grash.model.WorkOrder;
+import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.Status;
-import com.grash.service.AssetService;
-import com.grash.service.LocationService;
-import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -44,6 +38,7 @@ public class WorkOrderController {
     private final UserService userService;
     private final AssetService assetService;
     private final LocationService locationService;
+    private final AdditionalTimeService additionalTimeService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -131,9 +126,14 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
-                if (workOrder.getStatus().equals(Status.COMPLETE)) {
-                    workOrder.setCompletedBy(user);
-                    workOrder.setCompletedOn(new Date());
+                if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
+                    if (workOrder.getStatus().equals(Status.COMPLETE)) {
+                        workOrder.setCompletedBy(user);
+                        workOrder.setCompletedOn(new Date());
+                    }
+                    Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(id);
+                    Collection<AdditionalTime> primaryTimes = additionalTimes.stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());
+                    primaryTimes.forEach(additionalTimeService::stop);
                 }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
                 workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);

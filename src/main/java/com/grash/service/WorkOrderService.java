@@ -75,7 +75,7 @@ public class WorkOrderService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-        
+
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
@@ -137,5 +137,9 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByLocation(Long id) {
         return workOrderRepository.findByLocation_Id(id);
+    }
+
+    public void save(WorkOrder workOrder) {
+        workOrderRepository.save(workOrder);
     }
 }
