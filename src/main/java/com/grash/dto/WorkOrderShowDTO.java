@@ -1,9 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.File;
-import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
-import com.grash.model.Request;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,13 +12,13 @@ import java.util.Date;
 @NoArgsConstructor
 public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
 
-    private OwnUser completedBy;
+    private UserMiniDTO completedBy;
 
     private Date completedOn;
 
     private boolean archived;
 
-    private Request parentRequest;
+    private RequestMiniDTO parentRequest;
 
     private PreventiveMaintenance parentPreventiveMaintenance;
 

@@ -1,7 +1,6 @@
 package com.grash.dto;
 
 import com.grash.model.File;
-import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,7 +31,7 @@ public class PartShowDTO extends AuditShowDTO {
 
     private int minQuantity;
 
-    private Location location;
+    private LocationMiniDTO location;
 
     private File image;
 

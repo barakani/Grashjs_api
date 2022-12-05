@@ -1,9 +1,5 @@
 package com.grash.dto;
 
-import com.grash.model.Asset;
-import com.grash.model.Location;
-import com.grash.model.OwnUser;
-import com.grash.model.Team;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,17 +19,17 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
     private String title;
     private boolean requiredSignature;
 
-    private Location location;
+    private LocationMiniDTO location;
 
-    private Team team;
+    private TeamMiniDTO team;
 
-    private OwnUser primaryUser;
+    private UserMiniDTO primaryUser;
 
     private List<UserMiniDTO> assignedTo;
 
     private List<CustomerMiniDTO> customers;
 
-    private Asset asset;
+    private AssetMiniDTO asset;
 
     private List<FileMiniDTO> files;
 

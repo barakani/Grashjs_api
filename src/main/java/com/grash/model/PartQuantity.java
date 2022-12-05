@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -16,6 +17,7 @@ public class PartQuantity extends CompanyAudit {
     private Long id;
 
     @NotNull
+    @Min(value = 0L, message = "The value must be positive")
     private int quantity;
 
     @ManyToOne

@@ -118,9 +118,6 @@ public class PartQuantityController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PartQuantityShowDTO create(@ApiParam("PartQuantity") @Valid @RequestBody PartQuantity partQuantityReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (partQuantityReq.getQuantity() < 0) {
-            throw new CustomException("Quantity is negative", HttpStatus.NOT_ACCEPTABLE);
-        }
         if (partQuantityService.canCreate(user, partQuantityReq)) {
             PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
             return partQuantityMapper.toShowDto(savedPartQuantity);
@@ -136,9 +133,6 @@ public class PartQuantityController {
     public PartQuantityShowDTO patch(@ApiParam("PartQuantity") @Valid @RequestBody PartQuantityPatchDTO partQuantity, @ApiParam("id") @PathVariable("id") Long id,
                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (partQuantity.getQuantity() < 0) {
-            throw new CustomException("Quantity is negative", HttpStatus.NOT_ACCEPTABLE);
-        }
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
