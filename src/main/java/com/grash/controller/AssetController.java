@@ -181,7 +181,15 @@ public class AssetController {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset) && (savedAsset.getCreatedBy().equals(user.getId()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS))) {
+                Asset parent = savedAsset.getParentAsset();
                 assetService.delete(id);
+                if (parent != null) {
+                    Collection<Asset> siblings = assetService.findAssetChildren(parent.getId());
+                    if (siblings.isEmpty()) {
+                        parent.setHasChildren(false);
+                        assetService.save(parent);
+                    }
+                }
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

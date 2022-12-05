@@ -147,7 +147,15 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (locationService.hasAccess(user, savedLocation)) {
+                Location parent = savedLocation.getParentLocation();
                 locationService.delete(id);
+                if (parent != null) {
+                    Collection<Location> siblings = locationService.findLocationChildren(parent.getId());
+                    if (siblings.isEmpty()) {
+                        parent.setHasChildren(false);
+                        locationService.save(parent);
+                    }
+                }
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
