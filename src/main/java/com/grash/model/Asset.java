@@ -39,6 +39,8 @@ public class Asset extends CompanyAudit {
 
     private String barCode;
 
+    private Date downAt;
+
     @ManyToOne
     private AssetCategory category;
 
@@ -118,9 +120,9 @@ public class Asset extends CompanyAudit {
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
 
-    private int uptime;
+    private long uptime;
 
-    private int downtime;
+    private long downtime = 0L;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

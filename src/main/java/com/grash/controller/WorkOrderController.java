@@ -6,10 +6,12 @@ import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.Status;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -25,6 +27,7 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -107,6 +110,15 @@ public class WorkOrderController {
         OwnUser user = userService.whoami(req);
         if (workOrderService.canCreate(user, workOrderReq)) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
+            if (createdWorkOrder.getAsset() != null) {
+                Asset asset = createdWorkOrder.getAsset();
+                if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
+                    asset.setStatus(AssetStatus.DOWN);
+                    asset.setDownAt(new Date());
+                    assetService.save(asset);
+                    assetService.notify(asset, asset.getName() + " is down");
+                }
+            }
             workOrderService.notify(createdWorkOrder);
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -130,6 +142,16 @@ public class WorkOrderController {
                     if (workOrder.getStatus().equals(Status.COMPLETE)) {
                         workOrder.setCompletedBy(user);
                         workOrder.setCompletedOn(new Date());
+                        if (workOrder.getAsset() != null) {
+                            Asset asset = workOrder.getAsset();
+                            Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
+                            if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
+                                asset.setStatus(AssetStatus.OPERATIONAL);
+                                asset.setDowntime(asset.getDowntime() + Helper.getDateDiff(asset.getDownAt(), new Date(), TimeUnit.SECONDS));
+                                assetService.save(asset);
+                                assetService.notify(asset, asset.getName() + " is now operational");
+                            }
+                        }
                     }
                     Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(id);
                     Collection<AdditionalTime> primaryTimes = additionalTimes.stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());

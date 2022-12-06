@@ -119,9 +119,8 @@ public class AssetService {
         return second && third && fourth && fifth && sixth && seventh && eighth;
     }
 
-    public void notify(Asset asset) {
+    public void notify(Asset asset, String message) {
 
-        String message = "Asset " + asset.getName() + " has been assigned to you";
         if (asset.getPrimaryUser() != null) {
             notificationService.create(new Notification(message, asset.getPrimaryUser(), NotificationType.ASSET, asset.getId()));
         }

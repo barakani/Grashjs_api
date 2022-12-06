@@ -142,7 +142,7 @@ public class AssetController {
 
             }
             Asset createdAsset = assetService.create(assetReq);
-            assetService.notify(createdAsset);
+            assetService.notify(createdAsset, "Asset " + createdAsset.getName() + " has been assigned to you");
             return assetMapper.toShowDto(createdAsset);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
