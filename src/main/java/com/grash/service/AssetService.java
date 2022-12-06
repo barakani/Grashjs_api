@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +30,19 @@ public class AssetService {
     private final CompanyService companyService;
     private final NotificationService notificationService;
     private final AssetMapper assetMapper;
+    private final EntityManager em;
 
     public Asset create(Asset Asset) {
         return assetRepository.save(Asset);
     }
 
+    @Transactional
     public Asset update(Long id, AssetPatchDTO asset) {
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
-            return assetRepository.save(assetMapper.updateAsset(savedAsset, asset));
+            Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
+            em.refresh(patchedAsset);
+            return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
