@@ -10,7 +10,9 @@ import com.grash.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -25,17 +27,21 @@ public class PartService {
     private final CompanyService companyService;
     private final LocationService locationService;
     private final PartMapper partMapper;
-
+    private final EntityManager em;
     private final NotificationService notificationService;
 
     public Part create(Part Part) {
         return partRepository.save(Part);
     }
 
+    @Transactional
     public Part update(Long id, PartPatchDTO part) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
-            return partRepository.save(partMapper.updatePart(savedPart, part));
+            Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
+            em.refresh(patchedPart);
+            return patchedPart;
+
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

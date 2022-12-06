@@ -13,7 +13,9 @@ import com.grash.repository.TaskBaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -24,11 +26,13 @@ public class TaskBaseService {
     private final CompanyService companyService;
     private final TaskBaseMapper taskBaseMapper;
     private final TaskOptionService taskOptionService;
+    private final EntityManager em;
 
     public TaskBase create(TaskBase TaskBase) {
         return taskBaseRepository.save(TaskBase);
     }
 
+    @Transactional
     public TaskBase createFromTaskBaseDTO(TaskBaseDTO taskBaseDTO, Company company) {
         TaskBase taskBase = TaskBase.builder()
                 .label(taskBaseDTO.getLabel())
@@ -46,6 +50,7 @@ public class TaskBaseService {
                 taskOptionService.create(taskOption);
             });
         }
+        em.refresh(savedTaskBase);
         return savedTaskBase;
     }
 

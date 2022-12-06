@@ -1,9 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.SuccessResponse;
-import com.grash.dto.UserInvitationDTO;
-import com.grash.dto.UserPatchDTO;
-import com.grash.dto.UserResponseDTO;
+import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
@@ -25,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -71,6 +69,17 @@ public class UserController {
                 throw new CustomException("Your current subscription doesn't allow you to invite that many users", HttpStatus.NOT_ACCEPTABLE);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<UserMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return userService.findByCompany(user.getCompany().getId()).stream().map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @PatchMapping("/{id}")

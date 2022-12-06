@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -100,6 +101,17 @@ public class PartController {
                 return partMapper.toShowDto(patchedPart);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<PartMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser part = userService.whoami(req);
+        return partService.findByCompany(part.getCompany().getId()).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.TeamMiniDTO;
 import com.grash.dto.TeamPatchDTO;
 import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
@@ -48,6 +49,17 @@ public class TeamController {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
         } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser team = userService.whoami(req);
+        return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

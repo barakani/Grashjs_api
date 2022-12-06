@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -31,15 +33,18 @@ public class WorkOrderService {
     private final PurchaseOrderService purchaseOrderService;
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
+    private final EntityManager em;
 
     public WorkOrder create(WorkOrder workOrder) {
         return workOrderRepository.save(workOrder);
     }
 
+    @Transactional
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
-            WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            em.refresh(updatedWorkOrder);
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .name("Updating " + workOrder.getTitle())
                     .workOrder(updatedWorkOrder)

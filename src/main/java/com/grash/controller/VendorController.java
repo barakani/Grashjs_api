@@ -1,8 +1,10 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.VendorMiniDTO;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.VendorMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
 import com.grash.model.enums.PermissionEntity;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vendors")
@@ -32,6 +35,7 @@ public class VendorController {
 
     private final VendorService vendorService;
     private final UserService userService;
+    private final VendorMapper vendorMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -61,6 +65,17 @@ public class VendorController {
                 return savedVendor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<VendorMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return vendorService.findByCompany(user.getCompany().getId()).stream().map(vendorMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @PostMapping("")

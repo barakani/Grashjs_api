@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -165,6 +166,17 @@ public class AssetController {
                 return assetMapper.toShowDto(patchedAsset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+    })
+    public Collection<AssetMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser asset = userService.whoami(req);
+        return assetService.findByCompany(asset.getCompany().getId()).stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")

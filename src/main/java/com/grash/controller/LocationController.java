@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -70,6 +71,17 @@ public class LocationController {
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+    })
+    public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser location = userService.whoami(req);
+        return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

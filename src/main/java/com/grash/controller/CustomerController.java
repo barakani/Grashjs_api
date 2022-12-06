@@ -1,8 +1,10 @@
 package com.grash.controller;
 
+import com.grash.dto.CustomerMiniDTO;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CustomerMapper;
 import com.grash.model.Customer;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/customers")
@@ -32,6 +35,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final UserService userService;
+    private final CustomerMapper customerMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -44,6 +48,17 @@ public class CustomerController {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return customerService.findByCompany(user.getCompany().getId());
         } else return customerService.getAll();
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<CustomerMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return customerService.findByCompany(user.getCompany().getId()).stream().map(customerMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
