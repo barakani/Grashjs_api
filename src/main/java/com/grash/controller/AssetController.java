@@ -53,7 +53,12 @@ public class AssetController {
     public Collection<AssetShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId()).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+                return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
+                    return canViewOthers || asset.getCreatedBy().equals(user.getId());
+                }).map(assetMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return assetService.getAll().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
     }
 
@@ -68,7 +73,8 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset)) {
+            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
                 return assetMapper.toShowDto(savedAsset);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -131,7 +137,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (assetService.canCreate(user, assetReq)) {
+        if (assetService.canCreate(user, assetReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getParentAsset() != null) {
                 Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
                 if (optionalParentAsset.isPresent()) {
@@ -160,7 +166,9 @@ public class AssetController {
 
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)) {
+            if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedAsset.getCreatedBy().equals(user.getId())
+            ) {
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset);
                 return assetMapper.toShowDto(patchedAsset);
