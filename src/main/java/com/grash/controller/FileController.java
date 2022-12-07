@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -42,12 +43,14 @@ public class FileController {
     @PostMapping(value = "/upload", produces = "application/json")
     public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType) {
         OwnUser user = userService.whoami(req);
-        Collection<File> result = new ArrayList<>();
-        Arrays.asList(filesReq).forEach(fileReq -> {
-            String url = gcp.upload(fileReq, folder);
-            result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType)));
-        });
-        return result;
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES)) {
+            Collection<File> result = new ArrayList<>();
+            Arrays.asList(filesReq).forEach(fileReq -> {
+                String url = gcp.upload(fileReq, folder);
+                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType)));
+            });
+            return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("")
@@ -59,7 +62,12 @@ public class FileController {
     public Collection<File> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return fileService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES)) {
+                return fileService.findByCompany(user.getCompany().getId()).stream().filter(file -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES);
+                    return canViewOthers || file.getCreatedBy().equals(user.getId());
+                }).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return fileService.getAll();
     }
 
@@ -74,7 +82,8 @@ public class FileController {
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (fileService.hasAccess(user, savedFile)) {
+            if (fileService.hasAccess(user, savedFile) && user.getRole().getViewPermissions().contains(PermissionEntity.FILES) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId()))) {
                 return savedFile;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -93,7 +102,7 @@ public class FileController {
 
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (fileService.hasAccess(user, savedFile)) {
+            if (fileService.hasAccess(user, savedFile) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId())) {
                 return fileService.update(file);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("File not found", HttpStatus.NOT_FOUND);
