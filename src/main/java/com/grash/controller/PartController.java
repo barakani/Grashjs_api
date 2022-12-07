@@ -47,7 +47,12 @@ public class PartController {
     public Collection<PartShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return partService.findByCompany(user.getCompany().getId()).stream().map(partMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+                return partService.findByCompany(user.getCompany().getId()).stream().filter(part -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
+                    return canViewOthers || part.getCreatedBy().equals(user.getId());
+                }).map(partMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return partService.getAll().stream().map(partMapper::toShowDto).collect(Collectors.toList());
     }
 
@@ -62,7 +67,8 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (partService.hasAccess(user, savedPart)) {
+            if (partService.hasAccess(user, savedPart) && user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId()))) {
                 return partMapper.toShowDto(savedPart);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -75,7 +81,7 @@ public class PartController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (partService.canCreate(user, partReq)) {
+        if (partService.canCreate(user, partReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             Part savedPart = partService.create(partReq);
             partService.notify(savedPart);
             return partMapper.toShowDto(savedPart);
@@ -95,7 +101,8 @@ public class PartController {
 
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)) {
+            if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 Part patchedPart = partService.update(id, part);
                 partService.patchNotify(savedPart, patchedPart);
                 return partMapper.toShowDto(patchedPart);
