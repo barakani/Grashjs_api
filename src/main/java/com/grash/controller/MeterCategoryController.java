@@ -56,8 +56,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 404, message = "MeterCategory not found")})
     public MeterCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES) &&
-                user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
             Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
             if (optionalMeterCategory.isPresent()) {
                 MeterCategory savedMeterCategory = optionalMeterCategory.get();
@@ -76,7 +75,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterCategory create(@ApiParam("MeterCategory") @Valid @RequestBody MeterCategory meterCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (meterCategoryService.canCreate(user, meterCategoryReq)) {
+        if (meterCategoryService.canCreate(user, meterCategoryReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return meterCategoryService.create(meterCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
