@@ -41,11 +41,11 @@ public class AssetCategoryController {
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<AssetCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
                 return assetCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
-            } else return assetCategoryService.getAll();
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        } else return assetCategoryService.getAll();
     }
 
     @GetMapping("/{id}")
