@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.Status;
 import com.grash.model.enums.TimeStatus;
 import com.grash.service.AdditionalTimeService;
@@ -119,7 +120,8 @@ public class AdditionalTimeController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalTime create(@ApiParam("AdditionalTime") @Valid @RequestBody AdditionalTime additionalTimeReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (additionalTimeService.canCreate(user, additionalTimeReq)) {
+        if (additionalTimeService.canCreate(user, additionalTimeReq)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
             return additionalTimeService.create(additionalTimeReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

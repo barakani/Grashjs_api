@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
@@ -73,7 +74,8 @@ public class RoleController {
     public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         roleReq.setPaid(true);
-        if (roleService.canCreate(user, roleReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+        if (roleService.canCreate(user, roleReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

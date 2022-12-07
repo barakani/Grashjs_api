@@ -8,6 +8,7 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.Meter;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
@@ -80,7 +81,8 @@ public class MeterController {
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterShowDTO create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (meterService.canCreate(user, meterReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)) {
+        if (meterService.canCreate(user, meterReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
             Meter savedMeter = meterService.create(meterReq);
             meterService.notify(savedMeter);
             return meterMapper.toShowDto(savedMeter);

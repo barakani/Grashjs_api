@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrder;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PurchaseOrderService;
 import com.grash.service.UserService;
@@ -77,7 +78,8 @@ public class PurchaseOrderController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PurchaseOrder create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+        if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
             return purchaseOrderService.create(purchaseOrderReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

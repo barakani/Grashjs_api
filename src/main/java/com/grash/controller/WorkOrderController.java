@@ -6,10 +6,7 @@ import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
-import com.grash.model.enums.AssetStatus;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleType;
-import com.grash.model.enums.Status;
+import com.grash.model.enums.*;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
@@ -115,7 +112,9 @@ public class WorkOrderController {
     public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder
                                            workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (workOrderService.canCreate(user, workOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (workOrderService.canCreate(user, workOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && (workOrderReq.getSignature() == null ||
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = createdWorkOrder.getAsset();
@@ -147,7 +146,8 @@ public class WorkOrderController {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId())
-            ) {
+                    && (workOrder.getSignature() == null ||
+                    user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
                 if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
                     if (workOrder.getStatus().equals(Status.COMPLETE)) {
                         workOrder.setCompletedBy(user);

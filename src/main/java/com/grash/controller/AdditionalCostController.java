@@ -6,6 +6,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
@@ -73,7 +74,8 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (additionalCostService.canCreate(user, additionalCostReq)) {
+        if (additionalCostService.canCreate(user, additionalCostReq)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

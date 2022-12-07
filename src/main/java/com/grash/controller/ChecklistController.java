@@ -8,6 +8,7 @@ import com.grash.model.Checklist;
 import com.grash.model.CompanySettings;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ChecklistService;
 import com.grash.service.UserService;
@@ -73,7 +74,8 @@ public class ChecklistController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Checklist create(@ApiParam("Checklist") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (checklistService.canCreate(user, checklistReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+        if (checklistService.canCreate(user, checklistReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.CHECKLIST)) {
             return checklistService.createPost(checklistReq, user.getCompany());
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

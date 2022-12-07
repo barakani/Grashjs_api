@@ -7,6 +7,7 @@ import com.grash.model.File;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.FileType;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.FileService;
 import com.grash.service.GCPService;
@@ -43,7 +44,8 @@ public class FileController {
     @PostMapping(value = "/upload", produces = "application/json")
     public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
             Collection<File> result = new ArrayList<>();
             Arrays.asList(filesReq).forEach(fileReq -> {
                 String url = gcp.upload(fileReq, folder);
