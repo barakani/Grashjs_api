@@ -52,7 +52,12 @@ public class WorkOrderController {
     public Collection<WorkOrderShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return workOrderService.findByCompany(user.getCompany().getId()).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+                return workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
+                    return canViewOthers || workOrder.getCreatedBy().equals(user.getId());
+                }).map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
     }
 
@@ -95,7 +100,8 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder)) {
+            if (workOrderService.hasAccess(user, savedWorkOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -106,9 +112,10 @@ public class WorkOrderController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder workOrderReq, HttpServletRequest req) {
+    public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder
+                                           workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (workOrderService.canCreate(user, workOrderReq)) {
+        if (workOrderService.canCreate(user, workOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = createdWorkOrder.getAsset();
@@ -130,14 +137,17 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrder not found")})
-    public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO workOrder, @ApiParam("id") @PathVariable("id") Long id,
+    public WorkOrderShowDTO patch(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderPatchDTO
+                                          workOrder, @ApiParam("id") @PathVariable("id") Long id,
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
 
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)) {
+            if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId())
+            ) {
                 if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
                     if (workOrder.getStatus().equals(Status.COMPLETE)) {
                         workOrder.setCompletedBy(user);
