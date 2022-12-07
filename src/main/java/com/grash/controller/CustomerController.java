@@ -46,7 +46,9 @@ public class CustomerController {
     public Collection<Customer> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return customerService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+                return customerService.findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return customerService.getAll();
     }
 
@@ -72,7 +74,7 @@ public class CustomerController {
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer) && user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 return savedCustomer;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -85,7 +87,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (customerService.canCreate(user, customerReq)) {
+        if (customerService.canCreate(user, customerReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -103,7 +105,7 @@ public class CustomerController {
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer) && customerService.canPatch(user, customer)) {
+            if (customerService.hasAccess(user, savedCustomer) && customerService.canPatch(user, customer) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedCustomer.getCreatedBy().equals(user.getId())) {
                 return customerService.update(id, customer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
@@ -122,7 +124,8 @@ public class CustomerController {
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (customerService.hasAccess(user, savedCustomer)
-                    && user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+                    && (savedCustomer.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS))) {
                 customerService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
