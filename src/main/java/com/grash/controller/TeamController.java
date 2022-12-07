@@ -46,9 +46,12 @@ public class TeamController {
             @ApiResponse(code = 404, message = "TeamCategory not found")})
     public Collection<TeamShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
-        } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+                return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+            } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
     }
 
     @GetMapping("/mini")
@@ -86,7 +89,7 @@ public class TeamController {
             @ApiResponse(code = 403, message = "Access denied")})
     public TeamShowDTO create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (teamService.canCreate(user, teamReq)) {
+        if (teamService.canCreate(user, teamReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
             teamService.notify(savedTeam);
             return teamMapper.toShowDto(savedTeam);
@@ -126,7 +129,7 @@ public class TeamController {
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
             if (teamService.hasAccess(user, savedTeam)
-                    && user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                    && (savedTeam.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))) {
                 teamService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

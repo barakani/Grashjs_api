@@ -43,7 +43,9 @@ public class UserController {
     public Collection<OwnUser> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return userService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                return userService.findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else return userService.getAll();
     }
 
@@ -55,20 +57,22 @@ public class UserController {
             @ApiResponse(code = 404, message = "TeamCategory not found")})
     public SuccessResponse invite(HttpServletRequest req, @RequestBody UserInvitationDTO invitation) {
         OwnUser user = userService.whoami(req);
-        int companyUsersCount = userService.findByCompany(user.getCompany().getId()).size();
-        Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
-        if (optionalRole.isPresent() && user.getCompany().getCompanySettings().getId().equals(optionalRole.get().getCompanySettings().getId())) {
-            if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
-                invitation.getEmails().forEach(email -> {
-                    if (!userService.existsByEmail(email)) {
-                        userService.invite(email, optionalRole.get(), user);
-                    }
-                });
-                return new SuccessResponse(true, "Users have been invited");
-            } else
-                throw new CustomException("Your current subscription doesn't allow you to invite that many users", HttpStatus.NOT_ACCEPTABLE);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            int companyUsersCount = userService.findByCompany(user.getCompany().getId()).size();
+            Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
+            if (optionalRole.isPresent() && user.getCompany().getCompanySettings().getId().equals(optionalRole.get().getCompanySettings().getId())) {
+                if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
+                    invitation.getEmails().forEach(email -> {
+                        if (!userService.existsByEmail(email)) {
+                            userService.invite(email, optionalRole.get(), user);
+                        }
+                    });
+                    return new SuccessResponse(true, "Users have been invited");
+                } else
+                    throw new CustomException("Your current subscription doesn't allow you to invite that many users", HttpStatus.NOT_ACCEPTABLE);
 
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/mini")
