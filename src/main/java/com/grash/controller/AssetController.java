@@ -167,7 +167,7 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedAsset.getCreatedBy().equals(user.getId())
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset);

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/purchase-orders")
@@ -42,7 +43,12 @@ public class PurchaseOrderController {
     public Collection<PurchaseOrder> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return purchaseOrderService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+                return purchaseOrderService.findByCompany(user.getCompany().getId()).stream().filter(purchaseOrder -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS);
+                    return canViewOthers || purchaseOrder.getCreatedBy().equals(user.getId());
+                }).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return purchaseOrderService.getAll();
     }
 
@@ -57,7 +63,8 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)) {
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId()))) {
                 return savedPurchaseOrder;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -70,7 +77,7 @@ public class PurchaseOrderController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PurchaseOrder create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (purchaseOrderService.canCreate(user, purchaseOrderReq)) {
+        if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
             return purchaseOrderService.create(purchaseOrderReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -88,7 +95,8 @@ public class PurchaseOrderController {
 
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)) {
+            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId())) {
                 return purchaseOrderService.update(id, purchaseOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
@@ -107,7 +115,8 @@ public class PurchaseOrderController {
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)
-                    && user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+                    && (savedPurchaseOrder.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS))) {
                 purchaseOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
