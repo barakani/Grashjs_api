@@ -9,6 +9,7 @@ import com.grash.mapper.RequestMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
@@ -48,7 +49,9 @@ public class RequestController {
     public Collection<RequestShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return requestService.findByCompany(user.getCompany().getId()).stream().map(requestMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
+                return requestService.findByCompany(user.getCompany().getId()).stream().map(requestMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return requestService.getAll().stream().map(requestMapper::toShowDto).collect(Collectors.toList());
     }
 
@@ -63,7 +66,8 @@ public class RequestController {
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (requestService.hasAccess(user, savedRequest)) {
+            if (requestService.hasAccess(user, savedRequest) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId()))) {
                 requestService.notify(savedRequest);
                 return requestMapper.toShowDto(savedRequest);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -77,7 +81,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied")})
     public RequestShowDTO create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (requestService.canCreate(user, requestReq)) {
+        if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             Request createdRequest = requestService.create(requestReq);
             requestService.notify(createdRequest);
             return requestMapper.toShowDto(createdRequest);
@@ -100,7 +104,8 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request)) {
+            if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request) &&
+                    user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
                 Request patchedRequest = requestService.update(id, request);
                 requestService.patchNotify(savedRequest, patchedRequest);
                 return requestMapper.toShowDto(patchedRequest);
@@ -161,15 +166,16 @@ public class RequestController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Request not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (requestService.hasAccess(user, savedRequest)) {
+            if (requestService.hasAccess(user, savedRequest) && (savedRequest.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS))) {
                 requestService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

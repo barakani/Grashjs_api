@@ -42,7 +42,9 @@ public class RoleController {
     public Collection<Role> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return roleService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+                return roleService.findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else return roleService.getAll();
     }
 
@@ -57,7 +59,7 @@ public class RoleController {
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole)) {
+            if (roleService.hasAccess(user, savedRole) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return savedRole;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -71,7 +73,7 @@ public class RoleController {
     public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         roleReq.setPaid(true);
-        if (roleService.canCreate(user, roleReq)) {
+        if (roleService.canCreate(user, roleReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -89,7 +91,7 @@ public class RoleController {
 
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole) && roleService.canPatch(user, role)) {
+            if (roleService.hasAccess(user, savedRole) && roleService.canPatch(user, role) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return roleService.update(id, role);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);

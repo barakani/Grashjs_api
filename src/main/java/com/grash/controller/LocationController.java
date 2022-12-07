@@ -8,6 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
@@ -47,7 +48,12 @@ public class LocationController {
     public List<LocationShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return locationService.findByCompany(user.getCompany().getId()).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
+                return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS);
+                    return canViewOthers || location.getCreatedBy().equals(user.getId());
+                }).map(locationMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else
             return locationService.getAll().stream().map(locationMapper::toShowDto).collect(Collectors.toList());
     }
@@ -66,7 +72,7 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (locationService.hasAccess(user, savedLocation)) {
+            if (locationService.hasAccess(user, savedLocation) && user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
                 return locationService.findLocationChildren(id).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
@@ -95,7 +101,8 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (locationService.hasAccess(user, savedLocation)) {
+            if (locationService.hasAccess(user, savedLocation) && user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId()))) {
                 return locationMapper.toShowDto(savedLocation);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -108,7 +115,7 @@ public class LocationController {
             @ApiResponse(code = 403, message = "Access denied")})
     public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (locationService.canCreate(user, locationReq)) {
+        if (locationService.canCreate(user, locationReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             if (locationReq.getParentLocation() != null) {
                 checkParentLocation(locationReq.getParentLocation().getId());
             }
@@ -130,7 +137,8 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (locationService.hasAccess(user, savedLocation) && locationService.canPatch(user, location)) {
+            if (locationService.hasAccess(user, savedLocation) && locationService.canPatch(user, location)
+                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId())) {
                 if (location.getParentLocation() != null) {
                     checkParentLocation(location.getParentLocation().getId());
                 }
@@ -153,7 +161,9 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (locationService.hasAccess(user, savedLocation)) {
+            if (locationService.hasAccess(user, savedLocation) &&
+                    (savedLocation.getCreatedBy().equals(user.getId()) ||
+                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.LOCATIONS))) {
                 Location parent = savedLocation.getParentLocation();
                 locationService.delete(id);
                 if (parent != null) {

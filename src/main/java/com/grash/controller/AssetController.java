@@ -123,7 +123,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset)) {
+            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
                 return assetService.findAssetChildren(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
