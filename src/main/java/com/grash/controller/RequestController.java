@@ -68,7 +68,6 @@ public class RequestController {
             Request savedRequest = optionalRequest.get();
             if (requestService.hasAccess(user, savedRequest) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId()))) {
-                requestService.notify(savedRequest);
                 return requestMapper.toShowDto(savedRequest);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -83,7 +82,6 @@ public class RequestController {
         OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             Request createdRequest = requestService.create(requestReq);
-            requestService.notify(createdRequest);
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -107,7 +105,6 @@ public class RequestController {
             if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request) &&
                     user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
                 Request patchedRequest = requestService.update(id, request);
-                requestService.patchNotify(savedRequest, patchedRequest);
                 return requestMapper.toShowDto(patchedRequest);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

@@ -4,7 +4,6 @@ import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
-import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -98,31 +97,8 @@ public class RequestService {
         workOrderService.notify(savedWorkOrder);
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
-
+        
         return savedWorkOrder;
-    }
-
-    public void notify(Request request) {
-
-        String message = "Request " + request.getTitle() + " has been assigned to you";
-        if (request.getPrimaryUser() != null) {
-            notificationService.create(new Notification(message, request.getPrimaryUser(), NotificationType.REQUEST, request.getId()));
-        }
-        if (request.getTeam() != null) {
-            request.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, request.getId())));
-        }
-    }
-
-    public void patchNotify(Request oldRequest, Request newRequest) {
-        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
-        if (newRequest.getPrimaryUser() != null && !newRequest.getPrimaryUser().getId().equals(oldRequest.getPrimaryUser().getId())) {
-            notificationService.create(new Notification(message, newRequest.getPrimaryUser(), NotificationType.REQUEST, newRequest.getId()));
-        }
-        if (newRequest.getTeam() != null) {
-            newRequest.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, newRequest.getId())));
-        }
     }
 
     public Request save(Request request) {
