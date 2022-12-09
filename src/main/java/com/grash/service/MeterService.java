@@ -113,4 +113,8 @@ public class MeterService {
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())));
         }
     }
+
+    public Collection<Meter> findByAsset(Long id) {
+        return meterRepository.findByAsset_Id(id);
+    }
 }

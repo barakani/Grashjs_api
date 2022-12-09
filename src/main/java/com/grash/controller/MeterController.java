@@ -5,11 +5,13 @@ import com.grash.dto.MeterShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
+import com.grash.model.Asset;
 import com.grash.model.Meter;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
+import com.grash.service.AssetService;
 import com.grash.service.MeterService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,6 +39,7 @@ public class MeterController {
     private final MeterService meterService;
     private final MeterMapper meterMapper;
     private final UserService userService;
+    private final AssetService assetService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -109,6 +112,20 @@ public class MeterController {
                 return meterMapper.toShowDto(patchedMeter);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/asset/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrderHistory not found")})
+    public Collection<MeterShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Asset> optionalAsset = assetService.findById(id);
+        if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
+            return meterService.findByAsset(id).stream().map(meterMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")

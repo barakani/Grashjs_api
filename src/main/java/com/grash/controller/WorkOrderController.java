@@ -117,7 +117,7 @@ public class WorkOrderController {
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             if (createdWorkOrder.getAsset() != null) {
-                Asset asset = createdWorkOrder.getAsset();
+                Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
                     asset.setStatus(AssetStatus.DOWN);
                     asset.setDownAt(new Date());
