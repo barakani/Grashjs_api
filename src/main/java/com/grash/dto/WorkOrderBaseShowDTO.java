@@ -19,7 +19,7 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
     private String description;
     private String title;
     private boolean requiredSignature;
-    
+
     private WorkOrderCategory category;
 
     private LocationMiniDTO location;
@@ -36,4 +36,5 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
 
     private List<FileMiniDTO> files;
 
+    private FileMiniDTO image;
 }

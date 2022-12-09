@@ -155,6 +155,7 @@ public class WorkOrderService {
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());
+        workOrder.setImage(workOrder.getImage());
         //TODO
         //workOrder.setFiles(workOrderBase.getFiles());
         workOrder.setAsset(workOrderBase.getAsset());
