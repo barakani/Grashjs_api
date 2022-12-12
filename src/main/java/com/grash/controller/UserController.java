@@ -86,6 +86,7 @@ public class UserController {
         return userService.findByCompany(user.getCompany().getId()).stream().map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
@@ -110,6 +111,23 @@ public class UserController {
             throw new CustomException("Can't get someone else's user", HttpStatus.NOT_ACCEPTABLE);
         }
 
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "User not found")})
+    public UserResponseDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<OwnUser> optionalUser = userService.findById(id);
+        if (optionalUser.isPresent()) {
+            OwnUser savedUser = optionalUser.get();
+            if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
+                return userMapper.toDto(savedUser);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}/role")
