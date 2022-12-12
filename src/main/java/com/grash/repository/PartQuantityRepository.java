@@ -9,4 +9,6 @@ public interface PartQuantityRepository extends JpaRepository<PartQuantity, Long
     Collection<PartQuantity> findByCompany_Id(Long id);
 
     Collection<PartQuantity> findByWorkOrder_Id(Long id);
+
+    Collection<PartQuantity> findByPart_Id(Long id);
 }

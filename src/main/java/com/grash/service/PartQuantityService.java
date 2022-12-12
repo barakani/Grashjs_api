@@ -80,4 +80,7 @@ public class PartQuantityService {
         return true;
     }
 
+    public Collection<PartQuantity> findByPart(Long id) {
+        return partQuantityRepository.findByPart_Id(id);
+    }
 }
