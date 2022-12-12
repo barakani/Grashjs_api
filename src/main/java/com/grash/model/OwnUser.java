@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class OwnUser {
+public class OwnUser extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
