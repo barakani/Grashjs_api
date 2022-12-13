@@ -83,4 +83,8 @@ public class PartQuantityService {
     public Collection<PartQuantity> findByPart(Long id) {
         return partQuantityRepository.findByPart_Id(id);
     }
+
+    public Collection<PartQuantity> findByPurchaseOrder(Long id) {
+        return partQuantityRepository.findByPurchaseOrder_Id(id);
+    }
 }
