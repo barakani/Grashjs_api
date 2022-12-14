@@ -26,6 +26,9 @@ public class TaskBaseService {
     private final CompanyService companyService;
     private final TaskBaseMapper taskBaseMapper;
     private final TaskOptionService taskOptionService;
+    private final UserService userService;
+    private final MeterService meterService;
+    private final AssetService assetService;
     private final EntityManager em;
 
     public TaskBase create(TaskBase TaskBase) {
@@ -37,10 +40,16 @@ public class TaskBaseService {
         TaskBase taskBase = TaskBase.builder()
                 .label(taskBaseDTO.getLabel())
                 .taskType(taskBaseDTO.getTaskType())
-                .user(taskBaseDTO.getUser())
-                .asset(taskBaseDTO.getAsset())
-                .meter(taskBaseDTO.getMeter())
                 .build();
+        if (taskBaseDTO.getUser() != null) {
+            userService.findById(taskBaseDTO.getUser().getId()).ifPresent(taskBase::setUser);
+        }
+        if (taskBaseDTO.getAsset() != null) {
+            assetService.findById(taskBaseDTO.getAsset().getId()).ifPresent(taskBase::setAsset);
+        }
+        if (taskBaseDTO.getMeter() != null) {
+            meterService.findById(taskBaseDTO.getMeter().getId()).ifPresent(taskBase::setMeter);
+        }
         taskBase.setCompany(company);
         TaskBase savedTaskBase = create(taskBase);
 

@@ -26,8 +26,9 @@ public class File extends CompanyAudit {
     private String url;
 
     private FileType type = FileType.OTHER;
-    
+
     @ManyToOne
+    @JsonIgnore
     private Task task;
 
     @ManyToMany
@@ -74,10 +75,11 @@ public class File extends CompanyAudit {
             })
     private List<WorkOrder> workOrders = new ArrayList<>();
 
-    public File(String name, String url, Company company, FileType fileType) {
+    public File(String name, String url, Company company, FileType fileType, Task task) {
         this.name = name;
         this.url = url;
         this.type = fileType;
+        this.task = task;
         this.setCompany(company);
     }
 }

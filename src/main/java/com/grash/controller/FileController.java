@@ -5,12 +5,14 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.File;
 import com.grash.model.OwnUser;
+import com.grash.model.Task;
 import com.grash.model.enums.FileType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.FileService;
 import com.grash.service.GCPService;
+import com.grash.service.TaskService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -40,16 +42,25 @@ public class FileController {
     private final GCPService gcp;
     private final FileService fileService;
     private final UserService userService;
+    private final TaskService taskService;
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType) {
+    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType,
+                                             @RequestParam(value = "taskId", required = false) Integer taskId) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
             Collection<File> result = new ArrayList<>();
             Arrays.asList(filesReq).forEach(fileReq -> {
                 String url = gcp.upload(fileReq, folder);
-                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType)));
+                Task task = null;
+                if (taskId != null) {
+                    Optional<Task> optionalTask = taskService.findById(taskId.longValue());
+                    if (optionalTask.isPresent()) {
+                        task = optionalTask.get();
+                    }
+                }
+                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType, task)));
             });
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);

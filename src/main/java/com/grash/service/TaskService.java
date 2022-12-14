@@ -38,7 +38,7 @@ public class TaskService {
     public Task update(Long id, TaskPatchDTO task) {
         if (taskRepository.existsById(id)) {
             Task savedTask = taskRepository.findById(id).get();
-            Task updatedTask = taskRepository.save(taskMapper.updateTask(savedTask, task));
+            Task updatedTask = taskRepository.saveAndFlush(taskMapper.updateTask(savedTask, task));
             em.refresh(updatedTask);
             return updatedTask;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
