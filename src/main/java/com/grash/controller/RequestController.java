@@ -83,7 +83,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied")})
     public RequestShowDTO create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
+        if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
