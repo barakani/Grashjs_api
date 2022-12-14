@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,18 +25,25 @@ public class AdditionalCostService {
     private final CompanyService companyService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
+    private final EntityManager em;
 
 
     private final AdditionalCostMapper additionalCostMapper;
 
+    @Transactional
     public AdditionalCost create(AdditionalCost additionalCost) {
-        return additionalCostRepository.save(additionalCost);
+        AdditionalCost savedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCost);
+        em.refresh(savedAdditionalCost);
+        return savedAdditionalCost;
     }
 
+    @Transactional
     public AdditionalCost update(Long id, AdditionalCostPatchDTO additionalCost) {
         if (additionalCostRepository.existsById(id)) {
             AdditionalCost savedAdditionalCost = additionalCostRepository.findById(id).get();
-            return additionalCostRepository.save(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            AdditionalCost updatedAdditionalCost = additionalCostRepository.save(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            em.refresh(updatedAdditionalCost);
+            return updatedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

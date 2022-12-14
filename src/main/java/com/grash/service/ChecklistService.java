@@ -9,7 +9,9 @@ import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,11 +23,16 @@ public class ChecklistService {
     private final CheckListRepository checklistRepository;
     private final CompanySettingsService companySettingsService;
     private final TaskBaseService taskBaseService;
+    private final EntityManager em;
 
-    public Checklist create(Checklist Checklist) {
-        return checklistRepository.save(Checklist);
+    @Transactional
+    public Checklist create(Checklist checklist) {
+        Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
+        em.refresh(savedChecklist);
+        return savedChecklist;
     }
 
+    @Transactional
     public Checklist createPost(ChecklistPostDTO checklistReq, Company company) {
         List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                 .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
@@ -36,9 +43,12 @@ public class ChecklistService {
                 .category(checklistReq.getCategory())
                 .description(checklistReq.getDescription())
                 .build();
-        return checklistRepository.save(checklist);
+        Checklist savedChecklist = checklistRepository.save(checklist);
+        em.refresh(savedChecklist);
+        return savedChecklist;
     }
 
+    @Transactional
     public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
         if (checklistRepository.existsById(id)) {
             Checklist savedChecklist = checklistRepository.getById(id);
@@ -46,8 +56,9 @@ public class ChecklistService {
             List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                     .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
             savedChecklist.setTaskBases(taskBases);
-            return checklistRepository.save(savedChecklist);
-
+            Checklist updatedChecklist = checklistRepository.save(savedChecklist);
+            em.refresh(updatedChecklist);
+            return updatedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

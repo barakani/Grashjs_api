@@ -32,8 +32,11 @@ public class AssetService {
     private final AssetMapper assetMapper;
     private final EntityManager em;
 
-    public Asset create(Asset Asset) {
-        return assetRepository.save(Asset);
+    @Transactional
+    public Asset create(Asset asset) {
+        Asset savedAsset = assetRepository.saveAndFlush(asset);
+        em.refresh(savedAsset);
+        return savedAsset;
     }
 
     @Transactional

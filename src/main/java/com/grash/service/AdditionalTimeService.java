@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
@@ -27,15 +29,22 @@ public class AdditionalTimeService {
     private final UserService userService;
     private final WorkOrderService workOrderService;
     private final AdditionalTimeMapper additionalTimeMapper;
+    private final EntityManager em;
 
-    public AdditionalTime create(AdditionalTime AdditionalTime) {
-        return additionalTimeRepository.save(AdditionalTime);
+    @Transactional
+    public AdditionalTime create(AdditionalTime additionalTime) {
+        AdditionalTime savedAdditionalTime = additionalTimeRepository.saveAndFlush(additionalTime);
+        em.refresh(savedAdditionalTime);
+        return savedAdditionalTime;
     }
 
+    @Transactional
     public AdditionalTime update(Long id, AdditionalTimePatchDTO additionalTime) {
         if (additionalTimeRepository.existsById(id)) {
             AdditionalTime savedAdditionalTime = additionalTimeRepository.findById(id).get();
-            return additionalTimeRepository.save(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
+            AdditionalTime updatedAdditionalTime = additionalTimeRepository.save(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
+            em.refresh(updatedAdditionalTime);
+            return updatedAdditionalTime;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

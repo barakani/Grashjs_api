@@ -55,8 +55,10 @@ public class TaskBaseService {
 
         if (taskBaseDTO.getOptions() != null) {
             taskBaseDTO.getOptions().forEach(option -> {
-                TaskOption taskOption = new TaskOption(option, company, savedTaskBase);
-                taskOptionService.create(taskOption);
+                if (!option.trim().isEmpty()) {
+                    TaskOption taskOption = new TaskOption(option, company, savedTaskBase);
+                    taskOptionService.create(taskOption);
+                }
             });
         }
         em.refresh(savedTaskBase);

@@ -12,7 +12,9 @@ import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,15 +25,22 @@ public class FloorPlanService {
     private final FileService fileService;
     private final LocationService locationService;
     private final FloorPlanMapper floorPlanMapper;
+    private final EntityManager em;
 
-    public FloorPlan create(FloorPlan FloorPlan) {
-        return floorPlanRepository.save(FloorPlan);
+    @Transactional
+    public FloorPlan create(FloorPlan floorPlan) {
+        FloorPlan savedFloorPlan = floorPlanRepository.saveAndFlush(floorPlan);
+        em.refresh(savedFloorPlan);
+        return savedFloorPlan;
     }
 
+    @Transactional
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            return floorPlanRepository.save(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            FloorPlan updatedFloorPlan = floorPlanRepository.save(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            em.refresh(updatedFloorPlan);
+            return updatedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
