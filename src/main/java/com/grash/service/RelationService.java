@@ -14,7 +14,9 @@ import com.grash.repository.RelationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -27,15 +29,23 @@ public class RelationService {
     private final RelationRepository relationRepository;
     private final WorkOrderService workOrderService;
     private final RelationMapper relationMapper;
+    private final EntityManager em;
 
-    public Relation create(Relation Relation) {
-        return relationRepository.save(Relation);
+    @Transactional
+    public Relation create(Relation relation) {
+        Relation savedRelation = relationRepository.saveAndFlush(relation);
+        em.refresh(savedRelation);
+        return savedRelation;
     }
 
+
+    @Transactional
     public Relation update(Long id, RelationPatchDTO relation) {
         if (relationRepository.existsById(id)) {
             Relation savedRelation = relationRepository.findById(id).get();
-            return relationRepository.save(relationMapper.updateRelation(savedRelation, relation));
+            Relation updatedRelation = relationRepository.save(relationMapper.updateRelation(savedRelation, relation));
+            em.refresh(updatedRelation);
+            return updatedRelation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

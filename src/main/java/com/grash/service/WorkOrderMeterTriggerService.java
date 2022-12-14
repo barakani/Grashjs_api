@@ -11,7 +11,9 @@ import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -22,15 +24,21 @@ public class WorkOrderMeterTriggerService {
     private final WorkOrderService workOrderService;
     private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final MeterService meterService;
+    private final EntityManager em;
 
-    public WorkOrderMeterTrigger create(WorkOrderMeterTrigger WorkOrderMeterTrigger) {
-        return workOrderMeterTriggerRepository.save(WorkOrderMeterTrigger);
+    @Transactional
+    public WorkOrderMeterTrigger create(WorkOrderMeterTrigger workOrderMeterTrigger) {
+        WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
+        em.refresh(savedWorkOrderMeterTrigger);
+        return savedWorkOrderMeterTrigger;
     }
 
+    @Transactional
     public WorkOrderMeterTrigger update(Long id, WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger) {
         if (workOrderMeterTriggerRepository.existsById(id)) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.findById(id).get();
-            return workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
+            WorkOrderMeterTrigger updatedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
+            return updatedWorkOrderMeterTrigger;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

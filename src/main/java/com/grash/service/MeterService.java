@@ -31,8 +31,11 @@ public class MeterService {
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
 
-    public Meter create(Meter Meter) {
-        return meterRepository.save(Meter);
+    @Transactional
+    public Meter create(Meter meter) {
+        Meter savedMeter = meterRepository.saveAndFlush(meter);
+        em.refresh(savedMeter);
+        return savedMeter;
     }
 
     @Transactional

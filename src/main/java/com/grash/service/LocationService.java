@@ -29,8 +29,11 @@ public class LocationService {
     private final NotificationService notificationService;
     private final EntityManager em;
 
-    public Location create(Location Location) {
-        return locationRepository.save(Location);
+    @Transactional
+    public Location create(Location location) {
+        Location savedLocation = locationRepository.saveAndFlush(location);
+        em.refresh(savedLocation);
+        return savedLocation;
     }
 
     @Transactional
