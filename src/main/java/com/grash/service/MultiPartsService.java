@@ -11,7 +11,9 @@ import com.grash.repository.MultiPartsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,16 +23,22 @@ public class MultiPartsService {
     private final MultiPartsRepository multiPartsRepository;
     private final CompanyService companyService;
     private final MultiPartsMapper multiPartsMapper;
+    private final EntityManager em;
 
-
-    public MultiParts create(MultiParts MultiParts) {
-        return multiPartsRepository.save(MultiParts);
+    @Transactional
+    public MultiParts create(MultiParts multiParts) {
+        MultiParts savedMultiParts = multiPartsRepository.saveAndFlush(multiParts);
+        em.refresh(savedMultiParts);
+        return savedMultiParts;
     }
 
+    @Transactional
     public MultiParts update(Long id, MultiPartsPatchDTO multiPartsPatchDTO) {
         if (multiPartsRepository.existsById(id)) {
             MultiParts savedMultiParts = multiPartsRepository.findById(id).get();
-            return multiPartsRepository.save(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
+            MultiParts updatedMultiParts = multiPartsRepository.saveAndFlush(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
+            em.refresh(updatedMultiParts);
+            return updatedMultiParts;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

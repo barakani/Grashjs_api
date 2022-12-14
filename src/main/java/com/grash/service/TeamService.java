@@ -14,7 +14,9 @@ import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -27,15 +29,22 @@ public class TeamService {
     private final CompanyService companyService;
     private final TeamMapper teamMapper;
     private final NotificationService notificationService;
+    private final EntityManager em;
 
-    public Team create(Team Team) {
-        return teamRepository.save(Team);
+    @Transactional
+    public Team create(Team team) {
+        Team savedTeam = teamRepository.saveAndFlush(team);
+        em.refresh(savedTeam);
+        return savedTeam;
     }
 
+    @Transactional
     public Team update(Long id, TeamPatchDTO team) {
         if (teamRepository.existsById(id)) {
             Team savedTeam = teamRepository.findById(id).get();
-            return teamRepository.save(teamMapper.updateTeam(savedTeam, team));
+            Team updatedTeam = teamRepository.saveAndFlush(teamMapper.updateTeam(savedTeam, team));
+            em.refresh(updatedTeam);
+            return updatedTeam;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
