@@ -41,9 +41,10 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 404, message = "PurchaseOrderCategoryCategory not found")})
     public Collection<PurchaseOrderCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT) &&
-                user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            return PurchaseOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+                return PurchaseOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return PurchaseOrderCategoryService.getAll();
     }
 

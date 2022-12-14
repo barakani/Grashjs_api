@@ -41,9 +41,10 @@ public class WorkOrderCategoryController {
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
     public Collection<WorkOrderCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT) &&
-                user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            return workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+                return workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return workOrderCategoryService.getAll();
     }
 

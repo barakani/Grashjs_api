@@ -92,10 +92,10 @@ public class CompanySettings {
                         allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
                         allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
                         Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)),
-                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.WORK_ORDERS)),
+                createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS, PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES)),
+                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, Arrays.asList(PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.CATEGORIES)),
                 createRole("View Only", false, RoleCode.VIEW_ONLY, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Requester", false, RoleCode.REQUESTER, Collections.singletonList(PermissionEntity.REQUESTS), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.singletonList(PermissionEntity.REQUESTS))
+                createRole("Requester", false, RoleCode.REQUESTER, Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.CATEGORIES))
         ));
     }
 }

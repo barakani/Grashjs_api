@@ -35,6 +35,7 @@ public class WorkOrderService {
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
 
+    @Transactional
     public WorkOrder create(WorkOrder workOrder) {
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);

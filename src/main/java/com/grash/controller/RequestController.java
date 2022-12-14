@@ -50,7 +50,10 @@ public class RequestController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
-                return requestService.findByCompany(user.getCompany().getId()).stream().map(requestMapper::toShowDto).collect(Collectors.toList());
+                return requestService.findByCompany(user.getCompany().getId()).stream().filter(request -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS);
+                    return canViewOthers || request.getCreatedBy().equals(user.getId());
+                }).map(requestMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return requestService.getAll().stream().map(requestMapper::toShowDto).collect(Collectors.toList());
     }

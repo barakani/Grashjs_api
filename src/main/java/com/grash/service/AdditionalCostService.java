@@ -41,7 +41,7 @@ public class AdditionalCostService {
     public AdditionalCost update(Long id, AdditionalCostPatchDTO additionalCost) {
         if (additionalCostRepository.existsById(id)) {
             AdditionalCost savedAdditionalCost = additionalCostRepository.findById(id).get();
-            AdditionalCost updatedAdditionalCost = additionalCostRepository.save(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            AdditionalCost updatedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
             em.refresh(updatedAdditionalCost);
             return updatedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

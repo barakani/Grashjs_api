@@ -38,7 +38,7 @@ public class FloorPlanService {
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            FloorPlan updatedFloorPlan = floorPlanRepository.save(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            FloorPlan updatedFloorPlan = floorPlanRepository.saveAndFlush(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
             em.refresh(updatedFloorPlan);
             return updatedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

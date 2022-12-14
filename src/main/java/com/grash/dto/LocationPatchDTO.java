@@ -4,7 +4,9 @@ import com.grash.model.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,5 +28,9 @@ public class LocationPatchDTO {
     private Collection<Vendor> vendors;
 
     private Collection<Customer> customers;
+
+    private File image;
+
+    private List<File> files = new ArrayList<>();
 
 }

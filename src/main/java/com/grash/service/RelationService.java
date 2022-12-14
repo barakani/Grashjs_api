@@ -43,7 +43,7 @@ public class RelationService {
     public Relation update(Long id, RelationPatchDTO relation) {
         if (relationRepository.existsById(id)) {
             Relation savedRelation = relationRepository.findById(id).get();
-            Relation updatedRelation = relationRepository.save(relationMapper.updateRelation(savedRelation, relation));
+            Relation updatedRelation = relationRepository.saveAndFlush(relationMapper.updateRelation(savedRelation, relation));
             em.refresh(updatedRelation);
             return updatedRelation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

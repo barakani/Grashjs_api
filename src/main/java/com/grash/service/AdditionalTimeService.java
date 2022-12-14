@@ -42,7 +42,7 @@ public class AdditionalTimeService {
     public AdditionalTime update(Long id, AdditionalTimePatchDTO additionalTime) {
         if (additionalTimeRepository.existsById(id)) {
             AdditionalTime savedAdditionalTime = additionalTimeRepository.findById(id).get();
-            AdditionalTime updatedAdditionalTime = additionalTimeRepository.save(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
+            AdditionalTime updatedAdditionalTime = additionalTimeRepository.saveAndFlush(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
             em.refresh(updatedAdditionalTime);
             return updatedAdditionalTime;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

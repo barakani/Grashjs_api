@@ -62,11 +62,9 @@ public class UserController {
             Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
             if (optionalRole.isPresent() && user.getCompany().getCompanySettings().getId().equals(optionalRole.get().getCompanySettings().getId())) {
                 if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
-                    invitation.getEmails().forEach(email -> {
-                        if (!userService.existsByEmail(email)) {
-                            userService.invite(email, optionalRole.get(), user);
-                        }
-                    });
+                    invitation.getEmails().forEach(email ->
+                            userService.invite(email, optionalRole.get(), user)
+                    );
                     return new SuccessResponse(true, "Users have been invited");
                 } else
                     throw new CustomException("Your current subscription doesn't allow you to invite that many users", HttpStatus.NOT_ACCEPTABLE);

@@ -54,6 +54,9 @@ public class Location extends CompanyAudit {
     @ManyToOne
     private Location parentLocation;
 
+    @ManyToOne
+    private File image;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Location_Vendor_Associations",
@@ -75,5 +78,16 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_customer_customer_id", columnList = "id_customer")
             })
     private List<Customer> customers = new ArrayList<>();
+
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Location_File_Associations",
+            joinColumns = @JoinColumn(name = "id_location"),
+            inverseJoinColumns = @JoinColumn(name = "id_file"),
+            indexes = {
+                    @Index(name = "idx_location_file_location_id", columnList = "id_location"),
+                    @Index(name = "idx_location_file_file_id", columnList = "id_file")
+            })
+    private List<File> files = new ArrayList<>();
 }
 

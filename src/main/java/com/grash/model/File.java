@@ -40,7 +40,7 @@ public class File extends CompanyAudit {
                     @Index(name = "idx_file_asset_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_asset_asset_id", columnList = "id_asset")
             })
-    private List<Asset> asset = new ArrayList<>();
+    private List<Asset> assets = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -74,6 +74,17 @@ public class File extends CompanyAudit {
                     @Index(name = "idx_file_work_order_work_order_id", columnList = "id_work_order")
             })
     private List<WorkOrder> workOrders = new ArrayList<>();
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Location_File_Associations",
+            joinColumns = @JoinColumn(name = "id_file"),
+            inverseJoinColumns = @JoinColumn(name = "id_location"),
+            indexes = {
+                    @Index(name = "idx_file_location_file_id", columnList = "id_file"),
+                    @Index(name = "idx_file_location_location_id", columnList = "id_location")
+            })
+    private List<Location> locations = new ArrayList<>();
 
     public File(String name, String url, Company company, FileType fileType, Task task) {
         this.name = name;

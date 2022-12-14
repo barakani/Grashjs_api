@@ -35,7 +35,7 @@ public class SubscriptionService {
     public Subscription update(Long id, SubscriptionPatchDTO subscriptionPatchDTO) {
         if (subscriptionRepository.existsById(id)) {
             Subscription savedSubscription = subscriptionRepository.findById(id).get();
-            Subscription updatedSubscription = subscriptionRepository.save(subscriptionMapper.updateSubscription(savedSubscription, subscriptionPatchDTO));
+            Subscription updatedSubscription = subscriptionRepository.saveAndFlush(subscriptionMapper.updateSubscription(savedSubscription, subscriptionPatchDTO));
             em.refresh(updatedSubscription);
             return updatedSubscription;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

@@ -36,7 +36,7 @@ public class PurchaseOrderService {
     public PurchaseOrder update(Long id, PurchaseOrderPatchDTO purchaseOrder) {
         if (purchaseOrderRepository.existsById(id)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.findById(id).get();
-            PurchaseOrder updatedPurchaseOrder = purchaseOrderRepository.save(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder, purchaseOrder));
+            PurchaseOrder updatedPurchaseOrder = purchaseOrderRepository.saveAndFlush(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder, purchaseOrder));
             em.refresh(updatedPurchaseOrder);
             return updatedPurchaseOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

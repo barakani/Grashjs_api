@@ -43,7 +43,7 @@ public class ChecklistService {
                 .category(checklistReq.getCategory())
                 .description(checklistReq.getDescription())
                 .build();
-        Checklist savedChecklist = checklistRepository.save(checklist);
+        Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
         em.refresh(savedChecklist);
         return savedChecklist;
     }
@@ -56,7 +56,7 @@ public class ChecklistService {
             List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                     .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
             savedChecklist.setTaskBases(taskBases);
-            Checklist updatedChecklist = checklistRepository.save(savedChecklist);
+            Checklist updatedChecklist = checklistRepository.saveAndFlush(savedChecklist);
             em.refresh(updatedChecklist);
             return updatedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
