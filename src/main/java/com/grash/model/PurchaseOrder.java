@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.ApprovalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,8 @@ public class PurchaseOrder extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private ApprovalStatus status = ApprovalStatus.PENDING;
 
     @NotNull
     private String name;

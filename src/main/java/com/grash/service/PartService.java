@@ -129,4 +129,8 @@ public class PartService {
                     notificationService.create(new Notification(message, user, NotificationType.ASSET, newPart.getId()))));
         }
     }
+
+    public Part save(Part part) {
+        return partRepository.save(part);
+    }
 }

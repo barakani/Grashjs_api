@@ -78,4 +78,7 @@ public class PurchaseOrderService {
         return true;
     }
 
+    public PurchaseOrder save(PurchaseOrder purchaseOrder) {
+        return purchaseOrderRepository.save(purchaseOrder);
+    }
 }
