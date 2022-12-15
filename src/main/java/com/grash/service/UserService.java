@@ -193,7 +193,7 @@ public class UserService {
                 emailService2.sendMessageUsingThymeleafTemplate(email, "Invitation to use Grash", variables, "invite.html");
             } catch (MessagingException ignored) {
             }
-        }
+        } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 
     public OwnUser update(Long id, UserPatchDTO userReq) {

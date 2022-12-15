@@ -56,7 +56,7 @@ public class WorkOrderController {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 return workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> {
                     boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                    return canViewOthers || workOrder.getCreatedBy().equals(user.getId());
+                    return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
                 }).map(workOrderMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
@@ -168,7 +168,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId())
+                    && savedWorkOrder.canBeEditedBy(user)
                     && (workOrder.getSignature() == null ||
                     user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
                 if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
