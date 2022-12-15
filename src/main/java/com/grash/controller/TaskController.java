@@ -78,7 +78,7 @@ public class TaskController {
     public Collection<Task> create(@ApiParam("Task") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get()) && optionalWorkOrder.get().canBeEditedBy(user)) {
             taskService.findByWorkOrder(id).forEach(task -> taskService.delete(task.getId()));
             Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
                     taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());

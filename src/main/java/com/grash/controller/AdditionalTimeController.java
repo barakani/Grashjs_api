@@ -79,7 +79,7 @@ public class AdditionalTimeController {
     public AdditionalTime controlTimer(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req, @RequestParam(defaultValue = "true") boolean start) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get()) && optionalWorkOrder.get().canBeEditedBy(user)) {
             Optional<AdditionalTime> optionalAdditionalTime = additionalTimeService.findByWorkOrder(id).stream().filter(additionalTime -> additionalTime.isPrimaryTime() && additionalTime.getAssignedTo().getId().equals(user.getId())).findFirst();
             if (start) {
                 WorkOrder workOrder = optionalWorkOrder.get();

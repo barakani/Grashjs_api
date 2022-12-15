@@ -80,7 +80,7 @@ public class PartQuantityController {
 
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder)) {
+            if (workOrderService.hasAccess(user, savedWorkOrder) && savedWorkOrder.canBeEditedBy(user)) {
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
                 Collection<Long> partQuantityMappedPartIds = partQuantities.stream().map
                         (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
