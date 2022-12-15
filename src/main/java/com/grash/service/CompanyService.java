@@ -10,7 +10,9 @@ import com.grash.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final EntityManager em;
 
     public Company create(Company Company) {
         return companyRepository.save(Company);
@@ -50,10 +53,13 @@ public class CompanyService {
         return true;
     }
 
+    @Transactional
     public Company update(Long id, CompanyPatchDTO company) {
         if (companyRepository.existsById(id)) {
             Company savedCompany = companyRepository.findById(id).get();
-            return companyRepository.save(companyMapper.updateCompany(savedCompany, company));
+            Company updatedCompany = companyRepository.saveAndFlush(companyMapper.updateCompany(savedCompany, company));
+            em.refresh(updatedCompany);
+            return updatedCompany;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

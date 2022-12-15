@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
@@ -35,6 +36,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EntityManager em;
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
@@ -196,10 +198,13 @@ public class UserService {
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public OwnUser update(Long id, UserPatchDTO userReq) {
         if (userRepository.existsById(id)) {
             OwnUser savedUser = userRepository.findById(id).get();
-            return userRepository.save(userMapper.updateUser(savedUser, userReq));
+            OwnUser updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
+            em.refresh(updatedUser);
+            return updatedUser;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

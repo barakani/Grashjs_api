@@ -27,6 +27,9 @@ public class OwnUser extends Audit {
 
     private double rate;
 
+    @OneToOne
+    private File image;
+
     @Column(unique = true)
     @NotNull
     private String email;

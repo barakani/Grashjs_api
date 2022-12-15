@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.model.File;
 import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,4 +20,6 @@ public class UserPatchDTO {
     private String jobTitle;
 
     private Location location;
+    
+    private File image;
 }
