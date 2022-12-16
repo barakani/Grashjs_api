@@ -3,17 +3,17 @@ package com.grash.service;
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ScheduleMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
-import com.grash.model.OwnUser;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +21,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final ScheduleMapper scheduleMapper;
+    private final WorkOrderService workOrderService;
 
     public Schedule create(Schedule Schedule) {
         return scheduleRepository.save(Schedule);
@@ -52,7 +53,7 @@ public class ScheduleService {
     public boolean hasAccess(OwnUser user, Schedule schedule) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(schedule.getCompany().getId());
+        } else return user.getCompany().getId().equals(schedule.getPreventiveMaintenance().getCompany().getId());
     }
 
     public boolean canCreate(OwnUser user, Schedule scheduleReq) {
@@ -71,4 +72,21 @@ public class ScheduleService {
     }
 
 
+    public void scheduleWorkOrder(Schedule schedule) {
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
+                workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
+                WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+                workOrderService.notify(savedWorkOrder);
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, schedule.getStartsOn() == null ? new Date() : schedule.getStartsOn(), (long) schedule.getFrequency() * 24 * 60 * 60);
+    }
+
+    public Schedule save(Schedule schedule) {
+        return scheduleRepository.saveAndFlush(schedule);
+    }
 }

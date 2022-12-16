@@ -1,6 +1,7 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.CompanyAudit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,24 +12,26 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Schedule extends CompanyAudit {
+public class Schedule extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    private String name;
+    private boolean disabled;
 
-    @NotNull
     private Date startsOn;
 
     @NotNull
-    private int frequency;
+    private int frequency = 1;
 
-    @NotNull
     private Date endsOn;
 
     @OneToOne
+    @JsonIgnore
     private PreventiveMaintenance preventiveMaintenance;
+
+    public Schedule(PreventiveMaintenance preventiveMaintenance) {
+        this.preventiveMaintenance = preventiveMaintenance;
+    }
 
 }

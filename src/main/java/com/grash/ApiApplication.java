@@ -2,12 +2,14 @@ package com.grash;
 
 import com.grash.model.Company;
 import com.grash.model.Role;
+import com.grash.model.Schedule;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CompanyService;
 import com.grash.service.RoleService;
+import com.grash.service.ScheduleService;
 import com.grash.service.SubscriptionPlanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 
 @SpringBootApplication
@@ -28,6 +31,7 @@ public class ApiApplication implements CommandLineRunner {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final ScheduleService scheduleService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
@@ -81,5 +85,11 @@ public class ApiApplication implements CommandLineRunner {
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
                     .yearlyCostPerUser(800).build());
         }
+        Collection<Schedule> schedules = scheduleService.getAll();
+        schedules.forEach(schedule -> {
+            if (!schedule.isDisabled()) {
+                scheduleService.scheduleWorkOrder(schedule);
+            }
+        });
     }
 }

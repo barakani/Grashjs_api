@@ -62,18 +62,6 @@ public class ScheduleController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Schedule create(@ApiParam("Schedule") @Valid @RequestBody Schedule scheduleReq, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (scheduleService.canCreate(user, scheduleReq)) {
-            return scheduleService.create(scheduleReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-    }
-
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
@@ -88,7 +76,12 @@ public class ScheduleController {
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
             if (scheduleService.hasAccess(user, savedSchedule) && scheduleService.canPatch(user, schedule)) {
-                return scheduleService.update(id, schedule);
+                Schedule updatedSchedule = scheduleService.update(id, schedule);
+                //TODO unschedule previous schedule
+                if (!updatedSchedule.isDisabled()) {
+                    scheduleService.scheduleWorkOrder(updatedSchedule);
+                }
+                return updatedSchedule;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }
