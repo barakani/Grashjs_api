@@ -79,7 +79,7 @@ public class ScheduleController {
                 Schedule updatedSchedule = scheduleService.update(id, schedule);
                 //TODO unschedule previous schedule
                 if (!updatedSchedule.isDisabled()) {
-                    scheduleService.scheduleWorkOrder(updatedSchedule);
+                    scheduleService.reScheduleWorkOrder(id, updatedSchedule);
                 }
                 return updatedSchedule;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

@@ -23,6 +23,8 @@ public class ScheduleService {
     private final ScheduleMapper scheduleMapper;
     private final WorkOrderService workOrderService;
 
+    private Map<Long, Timer> timers = new HashMap<>();
+
     public Schedule create(Schedule Schedule) {
         return scheduleRepository.save(Schedule);
     }
@@ -81,6 +83,13 @@ public class ScheduleService {
             }
         };
         timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
+        timers.put(schedule.getId(), timer);
+    }
+
+    public void reScheduleWorkOrder(Long id, Schedule schedule) {
+        timers.get(id).cancel();
+        timers.get(id).purge();
+        scheduleWorkOrder(schedule);
     }
 
     public Schedule save(Schedule schedule) {
