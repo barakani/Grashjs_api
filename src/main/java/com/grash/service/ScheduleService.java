@@ -70,23 +70,33 @@ public class ScheduleService {
 
 
     public void scheduleWorkOrder(Schedule schedule) {
-        if (!schedule.isDisabled() && schedule.getEndsOn().after(new Date())) {
+        boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date()));
+        if (shouldSchedule) {
             Timer timer = new Timer();
             //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
             Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    if (!schedule.isDisabled() && schedule.getEndsOn().after(new Date())) {
-                        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
-                        workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
-                        WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-                        workOrderService.notify(savedWorkOrder);
-                    }
+                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
+                    workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
+                    WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+                    workOrderService.notify(savedWorkOrder);
                 }
             };
             timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
             timers.put(schedule.getId(), timer);
+            if (schedule.getEndsOn() != null) {
+                Timer timer1 = new Timer();
+                TimerTask timerTask1 = new TimerTask() {
+                    @Override
+                    public void run() {
+                        timers.get(schedule.getId()).cancel();
+                        timers.get(schedule.getId()).purge();
+                    }
+                };
+                timer1.schedule(timerTask1, schedule.getEndsOn());
+            }
         }
     }
 
