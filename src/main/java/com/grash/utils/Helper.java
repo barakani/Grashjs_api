@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +45,24 @@ public class Helper {
         } catch (AddressException ex) {
             result = false;
         }
+        return result;
+    }
+
+    private static Date incrementDays(Date date, int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, days);
+        return c.getTime();
+    }
+
+    public static Date getNextOccurence(Date date, int days) {
+        Date result = date;
+        if (result.after(new Date())) {
+            result = incrementDays(result, days);
+        } else
+            while (result.before(new Date())) {
+                result = incrementDays(result, days);
+            }
         return result;
     }
 }

@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class PreventiveMaintenanceController {
 
             Schedule schedule = preventiveMaintenance.getSchedule();
             schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
-            schedule.setStartsOn(preventiveMaintenancePost.getStartsOn());
+            schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ? preventiveMaintenancePost.getStartsOn() : new Date());
             schedule.setFrequency(preventiveMaintenancePost.getFrequency());
 
             Schedule savedSchedule = scheduleService.save(schedule);

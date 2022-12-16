@@ -144,6 +144,10 @@ public class WorkOrderService {
         return workOrderRepository.findByAsset_Id(id);
     }
 
+    public Collection<WorkOrder> findByPM(Long id) {
+        return workOrderRepository.findByParentPreventiveMaintenance_Id(id);
+    }
+
     public Collection<WorkOrder> findByLocation(Long id) {
         return workOrderRepository.findByLocation_Id(id);
     }

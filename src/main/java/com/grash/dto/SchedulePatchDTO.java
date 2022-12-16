@@ -1,6 +1,5 @@
 package com.grash.dto;
 
-import com.grash.model.PreventiveMaintenance;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +13,4 @@ public class SchedulePatchDTO {
     private int frequency;
 
     private Date endsOn;
-
-    private PreventiveMaintenance preventiveMaintenance;
 }

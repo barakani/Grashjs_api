@@ -19,7 +19,8 @@ public class Schedule extends Audit {
 
     private boolean disabled;
 
-    private Date startsOn;
+    @NotNull
+    private Date startsOn = new Date();
 
     @NotNull
     private int frequency = 1;

@@ -4,11 +4,11 @@ import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ScheduleMapper;
 import com.grash.model.OwnUser;
-import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ScheduleRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -63,17 +63,14 @@ public class ScheduleService {
 
     public boolean canPatch(OwnUser user, SchedulePatchDTO scheduleReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = scheduleReq.getPreventiveMaintenance() == null ? Optional.empty() : preventiveMaintenanceService.findById(scheduleReq.getPreventiveMaintenance().getId());
-
-        boolean first = scheduleReq.getPreventiveMaintenance() == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 
 
     public void scheduleWorkOrder(Schedule schedule) {
         Timer timer = new Timer();
+        //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
+        Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -83,7 +80,7 @@ public class ScheduleService {
                 workOrderService.notify(savedWorkOrder);
             }
         };
-        timer.scheduleAtFixedRate(timerTask, schedule.getStartsOn() == null ? new Date() : schedule.getStartsOn(), (long) schedule.getFrequency() * 24 * 60 * 60);
+        timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
     }
 
     public Schedule save(Schedule schedule) {
