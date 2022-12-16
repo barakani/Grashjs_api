@@ -93,6 +93,7 @@ public class PreventiveMaintenanceController {
             schedule.setFrequency(preventiveMaintenancePost.getFrequency());
 
             Schedule savedSchedule = scheduleService.save(schedule);
+            em.refresh(savedSchedule);
             em.refresh(preventiveMaintenance);
             scheduleService.scheduleWorkOrder(savedSchedule);
             return preventiveMaintenanceMapper.toShowDto(preventiveMaintenance);
