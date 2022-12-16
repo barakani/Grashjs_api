@@ -86,10 +86,6 @@ public class ApiApplication implements CommandLineRunner {
                     .yearlyCostPerUser(800).build());
         }
         Collection<Schedule> schedules = scheduleService.getAll();
-        schedules.forEach(schedule -> {
-            if (!schedule.isDisabled()) {
-                scheduleService.scheduleWorkOrder(schedule);
-            }
-        });
+        schedules.forEach(scheduleService::scheduleWorkOrder);
     }
 }

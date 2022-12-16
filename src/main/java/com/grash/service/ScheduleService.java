@@ -70,20 +70,24 @@ public class ScheduleService {
 
 
     public void scheduleWorkOrder(Schedule schedule) {
-        Timer timer = new Timer();
-        //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
-        Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
-                workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
-                WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-                workOrderService.notify(savedWorkOrder);
-            }
-        };
-        timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-        timers.put(schedule.getId(), timer);
+        if (!schedule.isDisabled() && schedule.getEndsOn().after(new Date())) {
+            Timer timer = new Timer();
+            //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
+            Date startsOn = Helper.getNextOccurence(schedule.getStartsOn(), schedule.getFrequency());
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (!schedule.isDisabled() && schedule.getEndsOn().after(new Date())) {
+                        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
+                        workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
+                        WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+                        workOrderService.notify(savedWorkOrder);
+                    }
+                }
+            };
+            timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
+            timers.put(schedule.getId(), timer);
+        }
     }
 
     public void reScheduleWorkOrder(Long id, Schedule schedule) {

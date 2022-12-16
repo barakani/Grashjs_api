@@ -78,9 +78,7 @@ public class ScheduleController {
             if (scheduleService.hasAccess(user, savedSchedule) && scheduleService.canPatch(user, schedule)) {
                 Schedule updatedSchedule = scheduleService.update(id, schedule);
                 //TODO unschedule previous schedule
-                if (!updatedSchedule.isDisabled()) {
-                    scheduleService.reScheduleWorkOrder(id, updatedSchedule);
-                }
+                scheduleService.reScheduleWorkOrder(id, updatedSchedule);
                 return updatedSchedule;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
