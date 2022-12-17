@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,32 +100,14 @@ public class PartService {
     }
 
     public void notify(Part part) {
-
         String message = "Part " + part.getName() + " has been assigned to you";
-        if (part.getAssignedTo() != null) {
-            part.getAssignedTo().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.PART, part.getId())));
-        }
-        if (part.getTeams() != null) {
-            part.getTeams().forEach(team -> team.getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.PART, part.getId()))));
-        }
+        part.getUsers().forEach(user -> notificationService.create(notificationService.create(new Notification(message, user, NotificationType.PART, part.getId()))));
     }
 
     public void patchNotify(Part oldPart, Part newPart) {
         String message = "Part " + newPart.getName() + " has been assigned to you";
-        if (newPart.getAssignedTo() != null) {
-            List<OwnUser> newUsers = newPart.getAssignedTo().stream().filter(
-                    user -> oldPart.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
-            newUsers.forEach(newUser ->
-                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newPart.getId())));
-        }
-        if (newPart.getTeams() != null) {
-            List<Team> newTeams = newPart.getTeams().stream().filter(
-                    team -> oldPart.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
-            newTeams.forEach(team -> team.getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newPart.getId()))));
-        }
+        oldPart.getNewUsersToNotify(newPart.getUsers()).forEach(user -> notificationService.create(
+                new Notification(message, user, NotificationType.PART, newPart.getId())));
     }
 
     public Part save(Part part) {

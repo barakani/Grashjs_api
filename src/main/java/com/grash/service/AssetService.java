@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,37 +121,13 @@ public class AssetService {
     }
 
     public void notify(Asset asset, String message) {
-
-        if (asset.getPrimaryUser() != null) {
-            notificationService.create(new Notification(message, asset.getPrimaryUser(), NotificationType.ASSET, asset.getId()));
-        }
-        if (asset.getAssignedTo() != null) {
-            asset.getAssignedTo().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.ASSET, asset.getId())));
-        }
-        if (asset.getTeams() != null) {
-            asset.getTeams().forEach(team -> team.getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.ASSET, asset.getId()))));
-        }
+        asset.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.ASSET, asset.getId())));
     }
 
     public void patchNotify(Asset oldAsset, Asset newAsset) {
         String message = "Asset " + newAsset.getName() + " has been assigned to you";
-        if (newAsset.getPrimaryUser() != null && !newAsset.getPrimaryUser().getId().equals(oldAsset.getPrimaryUser().getId())) {
-            notificationService.create(new Notification(message, newAsset.getPrimaryUser(), NotificationType.ASSET, newAsset.getId()));
-        }
-        if (newAsset.getAssignedTo() != null) {
-            List<OwnUser> newUsers = newAsset.getAssignedTo().stream().filter(
-                    user -> oldAsset.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
-            newUsers.forEach(newUser ->
-                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newAsset.getId())));
-        }
-        if (newAsset.getTeams() != null) {
-            List<Team> newTeams = newAsset.getTeams().stream().filter(
-                    team -> oldAsset.getTeams().stream().noneMatch(team1 -> team1.getId().equals(team.getId()))).collect(Collectors.toList());
-            newTeams.forEach(team -> team.getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.ASSET, newAsset.getId()))));
-        }
+        oldAsset.getNewUsersToNotify(newAsset.getUsers()).forEach(user -> notificationService.create(
+                new Notification(message, user, NotificationType.ASSET, newAsset.getId())));
     }
 
     public Collection<Asset> findByLocation(Long id) {

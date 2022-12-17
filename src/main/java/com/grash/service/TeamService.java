@@ -88,7 +88,7 @@ public class TeamService {
     }
 
     public void notify(Team team) {
-        String message = "Team " + team.getName() + " has been assigned to you";
+        String message = "You have been added to the " + team.getName() + " Team";
         if (team.getUsers() != null) {
             team.getUsers().forEach(assignedUser ->
                     notificationService.create(new Notification(message, assignedUser, NotificationType.TEAM, team.getId())));
@@ -96,7 +96,7 @@ public class TeamService {
     }
 
     public void patchNotify(Team oldTeam, Team newTeam) {
-        String message = "Team " + newTeam.getName() + " has been assigned to you";
+        String message = "You have been added to the " + newTeam.getName() + " Team";
         if (newTeam.getUsers() != null) {
             List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());

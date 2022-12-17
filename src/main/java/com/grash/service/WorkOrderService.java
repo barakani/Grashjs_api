@@ -108,13 +108,13 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder) {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
-        workOrder.getUsers().forEach(user -> notificationService.create(new Notification(message, workOrder.getPrimaryUser(), NotificationType.WORK_ORDER, workOrder.getId())));
+        workOrder.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
         String message = "WorkOrder " + newWorkOrder.getTitle() + " has been assigned to you";
         oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).forEach(user -> notificationService.create(
-                new Notification(message, newWorkOrder.getPrimaryUser(), NotificationType.WORK_ORDER, newWorkOrder.getId())));
+                new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
     }
 
     public Collection<WorkOrder> findByAsset(Long id) {

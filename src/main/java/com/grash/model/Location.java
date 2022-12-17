@@ -8,7 +8,13 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Entity
 @Data
@@ -89,5 +95,26 @@ public class Location extends CompanyAudit {
                     @Index(name = "idx_location_file_file_id", columnList = "id_file")
             })
     private List<File> files = new ArrayList<>();
+
+    public Collection<OwnUser> getUsers() {
+        Collection<OwnUser> users = new ArrayList<>();
+        if (this.getTeams() != null) {
+            Collection<OwnUser> teamsUsers = new ArrayList<>();
+            this.getTeams().forEach(team -> teamsUsers.addAll(team.getUsers()));
+            users.addAll(teamsUsers);
+        }
+        if (this.getWorkers() != null) {
+            users.addAll(this.getWorkers());
+        }
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                ArrayList::new));
+    }
+
+    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
+        Collection<OwnUser> oldUsers = getUsers();
+        return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                        ArrayList::new));
+    }
 }
 
