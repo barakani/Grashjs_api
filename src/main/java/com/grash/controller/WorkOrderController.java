@@ -119,6 +119,10 @@ public class WorkOrderController {
         if (workOrderService.canCreate(user, workOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && (workOrderReq.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
+            if (user.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignWorkOrders()) {
+                OwnUser primaryUser = workOrderReq.getPrimaryUser();
+                workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
+            }
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
@@ -191,7 +195,8 @@ public class WorkOrderController {
                     primaryTimes.forEach(additionalTimeService::stop);
                 }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
-                workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
+                boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
+                if (shouldNotify) workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
                 return workOrderMapper.toShowDto(patchedWorkOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);

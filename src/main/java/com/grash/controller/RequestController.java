@@ -130,7 +130,7 @@ public class RequestController {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
             if (requestService.hasAccess(user, savedRequest)) {
-                return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest));
+                return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
 
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);

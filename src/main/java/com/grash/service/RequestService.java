@@ -90,14 +90,18 @@ public class RequestService {
         return first && second && third && fourth && fifth;
     }
 
-    public WorkOrder createWorkOrderFromRequest(Request request) {
+    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
+        if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
+            OwnUser primaryUser = workOrder.getPrimaryUser();
+            workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
+        }
         workOrder.setParentRequest(request);
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
         workOrderService.notify(savedWorkOrder);
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
-        
+
         return savedWorkOrder;
     }
 
