@@ -26,4 +26,5 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
 
     private Status status;
 
+    private String feedback;
 }

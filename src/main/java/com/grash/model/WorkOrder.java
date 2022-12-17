@@ -42,6 +42,8 @@ public class WorkOrder extends WorkOrderBase {
     @JsonIgnore
     private Request parentRequest;
 
+    private String feedback;
+
 
     @ManyToOne
     private PreventiveMaintenance parentPreventiveMaintenance;

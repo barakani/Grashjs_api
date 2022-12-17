@@ -125,9 +125,14 @@ public class PartQuantityController {
 
                 Collection<Long> partQuantitiesReqMappedPartIds = partQuantitiesReq.stream().map
                         (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
-
                 partQuantitiesReq.forEach(partQuantityReq -> {
-                    if (!savedPartQuantitiesMappedPartIds.contains(partQuantityReq.getPart().getId())) {
+                    if (savedPartQuantitiesMappedPartIds.contains(partQuantityReq.getPart().getId())) {
+                        //existing parts
+                        PartQuantity savedPartQuantity = savedPartQuantities.stream().filter(partQuantity -> partQuantity.getPart().getId().equals(partQuantityReq.getPart().getId())).findFirst().get();
+                        savedPartQuantity.setQuantity(partQuantityReq.getQuantity());
+                        partQuantityService.save(savedPartQuantity);
+                    } else {
+                        //new Parts
                         Optional<Part> optionalPart = partService.findById(partQuantityReq.getPart().getId());
                         if (optionalPart.isPresent()) {
                             PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), null, savedPurchaseOrder, partQuantityReq.getQuantity());
@@ -135,7 +140,7 @@ public class PartQuantityController {
                         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
                     }
                 });
-
+                // removed Parts
                 savedPartQuantitiesMappedPartIds.forEach(partId -> {
                     if (!partQuantitiesReqMappedPartIds.contains(partId)) {
                         partQuantityService.delete(savedPartQuantities.stream().filter(partQuantity ->

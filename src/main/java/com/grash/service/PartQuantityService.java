@@ -87,4 +87,9 @@ public class PartQuantityService {
     public Collection<PartQuantity> findByPurchaseOrder(Long id) {
         return partQuantityRepository.findByPurchaseOrder_Id(id);
     }
+
+
+    public void save(PartQuantity partQuantity) {
+        partQuantityRepository.save(partQuantity);
+    }
 }

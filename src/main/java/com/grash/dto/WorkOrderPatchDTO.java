@@ -16,4 +16,5 @@ public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
     private boolean archived;
     private Status status;
     private File signature;
+    private String feedback;
 }
