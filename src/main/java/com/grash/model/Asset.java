@@ -5,6 +5,8 @@ import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,6 +35,7 @@ public class Asset extends CompanyAudit {
     private Location location;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset parentAsset;
 
     private String area;

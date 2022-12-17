@@ -5,6 +5,8 @@ import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.FileType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,6 +30,7 @@ public class File extends CompanyAudit {
     private FileType type = FileType.OTHER;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Task task;
 
