@@ -10,9 +10,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Entity
 @Data
@@ -44,7 +46,7 @@ public class WorkOrder extends WorkOrderBase {
     @ManyToOne
     private PreventiveMaintenance parentPreventiveMaintenance;
 
-    public boolean isAssignedTo(OwnUser user) {
+    public Collection<OwnUser> getUsers() {
         Collection<OwnUser> users = new ArrayList<>();
         if (this.getPrimaryUser() != null) {
             users.add(this.getPrimaryUser());
@@ -55,7 +57,20 @@ public class WorkOrder extends WorkOrderBase {
         if (this.getAssignedTo() != null) {
             users.addAll(this.getAssignedTo());
         }
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                ArrayList::new));
+    }
+
+    public boolean isAssignedTo(OwnUser user) {
+        Collection<OwnUser> users = getUsers();
         return users.stream().anyMatch(user1 -> user1.getId().equals(user.getId()));
+    }
+
+    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
+        Collection<OwnUser> oldUsers = getUsers();
+        return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                        ArrayList::new));
     }
 
     public boolean canBeEditedBy(OwnUser user) {
