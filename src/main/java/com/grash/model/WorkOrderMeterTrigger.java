@@ -5,6 +5,8 @@ import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,6 +35,7 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
 
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
 

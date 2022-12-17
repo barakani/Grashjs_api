@@ -133,7 +133,6 @@ public class PreventiveMaintenanceController {
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance)) {
-                scheduleService.delete(savedPreventiveMaintenance.getSchedule().getId());
                 preventiveMaintenanceService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

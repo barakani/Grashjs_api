@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -29,6 +31,7 @@ public class Schedule extends Audit {
 
     @OneToOne
     @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PreventiveMaintenance preventiveMaintenance;
 
     public Schedule(PreventiveMaintenance preventiveMaintenance) {

@@ -3,6 +3,8 @@ package com.grash.model;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -22,12 +24,15 @@ public class PartQuantity extends CompanyAudit {
 
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Part part;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PurchaseOrder purchaseOrder;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrder workOrder;
 
     public PartQuantity(Company company, Part part, WorkOrder workOrder, PurchaseOrder purchaseOrder, int quantity) {

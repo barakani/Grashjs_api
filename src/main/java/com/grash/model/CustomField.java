@@ -2,6 +2,8 @@ package com.grash.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,9 +21,10 @@ public class CustomField {
 
     @NotNull
     private String value;
-    
+
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Vendor vendor;
 
 }

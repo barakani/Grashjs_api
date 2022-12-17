@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -40,8 +42,10 @@ public class TaskBase extends CompanyAudit {
     private OwnUser user;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset asset;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Meter meter;
 }

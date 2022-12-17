@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -58,6 +60,7 @@ public class Location extends CompanyAudit {
     private List<Team> teams = new ArrayList<>();
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Location parentLocation;
 
     @ManyToOne

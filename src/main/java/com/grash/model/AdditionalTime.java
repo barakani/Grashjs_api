@@ -5,6 +5,8 @@ import com.grash.model.abstracts.Time;
 import com.grash.model.enums.TimeStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -35,6 +37,7 @@ public class AdditionalTime extends Time {
     private TimeCategory timeCategory;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull
     private WorkOrder workOrder;
