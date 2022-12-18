@@ -7,5 +7,6 @@ public enum NotificationType {
     PART,
     METER,
     LOCATION,
-    TEAM
+    TEAM,
+    REQUEST,
 }

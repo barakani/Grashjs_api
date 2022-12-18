@@ -7,10 +7,13 @@ import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.mapper.WorkOrderMapper;
+import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
+import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.service.NotificationService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -39,6 +42,7 @@ public class RequestController {
     private final UserService userService;
     private final WorkOrderMapper workOrderMapper;
     private final RequestMapper requestMapper;
+    private final NotificationService notificationService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -85,6 +89,10 @@ public class RequestController {
         OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
+            String message = "A new Work Order has been requested";
+            userService.findByCompany(user.getCompany().getId()).stream()
+                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+                    .forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())));
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

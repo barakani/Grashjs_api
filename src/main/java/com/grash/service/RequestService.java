@@ -26,7 +26,6 @@ public class RequestService {
     private final TeamService teamService;
     private final AssetService assetService;
     private final WorkOrderService workOrderService;
-    private final NotificationService notificationService;
     private final RequestMapper requestMapper;
     private final EntityManager em;
 
