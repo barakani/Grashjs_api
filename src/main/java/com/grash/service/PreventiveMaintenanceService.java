@@ -28,8 +28,11 @@ public class PreventiveMaintenanceService {
 
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
 
+    @Transactional
     public PreventiveMaintenance create(PreventiveMaintenance PreventiveMaintenance) {
-        return preventiveMaintenanceRepository.saveAndFlush(PreventiveMaintenance);
+        PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(PreventiveMaintenance);
+        em.refresh(savedPM);
+        return savedPM;
     }
 
     @Transactional

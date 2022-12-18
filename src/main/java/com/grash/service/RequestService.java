@@ -9,7 +9,9 @@ import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -26,15 +28,22 @@ public class RequestService {
     private final WorkOrderService workOrderService;
     private final NotificationService notificationService;
     private final RequestMapper requestMapper;
+    private final EntityManager em;
 
+    @Transactional
     public Request create(Request request) {
-        return requestRepository.save(request);
+        Request savedRequest = requestRepository.saveAndFlush(request);
+        em.refresh(savedRequest);
+        return savedRequest;
     }
 
+    @Transactional
     public Request update(Long id, RequestPatchDTO request) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
-            return requestRepository.save(requestMapper.updateRequest(savedRequest, request));
+            Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
+            em.refresh(updatedRequest);
+            return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
