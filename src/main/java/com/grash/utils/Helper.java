@@ -48,7 +48,7 @@ public class Helper {
         return result;
     }
 
-    private static Date incrementDays(Date date, int days) {
+    public static Date incrementDays(Date date, int days) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.DATE, days);

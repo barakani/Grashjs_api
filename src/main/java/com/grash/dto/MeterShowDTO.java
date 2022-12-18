@@ -5,12 +5,13 @@ import com.grash.model.MeterCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class MeterShowDTO {
+public class MeterShowDTO extends AuditShowDTO {
     private Long id;
 
     private String name;
@@ -29,4 +30,8 @@ public class MeterShowDTO {
     private LocationMiniDTO location;
 
     private AssetMiniDTO asset;
+
+    private Instant lastReading;
+
+    private Instant nextReading;
 }

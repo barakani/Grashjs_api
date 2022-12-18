@@ -2,14 +2,21 @@ package com.grash.dto;
 
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.Vendor;
+import com.grash.model.enums.ApprovalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class PurchaseOrderPatchDTO {
+public class PurchaseOrderShowDTO extends AuditShowDTO {
+
+    private Long id;
+
+    private ApprovalStatus status = ApprovalStatus.PENDING;
+
     private String name;
 
     private PurchaseOrderCategory category;
@@ -46,5 +53,6 @@ public class PurchaseOrderPatchDTO {
 
     private Vendor vendor;
 
-    // private Company requesterInformation;
+    private Collection<PartQuantityShowDTO> partQuantities;
+
 }

@@ -10,8 +10,4 @@ public class PartQuantityShowDTO extends AuditShowDTO {
 
     private int quantity;
     private PartMiniDTO part;
-
-    private PurchaseOrderMiniDTO purchaseOrder;
-
-    private WorkOrderMiniDTO workOrder;
 }

@@ -8,12 +8,16 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.Asset;
 import com.grash.model.Meter;
 import com.grash.model.OwnUser;
+import com.grash.model.Reading;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.AssetService;
 import com.grash.service.MeterService;
+import com.grash.service.ReadingService;
 import com.grash.service.UserService;
+import com.grash.utils.AuditComparator;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -27,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,6 +46,7 @@ public class MeterController {
     private final MeterMapper meterMapper;
     private final UserService userService;
     private final AssetService assetService;
+    private final ReadingService readingService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -54,7 +61,7 @@ public class MeterController {
                 return meterService.findByCompany(user.getCompany().getId()).stream().filter(meter -> {
                     boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS);
                     return canViewOthers || meter.getCreatedBy().equals(user.getId());
-                }).map(meterMapper::toShowDto).collect(Collectors.toList());
+                }).map(meterMapper::toShowDto).map(this::setNextAndLastReading).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return meterService.getAll().stream().map(meterMapper::toShowDto).collect(Collectors.toList());
     }
@@ -72,7 +79,7 @@ public class MeterController {
             Meter savedMeter = optionalMeter.get();
             if (meterService.hasAccess(user, savedMeter) && user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId()))) {
-                return meterMapper.toShowDto(savedMeter);
+                return setNextAndLastReading(meterMapper.toShowDto(savedMeter));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -109,7 +116,7 @@ public class MeterController {
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
                 Meter patchedMeter = meterService.update(id, meter);
                 meterService.patchNotify(savedMeter, patchedMeter);
-                return meterMapper.toShowDto(patchedMeter);
+                return setNextAndLastReading(meterMapper.toShowDto(patchedMeter));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }
@@ -124,7 +131,7 @@ public class MeterController {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
-            return meterService.findByAsset(id).stream().map(meterMapper::toShowDto).collect(Collectors.toList());
+            return meterService.findByAsset(id).stream().map(meterMapper::toShowDto).map(this::setNextAndLastReading).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -150,4 +157,14 @@ public class MeterController {
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
     }
 
+    private MeterShowDTO setNextAndLastReading(MeterShowDTO meterShowDTO) {
+        Collection<Reading> readings = readingService.findByMeter(meterShowDTO.getId());
+        if (!readings.isEmpty()) {
+            Reading lastReading = Collections.min(readings, new AuditComparator());
+            meterShowDTO.setLastReading(lastReading.getCreatedAt());
+            Date nextReading = Helper.incrementDays(Date.from(lastReading.getCreatedAt()), meterShowDTO.getUpdateFrequency());
+            meterShowDTO.setNextReading(nextReading.toInstant());
+        }
+        return meterShowDTO;
+    }
 }

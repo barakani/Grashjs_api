@@ -8,6 +8,7 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import com.grash.service.*;
 import com.grash.utils.AuditComparator;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -68,8 +68,8 @@ public class ReadingController {
                 Collection<Reading> readings = readingService.findByMeter(readingReq.getMeter().getId());
                 if (!readings.isEmpty()) {
                     Reading lastReading = Collections.min(readings, new AuditComparator());
-                    long daysBetweenLastAndToday = ChronoUnit.DAYS.between(lastReading.getCreatedAt(), new Date().toInstant());
-                    if (daysBetweenLastAndToday < meter.getUpdateFrequency()) {
+                    Date nextReading = Helper.incrementDays(Date.from(lastReading.getCreatedAt()), meter.getUpdateFrequency());
+                    if (new Date().before(nextReading)) {
                         throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }

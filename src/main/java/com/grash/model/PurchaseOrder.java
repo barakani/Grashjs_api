@@ -23,7 +23,7 @@ public class PurchaseOrder extends CompanyAudit {
     private String name;
 
     @ManyToOne
-    private PurchaseOrderCategory purchaseOrderOrderCategory;
+    private PurchaseOrderCategory category;
 
     private Date shippingDueDate;
 
@@ -47,7 +47,7 @@ public class PurchaseOrder extends CompanyAudit {
 
     private Date additionalInfoDate;
 
-    private String additionalInfoRequistionerName;
+    private String additionalInfoRequisitionedName;
 
     private String additionalInfoShippingOrderCategory;
 

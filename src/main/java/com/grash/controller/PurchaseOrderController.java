@@ -1,8 +1,11 @@
 package com.grash.controller;
 
 import com.grash.dto.PurchaseOrderPatchDTO;
+import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.PartQuantityMapper;
+import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
 import com.grash.model.PartQuantity;
@@ -40,6 +43,8 @@ public class PurchaseOrderController {
     private final PurchaseOrderService purchaseOrderService;
     private final UserService userService;
     private final PartQuantityService partQuantityService;
+    private final PartQuantityMapper partQuantityMapper;
+    private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartService partService;
 
     @GetMapping("")
@@ -48,16 +53,17 @@ public class PurchaseOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public Collection<PurchaseOrder> getAll(HttpServletRequest req) {
+    public Collection<PurchaseOrderShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
                 return purchaseOrderService.findByCompany(user.getCompany().getId()).stream().filter(purchaseOrder -> {
                     boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS);
                     return canViewOthers || purchaseOrder.getCreatedBy().equals(user.getId());
-                }).collect(Collectors.toList());
+                }).map(purchaseOrderMapper::toShowDto).map(this::setPartQuantities).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return purchaseOrderService.getAll();
+        } else
+            return purchaseOrderService.getAll().stream().map(purchaseOrderMapper::toShowDto).map(this::setPartQuantities).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -66,14 +72,14 @@ public class PurchaseOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrder getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public PurchaseOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId()))) {
-                return savedPurchaseOrder;
+                return setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -83,11 +89,11 @@ public class PurchaseOrderController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public PurchaseOrder create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
+    public PurchaseOrderShowDTO create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
-            return purchaseOrderService.create(purchaseOrderReq);
+            return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.create(purchaseOrderReq)));
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -97,8 +103,8 @@ public class PurchaseOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrder patch(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder, @ApiParam("id") @PathVariable("id") Long id,
-                               HttpServletRequest req) {
+    public PurchaseOrderShowDTO patch(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrderPatchDTO purchaseOrder, @ApiParam("id") @PathVariable("id") Long id,
+                                      HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
 
@@ -106,7 +112,7 @@ public class PurchaseOrderController {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId())) {
-                return purchaseOrderService.update(id, purchaseOrder);
+                return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.update(id, purchaseOrder)));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
     }
@@ -117,8 +123,8 @@ public class PurchaseOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "PurchaseOrder not found")})
-    public PurchaseOrder respond(@ApiParam("approved") @RequestParam("approved") boolean approved, @ApiParam("id") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
+    public PurchaseOrderShowDTO respond(@ApiParam("approved") @RequestParam("approved") boolean approved, @ApiParam("id") @PathVariable("id") Long id,
+                                        HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
 
@@ -135,7 +141,7 @@ public class PurchaseOrderController {
                         });
                     }
                     savedPurchaseOrder.setStatus(approved ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED);
-                    return purchaseOrderService.save(savedPurchaseOrder);
+                    return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.save(savedPurchaseOrder)));
                 } else
                     throw new CustomException("The purchase order has already been approved", HttpStatus.NOT_ACCEPTABLE);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -164,4 +170,9 @@ public class PurchaseOrderController {
         } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
     }
 
+    private PurchaseOrderShowDTO setPartQuantities(PurchaseOrderShowDTO purchaseOrderShowDTO) {
+        Collection<PartQuantity> partQuantities = partQuantityService.findByPurchaseOrder(purchaseOrderShowDTO.getId());
+        purchaseOrderShowDTO.setPartQuantities(partQuantities.stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList()));
+        return purchaseOrderShowDTO;
+    }
 }

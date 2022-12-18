@@ -28,8 +28,11 @@ public class PartService {
     private final EntityManager em;
     private final NotificationService notificationService;
 
+    @Transactional
     public Part create(Part Part) {
-        return partRepository.save(Part);
+        Part savedPart = partRepository.saveAndFlush(Part);
+        em.refresh(savedPart);
+        return savedPart;
     }
 
     @Transactional
