@@ -8,7 +8,6 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.service.*;
-import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingLong;
@@ -128,10 +126,7 @@ public class WorkOrderController {
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    asset.setStatus(AssetStatus.DOWN);
-                    asset.setDownAt(new Date());
-                    assetService.save(asset);
-                    assetService.notify(asset, asset.getName() + " is down");
+                    assetService.triggerDownTime(asset);
                 }
             }
             workOrderService.notify(createdWorkOrder);
@@ -185,10 +180,7 @@ public class WorkOrderController {
                             Asset asset = workOrder.getAsset();
                             Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
                             if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                                asset.setStatus(AssetStatus.OPERATIONAL);
-                                asset.setDowntime(asset.getDowntime() + Helper.getDateDiff(asset.getDownAt(), new Date(), TimeUnit.SECONDS));
-                                assetService.save(asset);
-                                assetService.notify(asset, asset.getName() + " is now operational");
+                                assetService.stopDownTime(asset);
                             }
                         }
                     }

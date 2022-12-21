@@ -10,12 +10,10 @@ import com.grash.model.Asset;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
-import com.grash.service.AssetService;
-import com.grash.service.LocationService;
-import com.grash.service.PartService;
-import com.grash.service.UserService;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -43,6 +41,7 @@ public class AssetController {
     private final UserService userService;
     private final LocationService locationService;
     private final PartService partService;
+    private final AssetDowntimeService assetDowntimeService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -169,6 +168,11 @@ public class AssetController {
             if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
+                if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {
+                    assetService.stopDownTime(savedAsset);
+                } else if (asset.getStatus().equals(AssetStatus.DOWN) && !savedAsset.getStatus().equals(AssetStatus.DOWN)) {
+                    assetService.triggerDownTime(savedAsset);
+                }
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset);
                 return assetMapper.toShowDto(patchedAsset);

@@ -4,9 +4,11 @@ import com.grash.dto.AssetPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class AssetService {
     private final NotificationService notificationService;
     private final AssetMapper assetMapper;
     private final EntityManager em;
+    private final AssetDowntimeService assetDowntimeService;
 
     @Transactional
     public Asset create(Asset asset) {
@@ -132,5 +137,31 @@ public class AssetService {
 
     public Collection<Asset> findByLocation(Long id) {
         return assetRepository.findByLocation_Id(id);
+    }
+
+    public void stopDownTime(Asset asset) {
+        Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(asset.getId());
+        Optional<AssetDowntime> optionalRunningDowntime = assetDowntimes.stream().filter(assetDowntime -> assetDowntime.getDuration() == 0).findFirst();
+        if (optionalRunningDowntime.isPresent()) {
+            AssetDowntime runningDowntime = optionalRunningDowntime.get();
+            runningDowntime.setDuration(Helper.getDateDiff(runningDowntime.getStartsOn(), new Date(), TimeUnit.SECONDS));
+            assetDowntimeService.save(runningDowntime);
+        }
+        asset.setStatus(AssetStatus.OPERATIONAL);
+        save(asset);
+        notify(asset, asset.getName() + " is now Operational");
+    }
+
+    public void triggerDownTime(Asset asset) {
+        AssetDowntime assetDowntime = AssetDowntime
+                .builder()
+                .startsOn(new Date())
+                .asset(asset)
+                .build();
+        assetDowntimeService.create(assetDowntime);
+        asset.setStatus(AssetStatus.DOWN);
+        save(asset);
+        notify(asset, asset.getName() + " is down");
+
     }
 }

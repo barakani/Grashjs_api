@@ -4,7 +4,6 @@ import com.grash.dto.AssetDowntimePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetDowntimeMapper;
 import com.grash.model.AssetDowntime;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetDowntimeRepository;
@@ -23,6 +22,10 @@ public class AssetDowntimeService {
     private final AssetDowntimeMapper assetDowntimeMapper;
 
     public AssetDowntime create(AssetDowntime assetDowntime) {
+        return assetDowntimeRepository.save(assetDowntime);
+    }
+
+    public AssetDowntime save(AssetDowntime assetDowntime) {
         return assetDowntimeRepository.save(assetDowntime);
     }
 
@@ -56,13 +59,7 @@ public class AssetDowntimeService {
     }
 
     public boolean canCreate(OwnUser user, AssetDowntime assetDowntimeReq) {
-        Optional<Company> optionalCompany = companyService.findById(assetDowntimeReq.getAsset().getCompany().getId());
-
-        //Post only fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(
-                user.getCompany().getId());
-
-        return first && canPatch(user, assetDowntimeMapper.toPatchDto(assetDowntimeReq));
+        return true;
     }
 
     public boolean canPatch(OwnUser user, AssetDowntimePatchDTO assetDowntimeReq) {
