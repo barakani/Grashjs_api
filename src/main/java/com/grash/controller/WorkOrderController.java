@@ -43,6 +43,7 @@ public class WorkOrderController {
     private final AdditionalTimeService additionalTimeService;
     private final PartService partService;
     private final PartQuantityService partQuantityService;
+    private final NotificationService notificationService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -171,6 +172,7 @@ public class WorkOrderController {
 
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
             if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)
                     && savedWorkOrder.canBeEditedBy(user)
                     && (workOrder.getSignature() == null ||
@@ -195,6 +197,13 @@ public class WorkOrderController {
                     primaryTimes.forEach(additionalTimeService::stop);
                 }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
+                if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
+                        && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
+                        && patchedWorkOrder.getParentRequest() != null) {
+                    String message = "Work Order " + patchedWorkOrder.getTitle() + " is now " + patchedWorkOrder.getStatus().getName();
+                    Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
+                    notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
+                }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
                 if (shouldNotify) workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
                 return workOrderMapper.toShowDto(patchedWorkOrder);

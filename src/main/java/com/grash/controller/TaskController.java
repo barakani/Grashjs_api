@@ -8,6 +8,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Task;
 import com.grash.model.TaskBase;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.TaskType;
 import com.grash.service.TaskBaseService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
@@ -83,7 +84,13 @@ public class TaskController {
             Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
                     taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
             return taskBases.stream().map(taskBase -> {
-                Task task = new Task(taskBase, optionalWorkOrder.get(), user.getCompany());
+                StringBuilder value = new StringBuilder();
+                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
+                    value.append("OPEN");
+                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
+                    value.append("FLAG");
+                }
+                Task task = new Task(taskBase, optionalWorkOrder.get(), user.getCompany(), value.toString());
                 return taskService.create(task);
             }).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
