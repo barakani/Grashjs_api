@@ -12,7 +12,7 @@ public interface PurchaseOrderMapper {
     PurchaseOrder updatePurchaseOrder(@MappingTarget PurchaseOrder entity, PurchaseOrderPatchDTO dto);
 
     @Mappings({})
-    PurchaseOrderPatchDTO toDto(PurchaseOrder model);
+    PurchaseOrderPatchDTO toPatchDto(PurchaseOrder model);
 
     PurchaseOrderShowDTO toShowDto(PurchaseOrder model);
 }

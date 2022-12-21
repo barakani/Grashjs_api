@@ -68,7 +68,7 @@ public class WorkOrderMeterTriggerService {
         //@NotNull fields
         boolean second = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
 
-        return second && canPatch(user, workOrderMeterTriggerMapper.toDto(workOrderMeterTriggerReq));
+        return second && canPatch(user, workOrderMeterTriggerMapper.toPatchDto(workOrderMeterTriggerReq));
     }
 
     public boolean canPatch(OwnUser user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {

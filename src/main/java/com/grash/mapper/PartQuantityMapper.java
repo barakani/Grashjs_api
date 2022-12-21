@@ -12,7 +12,7 @@ public interface PartQuantityMapper {
     PartQuantity updatePartQuantity(@MappingTarget PartQuantity entity, PartQuantityPatchDTO dto);
 
     @Mappings({})
-    PartQuantityPatchDTO toDto(PartQuantity model);
+    PartQuantityPatchDTO toPatchDto(PartQuantity model);
 
     PartQuantityShowDTO toShowDto(PartQuantity model);
 

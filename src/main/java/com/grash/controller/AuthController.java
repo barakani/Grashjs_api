@@ -131,7 +131,7 @@ public class AuthController {
             @ApiResponse(code = 404, message = "The user doesn't exist"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
-        return userMapper.toDto(userService.search(username));
+        return userMapper.toPatchDto(userService.search(username));
     }
 
     @GetMapping(value = "/me")
@@ -142,7 +142,7 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
     public UserResponseDTO whoami(HttpServletRequest req) {
-        return userMapper.toDto(userService.whoami(req));
+        return userMapper.toPatchDto(userService.whoami(req));
     }
 
     @GetMapping("/refresh")

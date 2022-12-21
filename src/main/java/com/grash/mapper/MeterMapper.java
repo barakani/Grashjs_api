@@ -18,7 +18,7 @@ public interface MeterMapper {
     Meter updateMeter(@MappingTarget Meter entity, MeterPatchDTO dto);
 
     @Mappings({})
-    MeterPatchDTO toDto(Meter model);
+    MeterPatchDTO toPatchDto(Meter model);
 
     MeterShowDTO toShowDto(Meter model, @Context ReadingService readingService);
 

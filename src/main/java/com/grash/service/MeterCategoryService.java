@@ -25,7 +25,7 @@ public class MeterCategoryService {
 
     public MeterCategory create(MeterCategory meterCategory) {
         Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByName(meterCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return meterCategoryRepository.save(meterCategory);
@@ -67,7 +67,7 @@ public class MeterCategoryService {
 
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(companyId);
 
-        return first && canPatch(user, meterCategoryMapper.toDto(meterCategoryReq));
+        return first && canPatch(user, meterCategoryMapper.toPatchDto(meterCategoryReq));
     }
 
     public boolean canPatch(OwnUser user, CategoryPatchDTO meterCategoryReq) {

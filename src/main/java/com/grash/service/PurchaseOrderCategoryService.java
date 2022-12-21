@@ -25,7 +25,7 @@ public class PurchaseOrderCategoryService {
 
     public PurchaseOrderCategory create(PurchaseOrderCategory purchaseOrderCategory) {
         Optional<PurchaseOrderCategory> categoryWithSameName = purchaseOrderCategoryRepository.findByName(purchaseOrderCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("PurchaseOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return purchaseOrderCategoryRepository.save(purchaseOrderCategory);
@@ -67,7 +67,7 @@ public class PurchaseOrderCategoryService {
 
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, purchaseOrderCategoryMapper.toDto(purchaseOrderCategoryReq));
+        return first && canPatch(user, purchaseOrderCategoryMapper.toPatchDto(purchaseOrderCategoryReq));
     }
 
     public boolean canPatch(OwnUser user, CategoryPatchDTO purchaseOrderCategoryReq) {

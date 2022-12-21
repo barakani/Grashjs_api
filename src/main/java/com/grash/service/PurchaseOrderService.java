@@ -71,7 +71,7 @@ public class PurchaseOrderService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, purchaseOrderMapper.toDto(purchaseOrderReq));
+        return first && canPatch(user, purchaseOrderMapper.toPatchDto(purchaseOrderReq));
     }
 
     public boolean canPatch(OwnUser user, PurchaseOrderPatchDTO purchaseOrderReq) {

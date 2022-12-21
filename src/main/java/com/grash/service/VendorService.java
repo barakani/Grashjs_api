@@ -63,7 +63,7 @@ public class VendorService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, vendorMapper.toDto(vendorReq));
+        return first && canPatch(user, vendorMapper.toPatchDto(vendorReq));
     }
 
     public boolean canPatch(OwnUser user, VendorPatchDTO vendorReq) {

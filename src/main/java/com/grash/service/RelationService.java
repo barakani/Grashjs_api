@@ -72,7 +72,7 @@ public class RelationService {
     }
 
     public boolean canCreate(OwnUser user, RelationPostDTO relationReq) {
-        return canPatch(user, relationMapper.toDto(relationReq));
+        return canPatch(user, relationMapper.toPatchDto(relationReq));
     }
 
     public boolean canPatch(OwnUser user, RelationPatchDTO relationReq) {

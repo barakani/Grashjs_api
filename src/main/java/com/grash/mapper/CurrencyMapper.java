@@ -11,5 +11,5 @@ public interface CurrencyMapper {
     Currency updateCurrency(@MappingTarget Currency entity, CurrencyPatchDTO dto);
 
     @Mappings({})
-    CurrencyPatchDTO toDto(Currency model);
+    CurrencyPatchDTO toPatchDto(Currency model);
 }

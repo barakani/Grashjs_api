@@ -12,7 +12,7 @@ public interface CustomerMapper {
     Customer updateCustomer(@MappingTarget Customer entity, CustomerPatchDTO dto);
 
     @Mappings({})
-    CustomerPatchDTO toDto(Customer model);
+    CustomerPatchDTO toPatchDto(Customer model);
 
     CustomerMiniDTO toMiniDto(Customer model);
 }

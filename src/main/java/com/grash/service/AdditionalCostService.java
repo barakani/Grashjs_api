@@ -73,7 +73,7 @@ public class AdditionalCostService {
         //@NotNull fields
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
+        return second && canPatch(user, additionalCostMapper.toPatchDto(additionalCostReq));
     }
 
     public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {

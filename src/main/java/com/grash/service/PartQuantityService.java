@@ -73,7 +73,7 @@ public class PartQuantityService {
         boolean third = partQuantityReq.getPurchaseOrder() == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
         boolean fourth = partQuantityReq.getWorkOrder() == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId));
 
-        return first && second && third && fourth && canPatch(user, partQuantityMapper.toDto(partQuantityReq));
+        return first && second && third && fourth && canPatch(user, partQuantityMapper.toPatchDto(partQuantityReq));
     }
 
     public boolean canPatch(OwnUser user, PartQuantityPatchDTO partQuantityReq) {

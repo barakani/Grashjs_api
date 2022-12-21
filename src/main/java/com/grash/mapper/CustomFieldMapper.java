@@ -11,5 +11,5 @@ public interface CustomFieldMapper {
     CustomField updateCustomField(@MappingTarget CustomField entity, CustomFieldPatchDTO dto);
 
     @Mappings({})
-    CustomFieldPatchDTO toDto(CustomField model);
+    CustomFieldPatchDTO toPatchDto(CustomField model);
 }

@@ -74,7 +74,7 @@ public class PreventiveMaintenanceService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, preventiveMaintenanceMapper.toDto(preventiveMaintenanceReq));
+        return first && canPatch(user, preventiveMaintenanceMapper.toPatchDto(preventiveMaintenanceReq));
     }
 
     public boolean canPatch(OwnUser user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {

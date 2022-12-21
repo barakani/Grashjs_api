@@ -80,7 +80,7 @@ public class TeamService {
 
         boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
 
-        return first && second && canPatch(user, teamMapper.toDto(teamReq));
+        return first && second && canPatch(user, teamMapper.toPatchDto(teamReq));
     }
 
     public boolean canPatch(OwnUser user, TeamPatchDTO teamReq) {

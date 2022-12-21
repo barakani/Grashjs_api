@@ -12,7 +12,7 @@ public interface CostCategoryMapper {
     CostCategory updateCostCategory(@MappingTarget CostCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(CostCategory model);
+    CategoryPatchDTO toPatchDto(CostCategory model);
 
     @Mappings({})
     CostCategory toModel(CategoryPostDTO model);

@@ -70,7 +70,7 @@ public class MultiPartsService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, multiPartsMapper.toDto(multiPartsReq));
+        return first && canPatch(user, multiPartsMapper.toPatchDto(multiPartsReq));
     }
 
     public boolean canPatch(OwnUser user, MultiPartsPatchDTO multiPartsReq) {

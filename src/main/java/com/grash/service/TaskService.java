@@ -72,7 +72,7 @@ public class TaskService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, taskMapper.toDto(taskReq));
+        return first && second && canPatch(user, taskMapper.toPatchDto(taskReq));
     }
 
     public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {

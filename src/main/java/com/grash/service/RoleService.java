@@ -64,7 +64,7 @@ public class RoleService {
             return false;
         }
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            return canPatch(user, roleMapper.toDto(roleReq));
+            return canPatch(user, roleMapper.toPatchDto(roleReq));
         } else return false;
     }
 

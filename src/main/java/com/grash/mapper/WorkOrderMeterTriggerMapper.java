@@ -12,7 +12,7 @@ public interface WorkOrderMeterTriggerMapper {
     WorkOrderMeterTrigger updateWorkOrderMeterTrigger(@MappingTarget WorkOrderMeterTrigger entity, WorkOrderMeterTriggerPatchDTO dto);
 
     @Mappings({})
-    WorkOrderMeterTriggerPatchDTO toDto(WorkOrderMeterTrigger model);
+    WorkOrderMeterTriggerPatchDTO toPatchDto(WorkOrderMeterTrigger model);
 
     @Mappings({})
     WorkOrderMeterTriggerShowDTO toShowDto(WorkOrderMeterTrigger model);

@@ -11,5 +11,5 @@ public interface WorkOrderCategoryMapper {
     WorkOrderCategory updateWorkOrderCategory(@MappingTarget WorkOrderCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(WorkOrderCategory model);
+    CategoryPatchDTO toPatchDto(WorkOrderCategory model);
 }

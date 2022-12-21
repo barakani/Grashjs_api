@@ -11,5 +11,5 @@ public interface TaskBaseMapper {
     TaskBase updateTaskBase(@MappingTarget TaskBase entity, TaskBasePatchDTO dto);
 
     @Mappings({})
-    TaskBasePatchDTO toDto(TaskBase model);
+    TaskBasePatchDTO toPatchDto(TaskBase model);
 }

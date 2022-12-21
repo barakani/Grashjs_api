@@ -91,7 +91,7 @@ public class AssetService {
         });
         boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
 
-        return first && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
+        return first && third && fourth && canPatch(user, assetMapper.toPatchDto(assetReq));
     }
 
     public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {

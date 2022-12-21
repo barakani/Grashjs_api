@@ -70,7 +70,7 @@ public class FloorPlanService {
         //@NotNull fields
         boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, floorPlanMapper.toDto(floorPlanReq));
+        return first && canPatch(user, floorPlanMapper.toPatchDto(floorPlanReq));
     }
 
     public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {

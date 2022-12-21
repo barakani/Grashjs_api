@@ -24,7 +24,7 @@ public class TimeCategoryService {
 
     public TimeCategory create(TimeCategory timeCategory) {
         Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByName(timeCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return timeCategoryRepository.save(timeCategory);
@@ -68,7 +68,7 @@ public class TimeCategoryService {
         //@NotNull fields
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, timeCategoryMapper.toDto(timeCategoryReq));
+        return first && canPatch(user, timeCategoryMapper.toPatchDto(timeCategoryReq));
     }
 
     public boolean canPatch(OwnUser user, CategoryPatchDTO timeCategoryReq) {

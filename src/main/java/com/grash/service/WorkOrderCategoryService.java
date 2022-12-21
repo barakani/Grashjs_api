@@ -25,7 +25,7 @@ public class WorkOrderCategoryService {
 
     public WorkOrderCategory create(WorkOrderCategory workOrderCategory) {
         Optional<WorkOrderCategory> categoryWithSameName = workOrderCategoryRepository.findByName(workOrderCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("WorkOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return workOrderCategoryRepository.save(workOrderCategory);
@@ -67,7 +67,7 @@ public class WorkOrderCategoryService {
 
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, workOrderCategoryMapper.toDto(workOrderCategoryReq));
+        return first && canPatch(user, workOrderCategoryMapper.toPatchDto(workOrderCategoryReq));
     }
 
     public boolean canPatch(OwnUser user, CategoryPatchDTO workOrderCategory) {

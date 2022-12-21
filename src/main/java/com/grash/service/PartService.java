@@ -87,7 +87,7 @@ public class PartService {
 
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, partMapper.toDto(partReq));
+        return first && canPatch(user, partMapper.toPatchDto(partReq));
     }
 
     public boolean canPatch(OwnUser user, PartPatchDTO partReq) {

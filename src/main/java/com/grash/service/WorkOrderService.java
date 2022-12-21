@@ -86,7 +86,7 @@ public class WorkOrderService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, workOrderMapper.toDto(workOrderReq));
+        return first && canPatch(user, workOrderMapper.toPatchDto(workOrderReq));
     }
 
     public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {

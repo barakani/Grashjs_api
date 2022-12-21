@@ -11,5 +11,5 @@ public interface AssetCategoryMapper {
     AssetCategory updateAssetCategory(@MappingTarget AssetCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(AssetCategory model);
+    CategoryPatchDTO toPatchDto(AssetCategory model);
 }

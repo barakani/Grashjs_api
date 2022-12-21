@@ -77,7 +77,7 @@ public class LocationService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, locationMapper.toDto(locationReq));
+        return first && canPatch(user, locationMapper.toPatchDto(locationReq));
     }
 
     public boolean canPatch(OwnUser user, LocationPatchDTO locationReq) {

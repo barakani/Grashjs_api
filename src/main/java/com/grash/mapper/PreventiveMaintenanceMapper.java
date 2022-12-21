@@ -13,7 +13,7 @@ public interface PreventiveMaintenanceMapper {
     PreventiveMaintenance updatePreventiveMaintenance(@MappingTarget PreventiveMaintenance entity, PreventiveMaintenancePatchDTO dto);
 
     @Mappings({})
-    PreventiveMaintenancePatchDTO toDto(PreventiveMaintenance model);
+    PreventiveMaintenancePatchDTO toPatchDto(PreventiveMaintenance model);
 
     PreventiveMaintenanceShowDTO toShowDto(PreventiveMaintenance model);
 

@@ -11,5 +11,5 @@ public interface NotificationMapper {
     Notification updateNotification(@MappingTarget Notification entity, NotificationPatchDTO dto);
 
     @Mappings({})
-    NotificationPatchDTO toDto(Notification model);
+    NotificationPatchDTO toPatchDto(Notification model);
 }

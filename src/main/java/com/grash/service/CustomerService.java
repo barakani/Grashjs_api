@@ -63,7 +63,7 @@ public class CustomerService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, customerMapper.toDto(customerReq));
+        return first && canPatch(user, customerMapper.toPatchDto(customerReq));
     }
 
     public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {

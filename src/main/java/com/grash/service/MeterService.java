@@ -80,7 +80,7 @@ public class MeterService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, meterMapper.toDto(meterReq));
+        return first && second && canPatch(user, meterMapper.toPatchDto(meterReq));
     }
 
     public boolean canPatch(OwnUser user, MeterPatchDTO meterReq) {

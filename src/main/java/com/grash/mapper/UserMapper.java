@@ -17,7 +17,7 @@ public interface UserMapper {
     @Mappings({@Mapping(source = "company.id", target = "companyId"),
             @Mapping(source = "company.companySettings.id", target = "companySettingsId"),
             @Mapping(source = "userSettings.id", target = "userSettingsId")})
-    UserResponseDTO toDto(OwnUser model);
+    UserResponseDTO toPatchDto(OwnUser model);
 
     @Mappings({})
     OwnUser toModel(UserSignupRequest dto);

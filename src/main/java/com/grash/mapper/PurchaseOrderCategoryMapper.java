@@ -11,5 +11,5 @@ public interface PurchaseOrderCategoryMapper {
     PurchaseOrderCategory updatePurchaseOrderCategory(@MappingTarget PurchaseOrderCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(PurchaseOrderCategory model);
+    CategoryPatchDTO toPatchDto(PurchaseOrderCategory model);
 }

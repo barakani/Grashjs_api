@@ -13,7 +13,7 @@ public interface TeamMapper {
     Team updateTeam(@MappingTarget Team entity, TeamPatchDTO dto);
 
     @Mappings({})
-    TeamPatchDTO toDto(Team model);
+    TeamPatchDTO toPatchDto(Team model);
 
     TeamMiniDTO toMiniDto(Team model);
 

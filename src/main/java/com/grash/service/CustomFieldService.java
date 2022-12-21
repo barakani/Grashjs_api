@@ -59,7 +59,7 @@ public class CustomFieldService {
         //@NotNull fields
         boolean first = optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, customFieldMapper.toDto(customFieldReq));
+        return first && canPatch(user, customFieldMapper.toPatchDto(customFieldReq));
     }
 
     public boolean canPatch(OwnUser user, CustomFieldPatchDTO customFieldReq) {

@@ -80,7 +80,7 @@ public class AdditionalTimeService {
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
         boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, additionalTimeMapper.toDto(additionalTimeReq));
+        return first && second && canPatch(user, additionalTimeMapper.toPatchDto(additionalTimeReq));
     }
 
     public boolean canPatch(OwnUser user, AdditionalTimePatchDTO additionalTimeReq) {

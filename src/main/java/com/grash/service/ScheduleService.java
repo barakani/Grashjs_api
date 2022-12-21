@@ -60,7 +60,7 @@ public class ScheduleService {
 
     public boolean canCreate(OwnUser user, Schedule scheduleReq) {
 
-        return canPatch(user, scheduleMapper.toDto(scheduleReq));
+        return canPatch(user, scheduleMapper.toPatchDto(scheduleReq));
     }
 
     public boolean canPatch(OwnUser user, SchedulePatchDTO scheduleReq) {

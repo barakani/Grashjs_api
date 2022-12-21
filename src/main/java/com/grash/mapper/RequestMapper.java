@@ -12,7 +12,7 @@ public interface RequestMapper {
     Request updateRequest(@MappingTarget Request entity, RequestPatchDTO dto);
 
     @Mappings({})
-    RequestPatchDTO toDto(Request model);
+    RequestPatchDTO toPatchDto(Request model);
 
     RequestShowDTO toShowDto(Request model);
 }

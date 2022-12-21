@@ -98,7 +98,7 @@ public class TaskBaseService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, taskBaseMapper.toDto(taskBaseReq));
+        return first && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
     }
 
     public boolean canPatch(OwnUser user, TaskBasePatchDTO taskBaseReq) {

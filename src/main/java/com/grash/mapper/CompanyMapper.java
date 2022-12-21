@@ -11,7 +11,7 @@ public interface CompanyMapper {
     Company updateCompany(@MappingTarget Company entity, CompanyPatchDTO dto);
 
     @Mappings({})
-    CompanyPatchDTO toDto(Company model);
+    CompanyPatchDTO toPatchDto(Company model);
 
 
 }

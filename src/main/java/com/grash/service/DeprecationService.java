@@ -59,7 +59,7 @@ public class DeprecationService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, deprecationMapper.toDto(deprecationReq));
+        return first && canPatch(user, deprecationMapper.toPatchDto(deprecationReq));
     }
 
     public boolean canPatch(OwnUser user, DeprecationPatchDTO deprecationReq) {

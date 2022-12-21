@@ -11,5 +11,5 @@ public interface TimeCategoryMapper {
     TimeCategory updateTimeCategory(@MappingTarget TimeCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(TimeCategory model);
+    CategoryPatchDTO toPatchDto(TimeCategory model);
 }

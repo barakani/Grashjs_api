@@ -76,7 +76,7 @@ public class RequestService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        return first && canPatch(user, requestMapper.toDto(requestReq));
+        return first && canPatch(user, requestMapper.toPatchDto(requestReq));
     }
 
     public boolean canPatch(OwnUser user, RequestPatchDTO requestReq) {

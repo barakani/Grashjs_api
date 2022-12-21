@@ -24,7 +24,7 @@ public class AssetCategoryService {
 
     public AssetCategory create(AssetCategory assetCategory) {
         Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByName(assetCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return assetCategoryRepository.save(assetCategory);
@@ -66,7 +66,7 @@ public class AssetCategoryService {
         boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(
                 user.getCompany().getCompanySettings().getId());
 
-        return first && canPatch(user, assetCategoryMapper.toDto(assetCategoryReq));
+        return first && canPatch(user, assetCategoryMapper.toPatchDto(assetCategoryReq));
     }
 
     public boolean canPatch(OwnUser user, CategoryPatchDTO assetCategoryReq) {

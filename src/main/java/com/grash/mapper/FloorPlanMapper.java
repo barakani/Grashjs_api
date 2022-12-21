@@ -11,5 +11,5 @@ public interface FloorPlanMapper {
     FloorPlan updateFloorPlan(@MappingTarget FloorPlan entity, FloorPlanPatchDTO dto);
 
     @Mappings({})
-    FloorPlanPatchDTO toDto(FloorPlan model);
+    FloorPlanPatchDTO toPatchDto(FloorPlan model);
 }

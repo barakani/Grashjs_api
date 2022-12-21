@@ -101,7 +101,7 @@ public class UserController {
         if (optionalUser.isPresent()) {
             OwnUser savedOwnUser = optionalUser.get();
             if (savedOwnUser.getId().equals(user.getId())) {
-                return userMapper.toDto(userService.update(id, userReq));
+                return userMapper.toPatchDto(userService.update(id, userReq));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -123,7 +123,7 @@ public class UserController {
         if (optionalUser.isPresent()) {
             OwnUser savedUser = optionalUser.get();
             if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
-                return userMapper.toDto(savedUser);
+                return userMapper.toPatchDto(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -146,7 +146,7 @@ public class UserController {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (userToPatch.getCompany().getId().equals(requester.getCompany().getId()) && requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToPatch.setRole(optionalRole.get());
-                return userMapper.toDto(userService.save(userToPatch));
+                return userMapper.toPatchDto(userService.save(userToPatch));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

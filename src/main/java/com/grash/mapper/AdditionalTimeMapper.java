@@ -11,5 +11,5 @@ public interface AdditionalTimeMapper {
     AdditionalTime updateAdditionalTime(@MappingTarget AdditionalTime entity, AdditionalTimePatchDTO dto);
 
     @Mappings({})
-    AdditionalTimePatchDTO toDto(AdditionalTime model);
+    AdditionalTimePatchDTO toPatchDto(AdditionalTime model);
 }

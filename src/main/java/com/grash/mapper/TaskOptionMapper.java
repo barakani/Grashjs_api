@@ -11,6 +11,6 @@ public interface TaskOptionMapper {
     TaskOption updateTaskOption(@MappingTarget TaskOption entity, TaskOptionPatchDTO dto);
 
     @Mappings({})
-    TaskOptionPatchDTO toDto(TaskOption model);
+    TaskOptionPatchDTO toPatchDto(TaskOption model);
 
 }

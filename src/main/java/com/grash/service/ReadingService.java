@@ -63,7 +63,7 @@ public class ReadingService {
         //@NotNull fields
         boolean first = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
 
-        return first && canPatch(user, readingMapper.toDto(readingReq));
+        return first && canPatch(user, readingMapper.toPatchDto(readingReq));
     }
 
     public boolean canPatch(OwnUser user, ReadingPatchDTO readingReq) {

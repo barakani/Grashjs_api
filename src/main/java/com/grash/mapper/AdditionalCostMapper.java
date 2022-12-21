@@ -11,5 +11,5 @@ public interface AdditionalCostMapper {
     AdditionalCost updateAdditionalCost(@MappingTarget AdditionalCost entity, AdditionalCostPatchDTO dto);
 
     @Mappings({})
-    AdditionalCostPatchDTO toDto(AdditionalCost model);
+    AdditionalCostPatchDTO toPatchDto(AdditionalCost model);
 }

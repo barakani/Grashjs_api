@@ -12,5 +12,5 @@ public interface RelationMapper {
     Relation updateRelation(@MappingTarget Relation entity, RelationPatchDTO dto);
 
     @Mappings({})
-    RelationPatchDTO toDto(RelationPostDTO model);
+    RelationPatchDTO toPatchDto(RelationPostDTO model);
 }
