@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.dto.analytics.WOStats;
 import com.grash.dto.analytics.WOStatsByPriority;
+import com.grash.dto.analytics.WOStatuses;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
@@ -65,10 +66,10 @@ public class WOAnalyticsController {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
-            List<Integer> highValues = getCountsAndEstimatedDuration(Priority.HIGH, incompleteWO);
-            List<Integer> noneValues = getCountsAndEstimatedDuration(Priority.NONE, incompleteWO);
-            List<Integer> lowValues = getCountsAndEstimatedDuration(Priority.LOW, incompleteWO);
-            List<Integer> mediumValues = getCountsAndEstimatedDuration(Priority.MEDIUM, incompleteWO);
+            List<Integer> highValues = getCountsAndEstimatedDurationByPriority(Priority.HIGH, incompleteWO);
+            List<Integer> noneValues = getCountsAndEstimatedDurationByPriority(Priority.NONE, incompleteWO);
+            List<Integer> lowValues = getCountsAndEstimatedDurationByPriority(Priority.LOW, incompleteWO);
+            List<Integer> mediumValues = getCountsAndEstimatedDurationByPriority(Priority.MEDIUM, incompleteWO);
 
             int highCounts = highValues.get(0);
             int highEstimatedDurations = highValues.get(1);
@@ -101,10 +102,32 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    public List<Integer> getCountsAndEstimatedDuration(Priority priority, Collection<WorkOrder> workOrders) {
+    @GetMapping("/incomplete-statuses")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WOStatuses getWOStatuses(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+
+            return WOStatuses.builder()
+                    .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
+                    .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
+                    .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
+                    .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
+                    .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    private List<Integer> getCountsAndEstimatedDurationByPriority(Priority priority, Collection<WorkOrder> workOrders) {
         Collection<WorkOrder> priorityWO = workOrders.stream().filter(workOrder -> workOrder.getPriority().equals(priority)).collect(Collectors.toList());
         int priorityCounts = priorityWO.size();
         int priorityEstimatedDurations = priorityWO.stream().map(WorkOrderBase::getEstimatedDuration).mapToInt(value -> value).sum();
         return Arrays.asList(priorityCounts, priorityEstimatedDurations);
+    }
+
+    private int getWOCountsByStatus(Status status, Collection<WorkOrder> workOrders) {
+        Collection<WorkOrder> statusWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(status)).collect(Collectors.toList());
+        return statusWO.size();
     }
 }
