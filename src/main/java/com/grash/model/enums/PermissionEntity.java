@@ -14,5 +14,6 @@ public enum PermissionEntity {
     FILES,
     LOCATIONS,
     SETTINGS,
-    REQUESTS
+    REQUESTS,
+    ANALYTICS
 }
