@@ -1,15 +1,18 @@
 package com.grash.controller;
 
+import com.grash.dto.analytics.WOHours;
 import com.grash.dto.analytics.WOStats;
 import com.grash.dto.analytics.WOStatsByPriority;
 import com.grash.dto.analytics.WOStatuses;
 import com.grash.exception.CustomException;
+import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
+import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
@@ -22,10 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,6 +37,7 @@ public class WOAnalyticsController {
 
     private final WorkOrderService workOrderService;
     private final UserService userService;
+    private final AdditionalTimeService additionalTimeService;
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -115,6 +116,23 @@ public class WOAnalyticsController {
                     .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
                     .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
                     .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
+                    .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/hours")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WOHours getHours(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            int estimated = workOrders.stream().map(WorkOrderBase::getEstimatedDuration).mapToInt(value -> value).sum();
+            Collection<AdditionalTime> additionalTimes = new ArrayList<>();
+            workOrders.forEach(workOrder -> additionalTimes.addAll(additionalTimeService.findByWorkOrder(workOrder.getId())));
+            int actual = additionalTimes.stream().map(AdditionalTime::getDuration).mapToInt(Math::toIntExact).sum() / 3600;
+            return WOHours.builder()
+                    .estimated(estimated)
+                    .actual(actual)
                     .build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
