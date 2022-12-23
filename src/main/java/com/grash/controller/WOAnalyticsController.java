@@ -5,12 +5,14 @@ import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.WorkOrderCategory;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.service.AdditionalTimeService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderCategoryService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
@@ -27,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/work-order-analytics")
+@RequestMapping("/analytics/work-order")
 @Api(tags = "WorkOrderAnalytics")
 @RequiredArgsConstructor
 public class WOAnalyticsController {
@@ -35,6 +37,7 @@ public class WOAnalyticsController {
     private final WorkOrderService workOrderService;
     private final UserService userService;
     private final AdditionalTimeService additionalTimeService;
+    private final WorkOrderCategoryService workOrderCategoryService;
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -134,7 +137,7 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/counts/users")
+    @GetMapping("/complete/counts/primaryUser")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<WOCountByUser> getCountsByUser(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -143,11 +146,68 @@ public class WOAnalyticsController {
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
                 int count = (int) workOrderService.findByPrimaryUser(user1.getId()).stream()
-                        .filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).count();
+                        .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.add(WOCountByUser.builder()
                         .firstName(user1.getFirstName())
                         .lastName(user1.getLastName())
                         .id(user1.getId())
+                        .count(count)
+                        .build());
+            });
+            return results;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/counts/completedBy")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<WOCountByUser> getCountsByCompletedBy(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<WOCountByUser> results = new ArrayList<>();
+            users.forEach(user1 -> {
+                int count = (int) workOrderService.findByCompletedBy(user1.getId()).stream()
+                        .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
+                results.add(WOCountByUser.builder()
+                        .firstName(user1.getFirstName())
+                        .lastName(user1.getLastName())
+                        .id(user1.getId())
+                        .count(count)
+                        .build());
+            });
+            return results;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/counts/priority")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Map<Priority, Integer> getCountsByPriority(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Priority[] priorities = Priority.values();
+            Map<Priority, Integer> results = new HashMap<>();
+            Arrays.asList(priorities).forEach(priority -> {
+                int count = (int) workOrderService.findByPriorityAndCompany(priority, user.getCompany().getId()).stream()
+                        .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
+                results.put(priority, count);
+            });
+            return results;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/counts/category")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<WOCountByCategory> getCountsByCategory(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<WorkOrderCategory> categories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            Collection<WOCountByCategory> results = new ArrayList<>();
+            categories.forEach(category -> {
+                int count = (int) workOrderService.findByCategory(category.getId()).stream()
+                        .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
+                results.add(WOCountByCategory.builder()
+                        .name(category.getName())
+                        .id(category.getId())
                         .count(count)
                         .build());
             });

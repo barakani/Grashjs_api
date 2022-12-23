@@ -1,6 +1,7 @@
 package com.grash.repository;
 
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.Priority;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
@@ -15,4 +16,10 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
     Collection<WorkOrder> findByParentPreventiveMaintenance_Id(Long id);
 
     Collection<WorkOrder> findByPrimaryUser_Id(Long id);
+
+    Collection<WorkOrder> findByCompletedBy_Id(Long id);
+
+    Collection<WorkOrder> findByPriorityAndCompany_Id(Priority priority, Long companyId);
+
+    Collection<WorkOrder> findByCategory_Id(Long id);
 }

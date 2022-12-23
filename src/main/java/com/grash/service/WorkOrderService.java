@@ -6,6 +6,7 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
@@ -151,5 +152,17 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByPrimaryUser(Long id) {
         return workOrderRepository.findByPrimaryUser_Id(id);
+    }
+
+    public Collection<WorkOrder> findByCompletedBy(Long id) {
+        return workOrderRepository.findByCompletedBy_Id(id);
+    }
+
+    public Collection<WorkOrder> findByPriorityAndCompany(Priority priority, Long companyId) {
+        return workOrderRepository.findByPriorityAndCompany_Id(priority, companyId);
+    }
+
+    public Collection<WorkOrder> findByCategory(Long id) {
+        return workOrderRepository.findByCategory_Id(id);
     }
 }
