@@ -13,4 +13,6 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
     Collection<WorkOrder> findByLocation_Id(Long id);
 
     Collection<WorkOrder> findByParentPreventiveMaintenance_Id(Long id);
+
+    Collection<WorkOrder> findByPrimaryUser_Id(Long id);
 }

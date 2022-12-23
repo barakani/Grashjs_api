@@ -1,9 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.analytics.WOHours;
-import com.grash.dto.analytics.WOStats;
-import com.grash.dto.analytics.WOStatsByPriority;
-import com.grash.dto.analytics.WOStatuses;
+import com.grash.dto.analytics.*;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalTime;
 import com.grash.model.OwnUser;
@@ -134,6 +131,27 @@ public class WOAnalyticsController {
                     .estimated(estimated)
                     .actual(actual)
                     .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/counts/users")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<WOCountByUser> getCountsByUser(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<WOCountByUser> results = new ArrayList<>();
+            users.forEach(user1 -> {
+                int count = (int) workOrderService.findByPrimaryUser(user1.getId()).stream()
+                        .filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).count();
+                results.add(WOCountByUser.builder()
+                        .firstName(user1.getFirstName())
+                        .lastName(user1.getLastName())
+                        .id(user1.getId())
+                        .count(count)
+                        .build());
+            });
+            return results;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

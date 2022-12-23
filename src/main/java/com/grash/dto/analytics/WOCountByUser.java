@@ -1,5 +1,6 @@
-package com.grash.dto;
+package com.grash.dto.analytics;
 
+import com.grash.dto.UserMiniDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserMiniDTO {
-    private Long id;
-    private String firstName;
-    private String lastName;
+public class WOCountByUser extends UserMiniDTO {
+    private int count;
 }

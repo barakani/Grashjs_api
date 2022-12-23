@@ -148,4 +148,8 @@ public class WorkOrderService {
         workOrder.setTeam(workOrderBase.getTeam());
         return workOrder;
     }
+
+    public Collection<WorkOrder> findByPrimaryUser(Long id) {
+        return workOrderRepository.findByPrimaryUser_Id(id);
+    }
 }
