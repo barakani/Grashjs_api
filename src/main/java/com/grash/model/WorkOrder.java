@@ -68,6 +68,14 @@ public class WorkOrder extends WorkOrderBase {
         return users.stream().anyMatch(user1 -> user1.getId().equals(user.getId()));
     }
 
+    public boolean isCompliant() {
+        return this.getDueDate() == null || this.getCompletedOn().before(this.getDueDate());
+    }
+
+    public boolean isReactive() {
+        return this.getParentPreventiveMaintenance() == null;
+    }
+
     public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
         Collection<OwnUser> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).

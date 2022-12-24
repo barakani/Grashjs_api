@@ -183,6 +183,8 @@ public class WorkOrderController {
                                 assetService.stopDownTime(asset);
                             }
                         }
+                        Collection<AdditionalTime> primaryAdditionalTimes = additionalTimeService.findByWorkOrder(id).stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());
+                        primaryAdditionalTimes.forEach(additionalTimeService::stop);
                     }
                     Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(id);
                     Collection<AdditionalTime> primaryTimes = additionalTimes.stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());

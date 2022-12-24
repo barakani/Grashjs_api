@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -164,5 +165,9 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCategory(Long id) {
         return workOrderRepository.findByCategory_Id(id);
+    }
+
+    public Collection<WorkOrder> findByCompletedOnBetween(Date date1, Date date2) {
+        return workOrderRepository.findByCompletedOnBetween(date1, date2);
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.http.HttpHeaders;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -64,5 +66,9 @@ public class Helper {
                 result = incrementDays(result, days);
             }
         return result;
+    }
+
+    public static Date localDateToDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

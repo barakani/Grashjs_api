@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -45,7 +47,7 @@ public class WOAnalyticsController {
             Collection<WorkOrder> completedWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = workOrders.size();
             int complete = completedWO.size();
-            int compliant = (int) completedWO.stream().filter(workOrder -> workOrder.getDueDate() == null || workOrder.getCompletedOn().before(workOrder.getDueDate())).count();
+            int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
             List<Long> completionTimes = completedWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
             int averageCycleTime = completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToInt(Long::intValue).sum() / completionTimes.size();
             return WOStats.builder()
@@ -209,6 +211,32 @@ public class WOAnalyticsController {
                         .build());
             });
             return results;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/counts/week")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<WOCountByWeek> getCompleteByWeek(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            List<WOCountByWeek> result = new ArrayList<>();
+            LocalDate previousMonday =
+                    LocalDate.now(ZoneId.of("UTC"));
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 4; i++) {
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetween(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday))
+                        .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                int compliant = (int) completeWorkOrders.stream().filter(WorkOrder::isCompliant).count();
+                int reactive = (int) completeWorkOrders.stream().filter(WorkOrder::isReactive).count();
+                result.add(WOCountByWeek.builder()
+                        .count(completeWorkOrders.size())
+                        .compliant(compliant)
+                        .reactive(reactive)
+                        .date(Helper.localDateToDate(previousMonday)).build());
+                previousMonday = previousMonday.minusDays(7);
+            }
+            Collections.reverse(result);
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

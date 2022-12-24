@@ -5,6 +5,7 @@ import com.grash.model.enums.Priority;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
+import java.util.Date;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
     Collection<WorkOrder> findByCompany_Id(Long id);
@@ -22,4 +23,6 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
     Collection<WorkOrder> findByPriorityAndCompany_Id(Priority priority, Long companyId);
 
     Collection<WorkOrder> findByCategory_Id(Long id);
+
+    Collection<WorkOrder> findByCompletedOnBetween(Date date1, Date date2);
 }
