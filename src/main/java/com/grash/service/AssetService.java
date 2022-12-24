@@ -139,20 +139,22 @@ public class AssetService {
         return assetRepository.findByLocation_Id(id);
     }
 
-    public void stopDownTime(Asset asset) {
-        Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(asset.getId());
+    public void stopDownTime(Long id) {
+        Asset savedAsset = findById(id).get();
+        Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(id);
         Optional<AssetDowntime> optionalRunningDowntime = assetDowntimes.stream().filter(assetDowntime -> assetDowntime.getDuration() == 0).findFirst();
         if (optionalRunningDowntime.isPresent()) {
             AssetDowntime runningDowntime = optionalRunningDowntime.get();
             runningDowntime.setDuration(Helper.getDateDiff(runningDowntime.getStartsOn(), new Date(), TimeUnit.SECONDS));
             assetDowntimeService.save(runningDowntime);
         }
-        asset.setStatus(AssetStatus.OPERATIONAL);
-        save(asset);
-        notify(asset, asset.getName() + " is now Operational");
+        savedAsset.setStatus(AssetStatus.OPERATIONAL);
+        save(savedAsset);
+        notify(savedAsset, savedAsset.getName() + " is now Operational");
     }
 
-    public void triggerDownTime(Asset asset) {
+    public void triggerDownTime(Long id) {
+        Asset asset = findById(id).get();
         AssetDowntime assetDowntime = AssetDowntime
                 .builder()
                 .startsOn(new Date())

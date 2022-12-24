@@ -333,26 +333,38 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/costs")
+    @GetMapping("/complete/costs-time")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOCosts getCompleteCosts(HttpServletRequest req) {
+    public WOCostsAndTime getCompleteCostsAndTime(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<Double> additionalCostsArray = new ArrayList<>();
+            Collection<Double> laborCostsArray = new ArrayList<>();
+            Collection<Double> partCostsArray = new ArrayList<>();
+            Collection<Double> laborTimesArray = new ArrayList<>();
             Collection<Double> costs = completeWorkOrders.stream().map(workOrder -> {
                 Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(workOrder.getId());
                 double additionalTimesCosts = additionalTimes.stream().map(additionalTime -> additionalTime.getHourlyRate() * additionalTime.getDuration() / 3600).mapToDouble(value -> value).sum();
+                double laborTimes = additionalTimes.stream().map(AdditionalTime::getDuration).mapToDouble(value -> value).sum();
+                laborCostsArray.add(additionalTimesCosts);
+                laborTimesArray.add(laborTimes);
                 Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
-                double additionalCostsCosts = additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
+                double additionalCostsSum = additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
+                additionalCostsArray.add(additionalCostsSum);
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
                 double partsCosts = partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
-
-                return partsCosts + additionalTimesCosts + additionalCostsCosts;
+                partCostsArray.add(partsCosts);
+                return partsCosts + additionalTimesCosts + additionalCostsSum;
             }).collect(Collectors.toList());
             double total = costs.stream().mapToDouble(value -> value).sum();
-            return WOCosts.builder()
+            return WOCostsAndTime.builder()
                     .total(total)
                     .average(costs.size() == 0 ? 0 : total / costs.size())
+                    .additionalCost(additionalCostsArray.stream().mapToDouble(value -> value).sum())
+                    .laborCost(laborCostsArray.stream().mapToDouble(value -> value).sum())
+                    .partCost(partCostsArray.stream().mapToDouble(value -> value).sum())
+                    .laborTime(laborTimesArray.stream().mapToDouble(value -> value).sum())
                     .build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

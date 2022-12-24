@@ -169,9 +169,9 @@ public class AssetController {
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    assetService.stopDownTime(savedAsset);
+                    assetService.stopDownTime(savedAsset.getId());
                 } else if (asset.getStatus().equals(AssetStatus.DOWN) && !savedAsset.getStatus().equals(AssetStatus.DOWN)) {
-                    assetService.triggerDownTime(savedAsset);
+                    assetService.triggerDownTime(savedAsset.getId());
                 }
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset);

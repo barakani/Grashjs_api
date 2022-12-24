@@ -126,7 +126,7 @@ public class WorkOrderController {
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    assetService.triggerDownTime(asset);
+                    assetService.triggerDownTime(asset.getId());
                 }
             }
             workOrderService.notify(createdWorkOrder);
@@ -180,7 +180,7 @@ public class WorkOrderController {
                             Asset asset = workOrder.getAsset();
                             Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
                             if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                                assetService.stopDownTime(asset);
+                                assetService.stopDownTime(asset.getId());
                             }
                         }
                         Collection<AdditionalTime> primaryAdditionalTimes = additionalTimeService.findByWorkOrder(id).stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());

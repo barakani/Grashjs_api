@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WOCosts {
+public class WOCostsAndTime {
     private double total;
     private double average;
+    private double additionalCost;
+    private double laborCost;
+    private double partCost;
+    private double laborTime;
 }
