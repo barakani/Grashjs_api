@@ -2,18 +2,13 @@ package com.grash.controller;
 
 import com.grash.dto.analytics.*;
 import com.grash.exception.CustomException;
-import com.grash.model.AdditionalTime;
-import com.grash.model.OwnUser;
-import com.grash.model.WorkOrder;
-import com.grash.model.WorkOrderCategory;
+import com.grash.model.*;
+import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
-import com.grash.service.AdditionalTimeService;
-import com.grash.service.UserService;
-import com.grash.service.WorkOrderCategoryService;
-import com.grash.service.WorkOrderService;
+import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +33,8 @@ public class WOAnalyticsController {
     private final UserService userService;
     private final AdditionalTimeService additionalTimeService;
     private final WorkOrderCategoryService workOrderCategoryService;
+    private final PartQuantityService partQuantityService;
+    private final AdditionalCostService additionalCostService;
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -212,6 +209,30 @@ public class WOAnalyticsController {
                         .build());
             });
             return results;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/costs")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WOCosts getCompleteCosts(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<Double> costs = completeWorkOrders.stream().map(workOrder -> {
+                Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(workOrder.getId());
+                double additionalTimesCosts = additionalTimes.stream().map(additionalTime -> additionalTime.getHourlyRate() * additionalTime.getDuration() / 3600).mapToDouble(value -> value).sum();
+                Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
+                double additionalCostsCosts = additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
+                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
+                double partsCosts = partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
+
+                return partsCosts + additionalTimesCosts + additionalCostsCosts;
+            }).collect(Collectors.toList());
+            double total = costs.stream().mapToDouble(value -> value).sum();
+            return WOCosts.builder()
+                    .total(total)
+                    .average(costs.size() == 0 ? 0 : total / costs.size())
+                    .build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
