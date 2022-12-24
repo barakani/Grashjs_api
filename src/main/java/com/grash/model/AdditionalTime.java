@@ -51,4 +51,11 @@ public class AdditionalTime extends Time {
         this.status = status;
         this.primaryTime = primaryTime;
     }
+
+    @Override
+    public long getDuration() {
+        if (this.primaryTime) {
+            return super.getDuration();
+        } else return this.getHours() * 60 * 60 + this.getMinutes() * 60;
+    }
 }

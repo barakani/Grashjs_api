@@ -4,6 +4,7 @@ import com.grash.dto.analytics.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
+import com.grash.model.abstracts.Time;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Priority;
@@ -223,7 +224,7 @@ public class WOAnalyticsController {
             LocalDate previousMonday =
                     LocalDate.now(ZoneId.of("UTC"));
             // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetween(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday))
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 int compliant = (int) completeWorkOrders.stream().filter(WorkOrder::isCompliant).count();
@@ -231,6 +232,33 @@ public class WOAnalyticsController {
                 result.add(WOCountByWeek.builder()
                         .count(completeWorkOrders.size())
                         .compliant(compliant)
+                        .reactive(reactive)
+                        .date(Helper.localDateToDate(previousMonday)).build());
+                previousMonday = previousMonday.minusDays(7);
+            }
+            Collections.reverse(result);
+            return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/time/week")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<WOTimeByWeek> getCompleteTimeByWeek(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            List<WOTimeByWeek> result = new ArrayList<>();
+            LocalDate previousMonday =
+                    LocalDate.now(ZoneId.of("UTC"));
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 5; i++) {
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetween(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday))
+                        .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                Collection<WorkOrder> reactiveWorkOrders = completeWorkOrders.stream().filter(WorkOrder::isReactive).collect(Collectors.toList());
+
+                long total = getTime(completeWorkOrders);
+                long reactive = getTime(reactiveWorkOrders);
+                result.add(WOTimeByWeek.builder()
+                        .total(total)
                         .reactive(reactive)
                         .date(Helper.localDateToDate(previousMonday)).build());
                 previousMonday = previousMonday.minusDays(7);
@@ -274,5 +302,13 @@ public class WOAnalyticsController {
     private int getWOCountsByStatus(Status status, Collection<WorkOrder> workOrders) {
         Collection<WorkOrder> statusWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(status)).collect(Collectors.toList());
         return statusWO.size();
+    }
+
+    private long getTime(Collection<WorkOrder> workOrders) {
+        Collection<AdditionalTime> additionalTimes = new ArrayList<>();
+        workOrders.forEach(workOrder -> {
+            additionalTimes.addAll(additionalTimeService.findByWorkOrder(workOrder.getId()));
+        });
+        return additionalTimes.stream().map(Time::getDuration).mapToLong(value -> value).sum();
     }
 }
