@@ -167,7 +167,7 @@ public class WorkOrderService {
         return workOrderRepository.findByCategory_Id(id);
     }
 
-    public Collection<WorkOrder> findByCompletedOnBetween(Date date1, Date date2) {
-        return workOrderRepository.findByCompletedOnBetween(date1, date2);
+    public Collection<WorkOrder> findByCompletedOnBetweenAndCompany(Date date1, Date date2, Long companyId) {
+        return workOrderRepository.findByCompletedOnBetweenAndCompany_Id(date1, date2, companyId);
     }
 }

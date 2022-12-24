@@ -161,6 +161,30 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/incomplete/age/users")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<IncompleteWOByUser> getIncompleteByUser(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<IncompleteWOByUser> result = new ArrayList<>();
+            users.forEach(user1 -> {
+                Collection<WorkOrder> incompleteWO = workOrderService.findByPrimaryUser(user1.getId())
+                        .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+                int count = incompleteWO.size();
+                result.add(IncompleteWOByUser.builder()
+                        .count(count)
+                        .averageAge(count == 0 ? 0 : ages.stream().mapToLong(value -> value).sum() / count)
+                        .firstName(user1.getFirstName())
+                        .lastName(user1.getLastName())
+                        .id(user1.getId())
+                        .build());
+            });
+            return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     @GetMapping("/hours")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOHours getHours(HttpServletRequest req) {
@@ -266,7 +290,7 @@ public class WOAnalyticsController {
                     LocalDate.now(ZoneId.of("UTC"));
             // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
             for (int i = 0; i < 5; i++) {
-                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetween(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday))
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday), user.getCompany().getId())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 int compliant = (int) completeWorkOrders.stream().filter(WorkOrder::isCompliant).count();
                 int reactive = (int) completeWorkOrders.stream().filter(WorkOrder::isReactive).count();
@@ -292,7 +316,7 @@ public class WOAnalyticsController {
                     LocalDate.now(ZoneId.of("UTC"));
             // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
             for (int i = 0; i < 5; i++) {
-                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetween(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday))
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(previousMonday.minusDays(7)), Helper.localDateToDate(previousMonday), user.getCompany().getId())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 Collection<WorkOrder> reactiveWorkOrders = completeWorkOrders.stream().filter(WorkOrder::isReactive).collect(Collectors.toList());
 
