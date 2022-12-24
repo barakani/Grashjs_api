@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.*;
 
 import static java.util.Comparator.comparingLong;
@@ -74,6 +75,10 @@ public class WorkOrder extends WorkOrderBase {
 
     public boolean isReactive() {
         return this.getParentPreventiveMaintenance() == null;
+    }
+
+    public Instant getRealCreatedAt() {
+        return this.getParentRequest() == null ? this.getCreatedAt() : this.getParentRequest().getCreatedAt();
     }
 
     public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {

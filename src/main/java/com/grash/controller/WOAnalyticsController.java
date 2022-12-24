@@ -39,9 +39,9 @@ public class WOAnalyticsController {
     private final PartQuantityService partQuantityService;
     private final AdditionalCostService additionalCostService;
 
-    @GetMapping("/overview")
+    @GetMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOStats getStats(HttpServletRequest req) {
+    public WOStats getCompleteStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -59,7 +59,24 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete-priority")
+    @GetMapping("/incomplete/overview")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WOIncompleteStats getIncompleteStats(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> incompletedWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            int total = incompletedWO.size();
+            List<Long> ages = incompletedWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getRealCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+            int averageAge = ages.size() == 0 ? 0 : ages.stream().mapToInt(Long::intValue).sum() / ages.size();
+            return WOIncompleteStats.builder()
+                    .total(total)
+                    .averageAge(averageAge)
+                    .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/incomplete/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOStatsByPriority getIncompleteByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -103,7 +120,7 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete-statuses")
+    @GetMapping("/incomplete/statuses")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOStatuses getWOStatuses(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
