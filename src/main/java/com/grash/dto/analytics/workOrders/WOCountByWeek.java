@@ -1,4 +1,4 @@
-package com.grash.dto.analytics;
+package com.grash.dto.analytics.workOrders;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,9 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WOTimeByWeek {
-    private long total;
-    private long reactive;
+public class WOCountByWeek {
+    private int count;
+    private int compliant;
+    private int reactive;
     private Date date;
 }

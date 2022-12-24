@@ -1,6 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.analytics.*;
+import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
@@ -38,6 +38,7 @@ public class WOAnalyticsController {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final PartQuantityService partQuantityService;
     private final AdditionalCostService additionalCostService;
+    private final AssetService assetService;
 
     @GetMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -134,6 +135,29 @@ public class WOAnalyticsController {
                     .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
                     .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
                     .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/incomplete/age/assets")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<IncompleteWOByAsset> getIncompleteByAsset(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<IncompleteWOByAsset> result = new ArrayList<>();
+            assets.forEach(asset -> {
+                Collection<WorkOrder> incompleteWO = workOrderService.findByAsset(asset.getId())
+                        .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+                int count = incompleteWO.size();
+                result.add(IncompleteWOByAsset.builder()
+                        .count(count)
+                        .averageAge(count == 0 ? 0 : ages.stream().mapToLong(value -> value).sum() / count)
+                        .name(asset.getName())
+                        .id(asset.getId())
+                        .build());
+            });
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

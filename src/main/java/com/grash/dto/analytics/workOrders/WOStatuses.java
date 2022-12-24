@@ -1,4 +1,4 @@
-package com.grash.dto.analytics;
+package com.grash.dto.analytics.workOrders;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WOStats {
-    private int total;
+public class WOStatuses {
+    private int open;
+    private int onHold;
+    private int inProgress;
     private int complete;
-    private int compliant;
-    private int avgCycleTime;
 }

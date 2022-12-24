@@ -1,4 +1,4 @@
-package com.grash.dto.analytics;
+package com.grash.dto.analytics.workOrders;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
