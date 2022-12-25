@@ -222,4 +222,8 @@ public class WorkOrderService {
         ).collect(Collectors.toList());
         return costs.stream().mapToDouble(value -> value).sum();
     }
+
+    public double getAllCost(Collection<WorkOrder> workOrders) {
+        return getPartCost(workOrders) + getAdditionalCost(workOrders) + getLaborCostAndTime(workOrders).getFirst();
+    }
 }

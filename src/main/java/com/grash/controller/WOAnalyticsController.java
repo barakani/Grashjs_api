@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/analytics/work-order")
+@RequestMapping("/analytics/work-orders")
 @Api(tags = "WorkOrderAnalytics")
 @RequiredArgsConstructor
 public class WOAnalyticsController {
@@ -35,8 +35,6 @@ public class WOAnalyticsController {
     private final UserService userService;
     private final LaborService laborService;
     private final WorkOrderCategoryService workOrderCategoryService;
-    private final PartQuantityService partQuantityService;
-    private final AdditionalCostService additionalCostService;
     private final AssetService assetService;
 
     @GetMapping("/complete/overview")
