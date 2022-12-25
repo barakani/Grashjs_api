@@ -4,6 +4,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.Priority;
@@ -11,14 +12,19 @@ import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +36,9 @@ public class WorkOrderService {
     private final AssetService assetService;
     private final UserService userService;
     private final CompanyService companyService;
-    private final PurchaseOrderService purchaseOrderService;
+    private LaborService laborService;
+    private AdditionalCostService additionalCostService;
+    private PartQuantityService partQuantityService;
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
@@ -40,6 +48,15 @@ public class WorkOrderService {
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
         return savedWorkOrder;
+    }
+
+    @Autowired
+    public void setDeps(@Lazy LaborService laborService,
+                        @Lazy AdditionalCostService additionalCostService,
+                        @Lazy PartQuantityService partQuantityService) {
+        this.laborService = laborService;
+        this.additionalCostService = additionalCostService;
+        this.partQuantityService = partQuantityService;
     }
 
     @Transactional
@@ -169,5 +186,40 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCompletedOnBetweenAndCompany(Date date1, Date date2, Long companyId) {
         return workOrderRepository.findByCompletedOnBetweenAndCompany_Id(date1, date2, companyId);
+    }
+
+    public Pair<Double, Double> getLaborCostAndTime(Collection<WorkOrder> workOrders) {
+        Collection<Double> laborCostsArray = new ArrayList<>();
+        Collection<Double> laborTimesArray = new ArrayList<>();
+        workOrders.forEach(workOrder -> {
+                    Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
+                    double laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToDouble(value -> value).sum();
+                    double laborTimes = labors.stream().map(Labor::getDuration).mapToDouble(value -> value).sum();
+                    laborCostsArray.add(laborsCosts);
+                    laborTimesArray.add(laborTimes);
+                }
+        );
+        double laborCost = laborCostsArray.stream().mapToDouble(value -> value).sum();
+        double laborTimes = laborTimesArray.stream().mapToDouble(value -> value).sum();
+
+        return Pair.of(laborCost, laborTimes);
+    }
+
+    public double getAdditionalCost(Collection<WorkOrder> workOrders) {
+        Collection<Double> costs = workOrders.stream().map(workOrder -> {
+                    Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
+                    return additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
+                }
+        ).collect(Collectors.toList());
+        return costs.stream().mapToDouble(value -> value).sum();
+    }
+
+    public double getPartCost(Collection<WorkOrder> workOrders) {
+        Collection<Double> costs = workOrders.stream().map(workOrder -> {
+                    Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
+                    return partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
+                }
+        ).collect(Collectors.toList());
+        return costs.stream().mapToDouble(value -> value).sum();
     }
 }

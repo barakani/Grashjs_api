@@ -3,7 +3,6 @@ package com.grash.controller;
 import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
-import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.Time;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
@@ -339,33 +338,45 @@ public class WOAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            Collection<Double> additionalCostsArray = new ArrayList<>();
-            Collection<Double> laborCostsArray = new ArrayList<>();
-            Collection<Double> partCostsArray = new ArrayList<>();
-            Collection<Double> laborTimesArray = new ArrayList<>();
-            Collection<Double> costs = completeWorkOrders.stream().map(workOrder -> {
-                Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
-                double laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToDouble(value -> value).sum();
-                double laborTimes = labors.stream().map(Labor::getDuration).mapToDouble(value -> value).sum();
-                laborCostsArray.add(laborsCosts);
-                laborTimesArray.add(laborTimes);
-                Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
-                double additionalCostsSum = additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
-                additionalCostsArray.add(additionalCostsSum);
-                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
-                double partsCosts = partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
-                partCostsArray.add(partsCosts);
-                return partsCosts + laborsCosts + additionalCostsSum;
-            }).collect(Collectors.toList());
-            double total = costs.stream().mapToDouble(value -> value).sum();
+            double additionalCost = workOrderService.getAdditionalCost(completeWorkOrders);
+            double laborCost = workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst();
+            double laborTime = workOrderService.getLaborCostAndTime(completeWorkOrders).getSecond();
+            double partCost = workOrderService.getPartCost(completeWorkOrders);
+            double total = laborCost + partCost + additionalCost;
+
             return WOCostsAndTime.builder()
                     .total(total)
-                    .average(costs.size() == 0 ? 0 : total / costs.size())
-                    .additionalCost(additionalCostsArray.stream().mapToDouble(value -> value).sum())
-                    .laborCost(laborCostsArray.stream().mapToDouble(value -> value).sum())
-                    .partCost(partCostsArray.stream().mapToDouble(value -> value).sum())
-                    .laborTime(laborTimesArray.stream().mapToDouble(value -> value).sum())
+                    .average(completeWorkOrders.size() == 0 ? 0 : total / completeWorkOrders.size())
+                    .additionalCost(additionalCost)
+                    .laborCost(laborCost)
+                    .partCost(partCost)
+                    .laborTime(laborTime)
                     .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/complete/costs/month")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<WOCostsByMonth> getCompleteCostsByMonth(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+            List<WOCostsByMonth> result = new ArrayList<>();
+            LocalDate firstOfMonth =
+                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 13; i++) {
+                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId())
+                        .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                result.add(WOCostsByMonth.builder()
+                        .additionalCost(workOrderService.getAdditionalCost(completeWorkOrders))
+                        .laborCost(workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst())
+                        .partCost(workOrderService.getPartCost(completeWorkOrders))
+                        .date(Helper.localDateToDate(firstOfMonth)).build());
+                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+            }
+            Collections.reverse(result);
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
