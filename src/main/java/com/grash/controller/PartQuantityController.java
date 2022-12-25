@@ -196,7 +196,7 @@ public class PartQuantityController {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             if (partQuantityService.hasAccess(user, savedPartQuantity) && partQuantityService.canPatch(user, partQuantity)) {
                 if (savedPartQuantity.getWorkOrder() != null) {
-                    partService.reduceQuantity(savedPartQuantity.getPart(), partQuantity.getQuantity() - savedPartQuantity.getQuantity());
+                    partService.consumePart(savedPartQuantity.getPart().getId(), partQuantity.getQuantity() - savedPartQuantity.getQuantity(), user.getCompany(), savedPartQuantity.getWorkOrder());
                 }
                 PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
                 return partQuantityMapper.toShowDto(patchedPartQuantity);

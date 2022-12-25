@@ -21,7 +21,7 @@ import java.util.Optional;
 public class PartService {
     private final PartRepository partRepository;
     private final FileService fileService;
-    private final AssetService assetService;
+    private final PartConsumptionService partConsumptionService;
     private final CompanyService companyService;
     private final LocationService locationService;
     private final PartMapper partMapper;
@@ -46,7 +46,8 @@ public class PartService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Part reduceQuantity(Part part, int quantity) {
+    public void consumePart(Long id, int quantity, Company company, WorkOrder workOrder) {
+        Part part = findById(id).get();
         if (part.getQuantity() >= quantity) {
             part.setQuantity(part.getQuantity() - quantity);
             if (part.getQuantity() < part.getMinQuantity()) {
@@ -54,7 +55,8 @@ public class PartService {
                         notificationService.create(new Notification(part.getName() + " is getting Low", user, NotificationType.PART, part.getId()))
                 );
             }
-            return partRepository.save(part);
+            partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
+            partRepository.save(part);
         } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
     }
 
