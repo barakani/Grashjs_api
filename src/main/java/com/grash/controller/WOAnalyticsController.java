@@ -34,7 +34,7 @@ public class WOAnalyticsController {
 
     private final WorkOrderService workOrderService;
     private final UserService userService;
-    private final AdditionalTimeService additionalTimeService;
+    private final LaborService laborService;
     private final WorkOrderCategoryService workOrderCategoryService;
     private final PartQuantityService partQuantityService;
     private final AdditionalCostService additionalCostService;
@@ -192,9 +192,9 @@ public class WOAnalyticsController {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             int estimated = workOrders.stream().map(WorkOrderBase::getEstimatedDuration).mapToInt(value -> value).sum();
-            Collection<AdditionalTime> additionalTimes = new ArrayList<>();
-            workOrders.forEach(workOrder -> additionalTimes.addAll(additionalTimeService.findByWorkOrder(workOrder.getId())));
-            int actual = additionalTimes.stream().map(AdditionalTime::getDuration).mapToInt(Math::toIntExact).sum() / 3600;
+            Collection<Labor> labors = new ArrayList<>();
+            workOrders.forEach(workOrder -> labors.addAll(laborService.findByWorkOrder(workOrder.getId())));
+            int actual = labors.stream().map(Labor::getDuration).mapToInt(Math::toIntExact).sum() / 3600;
             return WOHours.builder()
                     .estimated(estimated)
                     .actual(actual)
@@ -344,10 +344,10 @@ public class WOAnalyticsController {
             Collection<Double> partCostsArray = new ArrayList<>();
             Collection<Double> laborTimesArray = new ArrayList<>();
             Collection<Double> costs = completeWorkOrders.stream().map(workOrder -> {
-                Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(workOrder.getId());
-                double additionalTimesCosts = additionalTimes.stream().map(additionalTime -> additionalTime.getHourlyRate() * additionalTime.getDuration() / 3600).mapToDouble(value -> value).sum();
-                double laborTimes = additionalTimes.stream().map(AdditionalTime::getDuration).mapToDouble(value -> value).sum();
-                laborCostsArray.add(additionalTimesCosts);
+                Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
+                double laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToDouble(value -> value).sum();
+                double laborTimes = labors.stream().map(Labor::getDuration).mapToDouble(value -> value).sum();
+                laborCostsArray.add(laborsCosts);
                 laborTimesArray.add(laborTimes);
                 Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
                 double additionalCostsSum = additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
@@ -355,7 +355,7 @@ public class WOAnalyticsController {
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
                 double partsCosts = partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
                 partCostsArray.add(partsCosts);
-                return partsCosts + additionalTimesCosts + additionalCostsSum;
+                return partsCosts + laborsCosts + additionalCostsSum;
             }).collect(Collectors.toList());
             double total = costs.stream().mapToDouble(value -> value).sum();
             return WOCostsAndTime.builder()
@@ -382,10 +382,10 @@ public class WOAnalyticsController {
     }
 
     private long getTime(Collection<WorkOrder> workOrders) {
-        Collection<AdditionalTime> additionalTimes = new ArrayList<>();
+        Collection<Labor> labors = new ArrayList<>();
         workOrders.forEach(workOrder -> {
-            additionalTimes.addAll(additionalTimeService.findByWorkOrder(workOrder.getId()));
+            labors.addAll(laborService.findByWorkOrder(workOrder.getId()));
         });
-        return additionalTimes.stream().map(Time::getDuration).mapToLong(value -> value).sum();
+        return labors.stream().map(Time::getDuration).mapToLong(value -> value).sum();
     }
 }

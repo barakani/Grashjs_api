@@ -38,7 +38,7 @@ public class WorkOrderController {
     private final UserService userService;
     private final AssetService assetService;
     private final LocationService locationService;
-    private final AdditionalTimeService additionalTimeService;
+    private final LaborService laborService;
     private final PartService partService;
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
@@ -183,12 +183,12 @@ public class WorkOrderController {
                                 assetService.stopDownTime(asset.getId());
                             }
                         }
-                        Collection<AdditionalTime> primaryAdditionalTimes = additionalTimeService.findByWorkOrder(id).stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());
-                        primaryAdditionalTimes.forEach(additionalTimeService::stop);
+                        Collection<Labor> primaryLabors = laborService.findByWorkOrder(id).stream().filter(Labor::isLogged).collect(Collectors.toList());
+                        primaryLabors.forEach(laborService::stop);
                     }
-                    Collection<AdditionalTime> additionalTimes = additionalTimeService.findByWorkOrder(id);
-                    Collection<AdditionalTime> primaryTimes = additionalTimes.stream().filter(AdditionalTime::isPrimaryTime).collect(Collectors.toList());
-                    primaryTimes.forEach(additionalTimeService::stop);
+                    Collection<Labor> labors = laborService.findByWorkOrder(id);
+                    Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
+                    primaryTimes.forEach(laborService::stop);
                 }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
                 if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()

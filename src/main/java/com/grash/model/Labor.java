@@ -15,7 +15,7 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class AdditionalTime extends Time {
+public class Labor extends Time {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,7 +25,7 @@ public class AdditionalTime extends Time {
 
     private boolean includeToTotalTime = true;
 
-    private boolean primaryTime = false;
+    private boolean logged = false;
 
     private double hourlyRate;
 
@@ -42,20 +42,13 @@ public class AdditionalTime extends Time {
     @NotNull
     private WorkOrder workOrder;
 
-    public AdditionalTime(OwnUser user, double hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean primaryTime, TimeStatus status) {
+    public Labor(OwnUser user, double hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean logged, TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;
         this.startedAt = startedAt;
         this.workOrder = workOrder;
         this.setCompany(company);
         this.status = status;
-        this.primaryTime = primaryTime;
-    }
-
-    @Override
-    public long getDuration() {
-        if (this.primaryTime) {
-            return super.getDuration();
-        } else return this.getHours() * 60 * 60 + this.getMinutes() * 60;
+        this.logged = logged;
     }
 }
