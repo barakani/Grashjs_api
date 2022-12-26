@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.Asset;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
-import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
@@ -37,7 +36,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<TimeCostByAsset> getTimeCostByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             Collection<TimeCostByAsset> result = new ArrayList<>();
             assets.forEach(asset -> {

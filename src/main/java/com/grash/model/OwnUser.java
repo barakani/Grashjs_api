@@ -3,6 +3,8 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -129,6 +131,10 @@ public class OwnUser extends Audit {
 
     public int hashCode() {
         return Math.toIntExact(id);
+    }
+
+    public boolean canSeeAnalytics() {
+        return this.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS) && this.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ANALYTICS);
     }
 }
 

@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.abstracts.Time;
 import com.grash.model.abstracts.WorkOrderBase;
-import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.service.*;
@@ -41,7 +40,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOStats getCompleteStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> completedWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = workOrders.size();
@@ -61,7 +60,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOIncompleteStats getIncompleteStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompletedWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = incompletedWO.size();
@@ -78,7 +77,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOStatsByPriority getIncompleteByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
@@ -122,7 +121,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOStatuses getWOStatuses(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
@@ -139,7 +138,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<IncompleteWOByAsset> getIncompleteByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             Collection<IncompleteWOByAsset> result = new ArrayList<>();
             assets.forEach(asset -> {
@@ -162,7 +161,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<IncompleteWOByUser> getIncompleteByUser(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<IncompleteWOByUser> result = new ArrayList<>();
             users.forEach(user1 -> {
@@ -186,7 +185,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOHours getHours(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             int estimated = workOrders.stream().map(WorkOrderBase::getEstimatedDuration).mapToInt(value -> value).sum();
             Collection<Labor> labors = new ArrayList<>();
@@ -203,7 +202,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<WOCountByUser> getCountsByUser(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
@@ -224,7 +223,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<WOCountByUser> getCountsByCompletedBy(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
@@ -245,7 +244,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Map<Priority, Integer> getCountsByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Priority[] priorities = Priority.values();
             Map<Priority, Integer> results = new HashMap<>();
             Arrays.asList(priorities).forEach(priority -> {
@@ -261,7 +260,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<WOCountByCategory> getCountsByCategory(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
             Collection<WOCountByCategory> results = new ArrayList<>();
             categories.forEach(category -> {
@@ -281,7 +280,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public List<WOCountByWeek> getCompleteByWeek(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             List<WOCountByWeek> result = new ArrayList<>();
             LocalDate previousMonday =
                     LocalDate.now(ZoneId.of("UTC"));
@@ -307,7 +306,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public List<WOTimeByWeek> getCompleteTimeByWeek(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             List<WOTimeByWeek> result = new ArrayList<>();
             LocalDate previousMonday =
                     LocalDate.now(ZoneId.of("UTC"));
@@ -334,7 +333,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOCostsAndTime getCompleteCostsAndTime(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             double additionalCost = workOrderService.getAdditionalCost(completeWorkOrders);
             double laborCost = workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst();
@@ -357,7 +356,7 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public List<WOCostsByMonth> getCompleteCostsByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS)) {
+        if (user.canSeeAnalytics()) {
             List<WOCostsByMonth> result = new ArrayList<>();
             LocalDate firstOfMonth =
                     LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
