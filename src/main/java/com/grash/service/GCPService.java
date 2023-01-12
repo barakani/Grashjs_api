@@ -9,29 +9,35 @@ import com.google.cloud.storage.Storage.PredefinedAcl;
 import com.google.cloud.storage.StorageOptions;
 import com.grash.exception.CustomException;
 import com.grash.utils.Helper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class GCPService {
-    Helper helper = new Helper();
-
-    // get service by env var GOOGLE_APPLICATION_CREDENTIALS. Json file generated in API & Services -> Service account key
-    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-    InputStream is = classloader.getResourceAsStream("Gcp.json");
-    Credentials credentials = GoogleCredentials
-            .fromStream(is);
-    Storage storage = StorageOptions.newBuilder().setCredentials(credentials)
-            .setProjectId("receipt-6becf").build().getService();
-
-    public GCPService() throws IOException {
-    }
+    @Value("${gcp.value}")
+    private String gcpJson;
 
     public String upload(MultipartFile file, String folder) {
+        Helper helper = new Helper();
+        InputStream is = new ByteArrayInputStream(gcpJson.getBytes(StandardCharsets.UTF_8));
+        Credentials credentials = null;
+        try {
+            credentials = GoogleCredentials
+                    .fromStream(is);
+        } catch (IOException e) {
+            throw new CustomException("Wrong credentials", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials)
+                .setProjectId("receipt-6becf").build().getService();
         try {
             BlobInfo blobInfo = storage.create(
                     BlobInfo.newBuilder("sutura", folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
