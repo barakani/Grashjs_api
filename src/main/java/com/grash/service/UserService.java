@@ -107,14 +107,14 @@ public class UserService {
                     put("verifyTokenLink", link);
                     put("featuresLink", frontendUrl + "/#key-features");
                 }};
+                VerificationToken newUserToken = new VerificationToken(token, user);
+                verificationTokenRepository.save(newUserToken);
                 try {
                     emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
                 } catch (MessagingException exception) {
                     return new SuccessResponse(false, "Couldn't send the email");
 
                 }
-                VerificationToken newUserToken = new VerificationToken(token, user);
-                verificationTokenRepository.save(newUserToken);
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");

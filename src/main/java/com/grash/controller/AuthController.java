@@ -99,12 +99,12 @@ public class AuthController {
             @ApiResponse(code = 403, message = "Access denied")})
     public void activateAcount(
             @ApiParam("token") @RequestParam String token, HttpServletResponse httpServletResponse
-    ) throws Exception {
+    ) {
         try {
             verificationTokenService.confirmMail(token);
             httpServletResponse.setHeader("Location", frontendUrl + "/account/login");
         } catch (Exception ex) {
-            httpServletResponse.setHeader("Location", frontendUrl + "/signup");
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
         }
         httpServletResponse.setStatus(302);
     }
