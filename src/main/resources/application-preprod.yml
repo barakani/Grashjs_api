@@ -7,7 +7,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQL94Dialect
   sql:
     init:
       data-locations: classpath:data-preprod.sql
