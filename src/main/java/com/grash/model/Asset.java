@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
+import com.grash.utils.Helper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -43,7 +45,7 @@ public class Asset extends CompanyAudit {
     private String description;
 
     private String barCode;
-    
+
     @ManyToOne
     private AssetCategory category;
 
@@ -156,6 +158,10 @@ public class Asset extends CompanyAudit {
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
                 collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
                         ArrayList::new));
+    }
+
+    public long getAge() {
+        return Helper.getDateDiff(this.getInServiceDate() == null ? Date.from(this.getCreatedAt()) : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
     }
 }
 

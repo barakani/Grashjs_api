@@ -1,7 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class AssetDowntime extends Audit {
+public class AssetDowntime extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -29,6 +29,7 @@ public class AssetDowntime extends Audit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 
+    //seconds
     private long duration = 0;
 
     private Date startsOn;

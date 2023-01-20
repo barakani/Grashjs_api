@@ -52,6 +52,10 @@ public class AssetDowntimeService {
         return assetDowntimeRepository.findByAsset_Id(id);
     }
 
+    public Collection<AssetDowntime> findByCompany(Long id) {
+        return assetDowntimeRepository.findByCompany_Id(id);
+    }
+
     public boolean hasAccess(OwnUser user, AssetDowntime assetDowntime) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;

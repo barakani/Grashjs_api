@@ -8,4 +8,6 @@ import java.util.Collection;
 public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Long> {
 
     Collection<AssetDowntime> findByAsset_Id(Long id);
+
+    Collection<AssetDowntime> findByCompany_Id(Long id);
 }
