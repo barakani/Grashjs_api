@@ -46,13 +46,11 @@ public class WOAnalyticsController {
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
-            List<Long> completionTimes = completedWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
-            int averageCycleTime = completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToInt(Long::intValue).sum() / completionTimes.size();
             return WOStats.builder()
                     .total(total)
                     .complete(complete)
                     .compliant(compliant)
-                    .avgCycleTime(averageCycleTime).build();
+                    .avgCycleTime(Helper.getAverageAge(completedWO)).build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

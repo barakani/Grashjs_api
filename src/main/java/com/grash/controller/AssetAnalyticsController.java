@@ -1,8 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.analytics.assets.AssetStats;
-import com.grash.dto.analytics.assets.DowntimesByAsset;
-import com.grash.dto.analytics.assets.TimeCostByAsset;
+import com.grash.dto.analytics.assets.*;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
 import com.grash.model.AssetDowntime;
@@ -13,6 +11,9 @@ import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import com.grash.utils.AuditComparator;
+import com.grash.utils.DowntimeComparator;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -93,6 +97,51 @@ public class AssetAnalyticsController {
                         .percent(percent)
                         .id(asset.getId())
                         .name(asset.getName())
+                        .build();
+            }).collect(Collectors.toList());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/meantimes")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Meantimes getMeantimes(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
+            long betweenDowntimes = 0L;
+            long betweenMaintenances = 0L;
+            if (downtimes.size() > 2) {
+                DowntimeComparator downtimeComparator = new DowntimeComparator();
+                AssetDowntime firstDowntime = Collections.max(downtimes, downtimeComparator);
+                AssetDowntime lastDowntime = Collections.min(downtimes, downtimeComparator);
+                betweenDowntimes = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
+            }
+            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            if (workOrders.size() > 2) {
+                AuditComparator auditComparator = new AuditComparator();
+                WorkOrder firstWorkOrder = Collections.max(workOrders, auditComparator);
+                WorkOrder lastWorkOrder = Collections.min(workOrders, auditComparator);
+                betweenDowntimes = (Helper.getDateDiff(Date.from(firstWorkOrder.getCreatedAt()), Date.from(lastWorkOrder.getCreatedAt()), TimeUnit.HOURS)) / (workOrders.size() - 1);
+            }
+            return Meantimes.builder()
+                    .betweenDowntimes(betweenDowntimes)
+                    .betweenMaintenances(betweenMaintenances)
+                    .build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/repair-times")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<RepairTimeByAsset> getRepairTimeByAsset(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            return assets.stream().map(asset -> {
+                Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                return RepairTimeByAsset.builder()
+                        .id(asset.getId())
+                        .name(asset.getName())
+                        .duration(Helper.getAverageAge(completeWO))
                         .build();
             }).collect(Collectors.toList());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
