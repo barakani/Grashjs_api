@@ -12,7 +12,6 @@ import com.grash.service.AssetService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.AuditComparator;
-import com.grash.utils.DowntimeComparator;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -108,23 +106,16 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
-            long betweenDowntimes = 0L;
             long betweenMaintenances = 0L;
-            if (downtimes.size() > 2) {
-                DowntimeComparator downtimeComparator = new DowntimeComparator();
-                AssetDowntime firstDowntime = Collections.max(downtimes, downtimeComparator);
-                AssetDowntime lastDowntime = Collections.min(downtimes, downtimeComparator);
-                betweenDowntimes = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
-            }
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             if (workOrders.size() > 2) {
                 AuditComparator auditComparator = new AuditComparator();
                 WorkOrder firstWorkOrder = Collections.max(workOrders, auditComparator);
                 WorkOrder lastWorkOrder = Collections.min(workOrders, auditComparator);
-                betweenDowntimes = (Helper.getDateDiff(Date.from(firstWorkOrder.getCreatedAt()), Date.from(lastWorkOrder.getCreatedAt()), TimeUnit.HOURS)) / (workOrders.size() - 1);
+                betweenMaintenances = (Helper.getDateDiff(Date.from(firstWorkOrder.getCreatedAt()), Date.from(lastWorkOrder.getCreatedAt()), TimeUnit.HOURS)) / (workOrders.size() - 1);
             }
             return Meantimes.builder()
-                    .betweenDowntimes(betweenDowntimes)
+                    .betweenDowntimes(assetDowntimeService.getDowntimesMeantime(downtimes))
                     .betweenMaintenances(betweenMaintenances)
                     .build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -144,6 +135,28 @@ public class AssetAnalyticsController {
                         .duration(Helper.getAverageAge(completeWO))
                         .build();
             }).collect(Collectors.toList());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/downtimes/meantime/month")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<DowntimesMeantimeByMonth> getDowntimesMeantimeByMonth(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            List<DowntimesMeantimeByMonth> result = new ArrayList<>();
+            LocalDate firstOfMonth =
+                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 13; i++) {
+                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
+                result.add(DowntimesMeantimeByMonth.builder()
+                        .meantime(assetDowntimeService.getDowntimesMeantime(downtimes))
+                        .date(Helper.localDateToDate(firstOfMonth)).build());
+                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+            }
+            Collections.reverse(result);
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }
