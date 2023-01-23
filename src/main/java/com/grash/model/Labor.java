@@ -27,7 +27,7 @@ public class Labor extends Time {
 
     private boolean logged = false;
 
-    private double hourlyRate;
+    private long hourlyRate;
 
     private Date startedAt;
 
@@ -42,7 +42,7 @@ public class Labor extends Time {
     @NotNull
     private WorkOrder workOrder;
 
-    public Labor(OwnUser user, double hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean logged, TimeStatus status) {
+    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean logged, TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;
         this.startedAt = startedAt;

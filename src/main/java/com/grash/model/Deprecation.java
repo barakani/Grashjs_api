@@ -18,7 +18,7 @@ public class Deprecation extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private double purchasePrice;
+    private long purchasePrice;
 
     private Date purchaseDate;
 
@@ -28,5 +28,5 @@ public class Deprecation extends CompanyAudit {
 
     private int rate;
 
-    private double currentValue;
+    private long currentValue;
 }

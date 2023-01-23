@@ -25,10 +25,10 @@ public class SubscriptionPlan {
     private String name;
 
     @NotNull
-    private double monthlyCostPerUser;
+    private long monthlyCostPerUser;
 
     @NotNull
-    private double yearlyCostPerUser;
+    private long yearlyCostPerUser;
 
     private String code;
 

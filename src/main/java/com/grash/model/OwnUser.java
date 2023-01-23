@@ -27,7 +27,7 @@ public class OwnUser extends Audit {
     @NotNull
     private String lastName;
 
-    private double rate;
+    private long rate;
 
     @OneToOne
     private File image;

@@ -55,6 +55,8 @@ public class Asset extends CompanyAudit {
     @ManyToOne
     private OwnUser primaryUser;
 
+    private Long acquisitionCost;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Asset_User_Associations",

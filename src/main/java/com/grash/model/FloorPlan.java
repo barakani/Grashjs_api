@@ -22,7 +22,7 @@ public class FloorPlan {
     @OneToOne
     private File image;
 
-    private double area;
+    private long area;
 
     @ManyToOne
     @NotNull

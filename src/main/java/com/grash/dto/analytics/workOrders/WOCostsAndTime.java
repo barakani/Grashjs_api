@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WOCostsAndTime {
-    private double total;
-    private double average;
-    private double additionalCost;
-    private double laborCost;
-    private double partCost;
-    private double laborTime;
+    private long total;
+    private long average;
+    private long additionalCost;
+    private long laborCost;
+    private long partCost;
+    private long laborTime;
 }

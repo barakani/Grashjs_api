@@ -21,7 +21,7 @@ public class Customer extends BasicInfos {
 
     private String description;
 
-    private double rate;
+    private long rate;
 
 
     private String billingName;

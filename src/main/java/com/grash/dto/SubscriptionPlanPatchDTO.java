@@ -12,9 +12,9 @@ public class SubscriptionPlanPatchDTO {
 
     private String name;
 
-    private double monthlyCostPerUser;
+    private long monthlyCostPerUser;
 
-    private double yearlyCostPerUser;
+    private long yearlyCostPerUser;
 
     private String code;
 

@@ -49,8 +49,8 @@ public class AssetAnalyticsController {
             assets.forEach(asset -> {
                 Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                double time = workOrderService.getLaborCostAndTime(completeWO).getSecond();
-                double cost = workOrderService.getAllCost(completeWO);
+                long time = workOrderService.getLaborCostAndTime(completeWO).getSecond();
+                long cost = workOrderService.getAllCost(completeWO);
                 result.add(TimeCostByAsset.builder()
                         .time(time)
                         .cost(cost)
@@ -158,5 +158,26 @@ public class AssetAnalyticsController {
             Collections.reverse(result);
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/costs/overview")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AssetsCosts getAssetsCosts(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            long totalAcquisitionCost = assets.stream().map(Asset::getAcquisitionCost).mapToLong(value -> value).sum();
+            long totalWOCosts = getCompleteWOCosts(assets);
+            Collection<Asset> assetsWithAcquisitionCost = assets.stream().filter(asset -> asset.getAcquisitionCost() != null).collect(Collectors.toList());
+            long rav = getCompleteWOCosts(assetsWithAcquisitionCost) * 100 / assetsWithAcquisitionCost.size();
+            return AssetsCosts.builder()
+                    .totalWOCosts(totalWOCosts)
+                    .totalAcquisitionCost(totalAcquisitionCost)
+                    .rav(rav).build();
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    private long getCompleteWOCosts(Collection<Asset> assets) {
+        return assets.stream().map(asset -> workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrderService::getAllCost).sum();
     }
 }

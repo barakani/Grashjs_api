@@ -11,6 +11,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TimeCostByAsset extends AssetMiniDTO {
-    private double time;
-    private double cost;
+    private long time;
+    private long cost;
 }

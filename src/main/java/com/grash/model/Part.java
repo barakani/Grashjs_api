@@ -28,7 +28,7 @@ public class Part extends CompanyAudit {
     @NotNull
     private String name;
 
-    private double cost;
+    private long cost;
 
 
     @ManyToMany

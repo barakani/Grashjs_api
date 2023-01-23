@@ -13,13 +13,13 @@ public class UserPatchDTO {
 
     private String lastName;
 
-    private double rate;
+    private long rate;
 
     private String phone;
 
     private String jobTitle;
 
     private Location location;
-    
+
     private File image;
 }

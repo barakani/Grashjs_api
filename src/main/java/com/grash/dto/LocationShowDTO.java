@@ -20,9 +20,9 @@ public class LocationShowDTO extends AuditShowDTO {
 
     private String address;
 
-    private Double longitude;
+    private Long longitude;
 
-    private Double latitude;
+    private Long latitude;
 
     private boolean hasChildren;
 

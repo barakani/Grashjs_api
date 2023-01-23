@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 public class AdditionalCostPatchDTO {
     private String description;
     private OwnUser assignedTo;
-    private double cost;
+    private long cost;
 }

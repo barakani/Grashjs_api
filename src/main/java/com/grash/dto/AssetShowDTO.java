@@ -60,9 +60,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
 
-    private long uptime;
-
-    private long downtime;
+    private Long acquisitionCost;
 
     private List<FileMiniDTO> files = new ArrayList<>();
 

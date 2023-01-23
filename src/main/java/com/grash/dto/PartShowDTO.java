@@ -13,7 +13,7 @@ public class PartShowDTO extends AuditShowDTO {
 
     private String name;
 
-    private double cost;
+    private long cost;
 
     private String category;
 

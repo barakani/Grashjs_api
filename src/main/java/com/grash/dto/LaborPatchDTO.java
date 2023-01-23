@@ -14,7 +14,7 @@ public class LaborPatchDTO {
 
     private boolean includeToTotalTime;
 
-    private double hourlyRate;
+    private long hourlyRate;
 
     private int duration;
 

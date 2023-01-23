@@ -188,42 +188,42 @@ public class WorkOrderService {
         return workOrderRepository.findByCompletedOnBetweenAndCompany_Id(date1, date2, companyId);
     }
 
-    public Pair<Double, Double> getLaborCostAndTime(Collection<WorkOrder> workOrders) {
-        Collection<Double> laborCostsArray = new ArrayList<>();
-        Collection<Double> laborTimesArray = new ArrayList<>();
+    public Pair<Long, Long> getLaborCostAndTime(Collection<WorkOrder> workOrders) {
+        Collection<Long> laborCostsArray = new ArrayList<>();
+        Collection<Long> laborTimesArray = new ArrayList<>();
         workOrders.forEach(workOrder -> {
                     Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
-                    double laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToDouble(value -> value).sum();
-                    double laborTimes = labors.stream().map(Labor::getDuration).mapToDouble(value -> value).sum();
+                    long laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToLong(value -> value).sum();
+                    long laborTimes = labors.stream().map(Labor::getDuration).mapToLong(value -> value).sum();
                     laborCostsArray.add(laborsCosts);
                     laborTimesArray.add(laborTimes);
                 }
         );
-        double laborCost = laborCostsArray.stream().mapToDouble(value -> value).sum();
-        double laborTimes = laborTimesArray.stream().mapToDouble(value -> value).sum();
+        long laborCost = laborCostsArray.stream().mapToLong(value -> value).sum();
+        long laborTimes = laborTimesArray.stream().mapToLong(value -> value).sum();
 
         return Pair.of(laborCost, laborTimes);
     }
 
-    public double getAdditionalCost(Collection<WorkOrder> workOrders) {
-        Collection<Double> costs = workOrders.stream().map(workOrder -> {
+    public long getAdditionalCost(Collection<WorkOrder> workOrders) {
+        Collection<Long> costs = workOrders.stream().map(workOrder -> {
                     Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
-                    return additionalCosts.stream().map(Cost::getCost).mapToDouble(value -> value).sum();
+                    return additionalCosts.stream().map(Cost::getCost).mapToLong(value -> value).sum();
                 }
         ).collect(Collectors.toList());
-        return costs.stream().mapToDouble(value -> value).sum();
+        return costs.stream().mapToLong(value -> value).sum();
     }
 
-    public double getPartCost(Collection<WorkOrder> workOrders) {
-        Collection<Double> costs = workOrders.stream().map(workOrder -> {
+    public long getPartCost(Collection<WorkOrder> workOrders) {
+        Collection<Long> costs = workOrders.stream().map(workOrder -> {
                     Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
-                    return partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToDouble(value -> value).sum();
+                    return partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToLong(value -> value).sum();
                 }
         ).collect(Collectors.toList());
-        return costs.stream().mapToDouble(value -> value).sum();
+        return costs.stream().mapToLong(value -> value).sum();
     }
 
-    public double getAllCost(Collection<WorkOrder> workOrders) {
+    public long getAllCost(Collection<WorkOrder> workOrders) {
         return getPartCost(workOrders) + getAdditionalCost(workOrders) + getLaborCostAndTime(workOrders).getFirst();
     }
 }

@@ -12,7 +12,7 @@ public class PartPatchDTO {
 
     private String name;
 
-    private double cost;
+    private long cost;
 
     private String category;
 

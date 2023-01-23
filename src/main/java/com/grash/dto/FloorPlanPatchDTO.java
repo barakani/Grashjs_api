@@ -12,5 +12,5 @@ public class FloorPlanPatchDTO {
 
     private File image;
 
-    private double area;
+    private long area;
 }
