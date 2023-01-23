@@ -50,7 +50,7 @@ public class WOAnalyticsController {
                     .total(total)
                     .complete(complete)
                     .compliant(compliant)
-                    .avgCycleTime(Helper.getAverageAge(completedWO)).build();
+                    .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

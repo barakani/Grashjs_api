@@ -5,10 +5,8 @@ import com.grash.dto.analytics.parts.PartStats;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.PartConsumption;
-import com.grash.service.AssetService;
 import com.grash.service.PartConsumptionService;
 import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PartAnalyticsController {
 
-    private final WorkOrderService workOrderService;
     private final UserService userService;
-    private final AssetService assetService;
     private final PartConsumptionService partConsumptionService;
 
     @GetMapping("/consumptions/overview")

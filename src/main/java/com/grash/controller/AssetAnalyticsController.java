@@ -132,7 +132,7 @@ public class AssetAnalyticsController {
                 return RepairTimeByAsset.builder()
                         .id(asset.getId())
                         .name(asset.getName())
-                        .duration(Helper.getAverageAge(completeWO))
+                        .duration(WorkOrder.getAverageAge(completeWO))
                         .build();
             }).collect(Collectors.toList());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);

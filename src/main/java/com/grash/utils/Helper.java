@@ -1,7 +1,6 @@
 package com.grash.utils;
 
 
-import com.grash.model.WorkOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 
@@ -9,9 +8,10 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class Helper {
 
@@ -70,10 +70,5 @@ public class Helper {
 
     public static Date localDateToDate(LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-    }
-
-    public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
-        return completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }
