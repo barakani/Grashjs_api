@@ -21,6 +21,5 @@ public class RequestStatsByPriority {
     @AllArgsConstructor
     public static class BasicStats {
         private int count;
-        private long cycleTime;
     }
 }

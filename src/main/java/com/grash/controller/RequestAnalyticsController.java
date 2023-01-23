@@ -1,10 +1,12 @@
 package com.grash.controller;
 
 import com.grash.dto.analytics.requests.RequestStats;
+import com.grash.dto.analytics.requests.RequestStatsByPriority;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.service.PartConsumptionService;
 import com.grash.service.RequestService;
@@ -51,4 +53,37 @@ public class RequestAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/priority")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public RequestStatsByPriority getByPriority(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<Request> requests = requestService.findByCompany(user.getCompany().getId());
+
+            int highCounts = getCountsByPriority(Priority.HIGH, requests);
+            int noneCounts = getCountsByPriority(Priority.NONE, requests);
+            int lowCounts = getCountsByPriority(Priority.LOW, requests);
+            int mediumCounts = getCountsByPriority(Priority.MEDIUM, requests);
+
+            return RequestStatsByPriority.builder()
+                    .high(RequestStatsByPriority.BasicStats.builder()
+                            .count(highCounts)
+                            .build())
+                    .none(RequestStatsByPriority.BasicStats.builder()
+                            .count(noneCounts)
+                            .build())
+                    .low(RequestStatsByPriority.BasicStats.builder()
+                            .count(lowCounts)
+                            .build())
+                    .medium(RequestStatsByPriority.BasicStats.builder()
+                            .count(mediumCounts)
+                            .build())
+                    .build();
+
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    private int getCountsByPriority(Priority priority, Collection<Request> requests) {
+        return (int) requests.stream().filter(request -> request.getPriority().equals(priority)).count();
+    }
 }
