@@ -197,6 +197,31 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/downtimes/costs/month")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<DowntimesByMonth> getDowntimesByMonth(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            List<DowntimesByMonth> result = new ArrayList<>();
+            LocalDate firstOfMonth =
+                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 13; i++) {
+                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId())
+                        .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
+                result.add(DowntimesByMonth.builder()
+                        .workOrdersCosts(workOrderService.getAllCost(completeWorkOrders))
+                        .duration(downtimes.stream().map(AssetDowntime::getDuration).mapToLong(value -> value).sum())
+                        .date(Helper.localDateToDate(firstOfMonth)).build());
+                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+            }
+            Collections.reverse(result);
+            return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     private long getCompleteWOCosts(Collection<Asset> assets) {
         return assets.stream().map(asset -> workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrderService::getAllCost).sum();
     }
