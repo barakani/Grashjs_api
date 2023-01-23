@@ -177,6 +177,26 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/downtimes/costs")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<DowntimesAndCostsByAsset> getDowntimesAndCosts(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            return assets.stream().map(asset -> {
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
+                long downtimesDuration = downtimes.stream().map(AssetDowntime::getDuration).mapToLong(value -> value).sum();
+                long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset));
+                return DowntimesAndCostsByAsset.builder()
+                        .id(asset.getId())
+                        .name(asset.getName())
+                        .duration(downtimesDuration)
+                        .workOrdersCosts(totalWOCosts)
+                        .build();
+            }).collect(Collectors.toList());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     private long getCompleteWOCosts(Collection<Asset> assets) {
         return assets.stream().map(asset -> workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrderService::getAllCost).sum();
     }
