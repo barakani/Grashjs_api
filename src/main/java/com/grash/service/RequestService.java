@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -115,5 +116,9 @@ public class RequestService {
 
     public Request save(Request request) {
         return requestRepository.save(request);
+    }
+
+    public Collection<Request> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
+        return requestRepository.findByCreatedAtBetweenAndCompany_Id(date1.toInstant(), date2.toInstant(), id);
     }
 }

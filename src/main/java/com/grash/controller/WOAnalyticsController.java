@@ -60,9 +60,9 @@ public class WOAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
-            Collection<WorkOrder> incompletedWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            int total = incompletedWO.size();
-            List<Long> ages = incompletedWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getRealCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+            Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            int total = incompleteWO.size();
+            List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getRealCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
             int averageAge = ages.size() == 0 ? 0 : ages.stream().mapToInt(Long::intValue).sum() / ages.size();
             return WOIncompleteStats.builder()
                     .total(total)

@@ -2,15 +2,16 @@ package com.grash.controller;
 
 import com.grash.dto.analytics.requests.RequestStats;
 import com.grash.dto.analytics.requests.RequestStatsByPriority;
+import com.grash.dto.analytics.requests.RequestsByMonth;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
-import com.grash.service.PartConsumptionService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,7 +37,6 @@ public class RequestAnalyticsController {
 
     private final UserService userService;
     private final RequestService requestService;
-    private final PartConsumptionService partConsumptionService;
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -80,6 +85,30 @@ public class RequestAnalyticsController {
                             .build())
                     .build();
 
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/cycle-time/month")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<RequestsByMonth> getCycleTimeByMonth(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            List<RequestsByMonth> result = new ArrayList<>();
+            LocalDate firstOfMonth =
+                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
+            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
+            for (int i = 0; i < 13; i++) {
+                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
+                Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
+                Collection<Request> completeRequests = requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                long cycleTime = WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
+                result.add(RequestsByMonth.builder()
+                        .cycleTime(cycleTime)
+                        .date(Helper.localDateToDate(firstOfMonth)).build());
+                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+            }
+            Collections.reverse(result);
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
