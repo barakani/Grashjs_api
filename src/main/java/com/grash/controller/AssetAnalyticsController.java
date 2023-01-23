@@ -166,7 +166,7 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            long totalAcquisitionCost = assets.stream().map(Asset::getAcquisitionCost).mapToLong(value -> value).sum();
+            long totalAcquisitionCost = assets.stream().mapToLong(Asset::getAcquisitionCost).sum();
             long totalWOCosts = getCompleteWOCosts(assets);
             Collection<Asset> assetsWithAcquisitionCost = assets.stream().filter(asset -> asset.getAcquisitionCost() != null).collect(Collectors.toList());
             long rav = getCompleteWOCosts(assetsWithAcquisitionCost) * 100 / assetsWithAcquisitionCost.size();
@@ -185,7 +185,7 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             return assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
-                long downtimesDuration = downtimes.stream().map(AssetDowntime::getDuration).mapToLong(value -> value).sum();
+                long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset));
                 return DowntimesAndCostsByAsset.builder()
                         .id(asset.getId())
@@ -213,7 +213,7 @@ public class AssetAnalyticsController {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
                 result.add(DowntimesByMonth.builder()
                         .workOrdersCosts(workOrderService.getAllCost(completeWorkOrders))
-                        .duration(downtimes.stream().map(AssetDowntime::getDuration).mapToLong(value -> value).sum())
+                        .duration(downtimes.stream().mapToLong(AssetDowntime::getDuration).sum())
                         .date(Helper.localDateToDate(firstOfMonth)).build());
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }

@@ -392,6 +392,6 @@ public class WOAnalyticsController {
         workOrders.forEach(workOrder -> {
             labors.addAll(laborService.findByWorkOrder(workOrder.getId()));
         });
-        return labors.stream().map(Time::getDuration).mapToLong(value -> value).sum();
+        return labors.stream().mapToLong(Time::getDuration).sum();
     }
 }

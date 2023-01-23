@@ -37,4 +37,8 @@ public class PartConsumption extends CompanyAudit {
         this.workOrder = workOrder;
         this.quantity = quantity;
     }
+
+    public long getCost() {
+        return part.getCost() * quantity;
+    }
 }

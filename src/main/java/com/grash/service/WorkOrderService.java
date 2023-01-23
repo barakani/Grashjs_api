@@ -193,8 +193,8 @@ public class WorkOrderService {
         Collection<Long> laborTimesArray = new ArrayList<>();
         workOrders.forEach(workOrder -> {
                     Collection<Labor> labors = laborService.findByWorkOrder(workOrder.getId());
-                    long laborsCosts = labors.stream().map(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).mapToLong(value -> value).sum();
-                    long laborTimes = labors.stream().map(Labor::getDuration).mapToLong(value -> value).sum();
+                    long laborsCosts = labors.stream().mapToLong(labor -> labor.getHourlyRate() * labor.getDuration() / 3600).sum();
+                    long laborTimes = labors.stream().mapToLong(Labor::getDuration).sum();
                     laborCostsArray.add(laborsCosts);
                     laborTimesArray.add(laborTimes);
                 }
@@ -208,7 +208,7 @@ public class WorkOrderService {
     public long getAdditionalCost(Collection<WorkOrder> workOrders) {
         Collection<Long> costs = workOrders.stream().map(workOrder -> {
                     Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(workOrder.getId());
-                    return additionalCosts.stream().map(Cost::getCost).mapToLong(value -> value).sum();
+                    return additionalCosts.stream().mapToLong(Cost::getCost).sum();
                 }
         ).collect(Collectors.toList());
         return costs.stream().mapToLong(value -> value).sum();
@@ -217,7 +217,7 @@ public class WorkOrderService {
     public long getPartCost(Collection<WorkOrder> workOrders) {
         Collection<Long> costs = workOrders.stream().map(workOrder -> {
                     Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(workOrder.getId());
-                    return partQuantities.stream().map(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).mapToLong(value -> value).sum();
+                    return partQuantities.stream().mapToLong(partQuantity -> partQuantity.getPart().getCost() * partQuantity.getQuantity()).sum();
                 }
         ).collect(Collectors.toList());
         return costs.stream().mapToLong(value -> value).sum();
