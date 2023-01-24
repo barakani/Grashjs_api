@@ -1,4 +1,4 @@
-package com.grash.controller;
+package com.grash.controller.analytics;
 
 import com.grash.dto.analytics.assets.*;
 import com.grash.exception.CustomException;
@@ -166,10 +166,10 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            long totalAcquisitionCost = assets.stream().mapToLong(Asset::getAcquisitionCost).sum();
-            long totalWOCosts = getCompleteWOCosts(assets);
             Collection<Asset> assetsWithAcquisitionCost = assets.stream().filter(asset -> asset.getAcquisitionCost() != null).collect(Collectors.toList());
-            long rav = getCompleteWOCosts(assetsWithAcquisitionCost) * 100 / assetsWithAcquisitionCost.size();
+            long totalAcquisitionCost = assetsWithAcquisitionCost.stream().mapToLong(Asset::getAcquisitionCost).sum();
+            long totalWOCosts = getCompleteWOCosts(assets);
+            long rav = assetsWithAcquisitionCost.size() == 0 ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost) * 100 / assetsWithAcquisitionCost.size();
             return AssetsCosts.builder()
                     .totalWOCosts(totalWOCosts)
                     .totalAcquisitionCost(totalAcquisitionCost)

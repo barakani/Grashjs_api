@@ -1,4 +1,4 @@
-package com.grash.controller;
+package com.grash.controller.analytics;
 
 import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;

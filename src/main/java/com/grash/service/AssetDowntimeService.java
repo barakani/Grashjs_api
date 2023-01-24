@@ -84,8 +84,8 @@ public class AssetDowntimeService {
         long result = 0;
         if (downtimes.size() > 2) {
             DowntimeComparator downtimeComparator = new DowntimeComparator();
-            AssetDowntime firstDowntime = Collections.max(downtimes, downtimeComparator);
-            AssetDowntime lastDowntime = Collections.min(downtimes, downtimeComparator);
+            AssetDowntime firstDowntime = Collections.min(downtimes, downtimeComparator);
+            AssetDowntime lastDowntime = Collections.max(downtimes, downtimeComparator);
             result = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
         }
         return result;

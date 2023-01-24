@@ -1,4 +1,4 @@
-package com.grash.controller;
+package com.grash.controller.analytics;
 
 import com.grash.dto.analytics.requests.RequestStats;
 import com.grash.dto.analytics.requests.RequestStatsByPriority;
