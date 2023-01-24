@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestsByMonth {
+    //days
     private long cycleTime;
     private Date date;
 }

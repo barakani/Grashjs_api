@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DowntimesByMonth {
+    //seconds
     private long duration;
     private long workOrdersCosts;
     private Date date;
