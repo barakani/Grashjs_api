@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.utils.Helper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,5 +34,9 @@ public class AssetDowntime extends CompanyAudit {
     private long duration = 0;
 
     private Date startsOn;
+
+    public Date getEndsOn() {
+        return Helper.addSeconds(startsOn, Math.toIntExact(duration));
+    }
 
 }

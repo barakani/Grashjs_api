@@ -71,4 +71,8 @@ public class Helper {
     public static Date localDateToDate(LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
+
+    public static Date addSeconds(Date date, int seconds) {
+        return new Date(date.getTime() + seconds * 1000);
+    }
 }

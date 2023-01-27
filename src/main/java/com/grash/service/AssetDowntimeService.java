@@ -27,17 +27,21 @@ public class AssetDowntimeService {
     private final AssetDowntimeMapper assetDowntimeMapper;
 
     public AssetDowntime create(AssetDowntime assetDowntime) {
+        checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);
     }
 
     public AssetDowntime save(AssetDowntime assetDowntime) {
+        checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);
     }
 
     public AssetDowntime update(Long id, AssetDowntimePatchDTO assetDowntime) {
         if (assetDowntimeRepository.existsById(id)) {
             AssetDowntime savedAssetDowntime = assetDowntimeRepository.findById(id).get();
-            return assetDowntimeRepository.save(assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime, assetDowntime));
+            AssetDowntime updatedAssetDowntime = assetDowntimeMapper.updateAssetDowntime(savedAssetDowntime, assetDowntime);
+            checkOverlapping(updatedAssetDowntime);
+            return assetDowntimeRepository.save(updatedAssetDowntime);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -89,5 +93,19 @@ public class AssetDowntimeService {
             result = (Helper.getDateDiff(firstDowntime.getStartsOn(), lastDowntime.getStartsOn(), TimeUnit.HOURS)) / (downtimes.size() - 1);
         }
         return result;
+    }
+
+    private void checkOverlapping(AssetDowntime assetDowntime) {
+        Collection<AssetDowntime> assetDowntimes = findByAsset(assetDowntime.getAsset().getId());
+        Date startedOn = assetDowntime.getStartsOn();
+        Date endedOn = assetDowntime.getEndsOn();
+        assetDowntimes.forEach(assetDowntime1 -> {
+            Date startedOn1 = assetDowntime1.getStartsOn();
+            Date endedOn1 = assetDowntime1.getEndsOn();
+            //(StartA <= EndB) and (EndA >= StartB)
+            if (startedOn.before(endedOn1) && endedOn.after(startedOn1)) {
+                throw new CustomException("The downtimes can't interweave", HttpStatus.NOT_ACCEPTABLE);
+            }
+        });
     }
 }
