@@ -37,10 +37,10 @@ public class GCPService {
             throw new CustomException("Wrong credentials", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Storage storage = StorageOptions.newBuilder().setCredentials(credentials)
-                .setProjectId("receipt-6becf").build().getService();
+                .setProjectId("radiant-rookery-370411").build().getService();
         try {
             BlobInfo blobInfo = storage.create(
-                    BlobInfo.newBuilder("sutura", folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
+                    BlobInfo.newBuilder("grash", folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
                     file.getBytes(), // the file
                     BlobTargetOption.predefinedAcl(PredefinedAcl.PUBLIC_READ) // Set file permission
             );

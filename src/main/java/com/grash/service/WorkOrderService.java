@@ -223,7 +223,7 @@ public class WorkOrderService {
         return costs.stream().mapToLong(value -> value).sum();
     }
 
-    public long getAllCost(Collection<WorkOrder> workOrders) {
-        return getPartCost(workOrders) + getAdditionalCost(workOrders) + getLaborCostAndTime(workOrders).getFirst();
+    public long getAllCost(Collection<WorkOrder> workOrders, boolean includeLaborCost) {
+        return getPartCost(workOrders) + getAdditionalCost(workOrders) + (includeLaborCost ? getLaborCostAndTime(workOrders).getFirst() : 0);
     }
 }
