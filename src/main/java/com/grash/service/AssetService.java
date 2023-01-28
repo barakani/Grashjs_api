@@ -166,4 +166,14 @@ public class AssetService {
         notify(asset, asset.getName() + " is down");
 
     }
+
+    public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Asset> optionalAsset = asset == null ? Optional.empty() : findById(asset.getId());
+            return asset == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Asset> optionalAsset = findById(asset.getId());
+            return optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

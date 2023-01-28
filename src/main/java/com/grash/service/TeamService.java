@@ -104,4 +104,14 @@ public class TeamService {
                     notificationService.create(new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())));
         }
     }
+
+    public boolean isTeamInCompany(Team team, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Team> optionalTeam = team == null ? Optional.empty() : findById(team.getId());
+            return team == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Team> optionalTeam = findById(team.getId());
+            return optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

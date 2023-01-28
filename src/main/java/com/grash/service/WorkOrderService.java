@@ -101,11 +101,8 @@ public class WorkOrderService {
 
     public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean first = companyService.isCompanyValid(workOrderReq.getCompany().getId(), companyId);
 
         return first && canPatch(user, workOrderMapper.toPatchDto(workOrderReq));
     }
@@ -113,16 +110,10 @@ public class WorkOrderService {
     public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Location> optionalLocation = workOrderReq.getLocation() == null ? Optional.empty() : locationService.findById(workOrderReq.getLocation().getId());
-        Optional<Team> optionalTeam = workOrderReq.getTeam() == null ? Optional.empty() : teamService.findById(workOrderReq.getTeam().getId());
-        Optional<OwnUser> optionalUser = workOrderReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(workOrderReq.getPrimaryUser().getId());
-        Optional<Asset> optionalAsset = workOrderReq.getAsset() == null ? Optional.empty() : assetService.findById(workOrderReq.getAsset().getId());
-
-        boolean second = workOrderReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean third = workOrderReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
-        boolean fourth = workOrderReq.getPrimaryUser() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-        boolean fifth = workOrderReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-
+        boolean second = locationService.isLocationInCompany(workOrderReq.getLocation(), companyId, true);
+        boolean third = teamService.isTeamInCompany(workOrderReq.getTeam(), companyId, true);
+        boolean fourth = userService.isUserInCompany(workOrderReq.getPrimaryUser(), companyId, true);
+        boolean fifth = assetService.isAssetInCompany(workOrderReq.getAsset(), companyId, true);
         return second && third && fourth && fifth;
     }
 

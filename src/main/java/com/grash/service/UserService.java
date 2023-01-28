@@ -206,4 +206,14 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public boolean isUserInCompany(OwnUser user, long companyId, boolean optional) {
+        if (optional) {
+            Optional<OwnUser> optionalUser = user == null ? Optional.empty() : findById(user.getId());
+            return user == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<OwnUser> optionalUser = findById(user.getId());
+            return optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

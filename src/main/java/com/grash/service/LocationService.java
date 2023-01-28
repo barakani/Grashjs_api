@@ -108,4 +108,14 @@ public class LocationService {
     public void save(Location location) {
         locationRepository.save(location);
     }
+
+    public boolean isLocationInCompany(Location location, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Location> optionalLocation = location == null ? Optional.empty() : findById(location.getId());
+            return location == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Location> optionalLocation = findById(location.getId());
+            return optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

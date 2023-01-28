@@ -26,7 +26,7 @@ public class UserAnalyticsController {
     private final WorkOrderService workOrderService;
     private final UserService userService;
 
-    @GetMapping("/work-orders/overview")
+    @GetMapping("/me/work-orders/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserWOStats getWOStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
