@@ -129,16 +129,16 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder) {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
+        workOrder.getUsers().forEach(user -> {
+            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
+        });
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("workOrderTitle", workOrder.getTitle());
         }};
-        workOrder.getUsers().forEach(user -> {
-            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
-            if (user.getUserSettings().isEmailUpdatesForWorkOrders()) {
-                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "New Work Order", mailVariables, "new-work-order.html");
-            }
-        });
+        Collection<OwnUser> usersToMail = workOrder.getUsers().stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
+        emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Work Order", mailVariables, "new-work-order.html");
+
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
