@@ -52,7 +52,9 @@ public class WrapperSpecification<T> implements Specification<T> {
             case LESS_THAN_EQUAL:
                 return cb.lessThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
             case IN:
-                return cb.in(root.get(filterField.getField())).value(filterField.getValues());
+                CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
+                filterField.getValues().forEach(inClause::value);
+                return inClause;
         }
         return null;
     }
