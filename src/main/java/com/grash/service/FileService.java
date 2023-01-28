@@ -48,4 +48,14 @@ public class FileService {
     public boolean canCreate(OwnUser user, File fileReq) {
         return true;
     }
+
+    public boolean isFileInCompany(File file, long companyId, boolean optional) {
+        if (optional) {
+            Optional<File> optionalFile = file == null ? Optional.empty() : findById(file.getId());
+            return file == null || (optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<File> optionalFile = findById(file.getId());
+            return optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

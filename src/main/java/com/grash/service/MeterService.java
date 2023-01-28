@@ -3,7 +3,9 @@ package com.grash.service;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
-import com.grash.model.*;
+import com.grash.model.Meter;
+import com.grash.model.Notification;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
@@ -80,16 +82,10 @@ public class MeterService {
 
     public boolean canPatch(OwnUser user, MeterPatchDTO meterReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<MeterCategory> optionalMeterCategory = meterReq.getMeterCategory() == null ? Optional.empty() : meterCategoryService.findById(meterReq.getMeterCategory().getId());
-        Optional<File> optionalImage = meterReq.getImage() == null ? Optional.empty() : fileService.findById(meterReq.getImage().getId());
-        Optional<Location> optionalLocation = meterReq.getLocation() == null ? Optional.empty() : locationService.findById(meterReq.getLocation().getId());
-
         //optional fields
-        boolean second = meterReq.getMeterCategory() == null || (optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        boolean third = meterReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = meterReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-
+        boolean second = meterCategoryService.isMeterCategoryInCompany(meterReq.getMeterCategory(), companyId, true);
+        boolean third = fileService.isFileInCompany(meterReq.getImage(), companyId, true);
+        boolean fourth = locationService.isLocationInCompany(meterReq.getLocation(), companyId, true);
         return second && third && fourth;
     }
 

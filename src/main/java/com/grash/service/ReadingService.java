@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ReadingMapper;
-import com.grash.model.Meter;
 import com.grash.model.OwnUser;
 import com.grash.model.Reading;
 import com.grash.model.enums.RoleType;
@@ -64,12 +63,7 @@ public class ReadingService {
 
     public boolean canPatch(OwnUser user, ReadingPatchDTO readingReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Meter> optionalMeter = readingReq.getMeter() == null ? Optional.empty() : meterService.findById(readingReq.getMeter().getId());
-
-        boolean first = readingReq.getMeter() == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return meterService.isMeterInCompany(readingReq.getMeter(), companyId, true);
     }
 
     public Collection<Reading> findByMeter(Long id) {

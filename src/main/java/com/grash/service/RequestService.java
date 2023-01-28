@@ -3,7 +3,9 @@ package com.grash.service;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
-import com.grash.model.*;
+import com.grash.model.OwnUser;
+import com.grash.model.Request;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -78,19 +80,12 @@ public class RequestService {
 
     public boolean canPatch(OwnUser user, RequestPatchDTO requestReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
-        Optional<File> optionalImage = requestReq.getImage() == null ? Optional.empty() : fileService.findById(requestReq.getImage().getId());
-        Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
-        Optional<OwnUser> optionalPrimaryUser = requestReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(requestReq.getPrimaryUser().getId());
-        Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
-
         //optional fields
-        boolean first = requestReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-        boolean second = requestReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean third = requestReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = requestReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
-        boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
+        boolean first = assetService.isAssetInCompany(requestReq.getAsset(), companyId, true);
+        boolean second = locationService.isLocationInCompany(requestReq.getLocation(), companyId, true);
+        boolean third = fileService.isFileInCompany(requestReq.getImage(), companyId, true);
+        boolean fourth = userService.isUserInCompany(requestReq.getPrimaryUser(), companyId, true);
+        boolean fifth = teamService.isTeamInCompany(requestReq.getTeam(), companyId, true);
 
         return first && second && third && fourth && fifth;
     }

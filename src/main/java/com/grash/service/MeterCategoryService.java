@@ -69,5 +69,13 @@ public class MeterCategoryService {
         return true;
     }
 
-
+    public boolean isMeterCategoryInCompany(MeterCategory meterCategory, long companyId, boolean optional) {
+        if (optional) {
+            Optional<MeterCategory> optionalMeterCategory = meterCategory == null ? Optional.empty() : findById(meterCategory.getId());
+            return meterCategory == null || (optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<MeterCategory> optionalMeterCategory = findById(meterCategory.getId());
+            return optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

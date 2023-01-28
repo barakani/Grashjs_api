@@ -77,12 +77,7 @@ public class LocationService {
 
     public boolean canPatch(OwnUser user, LocationPatchDTO locationReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = locationReq.getParentLocation() == null ? Optional.empty() : findById(locationReq.getParentLocation().getId());
-        //optional fields
-        boolean second = locationReq.getParentLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-
-        return second;
+        return isLocationInCompany(locationReq.getParentLocation(), companyId, true)
     }
 
     public void notify(Location location) {

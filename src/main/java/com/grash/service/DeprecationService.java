@@ -60,4 +60,14 @@ public class DeprecationService {
     public boolean canPatch(OwnUser user, DeprecationPatchDTO deprecationReq) {
         return true;
     }
+
+    public boolean isDeprecationInCompany(Deprecation deprecation, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Deprecation> optionalDeprecation = deprecation == null ? Optional.empty() : findById(deprecation.getId());
+            return deprecation == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Deprecation> optionalDeprecation = findById(deprecation.getId());
+            return optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

@@ -77,13 +77,8 @@ public class RelationService {
 
     public boolean canPatch(OwnUser user, RelationPatchDTO relationReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<WorkOrder> optionalParentWorkOrder = relationReq.getParent() == null ? Optional.empty() : workOrderService.findById(relationReq.getParent().getId());
-        Optional<WorkOrder> optionalChildWorkOrder = relationReq.getChild() == null ? Optional.empty() : workOrderService.findById(relationReq.getChild().getId());
-
-        boolean first = relationReq.getParent() == null || (optionalParentWorkOrder.isPresent() && optionalParentWorkOrder.get().getCompany().getId().equals(companyId));
-        boolean second = relationReq.getChild() == null || (optionalChildWorkOrder.isPresent() && optionalChildWorkOrder.get().getCompany().getId().equals(companyId));
-
+        boolean first = workOrderService.isWorkOrderInCompany(relationReq.getParent(), companyId, true);
+        boolean second = workOrderService.isWorkOrderInCompany(relationReq.getChild(), companyId, true);
         return first && second;
     }
 

@@ -3,7 +3,8 @@ package com.grash.service;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
-import com.grash.model.*;
+import com.grash.model.OwnUser;
+import com.grash.model.PreventiveMaintenance;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,24 +70,17 @@ public class PreventiveMaintenanceService {
 
     public boolean canCreate(OwnUser user, PreventiveMaintenance preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
-        
+
         boolean first = companyService.isCompanyValid(preventiveMaintenanceReq.getCompany(), companyId);
         return first && canPatch(user, preventiveMaintenanceMapper.toPatchDto(preventiveMaintenanceReq));
     }
 
     public boolean canPatch(OwnUser user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Asset> optionalAsset = preventiveMaintenanceReq.getAsset() == null ? Optional.empty() : assetService.findById(preventiveMaintenanceReq.getAsset().getId());
-        Optional<Team> optionalTeam = preventiveMaintenanceReq.getTeam() == null ? Optional.empty() : teamService.findById(preventiveMaintenanceReq.getTeam().getId());
-        Optional<Location> optionalLocation = preventiveMaintenanceReq.getLocation() == null ? Optional.empty() : locationService.findById(preventiveMaintenanceReq.getLocation().getId());
-        Optional<OwnUser> optionalPrimaryUser = preventiveMaintenanceReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(preventiveMaintenanceReq.getPrimaryUser().getId());
-
-        boolean second = preventiveMaintenanceReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-        boolean third = preventiveMaintenanceReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
-        boolean fourth = preventiveMaintenanceReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean fifth = preventiveMaintenanceReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
-
+        boolean second = assetService.isAssetInCompany(preventiveMaintenanceReq.getAsset(), companyId, true);
+        boolean third = teamService.isTeamInCompany(preventiveMaintenanceReq.getTeam(), companyId, true);
+        boolean fourth = locationService.isLocationInCompany(preventiveMaintenanceReq.getLocation(), companyId, true);
+        boolean fifth = userService.isUserInCompany(preventiveMaintenanceReq.getPrimaryUser(), companyId, true);
         return second && third && fourth && fifth;
     }
 

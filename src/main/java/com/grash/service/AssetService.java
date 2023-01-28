@@ -3,7 +3,10 @@ package com.grash.service;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
-import com.grash.model.*;
+import com.grash.model.Asset;
+import com.grash.model.AssetDowntime;
+import com.grash.model.Notification;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
@@ -92,22 +95,13 @@ public class AssetService {
 
     public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = assetReq.getLocation() == null ? Optional.empty() : locationService.findById(assetReq.getLocation().getId());
-        Optional<File> optionalImage = assetReq.getImage() == null ? Optional.empty() : fileService.findById(assetReq.getImage().getId());
-        Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
-        Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
-        Optional<OwnUser> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
-        Optional<Deprecation> optionalDeprecation = assetReq.getDeprecation() == null ? Optional.empty() : deprecationService.findById(assetReq.getDeprecation().getId());
-
         //optional fields
-        boolean second = assetReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean third = assetReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = assetReq.getCategory() == null || (optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        boolean fifth = assetReq.getParentAsset() == null || (optionalParentAsset.isPresent() && optionalParentAsset.get().getCompany().getId().equals(companyId));
-        boolean sixth = assetReq.getPrimaryUser() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-        boolean seventh = assetReq.getDeprecation() == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
-
+        boolean second = locationService.isLocationInCompany(assetReq.getLocation(), companyId, true);
+        boolean third = fileService.isFileInCompany(assetReq.getImage(), companyId, true);
+        boolean fourth = assetCategoryService.isAssetCategoryInCompany(assetReq.getCategory(), companyId, true);
+        boolean fifth = isAssetInCompany(assetReq.getParentAsset(), companyId, true);
+        boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
+        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
         boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
             Optional<OwnUser> optionalUser1 = userService.findById(user1.getId());
             return optionalUser1.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);

@@ -72,11 +72,7 @@ public class AdditionalCostService {
 
     public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {
         Long companyId = user.getCompany().getId();
-        Optional<OwnUser> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
-
-        boolean first = additionalCostReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return userService.isUserInCompany(additionalCostReq.getAssignedTo(), companyId, true);
     }
 
     public Collection<AdditionalCost> findByWorkOrder(Long id) {

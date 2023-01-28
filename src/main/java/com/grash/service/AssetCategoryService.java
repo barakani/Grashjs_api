@@ -66,4 +66,14 @@ public class AssetCategoryService {
     public boolean canPatch(OwnUser user, CategoryPatchDTO assetCategoryReq) {
         return true;
     }
+
+    public boolean isAssetCategoryInCompany(AssetCategory assetCategory, long companyId, boolean optional) {
+        if (optional) {
+            Optional<AssetCategory> optionalAssetCategory = assetCategory == null ? Optional.empty() : findById(assetCategory.getId());
+            return assetCategory == null || (optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
+        } else {
+            Optional<AssetCategory> optionalAssetCategory = findById(assetCategory.getId());
+            return optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        }
+    }
 }

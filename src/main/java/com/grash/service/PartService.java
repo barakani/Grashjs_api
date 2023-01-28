@@ -91,13 +91,8 @@ public class PartService {
 
     public boolean canPatch(OwnUser user, PartPatchDTO partReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<File> optionalImage = partReq.getImage() == null ? Optional.empty() : fileService.findById(partReq.getImage().getId());
-        Optional<Location> optionalLocation = partReq.getLocation() == null ? Optional.empty() : locationService.findById(partReq.getLocation().getId());
-
-        boolean third = partReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = partReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-
+        boolean third = fileService.isFileInCompany(partReq.getImage(), companyId, true);
+        boolean fourth = locationService.isLocationInCompany(partReq.getLocation(), companyId, true);
         return third && fourth;
     }
 

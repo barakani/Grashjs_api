@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.LaborMapper;
 import com.grash.model.Labor;
 import com.grash.model.OwnUser;
-import com.grash.model.TimeCategory;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.TimeStatus;
 import com.grash.repository.LaborRepository;
@@ -82,14 +81,9 @@ public class LaborService {
 
     public boolean canPatch(OwnUser user, LaborPatchDTO laborReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<TimeCategory> optionalTimeCategory = laborReq.getTimeCategory() == null ? Optional.empty() : timeCategoryService.findById(laborReq.getTimeCategory().getId());
-        Optional<OwnUser> optionalUser = laborReq.getAssignedTo() == null ? Optional.empty() : userService.findById(laborReq.getAssignedTo().getId());
-
         //optional fields
-        boolean third = laborReq.getTimeCategory() == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        boolean sixth = laborReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-
+        boolean third = timeCategoryService.isTimeCategoryInCompany(laborReq.getTimeCategory(), companyId, true);
+        boolean sixth = userService.isUserInCompany(laborReq.getAssignedTo(), companyId, true);
         return third && sixth;
     }
 

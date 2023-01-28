@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
-import com.grash.model.File;
 import com.grash.model.FloorPlan;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -70,12 +69,8 @@ public class FloorPlanService {
 
     public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {
         Long companyId = user.getCompany().getId();
-        Optional<File> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : fileService.findById(floorPlanReq.getImage().getId());
-
         //optional fields
-        boolean third = floorPlanReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-
-        return third;
+        return fileService.isFileInCompany(floorPlanReq.getImage(), companyId, true);
     }
 
     public Collection<FloorPlan> findByLocation(Long id) {
