@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderCategoryMapper;
-import com.grash.model.CompanySettings;
 import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.enums.RoleType;
@@ -62,11 +61,7 @@ public class PurchaseOrderCategoryService {
 
     public boolean canCreate(OwnUser user, PurchaseOrderCategory purchaseOrderCategoryReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(purchaseOrderCategoryReq.getCompanySettings().getId());
-
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
-
+        boolean first = companySettingsService.isCompanySettingsInCompany(purchaseOrderCategoryReq.getCompanySettings(), companyId, false);
         return first && canPatch(user, purchaseOrderCategoryMapper.toPatchDto(purchaseOrderCategoryReq));
     }
 

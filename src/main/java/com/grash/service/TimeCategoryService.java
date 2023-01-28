@@ -66,8 +66,7 @@ public class TimeCategoryService {
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(timeCategoryReq.getCompanySettings().getId());
 
         //@NotNull fields
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
-
+        boolean first = companySettingsService.isCompanySettingsInCompany(timeCategoryReq.getCompanySettings(), companyId, false);
         return first && canPatch(user, timeCategoryMapper.toPatchDto(timeCategoryReq));
     }
 

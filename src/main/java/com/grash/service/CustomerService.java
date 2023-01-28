@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
-import com.grash.model.Company;
 import com.grash.model.Customer;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -57,16 +56,22 @@ public class CustomerService {
 
     public boolean canCreate(OwnUser user, Customer customerReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(customerReq.getCompany(), companyId);
         return first && canPatch(user, customerMapper.toPatchDto(customerReq));
     }
 
     public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {
         return true;
+    }
+
+    public boolean isCustomerInCompany(Customer customer, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Customer> optionalCustomer = customer == null ? Optional.empty() : findById(customer.getId());
+            return customer == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Customer> optionalCustomer = findById(customer.getId());
+            return optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId);
+        }
     }
 }

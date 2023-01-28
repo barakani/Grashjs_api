@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
-import com.grash.model.Company;
 import com.grash.model.Location;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
@@ -71,12 +70,8 @@ public class LocationService {
 
     public boolean canCreate(OwnUser user, Location locationReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(locationReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(locationReq.getCompany(), companyId);
         return first && canPatch(user, locationMapper.toPatchDto(locationReq));
     }
 

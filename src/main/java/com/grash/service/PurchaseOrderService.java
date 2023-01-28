@@ -69,8 +69,7 @@ public class PurchaseOrderService {
 
         Optional<Company> optionalCompany = companyService.findById(purchaseOrderReq.getCompany().getId());
 
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(purchaseOrderReq.getCompany(), companyId);
         return first && canPatch(user, purchaseOrderMapper.toPatchDto(purchaseOrderReq));
     }
 
@@ -80,5 +79,15 @@ public class PurchaseOrderService {
 
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {
         return purchaseOrderRepository.save(purchaseOrder);
+    }
+
+    public boolean isPurchaseOrderInCompany(PurchaseOrder purchaseOrder, long companyId, boolean optional) {
+        if (optional) {
+            Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrder == null ? Optional.empty() : findById(purchaseOrder.getId());
+            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
+            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
+        }
     }
 }

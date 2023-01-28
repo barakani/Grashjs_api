@@ -57,12 +57,8 @@ public class ReadingService {
 
     public boolean canCreate(OwnUser user, Reading readingReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
-
         //@NotNull fields
-        boolean first = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
-
+        boolean first = meterService.isMeterInCompany(readingReq.getMeter(), companyId, false);
         return first && canPatch(user, readingMapper.toPatchDto(readingReq));
     }
 

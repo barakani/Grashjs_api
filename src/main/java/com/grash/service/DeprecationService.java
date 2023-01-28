@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.DeprecationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.DeprecationMapper;
-import com.grash.model.Company;
 import com.grash.model.Deprecation;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -53,12 +52,8 @@ public class DeprecationService {
 
     public boolean canCreate(OwnUser user, Deprecation deprecationReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(deprecationReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(deprecationReq.getCompany(), companyId);
         return first && canPatch(user, deprecationMapper.toPatchDto(deprecationReq));
     }
 

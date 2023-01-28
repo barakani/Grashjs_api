@@ -85,10 +85,7 @@ public class PartService {
     public boolean canCreate(OwnUser user, Part partReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Company> optionalCompany = companyService.findById(partReq.getCompany().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(partReq.getCompany(), companyId);
         return first && canPatch(user, partMapper.toPatchDto(partReq));
     }
 
@@ -117,5 +114,15 @@ public class PartService {
 
     public Part save(Part part) {
         return partRepository.save(part);
+    }
+
+    public boolean isPartInCompany(Part part, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Part> optionalPart = part == null ? Optional.empty() : findById(part.getId());
+            return part == null || (optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Part> optionalPart = findById(part.getId());
+            return optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId);
+        }
     }
 }

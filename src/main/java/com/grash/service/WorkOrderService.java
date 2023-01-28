@@ -102,7 +102,7 @@ public class WorkOrderService {
     public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(workOrderReq.getCompany().getId(), companyId);
+        boolean first = companyService.isCompanyValid(workOrderReq.getCompany(), companyId);
 
         return first && canPatch(user, workOrderMapper.toPatchDto(workOrderReq));
     }
@@ -231,5 +231,15 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCreatedBy(Long id) {
         return workOrderRepository.findByCreatedBy(id);
+    }
+
+    public boolean isWorkOrderInCompany(WorkOrder workOrder, long companyId, boolean optional) {
+        if (optional) {
+            Optional<WorkOrder> optionalWorkOrder = workOrder == null ? Optional.empty() : findById(workOrder.getId());
+            return workOrder == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<WorkOrder> optionalWorkOrder = findById(workOrder.getId());
+            return optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
+        }
     }
 }

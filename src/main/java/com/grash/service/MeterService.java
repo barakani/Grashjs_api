@@ -72,14 +72,9 @@ public class MeterService {
 
     public boolean canCreate(OwnUser user, Meter meterReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(meterReq.getCompany().getId());
-        Optional<Asset> optionalAsset = assetService.findById(meterReq.getAsset().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(meterReq.getCompany(), companyId);
+        boolean second = assetService.isAssetInCompany(meterReq.getAsset(), companyId, false);
         return first && second && canPatch(user, meterMapper.toPatchDto(meterReq));
     }
 
@@ -119,5 +114,15 @@ public class MeterService {
 
     public Collection<Meter> findByAsset(Long id) {
         return meterRepository.findByAsset_Id(id);
+    }
+
+    public boolean isMeterInCompany(Meter meter, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Meter> optionalMeter = meter == null ? Optional.empty() : findById(meter.getId());
+            return meter == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Meter> optionalMeter = findById(meter.getId());
+            return optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
+        }
     }
 }

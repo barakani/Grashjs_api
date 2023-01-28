@@ -92,12 +92,8 @@ public class TaskBaseService {
 
     public boolean canCreate(OwnUser user, TaskBase taskBaseReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(taskBaseReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(taskBaseReq.getCompany(), companyId);
         return first && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
     }
 

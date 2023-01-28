@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.TeamPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
-import com.grash.model.Company;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.Team;
@@ -72,12 +71,8 @@ public class TeamService {
 
     public boolean canCreate(OwnUser user, Team teamReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(teamReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(teamReq.getCompany(), companyId);
         boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
 
         return first && second && canPatch(user, teamMapper.toPatchDto(teamReq));

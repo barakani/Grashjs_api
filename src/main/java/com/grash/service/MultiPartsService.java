@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
-import com.grash.model.Company;
 import com.grash.model.MultiParts;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -66,10 +65,7 @@ public class MultiPartsService {
 
     public boolean canCreate(OwnUser user, MultiParts multiPartsReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Company> optionalCompany = companyService.findById(multiPartsReq.getCompany().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(multiPartsReq.getCompany(), companyId);
         return first && canPatch(user, multiPartsMapper.toPatchDto(multiPartsReq));
     }
 

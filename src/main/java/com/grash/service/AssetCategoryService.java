@@ -4,7 +4,6 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetCategoryMapper;
 import com.grash.model.AssetCategory;
-import com.grash.model.CompanySettings;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetCategoryRepository;
@@ -60,12 +59,7 @@ public class AssetCategoryService {
     }
 
     public boolean canCreate(OwnUser user, AssetCategory assetCategoryReq) {
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(assetCategoryReq.getCompanySettings().getId());
-
-        //Post only fields
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(
-                user.getCompany().getCompanySettings().getId());
-
+        boolean first = companySettingsService.isCompanySettingsInCompany(assetCategoryReq.getCompanySettings(), user.getCompany().getId(), false);
         return first && canPatch(user, assetCategoryMapper.toPatchDto(assetCategoryReq));
     }
 

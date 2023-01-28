@@ -84,19 +84,10 @@ public class AssetService {
 
     public boolean canCreate(OwnUser user, Asset assetReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean first = companyService.isCompanyValid(assetReq.getCompany(), companyId);
 
-        boolean third = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
-            Optional<OwnUser> optionalUser = userService.findById(user1.getId());
-            return optionalUser.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
-        });
-        boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
-
-        return first && third && fourth && canPatch(user, assetMapper.toPatchDto(assetReq));
+        return first && canPatch(user, assetMapper.toPatchDto(assetReq));
     }
 
     public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {

@@ -3,7 +3,10 @@ package com.grash.service;
 import com.grash.dto.ChecklistPatchDTO;
 import com.grash.dto.ChecklistPostDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.*;
+import com.grash.model.Checklist;
+import com.grash.model.Company;
+import com.grash.model.OwnUser;
+import com.grash.model.TaskBase;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
@@ -85,12 +88,8 @@ public class ChecklistService {
     }
 
     public boolean canCreate(OwnUser user, ChecklistPostDTO checklistReq) {
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(checklistReq.getCompanySettings().getId());
-
         //@NotNull fields
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(user.getCompany().getCompanySettings().getId());
-
-        return first;
+        return companySettingsService.isCompanySettingsInCompany(checklistReq.getCompanySettings(), user.getCompany().getId(), false);
     }
 
     public boolean canPatch(OwnUser user, ChecklistPatchDTO checklistReq) {

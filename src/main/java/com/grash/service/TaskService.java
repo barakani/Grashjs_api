@@ -3,10 +3,8 @@ package com.grash.service;
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.Task;
-import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,14 +62,9 @@ public class TaskService {
 
     public boolean canCreate(OwnUser user, Task taskReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(taskReq.getCompany().getId());
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(taskReq.getWorkOrder().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(taskReq.getCompany(), companyId);
+        boolean second = workOrderService.isWorkOrderInCompany(taskReq.getWorkOrder(), companyId, false);
         return first && second && canPatch(user, taskMapper.toPatchDto(taskReq));
     }
 

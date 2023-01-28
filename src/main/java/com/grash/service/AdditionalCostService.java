@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
 import com.grash.model.OwnUser;
-import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,13 +66,8 @@ public class AdditionalCostService {
 
     public boolean canCreate(OwnUser user, AdditionalCost additionalCostReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
-
-        //@NotNull fields
-        boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-
-        return second && canPatch(user, additionalCostMapper.toPatchDto(additionalCostReq));
+        boolean first = workOrderService.isWorkOrderInCompany(additionalCostReq.getWorkOrder(), companyId, false);
+        return first && canPatch(user, additionalCostMapper.toPatchDto(additionalCostReq));
     }
 
     public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {

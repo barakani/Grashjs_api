@@ -69,11 +69,8 @@ public class PreventiveMaintenanceService {
 
     public boolean canCreate(OwnUser user, PreventiveMaintenance preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(preventiveMaintenanceReq.getCompany().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        
+        boolean first = companyService.isCompanyValid(preventiveMaintenanceReq.getCompany(), companyId);
         return first && canPatch(user, preventiveMaintenanceMapper.toPatchDto(preventiveMaintenanceReq));
     }
 

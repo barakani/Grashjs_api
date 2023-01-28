@@ -41,4 +41,14 @@ public class CompanySettingsService {
             return true;
         } else return user.getCompany().getCompanySettings().getId().equals(companySettings.getId());
     }
+
+    public boolean isCompanySettingsInCompany(CompanySettings companySettings, long companyId, boolean optional) {
+        if (optional) {
+            Optional<CompanySettings> optionalCompanySettings = companySettings == null ? Optional.empty() : findById(companySettings.getId());
+            return companySettings == null || (optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<CompanySettings> optionalCompanySettings = findById(companySettings.getId());
+            return optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

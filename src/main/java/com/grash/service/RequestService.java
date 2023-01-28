@@ -71,12 +71,8 @@ public class RequestService {
 
     public boolean canCreate(OwnUser user, Request requestReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(requestReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(requestReq.getCompany(), companyId);
         return first && canPatch(user, requestMapper.toPatchDto(requestReq));
     }
 

@@ -3,7 +3,9 @@ package com.grash.service;
 import com.grash.dto.LaborPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LaborMapper;
-import com.grash.model.*;
+import com.grash.model.Labor;
+import com.grash.model.OwnUser;
+import com.grash.model.TimeCategory;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.TimeStatus;
 import com.grash.repository.LaborRepository;
@@ -72,14 +74,9 @@ public class LaborService {
 
     public boolean canCreate(OwnUser user, Labor laborReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(laborReq.getCompany().getId());
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(laborReq.getWorkOrder().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(laborReq.getCompany(), companyId);
+        boolean second = workOrderService.isWorkOrderInCompany(laborReq.getWorkOrder(), companyId, false);
         return first && second && canPatch(user, laborMapper.toPatchDto(laborReq));
     }
 

@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.TaskOptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskOptionMapper;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.TaskOption;
 import com.grash.model.enums.RoleType;
@@ -55,10 +54,7 @@ public class TaskOptionService {
     public boolean canCreate(OwnUser user, TaskOption taskOptionReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Company> optionalCompany = companyService.findById(taskOptionReq.getCompany().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
+        boolean first = companyService.isCompanyValid(taskOptionReq.getCompany(), companyId);
         return first;
     }
 

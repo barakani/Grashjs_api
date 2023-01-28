@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.File;
 import com.grash.model.FloorPlan;
-import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
@@ -64,12 +63,8 @@ public class FloorPlanService {
 
     public boolean canCreate(OwnUser user, FloorPlan floorPlanReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = locationService.findById(floorPlanReq.getLocation().getId());
-
         //@NotNull fields
-        boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
-
+        boolean first = locationService.isLocationInCompany(floorPlanReq.getLocation(), companyId, false);
         return first && canPatch(user, floorPlanMapper.toPatchDto(floorPlanReq));
     }
 

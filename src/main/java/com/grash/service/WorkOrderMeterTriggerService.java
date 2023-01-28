@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
-import com.grash.model.Meter;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.model.enums.RoleType;
@@ -62,12 +61,8 @@ public class WorkOrderMeterTriggerService {
 
     public boolean canCreate(OwnUser user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Meter> optionalMeter = meterService.findById(workOrderMeterTriggerReq.getMeter().getId());
-
         //@NotNull fields
-        boolean second = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
-
+        boolean second = meterService.isMeterInCompany(workOrderMeterTriggerReq.getMeter(), companyId, false);
         return second && canPatch(user, workOrderMeterTriggerMapper.toPatchDto(workOrderMeterTriggerReq));
     }
 

@@ -3,7 +3,8 @@ package com.grash.service;
 import com.grash.dto.PartQuantityPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartQuantityMapper;
-import com.grash.model.*;
+import com.grash.model.OwnUser;
+import com.grash.model.PartQuantity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartQuantityRepository;
 import lombok.RequiredArgsConstructor;
@@ -62,17 +63,11 @@ public class PartQuantityService {
 
     public boolean canCreate(OwnUser user, PartQuantity partQuantityReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(partQuantityReq.getCompany().getId());
-        Optional<Part> optionalPart = partService.findById(partQuantityReq.getPart().getId());
-        Optional<PurchaseOrder> optionalPurchaseOrder = partQuantityReq.getPurchaseOrder() == null ? Optional.empty() : purchaseOrderService.findById(partQuantityReq.getPurchaseOrder().getId());
-        Optional<WorkOrder> optionalWorkOrder = partQuantityReq.getWorkOrder() == null ? Optional.empty() : workOrderService.findById(partQuantityReq.getWorkOrder().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId);
-        boolean third = partQuantityReq.getPurchaseOrder() == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
-        boolean fourth = partQuantityReq.getWorkOrder() == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId));
-
+        
+        boolean first = companyService.isCompanyValid(partQuantityReq.getCompany(), companyId);
+        boolean second = partService.isPartInCompany(partQuantityReq.getPart(), companyId, false);
+        boolean third = purchaseOrderService.isPurchaseOrderInCompany(partQuantityReq.getPurchaseOrder(), companyId, true);
+        boolean fourth = workOrderService.isWorkOrderInCompany(partQuantityReq.getWorkOrder(), companyId, true);
         return first && second && third && fourth && canPatch(user, partQuantityMapper.toPatchDto(partQuantityReq));
     }
 

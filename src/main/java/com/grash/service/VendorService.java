@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
@@ -57,16 +56,23 @@ public class VendorService {
 
     public boolean canCreate(OwnUser user, Vendor vendorReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(vendorReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
+        boolean first = companyService.isCompanyValid(vendorReq.getCompany(), companyId);
 
         return first && canPatch(user, vendorMapper.toPatchDto(vendorReq));
     }
 
     public boolean canPatch(OwnUser user, VendorPatchDTO vendorReq) {
         return true;
+    }
+
+    public boolean isVendorInCompany(Vendor vendor, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Vendor> optionalVendor = vendor == null ? Optional.empty() : findById(vendor.getId());
+            return vendor == null || (optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Vendor> optionalVendor = findById(vendor.getId());
+            return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
+        }
     }
 }

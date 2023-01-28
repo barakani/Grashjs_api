@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
-import com.grash.model.CompanySettings;
 import com.grash.model.MeterCategory;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -62,11 +61,7 @@ public class MeterCategoryService {
 
     public boolean canCreate(OwnUser user, MeterCategory meterCategoryReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(meterCategoryReq.getCompanySettings().getId());
-
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(companyId);
-
+        boolean first = companySettingsService.isCompanySettingsInCompany(meterCategoryReq.getCompanySettings(), companyId, false);
         return first && canPatch(user, meterCategoryMapper.toPatchDto(meterCategoryReq));
     }
 
