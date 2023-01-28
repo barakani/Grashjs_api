@@ -136,7 +136,7 @@ public class WorkOrderService {
         workOrder.getUsers().forEach(user -> {
             notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
             if (user.getUserSettings().isEmailUpdatesForWorkOrders()) {
-                emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "New Work Order", mailVariables, "new-work-order.html");
+                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "New Work Order", mailVariables, "new-work-order.html");
             }
         });
     }

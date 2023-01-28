@@ -82,7 +82,7 @@ public class EmailService2 {
 
 
     public void sendMessageUsingThymeleafTemplate(
-            String to, String subject, Map<String, Object> templateModel, String template) {
+            String[] to, String subject, Map<String, Object> templateModel, String template) {
 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
@@ -97,7 +97,7 @@ public class EmailService2 {
     }
 
 
-    private void sendHtmlMessage(String to, String subject, String htmlBody) throws MessagingException {
+    private void sendHtmlMessage(String[] to, String subject, String htmlBody) throws MessagingException {
 
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
