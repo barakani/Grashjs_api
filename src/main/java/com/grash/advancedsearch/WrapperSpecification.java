@@ -2,10 +2,7 @@ package com.grash.advancedsearch;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.Objects;
 
 public class WrapperSpecification<T> implements Specification<T> {
@@ -55,6 +52,11 @@ public class WrapperSpecification<T> implements Specification<T> {
                 CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
                 filterField.getValues().forEach(inClause::value);
                 return inClause;
+            case IN_MANY_TO_MANY:
+                Join<Object, Object> join = root.join(filterField.getField());
+                CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
+                filterField.getValues().forEach(inClause1::value);
+                return inClause1;
         }
         return null;
     }

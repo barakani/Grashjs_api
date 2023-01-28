@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class FilterField {
     private String field;
+    private String jointTable;
     private Object value;
     private String operation;
     private List<Object> values = new ArrayList<>();
