@@ -21,7 +21,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -109,12 +108,7 @@ public class UserService {
                 }};
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
-                try {
-                    emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
-                } catch (MessagingException exception) {
-                    return new SuccessResponse(false, "Couldn't send the email");
-
-                }
+                emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
@@ -191,10 +185,7 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            try {
-                emailService2.sendMessageUsingThymeleafTemplate(email, "Invitation to use Grash", variables, "invite.html");
-            } catch (MessagingException ignored) {
-            }
+            emailService2.sendMessageUsingThymeleafTemplate(email, "Invitation to use Grash", variables, "invite.html");
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 

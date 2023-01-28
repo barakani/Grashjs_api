@@ -1,9 +1,11 @@
 package com.grash.service;
 
+import com.grash.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -80,15 +82,18 @@ public class EmailService2 {
 
 
     public void sendMessageUsingThymeleafTemplate(
-            String to, String subject, Map<String, Object> templateModel, String template)
-            throws MessagingException {
+            String to, String subject, Map<String, Object> templateModel, String template) {
 
         Context thymeleafContext = new Context();
         thymeleafContext.setVariables(templateModel);
 
         String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
 
-        sendHtmlMessage(to, subject, htmlBody);
+        try {
+            sendHtmlMessage(to, subject, htmlBody);
+        } catch (MessagingException e) {
+            throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

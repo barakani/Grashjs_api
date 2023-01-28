@@ -13,6 +13,7 @@ import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +40,10 @@ public class WorkOrderService {
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
+    private final EmailService2 emailService2;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder) {
@@ -127,7 +129,16 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder) {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
-        workOrder.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
+        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+            put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
+            put("workOrderTitle", workOrder.getTitle());
+        }};
+        workOrder.getUsers().forEach(user -> {
+            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
+            if (user.getUserSettings().isEmailUpdatesForWorkOrders()) {
+                emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "New Work Order", mailVariables, "new-work-order.html");
+            }
+        });
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {

@@ -1,7 +1,6 @@
 package com.grash.controller;
 
 import com.grash.dto.*;
-import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
 import com.grash.service.EmailService2;
@@ -84,12 +83,7 @@ public class AuthController {
             put("verifyTokenLink", "gg");
             put("featuresLink", "s");
         }};
-        try {
-            emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables, "signup.html");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new CustomException("Couldn't send email", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables, "new-work-order.html");
     }
 
     @GetMapping("/activate-account")
