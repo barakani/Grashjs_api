@@ -162,9 +162,12 @@ public class UserService {
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        String message = "Votre mot de passe a été réinitialisé.\nVeuillez vous reconnecter en utilisant ce mot de passe: " + password +
-                "\nIl est important procéder au changement de votre mot de passe le plutôt possible pour des raisons de sécurité.";
-        emailService.send(user.getEmail(), "Réinitialisation de votre mot de passe Sutura", message);
+        Map<String, Object> variables = new HashMap<String, Object>() {{
+            put("loginLink", frontendUrl + "/account/login?email=" + email);
+            put("featuresLink", frontendUrl + "/#key-features");
+            put("password", password);
+        }};
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Grash Password Reset", variables, "reset-password.html");
         return new SuccessResponse(true, "Password changed successfully");
     }
 
