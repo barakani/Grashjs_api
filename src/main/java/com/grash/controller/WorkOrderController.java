@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +43,10 @@ public class WorkOrderController {
     private final PartService partService;
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
+    private final EmailService2 emailService2;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -194,12 +199,17 @@ public class WorkOrderController {
                 if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
                         && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                         && patchedWorkOrder.getParentRequest() != null) {
-                    String message = "Work Order " + patchedWorkOrder.getTitle() + " is now " + patchedWorkOrder.getStatus().getName();
+                    String message = "The Work Order you requested, " + patchedWorkOrder.getTitle() + ", is now " + patchedWorkOrder.getStatus().getName();
                     Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
                     OwnUser requester = userService.findById(requesterId).get();
                     notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
                     if (requester.getUserSettings().isEmailUpdatesForRequests()) {
-                        //TODO send email
+                        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                            put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
+                            put("workOrderTitle", patchedWorkOrder.getTitle());
+                            put("message", message);
+                        }};
+                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, "Work Order Request Update", mailVariables, "requester-update.html");
                     }
                 }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
