@@ -6,23 +6,15 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.PurchaseOrderMapper;
-import com.grash.model.OwnUser;
-import com.grash.model.Part;
-import com.grash.model.PartQuantity;
-import com.grash.model.PurchaseOrder;
-import com.grash.model.enums.ApprovalStatus;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.PlanFeatures;
-import com.grash.model.enums.RoleType;
-import com.grash.service.PartQuantityService;
-import com.grash.service.PartService;
-import com.grash.service.PurchaseOrderService;
-import com.grash.service.UserService;
+import com.grash.model.*;
+import com.grash.model.enums.*;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,6 +40,11 @@ public class PurchaseOrderController {
     private final PartQuantityMapper partQuantityMapper;
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartService partService;
+    private final NotificationService notificationService;
+    private final EmailService2 emailService2;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -93,8 +92,23 @@ public class PurchaseOrderController {
         OwnUser user = userService.whoami(req);
         if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
-            return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.create(purchaseOrderReq)));
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.create(purchaseOrderReq)));
+            long cost = result.getPartQuantities().stream().mapToLong(partQuantityShowDTO -> partQuantityShowDTO.getQuantity() * partQuantityShowDTO.getPart().getCost()).sum();
+            String message = "New Purchase Order Requested: " + result.getName() + " costing " + cost + " " + user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode();
+            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                put("purchaseOrderLink", frontendUrl + "/app/purchase-orders/" + result.getId());
+                put("message", message);
+            }};
+            Collection<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
+                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
+            usersToNotify.forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.PURCHASE_ORDER, result.getId())));
+            Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user1 -> user1.getUserSettings().isEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
+            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Purchase Order Requested", mailVariables, "new-purchase-order.html");
+            return result;
+        } else throw new
+
+                CustomException("Access denied", HttpStatus.FORBIDDEN);
+
     }
 
     @PatchMapping("/{id}")

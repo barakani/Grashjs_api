@@ -206,7 +206,6 @@ public class WorkOrderController {
                     if (requester.getUserSettings().isEmailUpdatesForRequests()) {
                         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                             put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
-                            put("workOrderTitle", patchedWorkOrder.getTitle());
                             put("message", message);
                         }};
                         emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, "Work Order Request Update", mailVariables, "requester-update.html");
