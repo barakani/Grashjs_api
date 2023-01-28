@@ -77,10 +77,10 @@ public class TimeCategoryService {
     public boolean isTimeCategoryInCompany(TimeCategory timeCategory, long companyId, boolean optional) {
         if (optional) {
             Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() : findById(timeCategory.getId());
-            return timeCategory == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompany().getId().equals(companyId));
+            return timeCategory == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
         } else {
             Optional<TimeCategory> optionalTimeCategory = findById(timeCategory.getId());
-            return optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompany().getId().equals(companyId);
+            return optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
         }
     }
 }

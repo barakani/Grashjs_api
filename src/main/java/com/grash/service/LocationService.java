@@ -77,7 +77,7 @@ public class LocationService {
 
     public boolean canPatch(OwnUser user, LocationPatchDTO locationReq) {
         Long companyId = user.getCompany().getId();
-        return isLocationInCompany(locationReq.getParentLocation(), companyId, true)
+        return isLocationInCompany(locationReq.getParentLocation(), companyId, true);
     }
 
     public void notify(Location location) {
