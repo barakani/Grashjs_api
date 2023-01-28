@@ -83,7 +83,7 @@ public class AuthController {
             put("verifyTokenLink", "gg");
             put("featuresLink", "s");
         }};
-        emailService2.sendMessageUsingThymeleafTemplate(email, subject, variables, "new-work-order.html");
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html");
     }
 
     @GetMapping("/activate-account")

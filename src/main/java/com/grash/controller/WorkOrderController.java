@@ -196,7 +196,11 @@ public class WorkOrderController {
                         && patchedWorkOrder.getParentRequest() != null) {
                     String message = "Work Order " + patchedWorkOrder.getTitle() + " is now " + patchedWorkOrder.getStatus().getName();
                     Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
+                    OwnUser requester = userService.findById(requesterId).get();
                     notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
+                    if (requester.getUserSettings().isEmailUpdatesForRequests()) {
+                        //TODO send email
+                    }
                 }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
                 if (shouldNotify) workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
