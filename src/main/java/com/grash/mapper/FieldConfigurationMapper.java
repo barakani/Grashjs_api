@@ -11,5 +11,5 @@ public interface FieldConfigurationMapper {
     FieldConfiguration updateFieldConfiguration(@MappingTarget FieldConfiguration entity, FieldConfigurationPatchDTO dto);
 
     @Mappings({})
-    FieldConfigurationPatchDTO toDto(FieldConfiguration model);
+    FieldConfigurationPatchDTO toPatchDto(FieldConfiguration model);
 }

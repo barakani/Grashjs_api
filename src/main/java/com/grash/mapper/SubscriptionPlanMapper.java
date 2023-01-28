@@ -11,5 +11,5 @@ public interface SubscriptionPlanMapper {
     SubscriptionPlan updateSubscriptionPlan(@MappingTarget SubscriptionPlan entity, SubscriptionPlanPatchDTO dto);
 
     @Mappings({})
-    SubscriptionPlanPatchDTO toDto(SubscriptionPlan model);
+    SubscriptionPlanPatchDTO toPatchDto(SubscriptionPlan model);
 }

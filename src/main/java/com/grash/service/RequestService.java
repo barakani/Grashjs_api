@@ -3,15 +3,19 @@ package com.grash.service;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
-import com.grash.model.*;
-import com.grash.model.enums.NotificationType;
+import com.grash.model.OwnUser;
+import com.grash.model.Request;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -19,23 +23,29 @@ import java.util.Optional;
 public class RequestService {
     private final RequestRepository requestRepository;
     private final CompanyService companyService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final LocationService locationService;
     private final UserService userService;
     private final TeamService teamService;
     private final AssetService assetService;
     private final WorkOrderService workOrderService;
-    private final NotificationService notificationService;
     private final RequestMapper requestMapper;
+    private final EntityManager em;
 
+    @Transactional
     public Request create(Request request) {
-        return requestRepository.save(request);
+        Request savedRequest = requestRepository.saveAndFlush(request);
+        em.refresh(savedRequest);
+        return savedRequest;
     }
 
+    @Transactional
     public Request update(Long id, RequestPatchDTO request) {
         if (requestRepository.existsById(id)) {
             Request savedRequest = requestRepository.findById(id).get();
-            return requestRepository.save(requestMapper.updateRequest(savedRequest, request));
+            Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
+            em.refresh(updatedRequest);
+            return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -55,79 +65,51 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Request request) {
+    public boolean hasAccess(OwnUser user, Request request) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(request.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Request requestReq) {
+    public boolean canCreate(OwnUser user, Request requestReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(requestReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, requestMapper.toDto(requestReq));
+        boolean first = companyService.isCompanyValid(requestReq.getCompany(), companyId);
+        return first && canPatch(user, requestMapper.toPatchDto(requestReq));
     }
 
-    public boolean canPatch(User user, RequestPatchDTO requestReq) {
+    public boolean canPatch(OwnUser user, RequestPatchDTO requestReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
-        Optional<Image> optionalImage = requestReq.getImage() == null ? Optional.empty() : imageService.findById(requestReq.getImage().getId());
-        Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
-        Optional<User> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
-        Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
-
         //optional fields
-        boolean first = requestReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-        boolean second = requestReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        boolean third = requestReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = requestReq.getAssignedTo() == null || (optionalAssignedTo.isPresent() && optionalAssignedTo.get().getCompany().getId().equals(companyId));
-        boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
+        boolean first = assetService.isAssetInCompany(requestReq.getAsset(), companyId, true);
+        boolean second = locationService.isLocationInCompany(requestReq.getLocation(), companyId, true);
+        boolean third = fileService.isFileInCompany(requestReq.getImage(), companyId, true);
+        boolean fourth = userService.isUserInCompany(requestReq.getPrimaryUser(), companyId, true);
+        boolean fifth = teamService.isTeamInCompany(requestReq.getTeam(), companyId, true);
 
         return first && second && third && fourth && fifth;
     }
 
-    public void createWorkOrderFromRequest(Request request) {
-        WorkOrder workOrder = new WorkOrder();
-        workOrder.setCompany(request.getCompany());
+    public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
+        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
+        if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
+            OwnUser primaryUser = workOrder.getPrimaryUser();
+            workOrder.setPrimaryUser(primaryUser == null ? creator : primaryUser);
+        }
         workOrder.setParentRequest(request);
-        workOrder.setTitle(request.getTitle());
-        workOrder.setDescription(request.getDescription());
-        workOrder.setPriority(request.getPriority());
-        workOrder.setFiles(request.getFiles());
-        workOrder.setAsset(request.getAsset());
-        workOrder.setLocation(request.getLocation());
-        //workOrder.setAssignedTo(request.getAssignedTo());
-        workOrder.setTeam(request.getTeam());
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
         workOrderService.notify(savedWorkOrder);
+        request.setWorkOrder(savedWorkOrder);
+        requestRepository.save(request);
 
+        return savedWorkOrder;
     }
 
-    public void notify(Request request) {
-
-        String message = "Request " + request.getTitle() + " has been assigned to you";
-        if (request.getAssignedTo() != null) {
-            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
-        }
-        if (request.getTeam() != null) {
-            request.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, request.getId())));
-        }
+    public Request save(Request request) {
+        return requestRepository.save(request);
     }
 
-    public void patchNotify(Request oldRequest, Request newRequest) {
-        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
-        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
-            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
-        }
-        if (newRequest.getTeam() != null) {
-            newRequest.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, newRequest.getId())));
-        }
+    public Collection<Request> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
+        return requestRepository.findByCreatedAtBetweenAndCompany_Id(date1.toInstant(), date2.toInstant(), id);
     }
 }

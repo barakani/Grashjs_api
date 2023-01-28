@@ -1,35 +1,67 @@
 package com.grash.service;
 
 import com.grash.dto.ChecklistPatchDTO;
+import com.grash.dto.ChecklistPostDTO;
 import com.grash.exception.CustomException;
-import com.grash.mapper.ChecklistMapper;
 import com.grash.model.Checklist;
-import com.grash.model.CompanySettings;
-import com.grash.model.User;
+import com.grash.model.Company;
+import com.grash.model.OwnUser;
+import com.grash.model.TaskBase;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChecklistService {
     private final CheckListRepository checklistRepository;
     private final CompanySettingsService companySettingsService;
-    private final ChecklistMapper checklistMapper;
+    private final TaskBaseService taskBaseService;
+    private final EntityManager em;
 
-    public Checklist create(Checklist Checklist) {
-        return checklistRepository.save(Checklist);
+    @Transactional
+    public Checklist create(Checklist checklist) {
+        Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
+        em.refresh(savedChecklist);
+        return savedChecklist;
     }
 
-    public Checklist update(Long id, ChecklistPatchDTO checklist) {
+    @Transactional
+    public Checklist createPost(ChecklistPostDTO checklistReq, Company company) {
+        List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
+                .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
+        Checklist checklist = Checklist.builder()
+                .name(checklistReq.getName())
+                .companySettings(checklistReq.getCompanySettings())
+                .taskBases(taskBases)
+                .category(checklistReq.getCategory())
+                .description(checklistReq.getDescription())
+                .build();
+        Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
+        em.refresh(savedChecklist);
+        return savedChecklist;
+    }
+
+    @Transactional
+    public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
         if (checklistRepository.existsById(id)) {
-            Checklist savedChecklist = checklistRepository.findById(id).get();
-            return checklistRepository.save(checklistMapper.updateChecklist(savedChecklist, checklist));
+            Checklist savedChecklist = checklistRepository.getById(id);
+            savedChecklist.getTaskBases().forEach(taskBase -> taskBaseService.delete(taskBase.getId()));
+            List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
+                    .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
+            savedChecklist.setTaskBases(taskBases);
+            Checklist updatedChecklist = checklistRepository.saveAndFlush(savedChecklist);
+            em.refresh(updatedChecklist);
+            return updatedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -49,22 +81,18 @@ public class ChecklistService {
         return checklistRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, Checklist checklist) {
+    public boolean hasAccess(OwnUser user, Checklist checklist) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(checklist.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, Checklist checklistReq) {
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(checklistReq.getCompanySettings().getId());
-
+    public boolean canCreate(OwnUser user, ChecklistPostDTO checklistReq) {
         //@NotNull fields
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(user.getCompany().getCompanySettings().getId());
-
-        return first && canPatch(user, checklistMapper.toDto(checklistReq));
+        return companySettingsService.isCompanySettingsInCompany(checklistReq.getCompanySettings(), user.getCompany().getId(), false);
     }
 
-    public boolean canPatch(User user, ChecklistPatchDTO checklistReq) {
+    public boolean canPatch(OwnUser user, ChecklistPatchDTO checklistReq) {
         return true;
     }
 }

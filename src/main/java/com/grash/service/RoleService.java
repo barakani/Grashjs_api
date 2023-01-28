@@ -3,9 +3,9 @@ package com.grash.service;
 import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Role;
-import com.grash.model.User;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,22 +53,22 @@ public class RoleService {
         return roleRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Role role) {
+    public boolean hasAccess(OwnUser user, Role role) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(role.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, Role roleReq) {
+    public boolean canCreate(OwnUser user, Role roleReq) {
         if (roleReq.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return false;
         }
-        if (user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
-            return canPatch(user, roleMapper.toDto(roleReq));
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            return canPatch(user, roleMapper.toPatchDto(roleReq));
         } else return false;
     }
 
-    public boolean canPatch(User user, RolePatchDTO roleReq) {
+    public boolean canPatch(OwnUser user, RolePatchDTO roleReq) {
         Long companyId = user.getCompany().getId();
         return true;
     }

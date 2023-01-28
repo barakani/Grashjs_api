@@ -11,5 +11,5 @@ public interface ReadingMapper {
     Reading updateReading(@MappingTarget Reading entity, ReadingPatchDTO dto);
 
     @Mappings({})
-    ReadingPatchDTO toDto(Reading model);
+    ReadingPatchDTO toPatchDto(Reading model);
 }

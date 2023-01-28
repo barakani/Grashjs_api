@@ -3,9 +3,8 @@ package com.grash.service;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterCategoryMapper;
-import com.grash.model.CompanySettings;
 import com.grash.model.MeterCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +22,12 @@ public class MeterCategoryService {
     private final CompanySettingsService companySettingsService;
     private final MeterCategoryMapper meterCategoryMapper;
 
-    public MeterCategory create(MeterCategory MeterCategory) {
-        return meterCategoryRepository.save(MeterCategory);
+    public MeterCategory create(MeterCategory meterCategory) {
+        Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByName(meterCategory.getName());
+        if (categoryWithSameName.isPresent()) {
+            throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return meterCategoryRepository.save(meterCategory);
     }
 
     public MeterCategory update(Long id, CategoryPatchDTO meterCategory) {
@@ -50,25 +53,29 @@ public class MeterCategoryService {
         return meterCategoryRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, MeterCategory meterCategory) {
+    public boolean hasAccess(OwnUser user, MeterCategory meterCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(meterCategory.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, MeterCategory meterCategoryReq) {
+    public boolean canCreate(OwnUser user, MeterCategory meterCategoryReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(meterCategoryReq.getCompanySettings().getId());
-
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getId().equals(companyId);
-
-        return first && canPatch(user, meterCategoryMapper.toDto(meterCategoryReq));
+        boolean first = companySettingsService.isCompanySettingsInCompany(meterCategoryReq.getCompanySettings(), companyId, false);
+        return first && canPatch(user, meterCategoryMapper.toPatchDto(meterCategoryReq));
     }
 
-    public boolean canPatch(User user, CategoryPatchDTO meterCategoryReq) {
+    public boolean canPatch(OwnUser user, CategoryPatchDTO meterCategoryReq) {
         return true;
     }
 
-
+    public boolean isMeterCategoryInCompany(MeterCategory meterCategory, long companyId, boolean optional) {
+        if (optional) {
+            Optional<MeterCategory> optionalMeterCategory = meterCategory == null ? Optional.empty() : findById(meterCategory.getId());
+            return meterCategory == null || (optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
+        } else {
+            Optional<MeterCategory> optionalMeterCategory = findById(meterCategory.getId());
+            return optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        }
+    }
 }

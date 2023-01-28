@@ -4,15 +4,15 @@ import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
-import com.grash.model.Image;
-import com.grash.model.Location;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FloorPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -20,18 +20,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FloorPlanService {
     private final FloorPlanRepository floorPlanRepository;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final LocationService locationService;
     private final FloorPlanMapper floorPlanMapper;
+    private final EntityManager em;
 
-    public FloorPlan create(FloorPlan FloorPlan) {
-        return floorPlanRepository.save(FloorPlan);
+    @Transactional
+    public FloorPlan create(FloorPlan floorPlan) {
+        FloorPlan savedFloorPlan = floorPlanRepository.saveAndFlush(floorPlan);
+        em.refresh(savedFloorPlan);
+        return savedFloorPlan;
     }
 
+    @Transactional
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            return floorPlanRepository.save(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            FloorPlan updatedFloorPlan = floorPlanRepository.saveAndFlush(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            em.refresh(updatedFloorPlan);
+            return updatedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -47,30 +54,26 @@ public class FloorPlanService {
         return floorPlanRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, FloorPlan floorPlan) {
+    public boolean hasAccess(OwnUser user, FloorPlan floorPlan) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
     }
 
-    public boolean canCreate(User user, FloorPlan floorPlanReq) {
+    public boolean canCreate(OwnUser user, FloorPlan floorPlanReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Location> optionalLocation = locationService.findById(floorPlanReq.getLocation().getId());
-
         //@NotNull fields
-        boolean first = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
-
-        return first && canPatch(user, floorPlanMapper.toDto(floorPlanReq));
+        boolean first = locationService.isLocationInCompany(floorPlanReq.getLocation(), companyId, false);
+        return first && canPatch(user, floorPlanMapper.toPatchDto(floorPlanReq));
     }
 
-    public boolean canPatch(User user, FloorPlanPatchDTO floorPlanReq) {
+    public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Image> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : imageService.findById(floorPlanReq.getImage().getId());
-
         //optional fields
-        boolean third = floorPlanReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
+        return fileService.isFileInCompany(floorPlanReq.getImage(), companyId, true);
+    }
 
-        return third;
+    public Collection<FloorPlan> findByLocation(Long id) {
+        return floorPlanRepository.findByLocation_Id(id);
     }
 }

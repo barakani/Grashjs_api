@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Cost;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Data
@@ -19,12 +22,15 @@ public class AdditionalCost extends Cost {
     private String description;
 
     @ManyToOne
-    private User assignedTo;
+    private OwnUser assignedTo;
 
     private boolean includeToTotalCost;
 
+    private Date date;
+
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private WorkOrder workOrder;
 }

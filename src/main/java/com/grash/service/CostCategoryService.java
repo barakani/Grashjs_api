@@ -4,7 +4,7 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CostCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,12 @@ public class CostCategoryService {
 
     private final CostCategoryMapper costCategoryMapper;
 
-    public CostCategory create(CostCategory CostCategory) {
-        return costCategoryRepository.save(CostCategory);
+    public CostCategory create(CostCategory costCategory) {
+        Optional<CostCategory> categoryWithSameName = costCategoryRepository.findByName(costCategory.getName());
+        if(categoryWithSameName.isPresent()) {
+            throw new CustomException("CostCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return costCategoryRepository.save(costCategory);
     }
 
     public CostCategory update(Long id, CategoryPatchDTO costCategory) {
@@ -49,7 +53,7 @@ public class CostCategoryService {
         return costCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, CostCategory costCategory) {
+    public boolean hasAccess(OwnUser user, CostCategory costCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(costCategory.getCompanySettings().getCompany().getId());

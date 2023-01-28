@@ -1,6 +1,6 @@
 package com.grash.security;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +18,7 @@ public class MyUserDetails implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User user = userRepository.findUserByEmail(username);
+        final OwnUser user = userRepository.findUserByEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException("User '" + username + "' not found");
         }

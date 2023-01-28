@@ -13,7 +13,7 @@ public interface AssetMapper {
     Asset updateAsset(@MappingTarget Asset entity, AssetPatchDTO dto);
 
     @Mappings({})
-    AssetPatchDTO toDto(Asset model);
+    AssetPatchDTO toPatchDto(Asset model);
 
     AssetShowDTO toShowDto(Asset model);
 

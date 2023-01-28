@@ -4,7 +4,7 @@ import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.GeneralPreferencesMapper;
 import com.grash.model.GeneralPreferences;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.GeneralPreferencesRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class GeneralPreferencesService {
         return generalPreferencesRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(User user, GeneralPreferences generalPreferences) {
+    public boolean hasAccess(OwnUser user, GeneralPreferences generalPreferences) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getCompanySettings().getId().equals(

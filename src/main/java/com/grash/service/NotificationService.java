@@ -4,7 +4,7 @@ import com.grash.dto.NotificationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.NotificationMapper;
 import com.grash.model.Notification;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,13 +47,13 @@ public class NotificationService {
         return notificationRepository.findByUser_Id(id);
     }
 
-    public boolean hasAccess(User user, Notification notification) {
+    public boolean hasAccess(OwnUser user, Notification notification) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getId().equals(notification.getUser().getId());
     }
 
-    public boolean canPatch(User user, NotificationPatchDTO notification) {
+    public boolean canPatch(OwnUser user, NotificationPatchDTO notification) {
         return true;
     }
 }

@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
-import com.grash.model.User;
 import com.grash.service.TaskBaseService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class TaskBaseController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TaskBase not found")})
     public TaskBase getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
@@ -53,7 +53,7 @@ public class TaskBaseController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public TaskBase create(@ApiParam("TaskBase") @Valid @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (taskBaseService.canCreate(user, taskBaseReq)) {
             return taskBaseService.create(taskBaseReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -67,7 +67,7 @@ public class TaskBaseController {
             @ApiResponse(code = 404, message = "TaskBase not found")})
     public TaskBase patch(@ApiParam("TaskBase") @Valid @RequestBody TaskBasePatchDTO taskBase, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
 
         if (optionalTaskBase.isPresent()) {
@@ -85,7 +85,7 @@ public class TaskBaseController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "TaskBase not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {

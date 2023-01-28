@@ -11,5 +11,5 @@ public interface GeneralPreferencesMapper {
     GeneralPreferences updateGeneralPreferences(@MappingTarget GeneralPreferences entity, GeneralPreferencesPatchDTO dto);
 
     @Mappings({})
-    GeneralPreferencesPatchDTO toDto(GeneralPreferences model);
+    GeneralPreferencesPatchDTO toPatchDto(GeneralPreferences model);
 }

@@ -12,5 +12,5 @@ public class VendorPatchDTO extends BasicInfos {
 
     private String description;
 
-    private double rate;
+    private long rate;
 }

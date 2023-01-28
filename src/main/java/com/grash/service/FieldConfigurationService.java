@@ -4,7 +4,7 @@ import com.grash.dto.FieldConfigurationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FieldConfigurationMapper;
 import com.grash.model.FieldConfiguration;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FieldConfigurationRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class FieldConfigurationService {
         return fieldConfigurationRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, FieldConfiguration fieldConfiguration) {
+    public boolean hasAccess(OwnUser user, FieldConfiguration fieldConfiguration) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else if (fieldConfiguration.getWorkOrderConfiguration() != null)

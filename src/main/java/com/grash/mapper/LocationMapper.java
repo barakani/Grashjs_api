@@ -13,7 +13,7 @@ public interface LocationMapper {
     Location updateLocation(@MappingTarget Location entity, LocationPatchDTO dto);
 
     @Mappings({})
-    LocationPatchDTO toDto(Location model);
+    LocationPatchDTO toPatchDto(Location model);
 
     LocationShowDTO toShowDto(Location model);
 

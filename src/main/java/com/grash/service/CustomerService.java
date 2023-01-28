@@ -3,9 +3,8 @@ package com.grash.service;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomerMapper;
-import com.grash.model.Company;
 import com.grash.model.Customer;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,24 +48,30 @@ public class CustomerService {
         return customerRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Customer customer) {
+    public boolean hasAccess(OwnUser user, Customer customer) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(customer.getCompany().getId());
     }
 
-    public boolean canCreate(User user, Customer customerReq) {
+    public boolean canCreate(OwnUser user, Customer customerReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(customerReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, customerMapper.toDto(customerReq));
+        boolean first = companyService.isCompanyValid(customerReq.getCompany(), companyId);
+        return first && canPatch(user, customerMapper.toPatchDto(customerReq));
     }
 
-    public boolean canPatch(User user, CustomerPatchDTO customerReq) {
+    public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {
         return true;
+    }
+
+    public boolean isCustomerInCompany(Customer customer, long companyId, boolean optional) {
+        if (optional) {
+            Optional<Customer> optionalCustomer = customer == null ? Optional.empty() : findById(customer.getId());
+            return customer == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Customer> optionalCustomer = findById(customer.getId());
+            return optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId);
+        }
     }
 }

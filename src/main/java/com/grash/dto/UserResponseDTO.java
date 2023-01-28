@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.model.File;
 import com.grash.model.Role;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,16 +16,22 @@ public class UserResponseDTO {
     @ApiModelProperty(position = 3)
     private Role role;
 
+    private String jobTitle;
+
     private String firstName;
 
     private String lastName;
 
     private String phone;
 
+    private boolean ownsCompany;
+
     private Long companyId;
 
     private Long companySettingsId;
 
     private Long userSettingsId;
+
+    private File image;
 
 }

@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdditionalCostPatchDTO {
     private String description;
-    private User assignedTo;
-    private double cost;
+    private OwnUser assignedTo;
+    private long cost;
 }

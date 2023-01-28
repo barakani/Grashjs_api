@@ -3,7 +3,9 @@ package com.grash.controller;
 import com.grash.dto.FieldConfigurationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.FieldConfiguration;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.FieldConfigurationService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -36,12 +38,13 @@ public class FieldConfigurationController {
             @ApiResponse(code = 404, message = "FieldConfiguration not found")})
     public FieldConfiguration patch(@ApiParam("FieldConfiguration") @Valid @RequestBody FieldConfigurationPatchDTO fieldConfiguration, @ApiParam("id") @PathVariable("id") Long id,
                                     HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<FieldConfiguration> optionalFieldConfiguration = fieldConfigurationService.findById(id);
 
         if (optionalFieldConfiguration.isPresent()) {
             FieldConfiguration savedFieldConfiguration = optionalFieldConfiguration.get();
-            if (fieldConfigurationService.hasAccess(user, savedFieldConfiguration)) {
+            if (fieldConfigurationService.hasAccess(user, savedFieldConfiguration) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                    && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_CONFIGURATION)) {
                 return fieldConfigurationService.update(id, fieldConfiguration);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("FieldConfiguration not found", HttpStatus.NOT_FOUND);

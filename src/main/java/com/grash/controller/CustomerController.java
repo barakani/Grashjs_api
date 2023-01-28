@@ -1,11 +1,13 @@
 package com.grash.controller;
 
+import com.grash.dto.CustomerMiniDTO;
 import com.grash.dto.CustomerPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.mapper.CustomerMapper;
 import com.grash.model.Customer;
-import com.grash.model.User;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CustomerService;
 import com.grash.service.UserService;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/customers")
@@ -32,6 +35,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final UserService userService;
+    private final CustomerMapper customerMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -40,10 +44,23 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Customer> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return customerService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+                return customerService.findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return customerService.getAll();
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<CustomerMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return customerService.findByCompany(user.getCompany().getId()).stream().map(customerMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -53,11 +70,11 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Customer not found")})
     public Customer getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer)) {
+            if (customerService.hasAccess(user, savedCustomer) && user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 return savedCustomer;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -69,8 +86,8 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (customerService.canCreate(user, customerReq)) {
+        OwnUser user = userService.whoami(req);
+        if (customerService.canCreate(user, customerReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -83,12 +100,12 @@ public class CustomerController {
             @ApiResponse(code = 404, message = "Customer not found")})
     public Customer patch(@ApiParam("Customer") @Valid @RequestBody CustomerPatchDTO customer, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Customer> optionalCustomer = customerService.findById(id);
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (customerService.hasAccess(user, savedCustomer) && customerService.canPatch(user, customer)) {
+            if (customerService.hasAccess(user, savedCustomer) && customerService.canPatch(user, customer) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedCustomer.getCreatedBy().equals(user.getId())) {
                 return customerService.update(id, customer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Customer not found", HttpStatus.NOT_FOUND);
@@ -101,13 +118,14 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Customer not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Customer> optionalCustomer = customerService.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
             if (customerService.hasAccess(user, savedCustomer)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_VENDORS_AND_CUSTOMERS)) {
+                    && (savedCustomer.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS))) {
                 customerService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

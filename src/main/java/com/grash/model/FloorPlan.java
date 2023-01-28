@@ -2,6 +2,8 @@ package com.grash.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,11 +20,12 @@ public class FloorPlan {
     private String name;
 
     @OneToOne
-    private Image image;
+    private File image;
 
-    private double area;
+    private long area;
 
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Location location;
 }

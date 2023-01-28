@@ -1,17 +1,21 @@
 package com.grash.service;
 
+import com.grash.dto.TaskBaseDTO;
 import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskBaseMapper;
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
-import com.grash.model.User;
+import com.grash.model.TaskOption;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskBaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,9 +25,44 @@ public class TaskBaseService {
     private final TaskBaseRepository taskBaseRepository;
     private final CompanyService companyService;
     private final TaskBaseMapper taskBaseMapper;
+    private final TaskOptionService taskOptionService;
+    private final UserService userService;
+    private final MeterService meterService;
+    private final AssetService assetService;
+    private final EntityManager em;
 
     public TaskBase create(TaskBase TaskBase) {
         return taskBaseRepository.save(TaskBase);
+    }
+
+    @Transactional
+    public TaskBase createFromTaskBaseDTO(TaskBaseDTO taskBaseDTO, Company company) {
+        TaskBase taskBase = TaskBase.builder()
+                .label(taskBaseDTO.getLabel())
+                .taskType(taskBaseDTO.getTaskType())
+                .build();
+        if (taskBaseDTO.getUser() != null) {
+            userService.findById(taskBaseDTO.getUser().getId()).ifPresent(taskBase::setUser);
+        }
+        if (taskBaseDTO.getAsset() != null) {
+            assetService.findById(taskBaseDTO.getAsset().getId()).ifPresent(taskBase::setAsset);
+        }
+        if (taskBaseDTO.getMeter() != null) {
+            meterService.findById(taskBaseDTO.getMeter().getId()).ifPresent(taskBase::setMeter);
+        }
+        taskBase.setCompany(company);
+        TaskBase savedTaskBase = create(taskBase);
+
+        if (taskBaseDTO.getOptions() != null) {
+            taskBaseDTO.getOptions().forEach(option -> {
+                if (!option.trim().isEmpty()) {
+                    TaskOption taskOption = new TaskOption(option, company, savedTaskBase);
+                    taskOptionService.create(taskOption);
+                }
+            });
+        }
+        em.refresh(savedTaskBase);
+        return savedTaskBase;
     }
 
     public TaskBase update(Long id, TaskBasePatchDTO taskBase) {
@@ -45,24 +84,20 @@ public class TaskBaseService {
         return taskBaseRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, TaskBase taskBase) {
+    public boolean hasAccess(OwnUser user, TaskBase taskBase) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(taskBase.getCompany().getId());
     }
 
-    public boolean canCreate(User user, TaskBase taskBaseReq) {
+    public boolean canCreate(OwnUser user, TaskBase taskBaseReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(taskBaseReq.getCompany().getId());
-
         //@NotNull fields
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, taskBaseMapper.toDto(taskBaseReq));
+        boolean first = companyService.isCompanyValid(taskBaseReq.getCompany(), companyId);
+        return first && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
     }
 
-    public boolean canPatch(User user, TaskBasePatchDTO taskBaseReq) {
+    public boolean canPatch(OwnUser user, TaskBasePatchDTO taskBaseReq) {
         return true;
     }
 }

@@ -1,7 +1,7 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderRequestConfiguration;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderRequestConfigurationService;
@@ -36,7 +36,7 @@ public class WorkOrderRequestConfigurationController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderRequestConfiguration not found")})
     public WorkOrderRequestConfiguration getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<WorkOrderRequestConfiguration> optionalWorkOrderRequestConfiguration = workOrderRequestConfigurationService.findById(id);
         if (optionalWorkOrderRequestConfiguration.isPresent()) {
             WorkOrderRequestConfiguration savedWorkOrderRequestConfiguration = optionalWorkOrderRequestConfiguration.get();

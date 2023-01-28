@@ -1,6 +1,8 @@
 package com.grash.service;
 
 import com.grash.model.File;
+import com.grash.model.OwnUser;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,5 +33,29 @@ public class FileService {
 
     public Optional<File> findById(Long id) {
         return fileRepository.findById(id);
+    }
+
+    public Collection<File> findByCompany(Long id) {
+        return fileRepository.findByCompany_Id(id);
+    }
+
+    public boolean hasAccess(OwnUser user, File file) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            return true;
+        } else return user.getCompany().getId().equals(file.getCompany().getId());
+    }
+
+    public boolean canCreate(OwnUser user, File fileReq) {
+        return true;
+    }
+
+    public boolean isFileInCompany(File file, long companyId, boolean optional) {
+        if (optional) {
+            Optional<File> optionalFile = file == null ? Optional.empty() : findById(file.getId());
+            return file == null || (optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<File> optionalFile = findById(file.getId());
+            return optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId);
+        }
     }
 }

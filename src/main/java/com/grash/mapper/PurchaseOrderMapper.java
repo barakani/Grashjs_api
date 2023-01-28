@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.PurchaseOrderPatchDTO;
+import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.model.PurchaseOrder;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -11,5 +12,7 @@ public interface PurchaseOrderMapper {
     PurchaseOrder updatePurchaseOrder(@MappingTarget PurchaseOrder entity, PurchaseOrderPatchDTO dto);
 
     @Mappings({})
-    PurchaseOrderPatchDTO toDto(PurchaseOrder model);
+    PurchaseOrderPatchDTO toPatchDto(PurchaseOrder model);
+
+    PurchaseOrderShowDTO toShowDto(PurchaseOrder model);
 }

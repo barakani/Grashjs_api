@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,7 +32,7 @@ public class Meter extends CompanyAudit {
     private MeterCategory meterCategory;
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -41,13 +43,14 @@ public class Meter extends CompanyAudit {
                     @Index(name = "idx_meter_user_meter_id", columnList = "id_meter"),
                     @Index(name = "idx_meter_user_user_id", columnList = "id_user")
             })
-    private List<User> users = new ArrayList<>();
+    private List<OwnUser> users = new ArrayList<>();
 
     @ManyToOne
     private Location location;
 
     @ManyToOne
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 

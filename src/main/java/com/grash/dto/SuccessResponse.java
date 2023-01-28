@@ -1,17 +1,13 @@
 package com.grash.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SuccessResponse {
     private boolean success;
     private String message;
-
-    public SuccessResponse(Boolean success, String message) {
-        this.success = success;
-        this.message = message;
-    }
-
 }

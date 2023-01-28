@@ -11,5 +11,5 @@ public interface LaborMapper {
     Labor updateLabor(@MappingTarget Labor entity, LaborPatchDTO dto);
 
     @Mappings({})
-    LaborPatchDTO toDto(Labor model);
+    LaborPatchDTO toPatchDto(Labor model);
 }

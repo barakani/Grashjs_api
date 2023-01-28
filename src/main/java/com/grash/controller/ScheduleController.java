@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.Schedule;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.service.ScheduleService;
 import com.grash.service.UserService;
@@ -39,7 +39,7 @@ public class ScheduleController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "ScheduleCategory not found")})
     public Collection<Schedule> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return scheduleService.findByCompany(user.getCompany().getId());
         } else return scheduleService.getAll();
@@ -52,7 +52,7 @@ public class ScheduleController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Schedule not found")})
     public Schedule getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
@@ -60,18 +60,6 @@ public class ScheduleController {
                 return savedSchedule;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied")})
-    public Schedule create(@ApiParam("Schedule") @Valid @RequestBody Schedule scheduleReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (scheduleService.canCreate(user, scheduleReq)) {
-            return scheduleService.create(scheduleReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
@@ -82,13 +70,16 @@ public class ScheduleController {
             @ApiResponse(code = 404, message = "Schedule not found")})
     public Schedule patch(@ApiParam("Schedule") @Valid @RequestBody SchedulePatchDTO schedule, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
 
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
             if (scheduleService.hasAccess(user, savedSchedule) && scheduleService.canPatch(user, schedule)) {
-                return scheduleService.update(id, schedule);
+                Schedule updatedSchedule = scheduleService.update(id, schedule);
+                //TODO unschedule previous schedule
+                scheduleService.reScheduleWorkOrder(id, updatedSchedule);
+                return updatedSchedule;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }
@@ -100,7 +91,7 @@ public class ScheduleController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Schedule not found")})
     public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {

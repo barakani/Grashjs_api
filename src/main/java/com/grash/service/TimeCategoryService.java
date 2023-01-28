@@ -4,8 +4,8 @@ import com.grash.dto.CategoryPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TimeCategoryMapper;
 import com.grash.model.CompanySettings;
+import com.grash.model.OwnUser;
 import com.grash.model.TimeCategory;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TimeCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,12 @@ public class TimeCategoryService {
     private final CompanySettingsService companySettingsService;
     private final TimeCategoryMapper timeCategoryMapper;
 
-    public TimeCategory create(TimeCategory TimeCategory) {
-        return timeCategoryRepository.save(TimeCategory);
+    public TimeCategory create(TimeCategory timeCategory) {
+        Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByName(timeCategory.getName());
+        if (categoryWithSameName.isPresent()) {
+            throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return timeCategoryRepository.save(timeCategory);
     }
 
     public TimeCategory update(Long id, CategoryPatchDTO timeCategory) {
@@ -50,24 +54,33 @@ public class TimeCategoryService {
 
     }
 
-    public boolean hasAccess(User user, TimeCategory timeCategory) {
+    public boolean hasAccess(OwnUser user, TimeCategory timeCategory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(timeCategory.getCompanySettings().getCompany().getId());
     }
 
-    public boolean canCreate(User user, TimeCategory timeCategoryReq) {
+    public boolean canCreate(OwnUser user, TimeCategory timeCategoryReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(timeCategoryReq.getCompanySettings().getId());
 
         //@NotNull fields
-        boolean first = optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
-
-        return first && canPatch(user, timeCategoryMapper.toDto(timeCategoryReq));
+        boolean first = companySettingsService.isCompanySettingsInCompany(timeCategoryReq.getCompanySettings(), companyId, false);
+        return first && canPatch(user, timeCategoryMapper.toPatchDto(timeCategoryReq));
     }
 
-    public boolean canPatch(User user, CategoryPatchDTO timeCategoryReq) {
+    public boolean canPatch(OwnUser user, CategoryPatchDTO timeCategoryReq) {
         return true;
+    }
+
+    public boolean isTimeCategoryInCompany(TimeCategory timeCategory, long companyId, boolean optional) {
+        if (optional) {
+            Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() : findById(timeCategory.getId());
+            return timeCategory == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
+        } else {
+            Optional<TimeCategory> optionalTimeCategory = findById(timeCategory.getId());
+            return optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
+        }
     }
 }

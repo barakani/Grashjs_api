@@ -3,15 +3,16 @@ package com.grash.service;
 import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
-import com.grash.model.Company;
 import com.grash.model.MultiParts;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MultiPartsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,16 +22,22 @@ public class MultiPartsService {
     private final MultiPartsRepository multiPartsRepository;
     private final CompanyService companyService;
     private final MultiPartsMapper multiPartsMapper;
+    private final EntityManager em;
 
-
-    public MultiParts create(MultiParts MultiParts) {
-        return multiPartsRepository.save(MultiParts);
+    @Transactional
+    public MultiParts create(MultiParts multiParts) {
+        MultiParts savedMultiParts = multiPartsRepository.saveAndFlush(multiParts);
+        em.refresh(savedMultiParts);
+        return savedMultiParts;
     }
 
+    @Transactional
     public MultiParts update(Long id, MultiPartsPatchDTO multiPartsPatchDTO) {
         if (multiPartsRepository.existsById(id)) {
             MultiParts savedMultiParts = multiPartsRepository.findById(id).get();
-            return multiPartsRepository.save(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
+            MultiParts updatedMultiParts = multiPartsRepository.saveAndFlush(multiPartsMapper.updateMultiParts(savedMultiParts, multiPartsPatchDTO));
+            em.refresh(updatedMultiParts);
+            return updatedMultiParts;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -50,22 +57,19 @@ public class MultiPartsService {
         return multiPartsRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, MultiParts multiParts) {
+    public boolean hasAccess(OwnUser user, MultiParts multiParts) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(multiParts.getCompany().getId());
     }
 
-    public boolean canCreate(User user, MultiParts multiPartsReq) {
+    public boolean canCreate(OwnUser user, MultiParts multiPartsReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Company> optionalCompany = companyService.findById(multiPartsReq.getCompany().getId());
-
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, multiPartsMapper.toDto(multiPartsReq));
+        boolean first = companyService.isCompanyValid(multiPartsReq.getCompany(), companyId);
+        return first && canPatch(user, multiPartsMapper.toPatchDto(multiPartsReq));
     }
 
-    public boolean canPatch(User user, MultiPartsPatchDTO multiPartsReq) {
+    public boolean canPatch(OwnUser user, MultiPartsPatchDTO multiPartsReq) {
         return true;
     }
 }

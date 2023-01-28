@@ -23,7 +23,7 @@ public class Vendor extends BasicInfos {
 
     private String description;
 
-    private double rate;
+    private long rate;
 
     @ManyToMany
     @JsonIgnore

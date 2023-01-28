@@ -3,16 +3,16 @@ package com.grash.service;
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
-import com.grash.model.Meter;
-import com.grash.model.User;
-import com.grash.model.WorkOrder;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,15 +23,21 @@ public class WorkOrderMeterTriggerService {
     private final WorkOrderService workOrderService;
     private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final MeterService meterService;
+    private final EntityManager em;
 
-    public WorkOrderMeterTrigger create(WorkOrderMeterTrigger WorkOrderMeterTrigger) {
-        return workOrderMeterTriggerRepository.save(WorkOrderMeterTrigger);
+    @Transactional
+    public WorkOrderMeterTrigger create(WorkOrderMeterTrigger workOrderMeterTrigger) {
+        WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
+        em.refresh(savedWorkOrderMeterTrigger);
+        return savedWorkOrderMeterTrigger;
     }
 
+    @Transactional
     public WorkOrderMeterTrigger update(Long id, WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger) {
         if (workOrderMeterTriggerRepository.existsById(id)) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.findById(id).get();
-            return workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
+            WorkOrderMeterTrigger updatedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.save(workOrderMeterTriggerMapper.updateWorkOrderMeterTrigger(savedWorkOrderMeterTrigger, workOrderMeterTrigger));
+            return updatedWorkOrderMeterTrigger;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -47,26 +53,24 @@ public class WorkOrderMeterTriggerService {
         return workOrderMeterTriggerRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, WorkOrderMeterTrigger workOrderMeterTrigger) {
+    public boolean hasAccess(OwnUser user, WorkOrderMeterTrigger workOrderMeterTrigger) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getWorkOrder().getCompany().getId());
+        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getCompany().getId());
     }
 
-    public boolean canCreate(User user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {
+    public boolean canCreate(OwnUser user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(workOrderMeterTriggerReq.getWorkOrder().getId());
-        Optional<Meter> optionalMeter = meterService.findById(workOrderMeterTriggerReq.getMeter().getId());
-
         //@NotNull fields
-        boolean first = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-        boolean second = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
-
-        return first && second && canPatch(user, workOrderMeterTriggerMapper.toDto(workOrderMeterTriggerReq));
+        boolean second = meterService.isMeterInCompany(workOrderMeterTriggerReq.getMeter(), companyId, false);
+        return second && canPatch(user, workOrderMeterTriggerMapper.toPatchDto(workOrderMeterTriggerReq));
     }
 
-    public boolean canPatch(User user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {
+    public boolean canPatch(OwnUser user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {
         return true;
+    }
+
+    public Collection<WorkOrderMeterTrigger> findByMeter(Long id) {
+        return workOrderMeterTriggerRepository.findByMeter_Id(id);
     }
 }

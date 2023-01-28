@@ -1,11 +1,13 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.VendorMiniDTO;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.mapper.VendorMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.Vendor;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.VendorService;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vendors")
@@ -32,6 +35,7 @@ public class VendorController {
 
     private final VendorService vendorService;
     private final UserService userService;
+    private final VendorMapper vendorMapper;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -40,9 +44,11 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<Vendor> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return vendorService.findByCompany(user.getCompany().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+                return vendorService.findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return vendorService.getAll();
     }
 
@@ -53,14 +59,25 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Vendor not found")})
     public Vendor getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor)) {
+            if (vendorService.hasAccess(user, savedVendor) && user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 return savedVendor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<VendorMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return vendorService.findByCompany(user.getCompany().getId()).stream().map(vendorMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @PostMapping("")
@@ -69,8 +86,8 @@ public class VendorController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public Vendor create(@ApiParam("Vendor") @Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (vendorService.canCreate(user, vendorReq)) {
+        OwnUser user = userService.whoami(req);
+        if (vendorService.canCreate(user, vendorReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -83,12 +100,12 @@ public class VendorController {
             @ApiResponse(code = 404, message = "Vendor not found")})
     public Vendor patch(@ApiParam("Vendor") @Valid @RequestBody VendorPatchDTO vendor, @ApiParam("id") @PathVariable("id") Long id,
                         HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<Vendor> optionalVendor = vendorService.findById(id);
 
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor) && vendorService.canPatch(user, vendor)) {
+            if (vendorService.hasAccess(user, savedVendor) && vendorService.canPatch(user, vendor) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedVendor.getCreatedBy().equals(user.getId())) {
                 return vendorService.update(id, vendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
@@ -100,16 +117,17 @@ public class VendorController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Vendor not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
             if (vendorService.hasAccess(user, savedVendor)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_VENDORS_AND_CUSTOMERS)) {
+                    && (savedVendor.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS))) {
                 vendorService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);

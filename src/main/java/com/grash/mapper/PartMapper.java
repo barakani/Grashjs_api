@@ -13,7 +13,7 @@ public interface PartMapper {
     Part updatePart(@MappingTarget Part entity, PartPatchDTO dto);
 
     @Mappings({})
-    PartPatchDTO toDto(Part model);
+    PartPatchDTO toPatchDto(Part model);
 
     @Mappings({})
     PartMiniDTO toMiniDto(Part model);

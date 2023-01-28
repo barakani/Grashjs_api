@@ -4,14 +4,15 @@ import com.grash.dto.AdditionalCostPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalCostMapper;
 import com.grash.model.AdditionalCost;
-import com.grash.model.User;
-import com.grash.model.WorkOrder;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.AdditionalCostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,18 +24,25 @@ public class AdditionalCostService {
     private final CompanyService companyService;
     private final UserService userService;
     private final WorkOrderService workOrderService;
+    private final EntityManager em;
 
 
     private final AdditionalCostMapper additionalCostMapper;
 
+    @Transactional
     public AdditionalCost create(AdditionalCost additionalCost) {
-        return additionalCostRepository.save(additionalCost);
+        AdditionalCost savedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCost);
+        em.refresh(savedAdditionalCost);
+        return savedAdditionalCost;
     }
 
+    @Transactional
     public AdditionalCost update(Long id, AdditionalCostPatchDTO additionalCost) {
         if (additionalCostRepository.existsById(id)) {
             AdditionalCost savedAdditionalCost = additionalCostRepository.findById(id).get();
-            return additionalCostRepository.save(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            AdditionalCost updatedAdditionalCost = additionalCostRepository.saveAndFlush(additionalCostMapper.updateAdditionalCost(savedAdditionalCost, additionalCost));
+            em.refresh(updatedAdditionalCost);
+            return updatedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -50,30 +58,24 @@ public class AdditionalCostService {
         return additionalCostRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, AdditionalCost additionalCost) {
+    public boolean hasAccess(OwnUser user, AdditionalCost additionalCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompany().getId());
     }
 
-    public boolean canCreate(User user, AdditionalCost additionalCostReq) {
+    public boolean canCreate(OwnUser user, AdditionalCost additionalCostReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId());
-
-        //@NotNull fields
-        boolean second = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
-
-        return second && canPatch(user, additionalCostMapper.toDto(additionalCostReq));
+        boolean first = workOrderService.isWorkOrderInCompany(additionalCostReq.getWorkOrder(), companyId, false);
+        return first && canPatch(user, additionalCostMapper.toPatchDto(additionalCostReq));
     }
 
-    public boolean canPatch(User user, AdditionalCostPatchDTO additionalCostReq) {
+    public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {
         Long companyId = user.getCompany().getId();
-        Optional<User> optionalUser = additionalCostReq.getAssignedTo() == null ? Optional.empty() : userService.findById(additionalCostReq.getAssignedTo().getId());
-
-        boolean first = additionalCostReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return userService.isUserInCompany(additionalCostReq.getAssignedTo(), companyId, true);
     }
 
+    public Collection<AdditionalCost> findByWorkOrder(Long id) {
+        return additionalCostRepository.findByWorkOrder_Id(id);
+    }
 }

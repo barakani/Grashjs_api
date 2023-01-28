@@ -2,7 +2,7 @@ package com.grash.controller;
 
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.service.CompanySettingsService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -37,7 +37,7 @@ public class CompanySettingsController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "CompanySettings not found")})
     public CompanySettings getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {

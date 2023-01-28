@@ -11,5 +11,5 @@ public interface MeterCategoryMapper {
     MeterCategory updateMeterCategory(@MappingTarget MeterCategory entity, CategoryPatchDTO dto);
 
     @Mappings({})
-    CategoryPatchDTO toDto(MeterCategory model);
+    CategoryPatchDTO toPatchDto(MeterCategory model);
 }

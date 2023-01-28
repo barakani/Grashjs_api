@@ -12,7 +12,7 @@ public interface MultiPartsMapper {
     MultiParts updateMultiParts(@MappingTarget MultiParts entity, MultiPartsPatchDTO dto);
 
     @Mappings({})
-    MultiPartsPatchDTO toDto(MultiParts model);
+    MultiPartsPatchDTO toPatchDto(MultiParts model);
 
     MultiPartsShowDTO toShowDto(MultiParts model);
 }

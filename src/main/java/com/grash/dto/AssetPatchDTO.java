@@ -13,7 +13,7 @@ import java.util.Date;
 public class AssetPatchDTO {
     private boolean archived;
 
-    private Image image;
+    private File image;
 
     private Location location;
 
@@ -27,23 +27,19 @@ public class AssetPatchDTO {
 
     private String name;
 
-    private User primaryUser;
+    private OwnUser primaryUser;
 
     private Deprecation deprecation;
 
     private Date warrantyExpirationDate;
 
     private String additionalInfos;
-    
+
     private String serialNumber;
 
-    private AssetStatus status = AssetStatus.OPERATIONAL;
+    private Collection<OwnUser> assignedTo;
 
-    private int uptime;
-
-    private int downtime;
-
-    private Collection<User> assignedTo;
+    private Collection<Customer> customers;
 
     private Collection<Vendor> vendors;
 
@@ -53,5 +49,8 @@ public class AssetPatchDTO {
 
     private Collection<Part> parts;
 
+    private AssetStatus status;
+
+    private Long acquisitionCost;
 
 }

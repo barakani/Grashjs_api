@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.ApprovalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,11 +17,13 @@ public class PurchaseOrder extends CompanyAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private ApprovalStatus status = ApprovalStatus.PENDING;
+
     @NotNull
     private String name;
 
     @ManyToOne
-    private PurchaseOrderCategory purchaseOrderOrderCategory;
+    private PurchaseOrderCategory category;
 
     private Date shippingDueDate;
 
@@ -44,7 +47,7 @@ public class PurchaseOrder extends CompanyAudit {
 
     private Date additionalInfoDate;
 
-    private String additionalInfoRequistionerName;
+    private String additionalInfoRequisitionedName;
 
     private String additionalInfoShippingOrderCategory;
 

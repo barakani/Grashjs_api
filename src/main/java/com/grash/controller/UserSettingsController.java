@@ -1,7 +1,7 @@
 package com.grash.controller;
 
 import com.grash.exception.CustomException;
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.UserSettings;
 import com.grash.service.UserService;
 import com.grash.service.UserSettingsService;
@@ -35,7 +35,7 @@ public class UserSettingsController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "UserSettings not found")})
     public UserSettings getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
@@ -57,7 +57,7 @@ public class UserSettingsController {
     public UserSettings patch(@ApiParam("UserSettings") @Valid @RequestBody UserSettings userSettings,
                               @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
 
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
 

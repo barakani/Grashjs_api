@@ -11,5 +11,5 @@ public interface DeprecationMapper {
     Deprecation updateDeprecation(@MappingTarget Deprecation entity, DeprecationPatchDTO dto);
 
     @Mappings({})
-    DeprecationPatchDTO toDto(Deprecation model);
+    DeprecationPatchDTO toPatchDto(Deprecation model);
 }

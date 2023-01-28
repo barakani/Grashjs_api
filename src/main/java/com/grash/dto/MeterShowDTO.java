@@ -1,16 +1,17 @@
 package com.grash.dto;
 
-import com.grash.model.Image;
+import com.grash.model.File;
 import com.grash.model.MeterCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class MeterShowDTO {
+public class MeterShowDTO extends AuditShowDTO {
     private Long id;
 
     private String name;
@@ -22,11 +23,15 @@ public class MeterShowDTO {
 
     private MeterCategory meterCategory;
 
-    private Image image;
+    private File image;
 
     private List<UserMiniDTO> users = new ArrayList<>();
 
     private LocationMiniDTO location;
 
     private AssetMiniDTO asset;
+
+    private Instant lastReading;
+
+    private Instant nextReading;
 }

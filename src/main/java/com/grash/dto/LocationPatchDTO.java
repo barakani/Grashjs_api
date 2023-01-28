@@ -4,7 +4,9 @@ import com.grash.model.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,18 +15,22 @@ public class LocationPatchDTO {
 
     private String address;
 
-    private Double longitude;
+    private Long longitude;
 
-    private Double latitude;
+    private Long latitude;
 
     private Location parentLocation;
 
-    private Collection<User> workers;
+    private Collection<OwnUser> workers;
 
     private Collection<Team> teams;
 
     private Collection<Vendor> vendors;
 
     private Collection<Customer> customers;
+
+    private File image;
+
+    private List<File> files = new ArrayList<>();
 
 }

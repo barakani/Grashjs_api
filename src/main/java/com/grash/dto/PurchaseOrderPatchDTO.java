@@ -12,7 +12,7 @@ import java.util.Date;
 public class PurchaseOrderPatchDTO {
     private String name;
 
-    private PurchaseOrderCategory purchaseOrderOrderCategory;
+    private PurchaseOrderCategory category;
 
     private Date shippingDueDate;
 
@@ -36,7 +36,7 @@ public class PurchaseOrderPatchDTO {
 
     private Date additionalInfoDate;
 
-    private String additionalInfoRequistionerName;
+    private String additionalInfoRequisitionedName;
 
     private String additionalInfoShippingOrderCategory;
 

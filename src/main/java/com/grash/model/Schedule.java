@@ -1,8 +1,11 @@
 package com.grash.model;
 
-import com.grash.model.abstracts.CompanyAudit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -11,24 +14,28 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
-public class Schedule extends CompanyAudit {
+public class Schedule extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    private String name;
+    private boolean disabled;
 
     @NotNull
-    private Date startsOn;
+    private Date startsOn = new Date();
 
     @NotNull
-    private int frequency;
+    private int frequency = 1;
 
-    @NotNull
     private Date endsOn;
 
     @OneToOne
+    @JsonIgnore
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PreventiveMaintenance preventiveMaintenance;
+
+    public Schedule(PreventiveMaintenance preventiveMaintenance) {
+        this.preventiveMaintenance = preventiveMaintenance;
+    }
 
 }

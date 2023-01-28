@@ -3,14 +3,20 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
+import com.grash.utils.Helper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Entity
 @Data
@@ -25,13 +31,13 @@ public class Asset extends CompanyAudit {
     private boolean hasChildren;
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToOne
-    @NotNull
     private Location location;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Asset parentAsset;
 
     private String area;
@@ -47,7 +53,9 @@ public class Asset extends CompanyAudit {
     private String name;
 
     @ManyToOne
-    private User primaryUser;
+    private OwnUser primaryUser;
+
+    private Long acquisitionCost;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -58,7 +66,7 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_user_asset_id", columnList = "id_asset"),
                     @Index(name = "idx_asset_user_user_id", columnList = "id_user")
             })
-    private List<User> assignedTo = new ArrayList<>();
+    private List<OwnUser> assignedTo = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -81,6 +89,17 @@ public class Asset extends CompanyAudit {
                     @Index(name = "idx_asset_vendor_vendor_id", columnList = "id_vendor")
             })
     private List<Vendor> vendors = new ArrayList<>();
+
+    @ManyToMany
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinTable(name = "T_Asset_Customer_Associations",
+            joinColumns = @JoinColumn(name = "id_asset"),
+            inverseJoinColumns = @JoinColumn(name = "id_customer"),
+            indexes = {
+                    @Index(name = "idx_asset_customer_asset_id", columnList = "id_asset"),
+                    @Index(name = "idx_asset_customer_customer_id", columnList = "id_customer")
+            })
+    private List<Customer> customers = new ArrayList<>();
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -108,10 +127,6 @@ public class Asset extends CompanyAudit {
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
 
-    private int uptime;
-
-    private int downtime;
-
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Asset_File_Associations",
@@ -123,6 +138,33 @@ public class Asset extends CompanyAudit {
             })
     private List<File> files = new ArrayList<>();
 
+    public Collection<OwnUser> getUsers() {
+        Collection<OwnUser> users = new ArrayList<>();
+        if (this.getPrimaryUser() != null) {
+            users.add(this.getPrimaryUser());
+        }
+        if (this.getTeams() != null) {
+            Collection<OwnUser> teamsUsers = new ArrayList<>();
+            this.getTeams().forEach(team -> teamsUsers.addAll(team.getUsers()));
+            users.addAll(teamsUsers);
+        }
+        if (this.getAssignedTo() != null) {
+            users.addAll(this.getAssignedTo());
+        }
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                ArrayList::new));
+    }
+
+    public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
+        Collection<OwnUser> oldUsers = getUsers();
+        return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
+                collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                        ArrayList::new));
+    }
+
+    public long getAge() {
+        return Helper.getDateDiff(this.getInServiceDate() == null ? Date.from(this.getCreatedAt()) : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
+    }
 }
 
 

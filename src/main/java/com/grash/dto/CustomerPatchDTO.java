@@ -12,7 +12,7 @@ public class CustomerPatchDTO extends BasicInfos {
 
     private String description;
 
-    private double rate;
+    private long rate;
 
 
     private String billingName;

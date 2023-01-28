@@ -3,8 +3,9 @@ package com.grash.controller;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
+import com.grash.model.OwnUser;
 import com.grash.model.TimeCategory;
-import com.grash.model.User;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.TimeCategoryService;
 import com.grash.service.UserService;
@@ -39,9 +40,11 @@ public class TimeCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TimeCategoryCategory not found")})
     public Collection<TimeCategory> getAll(HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return timeCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+                return timeCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return timeCategoryService.getAll();
     }
 
@@ -52,14 +55,17 @@ public class TimeCategoryController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TimeCategory not found")})
     public TimeCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
-        if (optionalTimeCategory.isPresent()) {
-            TimeCategory savedTimeCategory = optionalTimeCategory.get();
-            if (timeCategoryService.hasAccess(user, savedTimeCategory)) {
-                return savedTimeCategory;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+            Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
+            if (optionalTimeCategory.isPresent()) {
+                TimeCategory savedTimeCategory = optionalTimeCategory.get();
+                if (timeCategoryService.hasAccess(user, savedTimeCategory)) {
+                    return savedTimeCategory;
+                } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+
     }
 
     @PostMapping("")
@@ -68,8 +74,8 @@ public class TimeCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
     public TimeCategory create(@ApiParam("TimeCategory") @Valid @RequestBody TimeCategory timeCategoryReq, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (timeCategoryService.canCreate(user, timeCategoryReq)) {
+        OwnUser user = userService.whoami(req);
+        if (timeCategoryService.canCreate(user, timeCategoryReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return timeCategoryService.create(timeCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -82,15 +88,17 @@ public class TimeCategoryController {
             @ApiResponse(code = 404, message = "TimeCategory not found")})
     public TimeCategory patch(@ApiParam("TimeCategory") @Valid @RequestBody CategoryPatchDTO timeCategory, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+        OwnUser user = userService.whoami(req);
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (optionalTimeCategory.isPresent()) {
+                TimeCategory savedTimeCategory = optionalTimeCategory.get();
+                if (timeCategoryService.hasAccess(user, savedTimeCategory) && timeCategoryService.canPatch(user, timeCategory)) {
+                    return timeCategoryService.update(id, timeCategory);
+                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            } else throw new CustomException("TimeCategory not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 
-        if (optionalTimeCategory.isPresent()) {
-            TimeCategory savedTimeCategory = optionalTimeCategory.get();
-            if (timeCategoryService.hasAccess(user, savedTimeCategory) && timeCategoryService.canPatch(user, timeCategory)) {
-                return timeCategoryService.update(id, timeCategory);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("TimeCategory not found", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
@@ -99,15 +107,17 @@ public class TimeCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "TimeCategory not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
 
         Optional<TimeCategory> optionalTimeCategory = timeCategoryService.findById(id);
         if (optionalTimeCategory.isPresent()) {
             TimeCategory savedTimeCategory = optionalTimeCategory.get();
-            if (timeCategoryService.hasAccess(user, savedTimeCategory)) {
+            if (timeCategoryService.hasAccess(user, savedTimeCategory)
+                    &&
+                    (savedTimeCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES))) {
                 timeCategoryService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("TimeCategory not found", HttpStatus.NOT_FOUND);

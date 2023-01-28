@@ -11,5 +11,5 @@ public interface RoleMapper {
     Role updateRole(@MappingTarget Role entity, RolePatchDTO dto);
 
     @Mappings({})
-    RolePatchDTO toDto(Role model);
+    RolePatchDTO toPatchDto(Role model);
 }

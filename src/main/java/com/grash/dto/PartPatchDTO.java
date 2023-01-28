@@ -12,7 +12,7 @@ public class PartPatchDTO {
 
     private String name;
 
-    private double cost;
+    private long cost;
 
     private String category;
 
@@ -32,9 +32,9 @@ public class PartPatchDTO {
 
     private Location location;
 
-    private Image image;
+    private File image;
 
-    private Collection<User> assignedTo;
+    private Collection<OwnUser> assignedTo;
 
     private Collection<File> files;
 

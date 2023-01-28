@@ -4,8 +4,7 @@ import com.grash.dto.CustomFieldPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.CustomFieldMapper;
 import com.grash.model.CustomField;
-import com.grash.model.User;
-import com.grash.model.Vendor;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomFieldRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,24 +44,20 @@ public class CustomFieldService {
         return customFieldRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, CustomField customField) {
+    public boolean hasAccess(OwnUser user, CustomField customField) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
     }
 
-    public boolean canCreate(User user, CustomField customFieldReq) {
+    public boolean canCreate(OwnUser user, CustomField customFieldReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Vendor> optionalVendor = vendorService.findById(customFieldReq.getVendor().getId());
-
         //@NotNull fields
-        boolean first = optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
-
-        return first && canPatch(user, customFieldMapper.toDto(customFieldReq));
+        boolean first = vendorService.isVendorInCompany(customFieldReq.getVendor(), companyId, false);
+        return first && canPatch(user, customFieldMapper.toPatchDto(customFieldReq));
     }
 
-    public boolean canPatch(User user, CustomFieldPatchDTO customFieldReq) {
+    public boolean canPatch(OwnUser user, CustomFieldPatchDTO customFieldReq) {
         return true;
     }
 }

@@ -4,11 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+
 @Data
 @NoArgsConstructor
 public class DeprecationPatchDTO {
 
-    private double purchasePrice;
+    private long purchasePrice;
 
     private Date purchaseDate;
 
@@ -18,5 +19,5 @@ public class DeprecationPatchDTO {
 
     private int rate;
 
-    private double currentValue;
+    private long currentValue;
 }

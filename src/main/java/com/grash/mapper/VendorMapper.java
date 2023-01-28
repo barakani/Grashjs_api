@@ -12,7 +12,7 @@ public interface VendorMapper {
     Vendor updateVendor(@MappingTarget Vendor entity, VendorPatchDTO dto);
 
     @Mappings({})
-    VendorPatchDTO toDto(Vendor model);
+    VendorPatchDTO toPatchDto(Vendor model);
 
-    VendorMiniDTO toShowDto(Vendor model);
+    VendorMiniDTO toMiniDto(Vendor model);
 }

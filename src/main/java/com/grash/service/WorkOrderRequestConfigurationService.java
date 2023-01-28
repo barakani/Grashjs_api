@@ -1,6 +1,6 @@
 package com.grash.service;
 
-import com.grash.model.User;
+import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderRequestConfiguration;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderRequestConfigurationRepository;
@@ -36,7 +36,7 @@ public class WorkOrderRequestConfigurationService {
         return workOrderRequestConfigurationRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, WorkOrderRequestConfiguration workOrderRequestConfiguration) {
+    public boolean hasAccess(OwnUser user, WorkOrderRequestConfiguration workOrderRequestConfiguration) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else

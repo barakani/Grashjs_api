@@ -12,7 +12,7 @@ public interface WorkOrderMapper {
     WorkOrder updateWorkOrder(@MappingTarget WorkOrder entity, WorkOrderPatchDTO dto);
 
     @Mappings({})
-    WorkOrderPatchDTO toDto(WorkOrder model);
+    WorkOrderPatchDTO toPatchDto(WorkOrder model);
 
     @Mappings({})
     WorkOrderShowDTO toShowDto(WorkOrder model);

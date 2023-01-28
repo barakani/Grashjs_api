@@ -3,15 +3,16 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
-import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,15 +22,22 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CompanyService companyService;
     private final SubscriptionMapper subscriptionMapper;
+    private final EntityManager em;
 
-    public Subscription create(Subscription Subscription) {
-        return subscriptionRepository.save(Subscription);
+    @Transactional
+    public Subscription create(Subscription subscription) {
+        Subscription savedSubscription = subscriptionRepository.saveAndFlush(subscription);
+        em.refresh(savedSubscription);
+        return savedSubscription;
     }
 
+    @Transactional
     public Subscription update(Long id, SubscriptionPatchDTO subscriptionPatchDTO) {
         if (subscriptionRepository.existsById(id)) {
             Subscription savedSubscription = subscriptionRepository.findById(id).get();
-            return subscriptionRepository.save(subscriptionMapper.updateSubscription(savedSubscription, subscriptionPatchDTO));
+            Subscription updatedSubscription = subscriptionRepository.saveAndFlush(subscriptionMapper.updateSubscription(savedSubscription, subscriptionPatchDTO));
+            em.refresh(updatedSubscription);
+            return updatedSubscription;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -45,26 +53,19 @@ public class SubscriptionService {
         return subscriptionRepository.findById(id);
     }
 
-    public Collection<Subscription> findByCompany(Long id) {
-        return subscriptionRepository.findByCompany_Id(id);
-    }
 
-    public boolean hasAccess(User user, Subscription subscription) {
+    public boolean hasAccess(OwnUser user, Subscription subscription) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(subscription.getCompany().getId());
+        } else return true;
     }
 
-    public boolean canCreate(User user, Subscription subscriptionReq) {
+    public boolean canCreate(OwnUser user, Subscription subscriptionReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Company> optionalCompany = companyService.findById(subscriptionReq.getCompany().getId());
-
-        boolean second = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return second && canPatch(user, subscriptionMapper.toDto(subscriptionReq));
+        return true;
     }
 
-    public boolean canPatch(User user, SubscriptionPatchDTO subscriptionReq) {
+    public boolean canPatch(OwnUser user, SubscriptionPatchDTO subscriptionReq) {
         return true;
     }
 }

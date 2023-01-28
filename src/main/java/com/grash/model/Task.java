@@ -1,9 +1,13 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grash.model.enums.Status;
+import com.grash.model.abstracts.CompanyAudit;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,20 +17,34 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class Task extends TaskBase {
+@Builder
+@AllArgsConstructor
+public class Task extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Status status = Status.OPEN;
+    @ManyToOne
+    @NotNull
+    private TaskBase taskBase;
 
-    private String note;
+    private String notes;
+
+    private String value;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    private List<Image> images = new ArrayList<>();
+    private List<File> images = new ArrayList<>();
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull
     private WorkOrder workOrder;
+
+    public Task(TaskBase taskBase, WorkOrder workOrder, Company company, String value) {
+        this.taskBase = taskBase;
+        this.workOrder = workOrder;
+        this.value = value;
+        this.setCompany(company);
+    }
 }

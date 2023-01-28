@@ -11,5 +11,5 @@ public interface ScheduleMapper {
     Schedule updateSchedule(@MappingTarget Schedule entity, SchedulePatchDTO dto);
 
     @Mappings({})
-    SchedulePatchDTO toDto(Schedule model);
+    SchedulePatchDTO toPatchDto(Schedule model);
 }

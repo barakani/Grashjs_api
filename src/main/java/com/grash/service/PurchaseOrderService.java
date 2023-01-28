@@ -4,14 +4,16 @@ import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.Company;
+import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrder;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,15 +23,22 @@ public class PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final CompanyService companyService;
+    private final EntityManager em;
 
+    @Transactional
     public PurchaseOrder create(PurchaseOrder purchaseOrder) {
-        return purchaseOrderRepository.save(purchaseOrder);
+        PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.saveAndFlush(purchaseOrder);
+        em.refresh(savedPurchaseOrder);
+        return savedPurchaseOrder;
     }
 
+    @Transactional
     public PurchaseOrder update(Long id, PurchaseOrderPatchDTO purchaseOrder) {
         if (purchaseOrderRepository.existsById(id)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.findById(id).get();
-            return purchaseOrderRepository.save(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder, purchaseOrder));
+            PurchaseOrder updatedPurchaseOrder = purchaseOrderRepository.saveAndFlush(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder, purchaseOrder));
+            em.refresh(updatedPurchaseOrder);
+            return updatedPurchaseOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -49,24 +58,36 @@ public class PurchaseOrderService {
         return purchaseOrderRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, PurchaseOrder purchaseOrder) {
+    public boolean hasAccess(OwnUser user, PurchaseOrder purchaseOrder) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(purchaseOrder.getCompany().getId());
     }
 
-    public boolean canCreate(User user, PurchaseOrder purchaseOrderReq) {
+    public boolean canCreate(OwnUser user, PurchaseOrder purchaseOrderReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(purchaseOrderReq.getCompany().getId());
 
-        boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return first && canPatch(user, purchaseOrderMapper.toDto(purchaseOrderReq));
+        boolean first = companyService.isCompanyValid(purchaseOrderReq.getCompany(), companyId);
+        return first && canPatch(user, purchaseOrderMapper.toPatchDto(purchaseOrderReq));
     }
 
-    public boolean canPatch(User user, PurchaseOrderPatchDTO purchaseOrderReq) {
+    public boolean canPatch(OwnUser user, PurchaseOrderPatchDTO purchaseOrderReq) {
         return true;
     }
 
+    public PurchaseOrder save(PurchaseOrder purchaseOrder) {
+        return purchaseOrderRepository.save(purchaseOrder);
+    }
+
+    public boolean isPurchaseOrderInCompany(PurchaseOrder purchaseOrder, long companyId, boolean optional) {
+        if (optional) {
+            Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrder == null ? Optional.empty() : findById(purchaseOrder.getId());
+            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
+            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

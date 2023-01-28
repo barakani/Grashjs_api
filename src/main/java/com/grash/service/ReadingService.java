@@ -3,9 +3,8 @@ package com.grash.service;
 import com.grash.dto.ReadingPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ReadingMapper;
-import com.grash.model.Meter;
+import com.grash.model.OwnUser;
 import com.grash.model.Reading;
-import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ReadingRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,30 +48,25 @@ public class ReadingService {
         return readingRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(User user, Reading reading) {
+    public boolean hasAccess(OwnUser user, Reading reading) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
         } else return user.getCompany().getId().equals(reading.getMeter().getCompany().getId());
     }
 
-    public boolean canCreate(User user, Reading readingReq) {
+    public boolean canCreate(OwnUser user, Reading readingReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
-
         //@NotNull fields
-        boolean first = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
-
-        return first && canPatch(user, readingMapper.toDto(readingReq));
+        boolean first = meterService.isMeterInCompany(readingReq.getMeter(), companyId, false);
+        return first && canPatch(user, readingMapper.toPatchDto(readingReq));
     }
 
-    public boolean canPatch(User user, ReadingPatchDTO readingReq) {
+    public boolean canPatch(OwnUser user, ReadingPatchDTO readingReq) {
         Long companyId = user.getCompany().getId();
+        return meterService.isMeterInCompany(readingReq.getMeter(), companyId, true);
+    }
 
-        Optional<Meter> optionalMeter = readingReq.getMeter() == null ? Optional.empty() : meterService.findById(readingReq.getMeter().getId());
-
-        boolean first = readingReq.getMeter() == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
-
-        return first;
+    public Collection<Reading> findByMeter(Long id) {
+        return readingRepository.findByMeter_Id(id);
     }
 }

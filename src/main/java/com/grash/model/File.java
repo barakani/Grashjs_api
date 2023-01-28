@@ -1,21 +1,38 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.grash.model.abstracts.FileAbstract;
+import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.FileType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class File extends FileAbstract {
+public class File extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
+    private String name;
+
+    @NotNull
+    private String url;
+
+    private FileType type = FileType.OTHER;
+
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Task task;
 
     @ManyToMany
     @JsonIgnore
@@ -26,7 +43,7 @@ public class File extends FileAbstract {
                     @Index(name = "idx_file_asset_file_id", columnList = "id_file"),
                     @Index(name = "idx_file_asset_asset_id", columnList = "id_asset")
             })
-    private List<Asset> asset = new ArrayList<>();
+    private List<Asset> assets = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
@@ -61,5 +78,22 @@ public class File extends FileAbstract {
             })
     private List<WorkOrder> workOrders = new ArrayList<>();
 
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "T_Location_File_Associations",
+            joinColumns = @JoinColumn(name = "id_file"),
+            inverseJoinColumns = @JoinColumn(name = "id_location"),
+            indexes = {
+                    @Index(name = "idx_file_location_file_id", columnList = "id_file"),
+                    @Index(name = "idx_file_location_location_id", columnList = "id_location")
+            })
+    private List<Location> locations = new ArrayList<>();
 
+    public File(String name, String url, Company company, FileType fileType, Task task) {
+        this.name = name;
+        this.url = url;
+        this.type = fileType;
+        this.task = task;
+        this.setCompany(company);
+    }
 }

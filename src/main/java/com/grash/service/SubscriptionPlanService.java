@@ -3,8 +3,8 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionPlanMapper;
+import com.grash.model.OwnUser;
 import com.grash.model.SubscriptionPlan;
-import com.grash.model.User;
 import com.grash.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,15 +43,23 @@ public class SubscriptionPlanService {
         return subscriptionPlanRepository.findById(id);
     }
 
-    public boolean hasAccess(User user, SubscriptionPlan subscriptionPlan) {
+    public Optional<SubscriptionPlan> findByCode(String code) {
+        return subscriptionPlanRepository.findByCode(code);
+    }
+
+    public boolean existByCode(String code) {
+        return subscriptionPlanRepository.existsByCode(code);
+    }
+
+    public boolean hasAccess(OwnUser user, SubscriptionPlan subscriptionPlan) {
         return true;
     }
 
-    public boolean canCreate(User user, SubscriptionPlan subscriptionPlanReq) {
+    public boolean canCreate(OwnUser user, SubscriptionPlan subscriptionPlanReq) {
         return true;
     }
 
-    public boolean canPatch(User user, SubscriptionPlanPatchDTO subscriptionPlanReq) {
+    public boolean canPatch(OwnUser user, SubscriptionPlanPatchDTO subscriptionPlanReq) {
         return true;
     }
 }

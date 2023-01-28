@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.Company;
+import com.grash.model.File;
 import com.grash.model.Location;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +20,11 @@ public class LocationShowDTO extends AuditShowDTO {
 
     private String address;
 
-    private Double longitude;
+    private Long longitude;
 
-    private Double latitude;
+    private Long latitude;
+
+    private boolean hasChildren;
 
     private List<TeamMiniDTO> teams = new ArrayList<>();
 
@@ -32,5 +35,9 @@ public class LocationShowDTO extends AuditShowDTO {
     private List<CustomerMiniDTO> customers = new ArrayList<>();
 
     private List<UserMiniDTO> workers = new ArrayList<>();
+
+    private File image;
+
+    private List<FileMiniDTO> files;
 
 }

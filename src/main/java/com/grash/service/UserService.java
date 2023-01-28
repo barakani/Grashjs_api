@@ -1,13 +1,11 @@
 package com.grash.service;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
-import com.grash.model.Company;
-import com.grash.model.Role;
-import com.grash.model.User;
-import com.grash.model.VerificationToken;
+import com.grash.model.*;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -23,6 +21,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
@@ -36,16 +35,24 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EntityManager em;
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
+    private final EmailService2 emailService2;
     private final RoleService roleService;
     private final CompanyService companyService;
+    private final CurrencyService currencyService;
+    private final UserInvitationService userInvitationService;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
 
     @Value("${api.host}")
     private String API_HOST;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public String signin(String email, String password, String type) {
         try {
@@ -59,13 +66,18 @@ public class UserService {
         }
     }
 
-    public SuccessResponse signup(User user) {
+    public SuccessResponse signup(UserSignupRequest userReq) {
+        OwnUser user = userMapper.toModel(userReq);
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
                 //create company with default roles
-                Company company = new Company();
+                Subscription subscription = Subscription.builder().usersCount(3).monthly(true)
+                        .subscriptionPlan(subscriptionPlanService.findByCode("BUS").get()).build();
+                subscriptionService.create(subscription);
+                Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
+                company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);
@@ -73,25 +85,30 @@ public class UserService {
             } else {
                 Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
                 if (optionalRole.isPresent()) {
-                    user.setRole(optionalRole.get());
-                    if (optionalRole.get().getCompanySettings() != null) {
+                    if (userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail()).isEmpty()) {
+                        throw new CustomException("You are not invited to this organization for this role", HttpStatus.NOT_ACCEPTABLE);
+                    } else {
+                        user.setRole(optionalRole.get());
                         user.setCompany(optionalRole.get().getCompanySettings().getCompany());
                     }
+
                 } else throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
             }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
                 userRepository.save(user);
-                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
+                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
             } else {
                 //send mail
                 String token = UUID.randomUUID().toString();
                 String link = API_HOST + "/auth/activate-account?token=" + token;
-
-                emailService.send(user.getEmail(), "Email de confirmation", emailService.buildEmail("Confirmation", "Confirmez votre  adresse mail", link));
-
+                Map<String, Object> variables = new HashMap<String, Object>() {{
+                    put("verifyTokenLink", link);
+                    put("featuresLink", frontendUrl + "/#key-features");
+                }};
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
+                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "Confirmation Email", variables, "signup.html");
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
@@ -105,15 +122,15 @@ public class UserService {
         userRepository.deleteByUsername(username);
     }
 
-    public User search(String email) {
-        User user = userRepository.findUserByEmail(email);
+    public OwnUser search(String email) {
+        OwnUser user = userRepository.findUserByEmail(email);
         if (user == null) {
             throw new CustomException("The user doesn't exist", HttpStatus.NOT_FOUND);
         }
         return user;
     }
 
-    public User whoami(HttpServletRequest req) {
+    public OwnUser whoami(HttpServletRequest req) {
         return userRepository.findUserByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
     }
 
@@ -121,7 +138,7 @@ public class UserService {
         return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findUserByEmail(username).getRole().getRoleType()));
     }
 
-    public List<User> getAll() {
+    public List<OwnUser> getAll() {
         return userRepository.findAll();
     }
 
@@ -129,36 +146,77 @@ public class UserService {
         return userRepository.count();
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<OwnUser> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    public User update(Long id, UserSignupRequest user) {
-        if (userRepository.existsById(id)) {
-            User savedUser = userRepository.findById(id).get();
-            return userRepository.save(userMapper.updateUser(savedUser, user));
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
     public void enableUser(String email) {
-        User user = userRepository.findUserByEmail(email);
+        OwnUser user = userRepository.findUserByEmail(email);
         user.setEnabled(true);
         userRepository.save(user);
     }
 
     public SuccessResponse resetPassword(String email) {
-        User user = search(email);
+        OwnUser user = search(email);
         Helper helper = new Helper();
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        String message = "Votre mot de passe a été réinitialisé.\nVeuillez vous reconnecter en utilisant ce mot de passe: " + password +
-                "\nIl est important procéder au changement de votre mot de passe le plutôt possible pour des raisons de sécurité.";
-        emailService.send(user.getEmail(), "Réinitialisation de votre mot de passe Sutura", message);
+        Map<String, Object> variables = new HashMap<String, Object>() {{
+            put("loginLink", frontendUrl + "/account/login?email=" + email);
+            put("featuresLink", frontendUrl + "/#key-features");
+            put("password", password);
+        }};
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Grash Password Reset", variables, "reset-password.html");
         return new SuccessResponse(true, "Password changed successfully");
     }
 
-    public Collection<User> findByCompany(Long id) {
+    public Collection<OwnUser> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
+    }
+
+    public Collection<OwnUser> findByLocation(Long id) {
+        return userRepository.findByLocation_Id(id);
+    }
+
+    public void invite(String email, Role role, OwnUser inviter) {
+        if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
+            userInvitationService.create(new UserInvitation(email, role));
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+                put("featuresLink", frontendUrl + "/#key-features");
+                put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
+                put("company", inviter.getCompany().getName());
+            }};
+            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Invitation to use Grash", variables, "invite.html");
+        } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public OwnUser update(Long id, UserPatchDTO userReq) {
+        if (userRepository.existsById(id)) {
+            OwnUser savedUser = userRepository.findById(id).get();
+            OwnUser updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
+            em.refresh(updatedUser);
+            return updatedUser;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public OwnUser save(OwnUser user) {
+        return userRepository.save(user);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean isUserInCompany(OwnUser user, long companyId, boolean optional) {
+        if (optional) {
+            Optional<OwnUser> optionalUser = user == null ? Optional.empty() : findById(user.getId());
+            return user == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<OwnUser> optionalUser = findById(user.getId());
+            return optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId);
+        }
     }
 }
