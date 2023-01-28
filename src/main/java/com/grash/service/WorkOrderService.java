@@ -129,16 +129,16 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder) {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
-        workOrder.getUsers().forEach(user -> {
+        Collection<OwnUser> users = workOrder.getUsers();
+        users.forEach(user -> {
             notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
         });
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("workOrderTitle", workOrder.getTitle());
         }};
-        Collection<OwnUser> usersToMail = workOrder.getUsers().stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
+        Collection<OwnUser> usersToMail = users.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
         emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Work Order", mailVariables, "new-work-order.html");
-
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
@@ -236,5 +236,9 @@ public class WorkOrderService {
 
     public long getAllCost(Collection<WorkOrder> workOrders, boolean includeLaborCost) {
         return getPartCost(workOrders) + getAdditionalCost(workOrders) + (includeLaborCost ? getLaborCostAndTime(workOrders).getFirst() : 0);
+    }
+
+    public Collection<WorkOrder> findByCreatedBy(Long id) {
+        return workOrderRepository.findByCreatedBy(id);
     }
 }
