@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
@@ -79,6 +80,30 @@ public class WorkOrderController {
                     .value(user.getCompany().getId())
                     .operation("eq")
                     .values(new ArrayList<>()).build());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
+                if (!canViewOthers) {
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdBy")
+                            .value(user.getId())
+                            .operation("eq")
+                            .values(new ArrayList<>())
+                            .alternatives(Arrays.asList(
+                                    FilterField.builder()
+                                            .field("assignedTo")
+                                            .operation("inm")
+                                            .joinType(JoinType.LEFT)
+                                            .value("")
+                                            .values(Collections.singletonList(user.getId())).build(),
+                                    FilterField.builder()
+                                            .field("primaryUser")
+                                            .operation("eq")
+                                            .value(user.getId())
+                                            .values(Collections.singletonList(user.getId())).build()
+                                    //TODO team
+                            )).build());
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
     }

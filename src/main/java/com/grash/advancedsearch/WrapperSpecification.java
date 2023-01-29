@@ -3,7 +3,9 @@ package com.grash.advancedsearch;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class WrapperSpecification<T> implements Specification<T> {
 
@@ -33,7 +35,20 @@ public class WrapperSpecification<T> implements Specification<T> {
             case DOES_NOT_END_WITH:
                 return cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
             case EQUAL:
-                return cb.equal(root.get(filterField.getField()), filterField.getValue());
+                Predicate result = cb.equal(root.get(filterField.getField()), filterField.getValue());
+                if (filterField.getAlternatives() == null) {
+                    return result;
+                } else {
+                    List<SpecificationBuilder<T>> specificationBuilders = filterField.getAlternatives().stream().map(alternative -> {
+                        SpecificationBuilder<T> builder = new SpecificationBuilder<>();
+                        builder.with(alternative);
+                        return builder;
+                    }).collect(Collectors.toList());
+                    List<Predicate> predicates = specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
+                    predicates.add(result);
+                    Predicate[] predicatesArray = predicates.toArray(new Predicate[0]);
+                    return cb.or(predicatesArray);
+                }
             case NOT_EQUAL:
                 return cb.notEqual(root.get(filterField.getField()), filterField.getValue());
             case NUL:
@@ -53,7 +68,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 filterField.getValues().forEach(inClause::value);
                 return inClause;
             case IN_MANY_TO_MANY:
-                Join<Object, Object> join = root.join(filterField.getField());
+                Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
                 filterField.getValues().forEach(inClause1::value);
                 return inClause1;
