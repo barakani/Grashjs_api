@@ -53,10 +53,10 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                searchCriteria.setCompany(user);
+                searchCriteria.filterCompany(user);
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
                 if (!canViewOthers) {
-                    searchCriteria.setCreatedBy(user);
+                    searchCriteria.filterCreatedBy(user);
                 }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }

@@ -22,7 +22,7 @@ public class SearchCriteria {
     private int pageNum = 0;
     private int pageSize = 10;
 
-    public void setCompany(OwnUser user) {
+    public void filterCompany(OwnUser user) {
         this.filterFields.add(FilterField.builder()
                 .field("company")
                 .value(user.getCompany().getId())
@@ -30,7 +30,7 @@ public class SearchCriteria {
                 .values(new ArrayList<>()).build());
     }
 
-    public void setCreatedBy(OwnUser user) {
+    public void filterCreatedBy(OwnUser user) {
         this.filterFields.add(FilterField.builder()
                 .field("createdBy")
                 .value(user.getId())

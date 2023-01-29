@@ -47,10 +47,10 @@ public class PartController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-                searchCriteria.setCompany(user);
+                searchCriteria.filterCompany(user);
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
                 if (!canViewOthers) {
-                    searchCriteria.setCreatedBy(user);
+                    searchCriteria.filterCreatedBy(user);
                 }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }

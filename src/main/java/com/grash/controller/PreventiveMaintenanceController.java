@@ -51,7 +51,7 @@ public class PreventiveMaintenanceController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
-                searchCriteria.setCompany(user);
+                searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(preventiveMaintenanceService.findBySearchCriteria(searchCriteria));

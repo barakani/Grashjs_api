@@ -43,7 +43,7 @@ public class UserController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                searchCriteria.setCompany(user);
+                searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(userService.findBySearchCriteria(searchCriteria));

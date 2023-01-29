@@ -54,10 +54,10 @@ public class PurchaseOrderController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
-                searchCriteria.setCompany(user);
+                searchCriteria.filterCompany(user);
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS);
                 if (!canViewOthers) {
-                    searchCriteria.setCreatedBy(user);
+                    searchCriteria.filterCreatedBy(user);
                 }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
