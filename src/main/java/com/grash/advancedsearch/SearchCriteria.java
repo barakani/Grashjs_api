@@ -16,9 +16,6 @@ import java.util.List;
 @Builder
 public class SearchCriteria {
     private List<FilterField> filterFields;
-    private boolean advancedSearch;
-    private String searchTerm;
-    private String sortedBy;
     private Direction direction = Direction.ASC;
     private int pageNum = 0;
     private int pageSize = 10;

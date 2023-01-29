@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.MeterPatchDTO;
+import com.grash.dto.MeterShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.Meter;
@@ -10,6 +13,9 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +38,7 @@ public class MeterService {
     private final EntityManager em;
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
+    private final ReadingService readingService;
 
     @Transactional
     public Meter create(Meter meter) {
@@ -120,5 +127,12 @@ public class MeterService {
             Optional<Meter> optionalMeter = findById(meter.getId());
             return optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
         }
+    }
+
+    public Page<MeterShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Meter> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return meterRepository.findAll(builder.build(), page).map(meter -> meterMapper.toShowDto(meter, readingService));
     }
 }

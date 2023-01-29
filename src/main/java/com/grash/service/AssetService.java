@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
+import com.grash.dto.AssetShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
 import com.grash.model.Asset;
@@ -13,6 +16,9 @@ import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -160,5 +166,12 @@ public class AssetService {
             Optional<Asset> optionalAsset = findById(asset.getId());
             return optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
         }
+    }
+
+    public Page<AssetShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return assetRepository.findAll(builder.build(), page).map(assetMapper::toShowDto);
     }
 }

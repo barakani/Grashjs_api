@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
@@ -18,6 +19,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +59,18 @@ public class PreventiveMaintenanceController {
             return preventiveMaintenanceService.findByCompany(user.getCompany().getId()).stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
         } else
             return preventiveMaintenanceService.getAll().stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
+    }
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+    @PostMapping("/search")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+        }
+        return ResponseEntity.ok(preventiveMaintenanceService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")

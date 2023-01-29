@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.TeamPatchDTO;
+import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
 import com.grash.model.Notification;
@@ -11,6 +14,9 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,5 +118,13 @@ public class TeamService {
 
     public Collection<Team> findByUser(Long id) {
         return teamRepository.findByUsers_Id(id);
+    }
+
+
+    public Page<TeamShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Team> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return teamRepository.findAll(builder.build(), page).map(teamMapper::toShowDto);
     }
 }
