@@ -19,7 +19,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/preventive-maintenances")
@@ -47,28 +44,12 @@ public class PreventiveMaintenanceController {
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final EntityManager em;
 
-    @GetMapping("")
-    @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PreventiveMaintenanceCategory not found")})
-    public Collection<PreventiveMaintenanceShowDTO> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return preventiveMaintenanceService.findByCompany(user.getCompany().getId()).stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
-        } else
-            return preventiveMaintenanceService.getAll().stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
-    }
-
-    @Value("${frontend.url}")
-    private String frontendUrl;
-
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            searchCriteria.setCompany(user);
         }
         return ResponseEntity.ok(preventiveMaintenanceService.findBySearchCriteria(searchCriteria));
     }

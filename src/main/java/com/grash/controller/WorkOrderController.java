@@ -58,11 +58,7 @@ public class WorkOrderController {
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            searchCriteria.getFilterFields().add(FilterField.builder()
-                    .field("company")
-                    .value(user.getCompany().getId())
-                    .operation("eq")
-                    .values(new ArrayList<>()).build());
+            searchCriteria.setCompany(user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 if (!canViewOthers) {
