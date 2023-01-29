@@ -107,10 +107,6 @@ public class WorkOrderService {
 
     public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-        Optional<Asset> optionalAsset = assetService.findById(workOrderReq.getAsset().getId());
-
         //@NotNull fields
         boolean first = companyService.isCompanyValid(workOrderReq.getCompany(), companyId);
 

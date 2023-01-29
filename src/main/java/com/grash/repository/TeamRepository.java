@@ -7,4 +7,6 @@ import java.util.Collection;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
     Collection<Team> findByCompany_Id(Long id);
+
+    Collection<Team> findByUsers_Id(Long id);
 }

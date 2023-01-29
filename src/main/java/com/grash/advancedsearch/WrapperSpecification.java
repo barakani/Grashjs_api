@@ -20,59 +20,78 @@ public class WrapperSpecification<T> implements Specification<T> {
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         String strToSearch = filterField.getValue().toString().toLowerCase();
-
+        Predicate result = null;
         switch (Objects.requireNonNull(SearchOperation.getSimpleOperation(filterField.getOperation()))) {
             case CONTAINS:
-                return cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                result = cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                break;
             case DOES_NOT_CONTAIN:
-                return cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch + "%");
+                break;
             case BEGINS_WITH:
-                return cb.like(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                result = cb.like(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                break;
             case DOES_NOT_BEGIN_WITH:
-                return cb.notLike(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                result = cb.notLike(cb.lower(root.get(filterField.getField())), strToSearch + "%");
+                break;
             case ENDS_WITH:
-                return cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                result = cb.like(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                break;
             case DOES_NOT_END_WITH:
-                return cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
+                break;
             case EQUAL:
-                Predicate result = cb.equal(root.get(filterField.getField()), filterField.getValue());
-                if (filterField.getAlternatives() == null) {
-                    return result;
-                } else {
-                    List<SpecificationBuilder<T>> specificationBuilders = filterField.getAlternatives().stream().map(alternative -> {
-                        SpecificationBuilder<T> builder = new SpecificationBuilder<>();
-                        builder.with(alternative);
-                        return builder;
-                    }).collect(Collectors.toList());
-                    List<Predicate> predicates = specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
-                    predicates.add(result);
-                    Predicate[] predicatesArray = predicates.toArray(new Predicate[0]);
-                    return cb.or(predicatesArray);
-                }
+                result = cb.equal(root.get(filterField.getField()), filterField.getValue());
+                break;
             case NOT_EQUAL:
-                return cb.notEqual(root.get(filterField.getField()), filterField.getValue());
+                result = cb.notEqual(root.get(filterField.getField()), filterField.getValue());
+                break;
             case NUL:
-                return cb.isNull(root.get(filterField.getField()));
+                result = cb.isNull(root.get(filterField.getField()));
+                break;
             case NOT_NULL:
-                return cb.isNotNull(root.get(filterField.getField()));
+                result = cb.isNotNull(root.get(filterField.getField()));
+                break;
             case GREATER_THAN:
-                return cb.greaterThan(root.get(filterField.getField()), filterField.getValue().toString());
+                result = cb.greaterThan(root.get(filterField.getField()), filterField.getValue().toString());
+                break;
             case GREATER_THAN_EQUAL:
-                return cb.greaterThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                break;
             case LESS_THAN:
-                return cb.lessThan(root.get(filterField.getField()), filterField.getValue().toString());
+                result = cb.lessThan(root.get(filterField.getField()), filterField.getValue().toString());
+                break;
             case LESS_THAN_EQUAL:
-                return cb.lessThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                result = cb.lessThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                break;
             case IN:
                 CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
                 filterField.getValues().forEach(inClause::value);
-                return inClause;
+                result = inClause;
+                break;
             case IN_MANY_TO_MANY:
                 Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
                 filterField.getValues().forEach(inClause1::value);
-                return inClause1;
+                result = inClause1;
+                break;
         }
-        return null;
+        return wrapAlternatives(result, root, query, cb);
+    }
+
+    private Predicate wrapAlternatives(Predicate result, Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        if (filterField.getAlternatives() == null || filterField.getAlternatives().size() == 0) {
+            return result;
+        } else {
+            List<SpecificationBuilder<T>> specificationBuilders = filterField.getAlternatives().stream().map(alternative -> {
+                SpecificationBuilder<T> builder = new SpecificationBuilder<>();
+                builder.with(alternative);
+                return builder;
+            }).collect(Collectors.toList());
+            List<Predicate> predicates = specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
+            predicates.add(result);
+            Predicate[] predicatesArray = predicates.toArray(new Predicate[0]);
+            return cb.or(predicatesArray);
+        }
     }
 }

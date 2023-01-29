@@ -109,4 +109,8 @@ public class TeamService {
             return optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId);
         }
     }
+
+    public Collection<Team> findByUser(Long id) {
+        return teamRepository.findByUsers_Id(id);
+    }
 }
