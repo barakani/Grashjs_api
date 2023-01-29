@@ -29,4 +29,12 @@ public class SearchCriteria {
                 .operation("eq")
                 .values(new ArrayList<>()).build());
     }
+
+    public void setCreatedBy(OwnUser user) {
+        this.filterFields.add(FilterField.builder()
+                .field("createdBy")
+                .value(user.getId())
+                .operation("eq")
+                .values(new ArrayList<>()).build());
+    }
 }

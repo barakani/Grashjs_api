@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,23 +48,20 @@ public class PurchaseOrderController {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PurchaseOrderCategory not found")})
-    public Collection<PurchaseOrderShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<PurchaseOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
-                return purchaseOrderService.findByCompany(user.getCompany().getId()).stream().filter(purchaseOrder -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS);
-                    return canViewOthers || purchaseOrder.getCreatedBy().equals(user.getId());
-                }).map(purchaseOrderMapper::toShowDto).map(this::setPartQuantities).collect(Collectors.toList());
+                searchCriteria.setCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS);
+                if (!canViewOthers) {
+                    searchCriteria.setCreatedBy(user);
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else
-            return purchaseOrderService.getAll().stream().map(purchaseOrderMapper::toShowDto).map(this::setPartQuantities).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(purchaseOrderService.findBySearchCriteria(searchCriteria).map(this::setPartQuantities));
     }
 
     @GetMapping("/{id}")

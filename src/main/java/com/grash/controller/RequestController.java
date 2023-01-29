@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,9 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/requests")
@@ -44,22 +44,20 @@ public class RequestController {
     private final RequestMapper requestMapper;
     private final NotificationService notificationService;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "RequestCategory not found")})
-    public Collection<RequestShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<RequestShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
-                return requestService.findByCompany(user.getCompany().getId()).stream().filter(request -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS);
-                    return canViewOthers || request.getCreatedBy().equals(user.getId());
-                }).map(requestMapper::toShowDto).collect(Collectors.toList());
+                searchCriteria.setCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS);
+                if (!canViewOthers) {
+                    searchCriteria.setCreatedBy(user);
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return requestService.getAll().stream().map(requestMapper::toShowDto).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(requestService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")

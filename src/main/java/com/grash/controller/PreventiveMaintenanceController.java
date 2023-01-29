@@ -10,6 +10,7 @@ import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
@@ -49,7 +50,9 @@ public class PreventiveMaintenanceController {
     public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            searchCriteria.setCompany(user);
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+                searchCriteria.setCompany(user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(preventiveMaintenanceService.findBySearchCriteria(searchCriteria));
     }

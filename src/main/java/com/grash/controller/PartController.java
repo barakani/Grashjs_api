@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PartMiniDTO;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartShowDTO;
@@ -17,6 +18,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,22 +40,21 @@ public class PartController {
     private final PartMapper partMapper;
     private final UserService userService;
 
-    @GetMapping("")
+
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PartCategory not found")})
-    public Collection<PartShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<PartShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-                return partService.findByCompany(user.getCompany().getId()).stream().filter(part -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
-                    return canViewOthers || part.getCreatedBy().equals(user.getId());
-                }).map(partMapper::toShowDto).collect(Collectors.toList());
+                searchCriteria.setCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
+                if (!canViewOthers) {
+                    searchCriteria.setCreatedBy(user);
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return partService.getAll().stream().map(partMapper::toShowDto).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(partService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")
