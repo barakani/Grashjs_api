@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -14,7 +15,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,19 +37,16 @@ public class UserController {
     private final RoleService roleService;
     private final UserMapper userMapper;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public Collection<OwnUser> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                return userService.findByCompany(user.getCompany().getId());
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else return userService.getAll();
+                searchCriteria.filterCompany(user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return ResponseEntity.ok(userService.findBySearchCriteria(searchCriteria));
     }
 
     @PostMapping("/invite")

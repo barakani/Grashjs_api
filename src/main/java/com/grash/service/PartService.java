@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
+import com.grash.dto.PartShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
@@ -8,6 +11,9 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,5 +125,12 @@ public class PartService {
             Optional<Part> optionalPart = findById(part.getId());
             return optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId);
         }
+    }
+
+    public Page<PartShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Part> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return partRepository.findAll(builder.build(), page).map(partMapper::toShowDto);
     }
 }

@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenancePostDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
@@ -9,6 +10,7 @@ import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
@@ -18,6 +20,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,10 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/preventive-maintenances")
@@ -44,18 +45,16 @@ public class PreventiveMaintenanceController {
     private final PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final EntityManager em;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "PreventiveMaintenanceCategory not found")})
-    public Collection<PreventiveMaintenanceShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<PreventiveMaintenanceShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return preventiveMaintenanceService.findByCompany(user.getCompany().getId()).stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
-        } else
-            return preventiveMaintenanceService.getAll().stream().map(preventiveMaintenanceMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+                searchCriteria.filterCompany(user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return ResponseEntity.ok(preventiveMaintenanceService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")

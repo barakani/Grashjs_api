@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PurchaseOrderPatchDTO;
+import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.Company;
@@ -9,6 +12,9 @@ import com.grash.model.PurchaseOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PurchaseOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,5 +95,12 @@ public class PurchaseOrderService {
             Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
             return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
         }
+    }
+
+    public Page<PurchaseOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<PurchaseOrder> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return purchaseOrderRepository.findAll(builder.build(), page).map(purchaseOrderMapper::toShowDto);
     }
 }

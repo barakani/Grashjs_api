@@ -1,10 +1,15 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.model.File;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -57,5 +62,12 @@ public class FileService {
             Optional<File> optionalFile = findById(file.getId());
             return optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId);
         }
+    }
+    
+    public Page<File> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<File> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return fileRepository.findAll(builder.build(), page);
     }
 }

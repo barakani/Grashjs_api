@@ -2,12 +2,13 @@ package com.grash.repository;
 
 import com.grash.model.OwnUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
-public interface UserRepository extends JpaRepository<OwnUser, Long> {
+public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecificationExecutor<OwnUser> {
 
     boolean existsByUsername(String username);
 
