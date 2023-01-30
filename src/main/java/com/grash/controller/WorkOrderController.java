@@ -11,6 +11,8 @@ import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.service.*;
 import com.grash.utils.Helper;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -19,13 +21,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +58,12 @@ public class WorkOrderController {
     private final NotificationService notificationService;
     private final EmailService2 emailService2;
     private final TeamService teamService;
+    private final TaskService taskService;
+    private final RelationService relationService;
+    private final AdditionalCostService additionalCostService;
+    private final WorkOrderHistoryService workOrderHistoryService;
+    private final SpringTemplateEngine thymeleafTemplateEngine;
+
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -267,4 +281,51 @@ public class WorkOrderController {
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
     }
 
+    @RequestMapping(path = "/report/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<?> getPDF(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req, HttpServletResponse response) throws IOException {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (workOrderService.hasAccess(user, savedWorkOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
+                WebContext context = new WebContext(req, response, req.getServletContext());
+                OwnUser creator = userService.findById(savedWorkOrder.getCreatedBy()).get();
+                List<String> tasks = taskService.findByWorkOrder(id).stream().map(task -> task.getTaskBase().getLabel()).collect(Collectors.toList());
+                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
+                Collection<Labor> labors = laborService.findByWorkOrder(id);
+                Collection<Relation> relations = relationService.findByWorkOrder(id);
+                Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(id);
+                Collection<WorkOrderHistory> workOrderHistories = workOrderHistoryService.findByWorkOrder(id);
+                Map<String, Object> variables = new HashMap<String, Object>() {{
+                    put("workOrder", savedWorkOrder);
+                    put("createdBy", creator.getFullName());
+                    put("tasks", tasks);
+                    put("labors", labors);
+                    put("relations", relations);
+                    put("additionalCosts", additionalCosts);
+                    put("workOrderHistories", workOrderHistories);
+                    put("partQuantities", partQuantities);
+                }};
+                context.setVariables(variables);
+                String reportHtml = thymeleafTemplateEngine.process("reports/work-order", context);
+
+                /* Setup Source and target I/O streams */
+                ByteArrayOutputStream target = new ByteArrayOutputStream();
+                /*Setup converter properties. */
+                ConverterProperties converterProperties = new ConverterProperties();
+                converterProperties.setBaseUri("http://localhost:8080");
+                /* Call convert method */
+                HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
+                /* extract output as bytes */
+                byte[] bytes = target.toByteArray();
+                /* Send the response as downloadable PDF */
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(bytes);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+
+    }
 }

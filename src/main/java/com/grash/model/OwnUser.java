@@ -136,5 +136,9 @@ public class OwnUser extends Audit {
     public boolean canSeeAnalytics() {
         return this.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS) && this.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ANALYTICS);
     }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 }
 
