@@ -12,6 +12,14 @@ spring:
   sql:
     init:
       data-locations: classpath:data-dev.sql
-
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#            BasicBinder: TRACE
 api:
   host: http://localhost:8080

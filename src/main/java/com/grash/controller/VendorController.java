@@ -38,22 +38,7 @@ public class VendorController {
     private final VendorService vendorService;
     private final UserService userService;
     private final VendorMapper vendorMapper;
-
-    @GetMapping("")
-    @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<Vendor> getAll(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-                return vendorService.findByCompany(user.getCompany().getId());
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return vendorService.getAll();
-    }
-
+    
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<Vendor>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
