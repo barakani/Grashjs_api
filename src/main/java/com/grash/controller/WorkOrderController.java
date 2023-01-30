@@ -11,7 +11,7 @@ import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import com.itextpdf.html2pdf.ConverterProperties;
+import com.grash.utils.MultipartFileImpl;
 import com.itextpdf.html2pdf.HtmlConverter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -21,16 +21,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.context.WebContext;
+import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,6 +64,7 @@ public class WorkOrderController {
     private final AdditionalCostService additionalCostService;
     private final WorkOrderHistoryService workOrderHistoryService;
     private final SpringTemplateEngine thymeleafTemplateEngine;
+    private final GCPService gcp;
 
 
     @Value("${frontend.url}")
@@ -282,6 +284,7 @@ public class WorkOrderController {
     }
 
     @RequestMapping(path = "/report/{id}")
+    @Transactional
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<?> getPDF(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req, HttpServletResponse response) throws IOException {
         OwnUser user = userService.whoami(req);
@@ -290,7 +293,8 @@ public class WorkOrderController {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (workOrderService.hasAccess(user, savedWorkOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
-                WebContext context = new WebContext(req, response, req.getServletContext());
+                Context thymeleafContext = new Context();
+                thymeleafContext.setLocale(Helper.getLocale(user));
                 OwnUser creator = userService.findById(savedWorkOrder.getCreatedBy()).get();
                 List<String> tasks = taskService.findByWorkOrder(id).stream().map(task -> task.getTaskBase().getLabel()).collect(Collectors.toList());
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
@@ -308,22 +312,19 @@ public class WorkOrderController {
                     put("workOrderHistories", workOrderHistories);
                     put("partQuantities", partQuantities);
                 }};
-                context.setVariables(variables);
-                String reportHtml = thymeleafTemplateEngine.process("reports/work-order", context);
+                thymeleafContext.setVariables(variables);
+
+                String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
                 /* Setup Source and target I/O streams */
                 ByteArrayOutputStream target = new ByteArrayOutputStream();
-                /*Setup converter properties. */
-                ConverterProperties converterProperties = new ConverterProperties();
-                converterProperties.setBaseUri("http://localhost:8080");
                 /* Call convert method */
-                HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
+                HtmlConverter.convertToPdf(reportHtml, target);
                 /* extract output as bytes */
                 byte[] bytes = target.toByteArray();
-                /* Send the response as downloadable PDF */
+                MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_PDF)
-                        .body(bytes);
+                        .body(new SuccessResponse(true, gcp.upload(file, "reports/" + user.getCompany().getId())));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
