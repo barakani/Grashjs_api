@@ -1,5 +1,7 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.VendorPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.VendorMapper;
@@ -8,6 +10,9 @@ import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -74,5 +79,12 @@ public class VendorService {
             Optional<Vendor> optionalVendor = findById(vendor.getId());
             return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
         }
+    }
+    
+    public Page<Vendor> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Vendor> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return vendorRepository.findAll(builder.build(), page);
     }
 }

@@ -1,5 +1,7 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
@@ -13,6 +15,9 @@ import com.grash.utils.Helper;
 import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -218,5 +223,13 @@ public class UserService {
             Optional<OwnUser> optionalUser = findById(user.getId());
             return optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId);
         }
+    }
+
+
+    public Page<OwnUser> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<OwnUser> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return userRepository.findAll(builder.build(), page);
     }
 }

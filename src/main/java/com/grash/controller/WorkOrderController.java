@@ -1,5 +1,7 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.FilterField;
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
@@ -15,11 +17,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
@@ -45,27 +49,49 @@ public class WorkOrderController {
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
     private final EmailService2 emailService2;
+    private final TeamService teamService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public Collection<WorkOrderShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            searchCriteria.filterCompany(user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                return workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                    return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
-                }).map(workOrderMapper::toShowDto).collect(Collectors.toList());
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
+                if (!canViewOthers) {
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdBy")
+                            .value(user.getId())
+                            .operation("eq")
+                            .values(new ArrayList<>())
+                            .alternatives(Arrays.asList(
+                                    FilterField.builder()
+                                            .field("assignedTo")
+                                            .operation("inm")
+                                            .joinType(JoinType.LEFT)
+                                            .value("")
+                                            .values(Collections.singletonList(user.getId())).build(),
+                                    FilterField.builder()
+                                            .field("primaryUser")
+                                            .operation("eq")
+                                            .value(user.getId())
+                                            .values(Collections.singletonList(user.getId())).build(),
+                                    FilterField.builder()
+                                            .field("team")
+                                            .operation("in")
+                                            .value("")
+                                            .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
+                            )).build());
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
     }
+
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")

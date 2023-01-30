@@ -8,6 +8,8 @@ import com.grash.model.Reading;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.ReadingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +21,13 @@ import java.util.Optional;
 public class ReadingService {
     private final ReadingRepository readingRepository;
     private final ReadingMapper readingMapper;
-    private final MeterService meterService;
+    private MeterService meterService;
+
+    @Autowired
+    public void setDeps(@Lazy MeterService meterService
+    ) {
+        this.meterService = meterService;
+    }
 
     public Reading create(Reading Reading) {
         return readingRepository.save(Reading);

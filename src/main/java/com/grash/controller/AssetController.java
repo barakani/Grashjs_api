@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
@@ -13,12 +14,16 @@ import com.grash.model.Part;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
-import com.grash.service.*;
+import com.grash.service.AssetService;
+import com.grash.service.LocationService;
+import com.grash.service.PartService;
+import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,24 +46,21 @@ public class AssetController {
     private final UserService userService;
     private final LocationService locationService;
     private final PartService partService;
-    private final AssetDowntimeService assetDowntimeService;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<AssetShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<AssetShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
-                    return canViewOthers || asset.getCreatedBy().equals(user.getId());
-                }).map(assetMapper::toShowDto).collect(Collectors.toList());
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return assetService.getAll().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(assetService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")

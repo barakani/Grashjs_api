@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.TeamMiniDTO;
 import com.grash.dto.TeamPatchDTO;
@@ -17,6 +18,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,20 +40,16 @@ public class TeamController {
     private final TeamMapper teamMapper;
     private final UserService userService;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public Collection<TeamShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<TeamShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-                return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
-            } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                searchCriteria.filterCompany(user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return ResponseEntity.ok(teamService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/mini")

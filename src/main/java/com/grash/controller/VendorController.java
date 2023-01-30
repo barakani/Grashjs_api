@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.VendorMiniDTO;
 import com.grash.dto.VendorPatchDTO;
@@ -16,6 +17,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,20 +38,17 @@ public class VendorController {
     private final VendorService vendorService;
     private final UserService userService;
     private final VendorMapper vendorMapper;
-
-    @GetMapping("")
+    
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<Vendor> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<Vendor>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-                return vendorService.findByCompany(user.getCompany().getId());
+                searchCriteria.filterCompany(user);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return vendorService.getAll();
+        }
+        return ResponseEntity.ok(vendorService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")
