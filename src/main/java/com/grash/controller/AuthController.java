@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -83,7 +84,7 @@ public class AuthController {
             put("verifyTokenLink", "gg");
             put("featuresLink", "s");
         }};
-        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html");
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html", Locale.FRENCH);
     }
 
     @GetMapping("/activate-account")

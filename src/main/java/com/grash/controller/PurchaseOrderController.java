@@ -9,6 +9,7 @@ import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -103,7 +104,7 @@ public class PurchaseOrderController {
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
             usersToNotify.forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.PURCHASE_ORDER, result.getId())));
             Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user1 -> user1.getUserSettings().isEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
-            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Purchase Order Requested", mailVariables, "new-purchase-order.html");
+            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Purchase Order Requested", mailVariables, "new-purchase-order.html", Helper.getLocale(user));
             return result;
         } else throw new
 

@@ -108,7 +108,7 @@ public class UserService {
                 }};
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
-                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "Confirmation Email", variables, "signup.html");
+                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "Confirmation Email", variables, "signup.html", Helper.getLocale(user));
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
@@ -167,7 +167,7 @@ public class UserService {
             put("featuresLink", frontendUrl + "/#key-features");
             put("password", password);
         }};
-        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Grash Password Reset", variables, "reset-password.html");
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Grash Password Reset", variables, "reset-password.html", Helper.getLocale(user));
         return new SuccessResponse(true, "Password changed successfully");
     }
 
@@ -188,7 +188,7 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Invitation to use Grash", variables, "invite.html");
+            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Invitation to use Grash", variables, "invite.html", Helper.getLocale(inviter));
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 

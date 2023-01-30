@@ -11,6 +11,7 @@ import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -130,7 +131,9 @@ public class WorkOrderService {
             put("workOrderTitle", workOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail = users.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
-        emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Work Order", mailVariables, "new-work-order.html");
+        if (usersToMail.size() > 0) {
+            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), "New Work Order", mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
+        }
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {

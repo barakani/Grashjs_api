@@ -18,6 +18,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -82,9 +83,10 @@ public class EmailService2 {
 
 
     public void sendMessageUsingThymeleafTemplate(
-            String[] to, String subject, Map<String, Object> templateModel, String template) {
+            String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale) {
 
         Context thymeleafContext = new Context();
+        thymeleafContext.setLocale(locale);
         thymeleafContext.setVariables(templateModel);
 
         String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);

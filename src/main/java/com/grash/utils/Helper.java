@@ -1,6 +1,8 @@
 package com.grash.utils;
 
 
+import com.grash.model.OwnUser;
+import com.grash.model.enums.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -74,5 +77,9 @@ public class Helper {
 
     public static Date addSeconds(Date date, int seconds) {
         return new Date(date.getTime() + seconds * 1000);
+    }
+
+    public static Locale getLocale(OwnUser user) {
+        return user.getCompany().getCompanySettings().getGeneralPreferences().getLanguage().equals(Language.EN) ? Locale.getDefault() : Locale.FRANCE;
     }
 }

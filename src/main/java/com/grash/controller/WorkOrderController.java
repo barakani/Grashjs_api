@@ -8,6 +8,7 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -208,7 +209,7 @@ public class WorkOrderController {
                             put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                             put("message", message);
                         }};
-                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, "Work Order Request Update", mailVariables, "requester-update.html");
+                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, "Work Order Request Update", mailVariables, "requester-update.html", Helper.getLocale(user));
                     }
                 }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
