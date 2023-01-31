@@ -9,6 +9,7 @@ import java.util.Date;
 @SuperBuilder
 @Data
 @NoArgsConstructor
-public class WorkOrdersCalendarRequest {
-    private Date date;
+public class DateRange {
+    private Date start;
+    private Date end;
 }

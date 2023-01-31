@@ -2,10 +2,10 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.dto.DateRange;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
-import com.grash.dto.WorkOrdersCalendarRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -36,7 +36,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,16 +115,13 @@ public class WorkOrderController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public Collection<WorkOrderShowDTO> getByMonth(@Valid @RequestBody WorkOrdersCalendarRequest
-                                                           workOrdersCalendarRequest, HttpServletRequest req) {
+    public Collection<WorkOrderShowDTO> getByMonth(@Valid @RequestBody DateRange
+                                                           dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                LocalDate firstOfMonth =
-                        Helper.dateToLocalDate(workOrdersCalendarRequest.getDate()).withDayOfMonth(1);
-                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
                 //TODO Add preventive Maintenances
-                return workOrderService.findByDueDateBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId()).stream().filter(workOrder -> {
+                return workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                     boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                     return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
                 }).map(workOrderMapper::toShowDto).collect(Collectors.toList());
