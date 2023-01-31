@@ -259,4 +259,8 @@ public class WorkOrderService {
             return optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
         }
     }
+
+    public Collection<WorkOrder> findByDueDateBetweenAndCompany(Date date1, Date date2, Long id) {
+        return workOrderRepository.findByDueDateBetweenAndCompany_Id(date1, date2, id);
+    }
 }
