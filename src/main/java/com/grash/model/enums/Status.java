@@ -20,7 +20,7 @@ public enum Status {
                 return status;
             }
         }
-        return null;
+        return OPEN;
     }
 
     public String getName() {
