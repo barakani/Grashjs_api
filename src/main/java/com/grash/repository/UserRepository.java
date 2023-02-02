@@ -7,13 +7,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecificationExecutor<OwnUser> {
 
     boolean existsByUsername(String username);
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    OwnUser findUserByEmail(String email);
+    Optional<OwnUser> findByEmail(String email);
 
     @Transactional
     void deleteByUsername(String username);

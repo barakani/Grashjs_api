@@ -34,7 +34,7 @@ public class AuditConfig {
                 return Optional.empty();
             }
             String username = authentication.getName();
-            return Optional.ofNullable(userService.search(username).getId());
+            return Optional.ofNullable(userService.findByEmail(username).get().getId());
         }
 
     }

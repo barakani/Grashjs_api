@@ -4,6 +4,7 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
+import com.grash.dto.imports.WorkOrderImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -12,6 +13,7 @@ import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.Status;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
@@ -48,6 +50,7 @@ public class WorkOrderService {
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
     private final EmailService2 emailService2;
+    private final WorkOrderCategoryService workOrderCategoryService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -128,9 +131,7 @@ public class WorkOrderService {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
         Collection<OwnUser> users = workOrder.getUsers();
-        users.forEach(user -> {
-            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
-        });
+        users.forEach(user -> notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("featuresLink", frontendUrl + "/#key-features");
@@ -262,5 +263,39 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByDueDateBetweenAndCompany(Date date1, Date date2, Long id) {
         return workOrderRepository.findByDueDateBetweenAndCompany_Id(date1, date2, id);
+    }
+
+    public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
+        Long companySettingsId = company.getCompanySettings().getId();
+        Long companyId = company.getId();
+        workOrder.setDueDate(Helper.getDateFromString(dto.getDueDate()));
+        workOrder.setPriority(Priority.getPriorityFromString(dto.getPriority()));
+        workOrder.setEstimatedDuration(dto.getEstimatedDuration());
+        workOrder.setDescription(dto.getDescription());
+        workOrder.setTitle(dto.getTitle());
+        workOrder.setRequiredSignature(dto.isRequiredSignature());
+        Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        optionalWorkOrderCategory.ifPresent(workOrder::setCategory);
+        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        optionalLocation.ifPresent(workOrder::setLocation);
+        Optional<Team> optionalTeam = teamService.findByNameAndCompany(dto.getTeamName(), companyId);
+        optionalTeam.ifPresent(workOrder::setTeam);
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmail(dto.getPrimaryUserEmail());
+        optionalPrimaryUser.ifPresent(workOrder::setPrimaryUser);
+        List<OwnUser> assignedTo = new ArrayList<>();
+        dto.getAssignedToEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmail(email);
+            optionalUser1.ifPresent(assignedTo::add);
+        });
+        workOrder.setAssignedTo(assignedTo);
+        Optional<Asset> optionalAsset = assetService.findByNameAndCompany(dto.getAssetName(), companyId);
+        optionalAsset.ifPresent(workOrder::setAsset);
+        Optional<OwnUser> optionalCompletedBy = userService.findByEmail(dto.getCompletedByEmail());
+        optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
+        workOrder.setCompletedOn(Helper.getDateFromString(dto.getCompletedOn()));
+        workOrder.setArchived(dto.isArchived());
+        workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
+        workOrder.setFeedback(dto.getFeedback());
+        workOrderRepository.save(workOrder);
     }
 }

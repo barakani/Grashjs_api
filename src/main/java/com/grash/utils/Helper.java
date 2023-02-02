@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -85,5 +86,16 @@ public class Helper {
 
     public static Locale getLocale(OwnUser user) {
         return user.getCompany().getCompanySettings().getGeneralPreferences().getLanguage().equals(Language.EN) ? Locale.getDefault() : Locale.FRANCE;
+    }
+
+    public static Date getDateFromString(String string) {
+        if (string == null || string.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return DateFormat.getDateInstance().parse(string);
+        } catch (Exception exception) {
+            return null;
+        }
     }
 }

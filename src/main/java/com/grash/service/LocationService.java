@@ -108,4 +108,8 @@ public class LocationService {
             return optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
         }
     }
+
+    public Optional<Location> findByNameAndCompany(String locationName, Long companyId) {
+        return locationRepository.findByNameAndCompany_Id(locationName, companyId);
+    }
 }

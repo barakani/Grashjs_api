@@ -127,4 +127,8 @@ public class TeamService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return teamRepository.findAll(builder.build(), page).map(teamMapper::toShowDto);
     }
+
+    public Optional<Team> findByNameAndCompany(String teamName, Long id) {
+        return teamRepository.findByNameAndCompany_Id(teamName, id);
+    }
 }

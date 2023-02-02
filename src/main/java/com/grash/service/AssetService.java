@@ -174,4 +174,8 @@ public class AssetService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return assetRepository.findAll(builder.build(), page).map(assetMapper::toShowDto);
     }
+
+    public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
+        return assetRepository.findByNameAndCompany_Id(assetName, companyId);
+    }
 }

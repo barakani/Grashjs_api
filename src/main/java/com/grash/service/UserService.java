@@ -65,7 +65,7 @@ public class UserService {
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
-            return jwtTokenProvider.createToken(email, Arrays.asList(userRepository.findUserByEmail(email).getRole().getRoleType()));
+            return jwtTokenProvider.createToken(email, Arrays.asList(userRepository.findByEmail(email).get().getRole().getRoleType()));
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
         }
@@ -127,20 +127,16 @@ public class UserService {
         userRepository.deleteByUsername(username);
     }
 
-    public OwnUser search(String email) {
-        OwnUser user = userRepository.findUserByEmail(email);
-        if (user == null) {
-            throw new CustomException("The user doesn't exist", HttpStatus.NOT_FOUND);
-        }
-        return user;
+    public Optional<OwnUser> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public OwnUser whoami(HttpServletRequest req) {
-        return userRepository.findUserByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
+        return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
     }
 
     public String refresh(String username) {
-        return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findUserByEmail(username).getRole().getRoleType()));
+        return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findByEmail(username).get().getRole().getRoleType()));
     }
 
     public List<OwnUser> getAll() {
@@ -156,13 +152,13 @@ public class UserService {
     }
 
     public void enableUser(String email) {
-        OwnUser user = userRepository.findUserByEmail(email);
+        OwnUser user = userRepository.findByEmail(email).get();
         user.setEnabled(true);
         userRepository.save(user);
     }
 
     public SuccessResponse resetPassword(String email) {
-        OwnUser user = search(email);
+        OwnUser user = findByEmail(email).get();
         Helper helper = new Helper();
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
