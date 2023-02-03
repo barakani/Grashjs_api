@@ -273,7 +273,7 @@ public class WorkOrderService {
         workOrder.setEstimatedDuration(dto.getEstimatedDuration());
         workOrder.setDescription(dto.getDescription());
         workOrder.setTitle(dto.getTitle());
-        workOrder.setRequiredSignature(dto.isRequiredSignature());
+        workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalWorkOrderCategory.ifPresent(workOrder::setCategory);
         Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
@@ -293,7 +293,7 @@ public class WorkOrderService {
         Optional<OwnUser> optionalCompletedBy = userService.findByEmail(dto.getCompletedByEmail());
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(Helper.getDateFromString(dto.getCompletedOn()));
-        workOrder.setArchived(dto.isArchived());
+        workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
         workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
         workOrder.setFeedback(dto.getFeedback());
         workOrderRepository.save(workOrder);

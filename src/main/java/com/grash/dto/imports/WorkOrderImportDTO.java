@@ -18,7 +18,7 @@ public class WorkOrderImportDTO {
     private String description;
     private String dueDate;
     private int estimatedDuration;
-    private boolean requiredSignature;
+    private String requiredSignature;
     private String category;
 
     private String locationName;
@@ -33,6 +33,6 @@ public class WorkOrderImportDTO {
 
     private String completedByEmail;
     private String completedOn;
-    private boolean archived;
+    private String archived;
     private String feedback;
 }

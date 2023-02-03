@@ -3,6 +3,7 @@ package com.grash.utils;
 
 import com.grash.model.OwnUser;
 import com.grash.model.enums.Language;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 
@@ -82,7 +83,13 @@ public class Helper {
     }
 
     public static Locale getLocale(OwnUser user) {
-        return user.getCompany().getCompanySettings().getGeneralPreferences().getLanguage().equals(Language.EN) ? Locale.getDefault() : Locale.FRANCE;
+        Language language = user.getCompany().getCompanySettings().getGeneralPreferences().getLanguage();
+        switch (language) {
+            case FR:
+                return Locale.FRANCE;
+            default:
+                return Locale.getDefault();
+        }
     }
 
     public static Date getDateFromString(String string) {
@@ -98,5 +105,14 @@ public class Helper {
 
     public static String getEmails(Collection<OwnUser> users) {
         return users.stream().map(OwnUser::getEmail).reduce("", (acc, email) -> acc + ", " + email);
+    }
+
+    public static boolean getBooleanFromString(String string) {
+        List<String> trues = Arrays.asList("true", "Yes", "Oui");
+        return trues.stream().anyMatch(value -> value.equalsIgnoreCase(string));
+    }
+
+    public static String getStringFromBoolean(boolean bool, MessageSource messageSource, Locale locale) {
+        return messageSource.getMessage(bool ? "Yes" : "No", null, locale);
     }
 }

@@ -6,6 +6,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.*;
 import com.grash.utils.CsvFileGenerator;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class ExportController {
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             response.setContentType("text/csv");
             response.addHeader("Content-Disposition", "attachment; filename=\"work-orders.csv\"");
-            csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompany(user.getCompany().getId()), response.getWriter());
+            csvFileGenerator.writeWorkOrdersToCsv(workOrderService.findByCompany(user.getCompany().getId()), response.getWriter(), Helper.getLocale(user));
 
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
