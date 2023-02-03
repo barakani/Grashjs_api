@@ -11,10 +11,7 @@ import javax.mail.internet.InternetAddress;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Helper {
@@ -97,5 +94,9 @@ public class Helper {
         } catch (Exception exception) {
             return null;
         }
+    }
+
+    public static String getEmails(Collection<OwnUser> users) {
+        return users.stream().map(OwnUser::getEmail).reduce("", (acc, email) -> acc + ", " + email);
     }
 }

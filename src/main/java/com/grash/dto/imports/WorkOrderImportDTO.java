@@ -11,12 +11,13 @@ import java.util.List;
 public class WorkOrderImportDTO {
 
     private Long id;
-    private String dueDate;
-    private String priority;
-    private int estimatedDuration;
-    private String description;
     @NotNull
     private String title;
+    private String status;
+    private String priority;
+    private String description;
+    private String dueDate;
+    private int estimatedDuration;
     private boolean requiredSignature;
     private String category;
 
@@ -33,6 +34,5 @@ public class WorkOrderImportDTO {
     private String completedByEmail;
     private String completedOn;
     private boolean archived;
-    private String status;
     private String feedback;
 }
