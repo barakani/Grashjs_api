@@ -41,6 +41,10 @@ public class SubscriptionService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    public void save(Subscription subscription) {
+        subscriptionRepository.save(subscription);
+    }
+
     public Collection<Subscription> getAll() {
         return subscriptionRepository.findAll();
     }

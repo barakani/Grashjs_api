@@ -40,6 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/signup").permitAll()//
                 .antMatchers("/auth/sendMail").permitAll()//
                 .antMatchers("/auth/resetpwd/**").permitAll()
+                .antMatchers("/fast-spring/**").permitAll()
                 .antMatchers("/mail/send").permitAll()
                 .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
                 .antMatchers("/auth/activate-account**").permitAll()//

@@ -64,9 +64,9 @@ public class ApiApplication implements CommandLineRunner {
                     .monthlyCostPerUser(20)
                     .yearlyCostPerUser(200).build());
         }
-        if (!subscriptionPlanService.existByCode("PRO")) {
+        if (!subscriptionPlanService.existByCode("PROFESSIONAL")) {
             subscriptionPlanService.create(SubscriptionPlan.builder()
-                    .code("PRO")
+                    .code("PROFESSIONAL")
                     .name("Professional")
                     .monthlyCostPerUser(40)
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
@@ -77,9 +77,9 @@ public class ApiApplication implements CommandLineRunner {
                     )))
                     .yearlyCostPerUser(400).build());
         }
-        if (!subscriptionPlanService.existByCode("BUS")) {
+        if (!subscriptionPlanService.existByCode("BUSINESS")) {
             subscriptionPlanService.create(SubscriptionPlan.builder()
-                    .code("BUS")
+                    .code("BUSINESS")
                     .name("Business")
                     .monthlyCostPerUser(80)
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
