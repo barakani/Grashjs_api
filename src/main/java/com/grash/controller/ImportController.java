@@ -51,7 +51,7 @@ public class ImportController {
                     workOrder.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
-                    Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+                    Optional<WorkOrder> optionalWorkOrder = workOrderService.findByIdAndCompany(id, user.getCompany().getId());
                     if (optionalWorkOrder.isPresent()) {
                         workOrder = optionalWorkOrder.get();
                         updated[0] = updated[0] + 1;

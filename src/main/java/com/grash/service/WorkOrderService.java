@@ -99,6 +99,10 @@ public class WorkOrderService {
         return workOrderRepository.findById(id);
     }
 
+    public Optional<WorkOrder> findByIdAndCompany(Long id, Long companyId) {
+        return workOrderRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
     public Collection<WorkOrder> findByCompany(Long id) {
         return workOrderRepository.findByCompany_Id(id);
     }
@@ -280,17 +284,17 @@ public class WorkOrderService {
         optionalLocation.ifPresent(workOrder::setLocation);
         Optional<Team> optionalTeam = teamService.findByNameAndCompany(dto.getTeamName(), companyId);
         optionalTeam.ifPresent(workOrder::setTeam);
-        Optional<OwnUser> optionalPrimaryUser = userService.findByEmail(dto.getPrimaryUserEmail());
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(workOrder::setPrimaryUser);
         List<OwnUser> assignedTo = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
-            Optional<OwnUser> optionalUser1 = userService.findByEmail(email);
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
             optionalUser1.ifPresent(assignedTo::add);
         });
         workOrder.setAssignedTo(assignedTo);
         Optional<Asset> optionalAsset = assetService.findByNameAndCompany(dto.getAssetName(), companyId);
         optionalAsset.ifPresent(workOrder::setAsset);
-        Optional<OwnUser> optionalCompletedBy = userService.findByEmail(dto.getCompletedByEmail());
+        Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(), companyId);
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(Helper.getDateFromString(dto.getCompletedOn()));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
