@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -89,6 +90,15 @@ public class Helper {
                 return Locale.FRANCE;
             default:
                 return Locale.getDefault();
+        }
+    }
+
+    public static Date getDateFromJsString(String string) {
+        DateFormat jsfmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        try {
+            return jsfmt.parse(string);
+        } catch (Exception exception) {
+            return null;
         }
     }
 

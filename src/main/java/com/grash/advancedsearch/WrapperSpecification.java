@@ -3,6 +3,7 @@ package com.grash.advancedsearch;
 import com.grash.model.enums.EnumName;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
+import com.grash.utils.Helper;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
@@ -59,13 +60,21 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = cb.greaterThan(root.get(filterField.getField()), filterField.getValue().toString());
                 break;
             case GREATER_THAN_EQUAL:
-                result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                if (filterField.getEnumName().equals(EnumName.JS_DATE)) {
+                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), Helper.getDateFromJsString(filterField.getValue().toString()));
+                } else {
+                    result = cb.greaterThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                }
                 break;
             case LESS_THAN:
                 result = cb.lessThan(root.get(filterField.getField()), filterField.getValue().toString());
                 break;
             case LESS_THAN_EQUAL:
-                result = cb.lessThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                if (filterField.getEnumName().equals(EnumName.JS_DATE)) {
+                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()), Helper.getDateFromJsString(filterField.getValue().toString()));
+                } else {
+                    result = cb.lessThanOrEqualTo(root.get(filterField.getField()), filterField.getValue().toString());
+                }
                 break;
             case IN:
                 CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
@@ -108,6 +117,8 @@ public class WrapperSpecification<T> implements Specification<T> {
                     return Priority.getPriorityFromString(value.toString());
                 case STATUS:
                     return Status.getStatusFromString(value.toString());
+                case JS_DATE:
+                    return Helper.getDateFromJsString(value.toString());
                 default:
                     return value;
             }
