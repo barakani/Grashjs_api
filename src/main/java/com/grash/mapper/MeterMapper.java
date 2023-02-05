@@ -28,8 +28,8 @@ public interface MeterMapper {
         if (!readings.isEmpty()) {
             Reading lastReading = Collections.min(readings, new AuditComparator());
             target.setLastReading(lastReading.getCreatedAt());
-            Date nextReading = Helper.incrementDays(Date.from(lastReading.getCreatedAt()), target.getUpdateFrequency());
-            target.setNextReading(nextReading.toInstant());
+            Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), target.getUpdateFrequency());
+            target.setNextReading(nextReading);
         }
         return target;
     }

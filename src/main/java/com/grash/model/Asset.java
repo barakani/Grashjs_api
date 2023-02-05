@@ -163,7 +163,7 @@ public class Asset extends CompanyAudit {
     }
 
     public long getAge() {
-        return Helper.getDateDiff(this.getInServiceDate() == null ? Date.from(this.getCreatedAt()) : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
+        return Helper.getDateDiff(this.getInServiceDate() == null ? this.getCreatedAt() : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
     }
 }
 

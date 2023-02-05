@@ -24,7 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -112,7 +115,7 @@ public class AssetAnalyticsController {
                 AuditComparator auditComparator = new AuditComparator();
                 WorkOrder firstWorkOrder = Collections.max(workOrders, auditComparator);
                 WorkOrder lastWorkOrder = Collections.min(workOrders, auditComparator);
-                betweenMaintenances = (Helper.getDateDiff(Date.from(firstWorkOrder.getCreatedAt()), Date.from(lastWorkOrder.getCreatedAt()), TimeUnit.HOURS)) / (workOrders.size() - 1);
+                betweenMaintenances = (Helper.getDateDiff(firstWorkOrder.getCreatedAt(), lastWorkOrder.getCreatedAt(), TimeUnit.HOURS)) / (workOrders.size() - 1);
             }
             return Meantimes.builder()
                     .betweenDowntimes(assetDowntimeService.getDowntimesMeantime(downtimes))

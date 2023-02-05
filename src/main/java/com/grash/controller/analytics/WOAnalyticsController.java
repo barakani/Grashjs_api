@@ -62,7 +62,7 @@ public class WOAnalyticsController {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = incompleteWO.size();
-            List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getRealCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+            List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getRealCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
             int averageAge = ages.size() == 0 ? 0 : ages.stream().mapToInt(Long::intValue).sum() / ages.size();
             return WOIncompleteStats.builder()
                     .total(total)
@@ -142,7 +142,7 @@ public class WOAnalyticsController {
             assets.forEach(asset -> {
                 Collection<WorkOrder> incompleteWO = workOrderService.findByAsset(asset.getId())
                         .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
                 int count = incompleteWO.size();
                 result.add(IncompleteWOByAsset.builder()
                         .count(count)
@@ -165,7 +165,7 @@ public class WOAnalyticsController {
             users.forEach(user1 -> {
                 Collection<WorkOrder> incompleteWO = workOrderService.findByPrimaryUser(user1.getId())
                         .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
+                List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
                 int count = incompleteWO.size();
                 result.add(IncompleteWOByUser.builder()
                         .count(count)

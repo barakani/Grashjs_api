@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -80,7 +79,7 @@ public class WorkOrder extends WorkOrderBase {
         return this.getParentPreventiveMaintenance() == null;
     }
 
-    public Instant getRealCreatedAt() {
+    public Date getRealCreatedAt() {
         return this.getParentRequest() == null ? this.getCreatedAt() : this.getParentRequest().getCreatedAt();
     }
 
@@ -98,7 +97,7 @@ public class WorkOrder extends WorkOrderBase {
 
     //in days
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(Date.from(workOrder.getCreatedAt()), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
+        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
         return completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }

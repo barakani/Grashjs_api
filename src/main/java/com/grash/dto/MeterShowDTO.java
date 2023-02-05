@@ -5,8 +5,8 @@ import com.grash.model.MeterCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -31,7 +31,7 @@ public class MeterShowDTO extends AuditShowDTO {
 
     private AssetMiniDTO asset;
 
-    private Instant lastReading;
+    private Date lastReading;
 
-    private Instant nextReading;
+    private Date nextReading;
 }
