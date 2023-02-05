@@ -1,6 +1,6 @@
 package com.grash.advancedsearch;
 
-import com.grash.model.enums.FilterType;
+import com.grash.model.enums.EnumName;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
@@ -69,7 +69,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             case IN:
                 CriteriaBuilder.In<Object> inClause = cb.in(root.get(filterField.getField()));
-                filterField.getValues().forEach(value -> inClause.value(getRealValue(filterField.getFilterType(), value)));
+                filterField.getValues().forEach(value -> inClause.value(getRealValue(filterField.getEnumName(), value)));
                 result = inClause;
                 break;
             case IN_MANY_TO_MANY:
@@ -98,12 +98,12 @@ public class WrapperSpecification<T> implements Specification<T> {
         }
     }
 
-    private Object getRealValue(FilterType filterType, Object value) {
-        if (filterType == null) {
+    private Object getRealValue(EnumName enumName, Object value) {
+        if (enumName == null) {
             return value;
         }
         if (value instanceof String) {
-            switch (filterType) {
+            switch (enumName) {
                 case PRIORITY:
                     return Priority.getPriorityFromString(value.toString());
                 case STATUS:

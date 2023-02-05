@@ -1,7 +1,6 @@
 package com.grash.model.enums;
 
-public enum FilterType {
+public enum EnumName {
     PRIORITY,
     STATUS,
-    INSTANT
 }
