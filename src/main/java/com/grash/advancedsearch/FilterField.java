@@ -1,5 +1,6 @@
 package com.grash.advancedsearch;
 
+import com.grash.model.enums.EnumName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class FilterField {
     private String operation;
     private List<Object> values = new ArrayList<>();
     private List<FilterField> alternatives;
+    private EnumName enumName;
 }

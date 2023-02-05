@@ -5,9 +5,10 @@ import java.util.List;
 
 public enum Status {
     OPEN(Arrays.asList("Open", "Ouvert")),
-    IN_PROGRESS(Arrays.asList("In Progress", "En cours")),
-    ON_HOLD(Arrays.asList("On hold", "En pause")),
+    IN_PROGRESS(Arrays.asList("IN_PROGRESS", "In Progress", "En cours")),
+    ON_HOLD(Arrays.asList("ON_HOLD", "On hold", "En pause")),
     COMPLETE(Arrays.asList("Complete", "Terminé"));
+
     private final List<String> strings;
 
     Status(List<String> strings) {
