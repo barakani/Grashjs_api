@@ -10,7 +10,7 @@ import java.util.Collection;
 public class AssetImportDTO {
 
     private Long id;
-    private boolean archived;
+    private String archived;
 
     private String locationName;
 

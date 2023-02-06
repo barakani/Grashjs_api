@@ -76,4 +76,8 @@ public class AssetCategoryService {
             return optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
         }
     }
+
+    public Optional<AssetCategory> findByNameAndCompanySettings(String category, Long companySettingsId) {
+        return assetCategoryRepository.findByNameAndCompanySettings_Id(category, companySettingsId);
+    }
 }

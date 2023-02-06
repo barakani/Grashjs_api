@@ -4,12 +4,10 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetShowDTO;
+import com.grash.dto.imports.AssetImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetMapper;
-import com.grash.model.Asset;
-import com.grash.model.AssetDowntime;
-import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
@@ -24,9 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -40,6 +36,7 @@ public class AssetService {
     private final UserService userService;
     private final CompanyService companyService;
     private final NotificationService notificationService;
+    private final TeamService teamService;
     private final AssetMapper assetMapper;
     private final EntityManager em;
     private final AssetDowntimeService assetDowntimeService;
@@ -177,5 +174,41 @@ public class AssetService {
 
     public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
         return assetRepository.findByNameAndCompany_Id(assetName, companyId);
+    }
+
+    public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
+        Long companySettingsId = company.getCompanySettings().getId();
+        Long companyId = company.getId();
+        asset.setArea(dto.getArea());
+        asset.setBarCode(dto.getBarCode());
+        asset.setArea(dto.getArea());
+        asset.setArchived(Helper.getBooleanFromString(dto.getArchived()));
+        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        optionalLocation.ifPresent(asset::setLocation);
+        Optional<Asset> optionalAsset = findByNameAndCompany(dto.getParentAssetName(), companyId);
+        optionalAsset.ifPresent(asset::setParentAsset);
+        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        optionalAssetCategory.ifPresent(asset::setCategory);
+        asset.setName(dto.getName());
+        Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
+        optionalPrimaryUser.ifPresent(asset::setPrimaryUser);
+        asset.setWarrantyExpirationDate(Helper.getDateFromExcelDate(dto.getWarrantyExpirationDate()));
+        asset.setAdditionalInfos(dto.getAdditionalInfos());
+        asset.setSerialNumber(dto.getSerialNumber());
+        List<OwnUser> assignedTo = new ArrayList<>();
+        dto.getAssignedToEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(assignedTo::add);
+        });
+        asset.setAssignedTo(assignedTo);
+        List<Team> teams = new ArrayList<>();
+        dto.getTeamsNames().forEach(teamName -> {
+            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            optionalTeam.ifPresent(teams::add);
+        });
+        asset.setTeams(teams);
+        asset.setStatus(AssetStatus.getAssetStatusFromString(dto.getStatus()));
+        asset.setAcquisitionCost(dto.getAcquisitionCost());
+        assetRepository.save(asset);
     }
 }

@@ -12,4 +12,5 @@ public interface AssetCategoryRepository extends JpaRepository<AssetCategory, Lo
 
     Optional<AssetCategory> findByName(String name);
 
+    Optional<AssetCategory> findByNameAndCompanySettings_Id(String category, Long companySettingsId);
 }
