@@ -102,12 +102,13 @@ public class Helper {
         }
     }
 
-    public static Date getDateFromString(String string) {
-        if (string == null || string.trim().isEmpty()) {
+    public static Date getDateFromExcelDate(Double excelDate) {
+        if (excelDate == null) {
             return null;
         }
         try {
-            return DateFormat.getDateInstance().parse(string);
+            //https://stackoverflow.com/questions/66985321/date-is-appearing-in-number-format-while-upload-import-excel-sheet-in-angular
+            return new Date(Math.round((excelDate - 25569) * 24 * 60 * 60 * 1000));
         } catch (Exception exception) {
             return null;
         }

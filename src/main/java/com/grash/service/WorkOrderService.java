@@ -272,7 +272,7 @@ public class WorkOrderService {
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
-        workOrder.setDueDate(Helper.getDateFromString(dto.getDueDate()));
+        workOrder.setDueDate(Helper.getDateFromExcelDate(dto.getDueDate()));
         workOrder.setPriority(Priority.getPriorityFromString(dto.getPriority()));
         workOrder.setEstimatedDuration(dto.getEstimatedDuration());
         workOrder.setDescription(dto.getDescription());
@@ -296,7 +296,7 @@ public class WorkOrderService {
         optionalAsset.ifPresent(workOrder::setAsset);
         Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(), companyId);
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
-        workOrder.setCompletedOn(Helper.getDateFromString(dto.getCompletedOn()));
+        workOrder.setCompletedOn(Helper.getDateFromExcelDate(dto.getCompletedOn()));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
         workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
         workOrder.setFeedback(dto.getFeedback());

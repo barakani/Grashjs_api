@@ -16,7 +16,7 @@ public class WorkOrderImportDTO {
     private String status;
     private String priority;
     private String description;
-    private String dueDate;
+    private Double dueDate;
     private int estimatedDuration;
     private String requiredSignature;
     private String category;
@@ -32,7 +32,7 @@ public class WorkOrderImportDTO {
     private String assetName;
 
     private String completedByEmail;
-    private String completedOn;
+    private Double completedOn;
     private String archived;
     private String feedback;
 }
