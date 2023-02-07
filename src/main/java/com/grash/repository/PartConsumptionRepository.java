@@ -3,8 +3,8 @@ package com.grash.repository;
 import com.grash.model.PartConsumption;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 
 public interface PartConsumptionRepository extends JpaRepository<PartConsumption, Long> {
     Collection<PartConsumption> findByCompany_Id(Long id);
@@ -13,7 +13,8 @@ public interface PartConsumptionRepository extends JpaRepository<PartConsumption
 
     Collection<PartConsumption> findByPart_Id(Long id);
 
-    Collection<PartConsumption> findByCreatedAtBetweenAndCompany_Id(Instant date1, Instant date2, Long companyId);
+    Collection<PartConsumption> findByCreatedAtBetweenAndCompany_Id(Date
+                                                                            date1, Date date2, Long companyId);
 
 
 }

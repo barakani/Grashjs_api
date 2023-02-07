@@ -43,6 +43,6 @@ public class PartConsumptionService {
     }
 
     public Collection<PartConsumption> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
-        return partConsumptionRepository.findByCreatedAtBetweenAndCompany_Id(date1.toInstant(), date2.toInstant(), id);
+        return partConsumptionRepository.findByCreatedAtBetweenAndCompany_Id(date1, date2, id);
     }
 }
