@@ -137,4 +137,8 @@ public class LocationService {
         location.setTeams(teams);
         locationRepository.save(location);
     }
+
+    public Optional<Location> findByIdAndCompany(Long id, Long companyId) {
+        return locationRepository.findByIdAndCompany_Id(id, companyId);
+    }
 }

@@ -170,4 +170,8 @@ public class PartService {
         part.setTeams(teams);
         partRepository.save(part);
     }
+
+    public Optional<Part> findByIdAndCompany(Long id, Long companyId) {
+        return partRepository.findByIdAndCompany_Id(id, companyId);
+    }
 }

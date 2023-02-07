@@ -155,4 +155,8 @@ public class MeterService {
         meter.setUsers(users);
         meterRepository.save(meter);
     }
+
+    public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {
+        return meterRepository.findByIdAndCompany_Id(id, companyId);
+    }
 }

@@ -211,4 +211,8 @@ public class AssetService {
         asset.setAcquisitionCost(dto.getAcquisitionCost());
         assetRepository.save(asset);
     }
+
+    public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
+        return assetRepository.findByIdAndCompany_Id(id, companyId);
+    }
 }
