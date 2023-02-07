@@ -16,7 +16,7 @@ public class PartImportDTO {
 
     private String category;
 
-    private boolean nonStock;
+    private String nonStock;
 
     private String barcode;
 

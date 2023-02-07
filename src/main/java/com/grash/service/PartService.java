@@ -4,12 +4,14 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartShowDTO;
+import com.grash.dto.imports.PartImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,6 +37,9 @@ public class PartService {
     private final PartMapper partMapper;
     private final EntityManager em;
     private final NotificationService notificationService;
+    private final UserService userService;
+    private final TeamService teamService;
+
 
     @Transactional
     public Part create(Part Part) {
@@ -132,5 +139,35 @@ public class PartService {
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return partRepository.findAll(builder.build(), page).map(partMapper::toShowDto);
+    }
+
+    public void importPart(Part part, PartImportDTO dto, Company company) {
+        Long companyId = company.getId();
+        Long companySettingsId = company.getCompanySettings().getId();
+        part.setName(dto.getName());
+        part.setCost(dto.getCost());
+        part.setCategory(dto.getCategory());
+        part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
+        part.setBarcode(dto.getBarcode());
+        part.setDescription(dto.getDescription());
+        part.setQuantity(dto.getQuantity());
+        part.setAdditionalInfos(dto.getAdditionalInfos());
+        part.setArea(dto.getArea());
+        part.setMinQuantity(dto.getMinQuantity());
+//        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+//        optionalLocation.ifPresent(part::setLocation);
+        List<OwnUser> users = new ArrayList<>();
+        dto.getAssignedToEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(users::add);
+        });
+        part.setAssignedTo(users);
+        List<Team> teams = new ArrayList<>();
+        dto.getTeamsNames().forEach(teamName -> {
+            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            optionalTeam.ifPresent(teams::add);
+        });
+        part.setTeams(teams);
+        partRepository.save(part);
     }
 }

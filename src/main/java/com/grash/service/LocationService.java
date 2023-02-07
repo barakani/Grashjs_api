@@ -1,11 +1,10 @@
 package com.grash.service;
 
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.imports.LocationImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
-import com.grash.model.Location;
-import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LocationRepository;
@@ -15,18 +14,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
-    private final VendorService vendorService;
-    private final CustomerService customerService;
+    private final UserService userService;
+    private final LocationService locationService;
     private final CompanyService companyService;
     private final LocationMapper locationMapper;
     private final NotificationService notificationService;
+    private final TeamService teamService;
     private final EntityManager em;
 
     @Transactional
@@ -111,5 +113,28 @@ public class LocationService {
 
     public Optional<Location> findByNameAndCompany(String locationName, Long companyId) {
         return locationRepository.findByNameAndCompany_Id(locationName, companyId);
+    }
+
+    public void importLocation(Location location, LocationImportDTO dto, Company company) {
+        Long companyId = company.getId();
+        location.setName(dto.getName());
+        location.setAddress(dto.getAddress());
+        location.setLongitude(dto.getLongitude());
+        location.setLatitude(dto.getLatitude());
+        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getParentLocationName(), companyId);
+        optionalLocation.ifPresent(location::setParentLocation);
+        List<OwnUser> workers = new ArrayList<>();
+        dto.getWorkersEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(workers::add);
+        });
+        location.setWorkers(workers);
+        List<Team> teams = new ArrayList<>();
+        dto.getTeamsNames().forEach(teamName -> {
+            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            optionalTeam.ifPresent(teams::add);
+        });
+        location.setTeams(teams);
+        locationRepository.save(location);
     }
 }

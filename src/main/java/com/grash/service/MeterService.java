@@ -4,11 +4,10 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterShowDTO;
+import com.grash.dto.imports.MeterImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
-import com.grash.model.Meter;
-import com.grash.model.Notification;
-import com.grash.model.OwnUser;
+import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +35,7 @@ public class MeterService {
     private final AssetService assetService;
     private final CompanyService companyService;
     private final LocationService locationService;
+    private final UserService userService;
     private final EntityManager em;
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
@@ -134,5 +135,24 @@ public class MeterService {
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return meterRepository.findAll(builder.build(), page).map(meter -> meterMapper.toShowDto(meter, readingService));
+    }
+
+    public void importMeter(Meter meter, MeterImportDTO dto, Company company) {
+        Long companyId = company.getId();
+        Long companySettingsId = company.getCompanySettings().getId();
+        meter.setName(dto.getName());
+        meter.setUnit(dto.getUnit());
+        meter.setUpdateFrequency(dto.getUpdateFrequency());
+        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        optionalLocation.ifPresent(meter::setLocation);
+        Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findByNameAndCompanySettings(dto.getMeterCategory(), companySettingsId);
+        optionalMeterCategory.ifPresent(meter::setMeterCategory);
+        List<OwnUser> users = new ArrayList<>();
+        dto.getUsersEmails().forEach(email -> {
+            Optional<OwnUser> optionalUser1 = userService.findByEmailAndCompany(email, companyId);
+            optionalUser1.ifPresent(users::add);
+        });
+        meter.setUsers(users);
+        meterRepository.save(meter);
     }
 }

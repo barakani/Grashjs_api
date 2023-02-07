@@ -152,4 +152,7 @@ public class Part extends CompanyAudit {
                 collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
                         ArrayList::new));
     }
+
+    //TODO
+    //Location
 }

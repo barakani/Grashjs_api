@@ -78,4 +78,8 @@ public class MeterCategoryService {
             return optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
         }
     }
+
+    public Optional<MeterCategory> findByNameAndCompanySettings(String name, Long companySettingsId) {
+        return meterCategoryRepository.findByNameAndCompanySettings_Id(name, companySettingsId);
+    }
 }
