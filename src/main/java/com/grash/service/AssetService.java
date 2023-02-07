@@ -14,6 +14,8 @@ import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class AssetService {
     private final AssetRepository assetRepository;
-    private final LocationService locationService;
+    private LocationService locationService;
     private final FileService fileService;
     private final AssetCategoryService assetCategoryService;
     private final DeprecationService deprecationService;
@@ -40,6 +42,12 @@ public class AssetService {
     private final AssetMapper assetMapper;
     private final EntityManager em;
     private final AssetDowntimeService assetDowntimeService;
+
+    @Autowired
+    public void setDeps(@Lazy LocationService locationService
+    ) {
+        this.locationService = locationService;
+    }
 
     @Transactional
     public Asset create(Asset asset) {

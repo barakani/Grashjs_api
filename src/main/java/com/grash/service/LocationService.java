@@ -24,7 +24,6 @@ import java.util.Optional;
 public class LocationService {
     private final LocationRepository locationRepository;
     private final UserService userService;
-    private final LocationService locationService;
     private final CompanyService companyService;
     private final LocationMapper locationMapper;
     private final NotificationService notificationService;
@@ -121,7 +120,7 @@ public class LocationService {
         location.setAddress(dto.getAddress());
         location.setLongitude(dto.getLongitude());
         location.setLatitude(dto.getLatitude());
-        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getParentLocationName(), companyId);
+        Optional<Location> optionalLocation = findByNameAndCompany(dto.getParentLocationName(), companyId);
         optionalLocation.ifPresent(location::setParentLocation);
         List<OwnUser> workers = new ArrayList<>();
         dto.getWorkersEmails().forEach(email -> {
