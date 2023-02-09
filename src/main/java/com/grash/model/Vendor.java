@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class Vendor extends BasicInfos {
 
     private String vendorType;
 
+    @NotNull
     private String companyName;
 
     private String description;
