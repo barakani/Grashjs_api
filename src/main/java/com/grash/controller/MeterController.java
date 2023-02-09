@@ -16,6 +16,7 @@ import com.grash.service.AssetService;
 import com.grash.service.MeterService;
 import com.grash.service.ReadingService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -89,7 +90,7 @@ public class MeterController {
         if (meterService.canCreate(user, meterReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
             Meter savedMeter = meterService.create(meterReq);
-            meterService.notify(savedMeter);
+            meterService.notify(savedMeter, Helper.getLocale(user));
             return meterMapper.toShowDto(savedMeter, readingService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -110,7 +111,7 @@ public class MeterController {
             if (meterService.hasAccess(user, savedMeter) && meterService.canPatch(user, meter)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
                 Meter patchedMeter = meterService.update(id, meter);
-                meterService.patchNotify(savedMeter, patchedMeter);
+                meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));
                 return meterMapper.toShowDto(patchedMeter, readingService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);

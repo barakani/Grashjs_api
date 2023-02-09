@@ -18,11 +18,13 @@ import com.grash.service.AssetService;
 import com.grash.service.LocationService;
 import com.grash.service.PartService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,7 @@ public class AssetController {
     private final UserService userService;
     private final LocationService locationService;
     private final PartService partService;
+    private final MessageSource messageSource;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -149,7 +152,8 @@ public class AssetController {
 
             }
             Asset createdAsset = assetService.create(assetReq);
-            assetService.notify(createdAsset, "Asset " + createdAsset.getName() + " has been assigned to you");
+            String message = messageSource.getMessage("notification_asset_assigned", new Object[]{createdAsset.getName()}, Helper.getLocale(user));
+            assetService.notify(createdAsset, message);
             return assetMapper.toShowDto(createdAsset);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -171,12 +175,12 @@ public class AssetController {
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    assetService.stopDownTime(savedAsset.getId());
+                    assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));
                 } else if (asset.getStatus().equals(AssetStatus.DOWN) && !savedAsset.getStatus().equals(AssetStatus.DOWN)) {
-                    assetService.triggerDownTime(savedAsset.getId());
+                    assetService.triggerDownTime(savedAsset.getId(), Helper.getLocale(user));
                 }
                 Asset patchedAsset = assetService.update(id, asset);
-                assetService.patchNotify(savedAsset, patchedAsset);
+                assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
                 return assetMapper.toShowDto(patchedAsset);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);

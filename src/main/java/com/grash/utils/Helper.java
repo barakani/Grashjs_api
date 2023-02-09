@@ -1,6 +1,7 @@
 package com.grash.utils;
 
 
+import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.Language;
 import org.springframework.context.MessageSource;
@@ -84,7 +85,11 @@ public class Helper {
     }
 
     public static Locale getLocale(OwnUser user) {
-        Language language = user.getCompany().getCompanySettings().getGeneralPreferences().getLanguage();
+        return getLocale(user.getCompany());
+    }
+
+    public static Locale getLocale(Company company) {
+        Language language = company.getCompanySettings().getGeneralPreferences().getLanguage();
         switch (language) {
             case FR:
                 return Locale.FRANCE;

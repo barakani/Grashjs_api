@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/readings")
@@ -38,6 +36,7 @@ public class ReadingController {
     private final WorkOrderMeterTriggerService workOrderMeterTriggerService;
     private final NotificationService notificationService;
     private final WorkOrderService workOrderService;
+    private final MessageSource messageSource;
 
 
     @GetMapping("/meter/{id}")
@@ -74,17 +73,19 @@ public class ReadingController {
                     }
                 }
                 Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
+                Locale locale = Helper.getLocale(user);
                 meterTriggers.forEach(meterTrigger -> {
                     boolean error = false;
                     StringBuilder message = new StringBuilder();
+                    Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
                     if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
                         if (readingReq.getValue() < meterTrigger.getValue()) {
                             error = true;
-                            message.append(meter.getName()).append(" value is less than ").append(meterTrigger.getValue()).append(meter.getUnit());
+                            message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs, locale));
                         }
                     } else if (readingReq.getValue() > meterTrigger.getValue()) {
                         error = true;
-                        message.append(meter.getName()).append(" value is more than ").append(meterTrigger.getValue()).append(meter.getUnit());
+                        message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs, locale));
                     }
                     if (error) {
                         meter.getUsers().forEach(user1 -> {
@@ -92,7 +93,7 @@ public class ReadingController {
                         });
                         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
                         WorkOrder createdWorkOrder = workOrderService.create(workOrder);
-                        workOrderService.notify(createdWorkOrder);
+                        workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
                     }
                 });
                 return readingService.create(readingReq);

@@ -17,11 +17,13 @@ import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,7 @@ public class RequestController {
     private final WorkOrderMapper workOrderMapper;
     private final RequestMapper requestMapper;
     private final NotificationService notificationService;
+    private final MessageSource messageSource;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -87,7 +90,7 @@ public class RequestController {
         OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
-            String message = "A new Work Order has been requested";
+            String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
             userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
                     .forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())));

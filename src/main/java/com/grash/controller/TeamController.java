@@ -13,6 +13,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -89,7 +90,7 @@ public class TeamController {
         OwnUser user = userService.whoami(req);
         if (teamService.canCreate(user, teamReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
-            teamService.notify(savedTeam);
+            teamService.notify(savedTeam, Helper.getLocale(user));
             return teamMapper.toShowDto(savedTeam);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -108,7 +109,7 @@ public class TeamController {
             Team savedTeam = optionalTeam.get();
             if (teamService.hasAccess(user, savedTeam) && teamService.canPatch(user, team)) {
                 Team patchTeam = teamService.update(id, team);
-                teamService.patchNotify(savedTeam, patchTeam);
+                teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
                 return teamMapper.toShowDto(patchTeam);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);

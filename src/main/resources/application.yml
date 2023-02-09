@@ -4,6 +4,8 @@ spring:
   #      max-active: 50
   #      max-idle: 20
   #      min-idle: 15
+  messages:
+    encoding: UTF-8
   servlet:
     multipart:
       max-request-size: 7MB

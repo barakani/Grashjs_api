@@ -20,6 +20,7 @@ import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +53,7 @@ public class WorkOrderService {
     private final EntityManager em;
     private final EmailService2 emailService2;
     private final WorkOrderCategoryService workOrderCategoryService;
+    private final MessageSource messageSource;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -132,9 +134,9 @@ public class WorkOrderService {
         return second && third && fourth && fifth;
     }
 
-    public void notify(WorkOrder workOrder) {
+    public void notify(WorkOrder workOrder, Locale locale) {
 
-        String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
         Collection<OwnUser> users = workOrder.getUsers();
         users.forEach(user -> notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
@@ -149,7 +151,7 @@ public class WorkOrderService {
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
-        String message = "WorkOrder " + newWorkOrder.getTitle() + " has been assigned to you";
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
         oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).forEach(user -> notificationService.create(
                 new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
     }

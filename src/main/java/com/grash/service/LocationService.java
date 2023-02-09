@@ -9,15 +9,13 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +24,7 @@ public class LocationService {
     private final UserService userService;
     private final CompanyService companyService;
     private final CustomerService customerService;
+    private final MessageSource messageSource;
     private final VendorService vendorService;
     private final LocationMapper locationMapper;
     private final NotificationService notificationService;
@@ -83,13 +82,13 @@ public class LocationService {
         return isLocationInCompany(locationReq.getParentLocation(), companyId, true);
     }
 
-    public void notify(Location location) {
-        String message = "Location " + location.getName() + " has been assigned to you";
+    public void notify(Location location, Locale locale) {
+        String message = messageSource.getMessage("notification_location_assigned", new Object[]{location.getName()}, locale);
         location.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.LOCATION, location.getId())));
     }
 
-    public void patchNotify(Location oldLocation, Location newLocation) {
-        String message = "Location " + newLocation.getName() + " has been assigned to you";
+    public void patchNotify(Location oldLocation, Location newLocation, Locale locale) {
+        String message = messageSource.getMessage("notification_location_assigned", new Object[]{newLocation.getName()}, locale);
         oldLocation.getNewUsersToNotify(newLocation.getUsers()).forEach(user -> notificationService.create(
                 new Notification(message, user, NotificationType.LOCATION, newLocation.getId())));
     }

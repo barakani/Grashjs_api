@@ -14,6 +14,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,7 @@ public class TeamService {
     private final TeamMapper teamMapper;
     private final NotificationService notificationService;
     private final EntityManager em;
+    private final MessageSource messageSource;
 
     @Transactional
     public Team create(Team team) {
@@ -88,16 +91,16 @@ public class TeamService {
         return user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
     }
 
-    public void notify(Team team) {
-        String message = "You have been added to the " + team.getName() + " Team";
+    public void notify(Team team, Locale locale) {
+        String message = messageSource.getMessage("notification_team_added", new Object[]{team.getName()}, locale);
         if (team.getUsers() != null) {
             team.getUsers().forEach(assignedUser ->
                     notificationService.create(new Notification(message, assignedUser, NotificationType.TEAM, team.getId())));
         }
     }
 
-    public void patchNotify(Team oldTeam, Team newTeam) {
-        String message = "You have been added to the " + newTeam.getName() + " Team";
+    public void patchNotify(Team oldTeam, Team newTeam, Locale locale) {
+        String message = messageSource.getMessage("notification_team_added", new Object[]{newTeam.getName()}, locale);
         if (newTeam.getUsers() != null) {
             List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());

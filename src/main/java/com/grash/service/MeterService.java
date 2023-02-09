@@ -12,6 +12,7 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +32,7 @@ public class MeterService {
     private final FileService fileService;
     private final AssetService assetService;
     private final CompanyService companyService;
+    private final MessageSource messageSource;
     private final LocationService locationService;
     private final UserService userService;
     private final EntityManager em;
@@ -97,17 +96,16 @@ public class MeterService {
         return second && third && fourth;
     }
 
-    public void notify(Meter meter) {
-
-        String message = "Meter " + meter.getName() + " has been assigned to you";
+    public void notify(Meter meter, Locale locale) {
+        String message = messageSource.getMessage("notification_meter_assigned", new Object[]{meter.getName()}, locale);
         if (meter.getUsers() != null) {
             meter.getUsers().forEach(assignedUser ->
                     notificationService.create(new Notification(message, assignedUser, NotificationType.METER, meter.getId())));
         }
     }
 
-    public void patchNotify(Meter oldMeter, Meter newMeter) {
-        String message = "Meter " + newMeter.getName() + " has been assigned to you";
+    public void patchNotify(Meter oldMeter, Meter newMeter, Locale locale) {
+        String message = messageSource.getMessage("notification_meter_assigned", new Object[]{newMeter.getName()}, locale);
         if (newMeter.getUsers() != null) {
             List<OwnUser> newUsers = newMeter.getUsers().stream().filter(
                     user -> oldMeter.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());

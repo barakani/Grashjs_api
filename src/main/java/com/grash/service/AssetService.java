@@ -15,6 +15,7 @@ import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +45,7 @@ public class AssetService {
     private final AssetMapper assetMapper;
     private final EntityManager em;
     private final AssetDowntimeService assetDowntimeService;
+    private final MessageSource messageSource;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService
@@ -127,8 +129,8 @@ public class AssetService {
         asset.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.ASSET, asset.getId())));
     }
 
-    public void patchNotify(Asset oldAsset, Asset newAsset) {
-        String message = "Asset " + newAsset.getName() + " has been assigned to you";
+    public void patchNotify(Asset oldAsset, Asset newAsset, Locale locale) {
+        String message = messageSource.getMessage("notification_asset_assigned", new Object[]{newAsset.getName()}, locale);
         oldAsset.getNewUsersToNotify(newAsset.getUsers()).forEach(user -> notificationService.create(
                 new Notification(message, user, NotificationType.ASSET, newAsset.getId())));
     }
@@ -137,7 +139,7 @@ public class AssetService {
         return assetRepository.findByLocation_Id(id);
     }
 
-    public void stopDownTime(Long id) {
+    public void stopDownTime(Long id, Locale locale) {
         Asset savedAsset = findById(id).get();
         Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(id);
         Optional<AssetDowntime> optionalRunningDowntime = assetDowntimes.stream().filter(assetDowntime -> assetDowntime.getDuration() == 0).findFirst();
@@ -148,10 +150,11 @@ public class AssetService {
         }
         savedAsset.setStatus(AssetStatus.OPERATIONAL);
         save(savedAsset);
-        notify(savedAsset, savedAsset.getName() + " is now Operational");
+        String message = messageSource.getMessage("notification_asset_operational", new Object[]{savedAsset.getName()}, locale);
+        notify(savedAsset, message);
     }
 
-    public void triggerDownTime(Long id) {
+    public void triggerDownTime(Long id, Locale locale) {
         Asset asset = findById(id).get();
         AssetDowntime assetDowntime = AssetDowntime
                 .builder()
@@ -161,7 +164,8 @@ public class AssetService {
         assetDowntimeService.create(assetDowntime);
         asset.setStatus(AssetStatus.DOWN);
         save(asset);
-        notify(asset, asset.getName() + " is down");
+        String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
+        notify(asset, message);
 
     }
 

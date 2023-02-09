@@ -9,6 +9,7 @@ import com.grash.mapper.PartQuantityMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -196,7 +197,7 @@ public class PartQuantityController {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             if (partQuantityService.hasAccess(user, savedPartQuantity) && partQuantityService.canPatch(user, partQuantity)) {
                 if (savedPartQuantity.getWorkOrder() != null) {
-                    partService.consumePart(savedPartQuantity.getPart().getId(), partQuantity.getQuantity() - savedPartQuantity.getQuantity(), user.getCompany(), savedPartQuantity.getWorkOrder());
+                    partService.consumePart(savedPartQuantity.getPart().getId(), partQuantity.getQuantity() - savedPartQuantity.getQuantity(), user.getCompany(), savedPartQuantity.getWorkOrder(), Helper.getLocale(user));
                 }
                 PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
                 return partQuantityMapper.toShowDto(patchedPartQuantity);

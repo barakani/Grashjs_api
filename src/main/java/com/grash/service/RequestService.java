@@ -11,6 +11,7 @@ import com.grash.model.Request;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -104,7 +105,7 @@ public class RequestService {
         }
         workOrder.setParentRequest(request);
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-        workOrderService.notify(savedWorkOrder);
+        workOrderService.notify(savedWorkOrder, Helper.getLocale(savedWorkOrder.getCompany()));
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
 

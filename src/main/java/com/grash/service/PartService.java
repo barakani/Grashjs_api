@@ -13,6 +13,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,7 @@ public class PartService {
     private final CompanyService companyService;
     private final CustomerService customerService;
     private final VendorService vendorService;
+    private final MessageSource messageSource;
     private final LocationService locationService;
     private final PartMapper partMapper;
     private final EntityManager em;
@@ -61,13 +60,13 @@ public class PartService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public void consumePart(Long id, int quantity, Company company, WorkOrder workOrder) {
+    public void consumePart(Long id, int quantity, Company company, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
         if (part.getQuantity() >= quantity) {
             part.setQuantity(part.getQuantity() - quantity);
             if (part.getQuantity() < part.getMinQuantity()) {
                 part.getAssignedTo().forEach(user ->
-                        notificationService.create(new Notification(part.getName() + " is getting Low", user, NotificationType.PART, part.getId()))
+                        notificationService.create(new Notification(messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale), user, NotificationType.PART, part.getId()))
                 );
             }
             partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
@@ -111,13 +110,13 @@ public class PartService {
         return third && fourth;
     }
 
-    public void notify(Part part) {
-        String message = "Part " + part.getName() + " has been assigned to you";
+    public void notify(Part part, Locale locale) {
+        String message = messageSource.getMessage("notification_part_assigned", new Object[]{part.getName()}, locale);
         part.getUsers().forEach(user -> notificationService.create(notificationService.create(new Notification(message, user, NotificationType.PART, part.getId()))));
     }
 
-    public void patchNotify(Part oldPart, Part newPart) {
-        String message = "Part " + newPart.getName() + " has been assigned to you";
+    public void patchNotify(Part oldPart, Part newPart, Locale locale) {
+        String message = messageSource.getMessage("notification_part_assigned", new Object[]{newPart.getName()}, locale);
         oldPart.getNewUsersToNotify(newPart.getUsers()).forEach(user -> notificationService.create(
                 new Notification(message, user, NotificationType.PART, newPart.getId())));
     }

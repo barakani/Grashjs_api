@@ -12,6 +12,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.LocationService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -120,7 +121,7 @@ public class LocationController {
                 checkParentLocation(locationReq.getParentLocation().getId());
             }
             Location savedLocation = locationService.create(locationReq);
-            locationService.notify(savedLocation);
+            locationService.notify(savedLocation, Helper.getLocale(user));
             return locationMapper.toShowDto(savedLocation);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -143,7 +144,7 @@ public class LocationController {
                     checkParentLocation(location.getParentLocation().getId());
                 }
                 Location patchedLocation = locationService.update(id, location);
-                locationService.patchNotify(savedLocation, patchedLocation);
+                locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
                 return locationMapper.toShowDto(patchedLocation);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);

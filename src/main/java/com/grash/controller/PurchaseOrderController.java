@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ public class PurchaseOrderController {
     private final PurchaseOrderService purchaseOrderService;
     private final UserService userService;
     private final PartQuantityService partQuantityService;
+    private final MessageSource messageSource;
     private final PartQuantityMapper partQuantityMapper;
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final PartService partService;
@@ -94,7 +96,7 @@ public class PurchaseOrderController {
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
             PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.create(purchaseOrderReq)));
             long cost = result.getPartQuantities().stream().mapToLong(partQuantityShowDTO -> partQuantityShowDTO.getQuantity() * partQuantityShowDTO.getPart().getCost()).sum();
-            String message = "New Purchase Order Requested: " + result.getName() + " costing " + cost + " " + user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode();
+            String message = messageSource.getMessage("notification_new_po_request", new Object[]{result.getName(), cost, user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode()}, Helper.getLocale(user));
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                 put("purchaseOrderLink", frontendUrl + "/app/purchase-orders/" + result.getId());
                 put("message", message);

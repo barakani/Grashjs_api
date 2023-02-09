@@ -13,6 +13,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.PartService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -84,7 +85,7 @@ public class PartController {
         OwnUser user = userService.whoami(req);
         if (partService.canCreate(user, partReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             Part savedPart = partService.create(partReq);
-            partService.notify(savedPart);
+            partService.notify(savedPart, Helper.getLocale(user));
             return partMapper.toShowDto(savedPart);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -105,7 +106,7 @@ public class PartController {
             if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 Part patchedPart = partService.update(id, part);
-                partService.patchNotify(savedPart, patchedPart);
+                partService.patchNotify(savedPart, patchedPart, Helper.getLocale(user));
                 return partMapper.toShowDto(patchedPart);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);

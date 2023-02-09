@@ -81,7 +81,7 @@ public class ScheduleService {
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
                     workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
                     WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-                    workOrderService.notify(savedWorkOrder);
+                    workOrderService.notify(savedWorkOrder, Helper.getLocale(workOrder.getCompany()));
                 }
             };
             timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);

@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,7 @@ public class WorkOrderController {
     private final WorkOrderService workOrderService;
     private final WorkOrderMapper workOrderMapper;
     private final UserService userService;
+    private final MessageSource messageSource;
     private final AssetService assetService;
     private final LocationService locationService;
     private final LaborService laborService;
@@ -194,10 +196,10 @@ public class WorkOrderController {
             if (createdWorkOrder.getAsset() != null) {
                 Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    assetService.triggerDownTime(asset.getId());
+                    assetService.triggerDownTime(asset.getId(), Helper.getLocale(user));
                 }
             }
-            workOrderService.notify(createdWorkOrder);
+            workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -248,7 +250,7 @@ public class WorkOrderController {
                             Asset asset = workOrder.getAsset();
                             Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
                             if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                                assetService.stopDownTime(asset.getId());
+                                assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
                             }
                         }
                         Collection<Labor> primaryLabors = laborService.findByWorkOrder(id).stream().filter(Labor::isLogged).collect(Collectors.toList());
@@ -262,9 +264,10 @@ public class WorkOrderController {
                 if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
                         && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                         && patchedWorkOrder.getParentRequest() != null) {
-                    String message = "The Work Order you requested, " + patchedWorkOrder.getTitle() + ", is now " + patchedWorkOrder.getStatus().getName();
                     Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
                     OwnUser requester = userService.findById(requesterId).get();
+                    Locale locale = Helper.getLocale(user);
+                    String message = messageSource.getMessage("notification_wo_request", new Object[]{patchedWorkOrder.getTitle(), messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)}, locale);
                     notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
                     if (requester.getUserSettings().isEmailUpdatesForRequests()) {
                         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
