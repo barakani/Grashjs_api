@@ -174,4 +174,32 @@ public class CsvFileGenerator {
             e.printStackTrace();
         }
     }
+
+    public void writeMetersToCsv(Collection<Meter> meters, Writer writer, Locale locale) {
+        try {
+            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            List<String> headers = Arrays.asList("ID", "Name",
+                    "Unit",
+                    "Update_Frequency",
+                    "Category",
+                    "Asset_Name",
+                    "Location_Name",
+                    "Assigned_To_Emails"
+            );
+            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            for (Meter meter : meters) {
+                printer.printRecord(meter.getId(),
+                        meter.getName(),
+                        meter.getUnit(),
+                        meter.getUpdateFrequency(),
+                        meter.getMeterCategory().getName(),
+                        meter.getAsset().getName(),
+                        meter.getLocation().getName(),
+                        Helper.enumerate(meter.getUsers().stream().map(OwnUser::getEmail).collect(Collectors.toList())));
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
