@@ -35,4 +35,6 @@ public class PartImportDTO {
     private Collection<String> assignedToEmails;
 
     private Collection<String> teamsNames;
+    private Collection<String> customersNames;
+    private Collection<String> vendorsNames;
 }

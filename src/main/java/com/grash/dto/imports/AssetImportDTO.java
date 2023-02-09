@@ -40,4 +40,8 @@ public class AssetImportDTO {
     private String status;
 
     private Long acquisitionCost;
+
+    private Collection<String> customersNames;
+    
+    private Collection<String> vendorsNames;
 }

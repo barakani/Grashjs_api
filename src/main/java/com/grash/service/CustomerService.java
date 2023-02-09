@@ -86,4 +86,8 @@ public class CustomerService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return customerRepository.findAll(builder.build(), page);
     }
+
+    public Optional<Customer> findByNameAndCompany(String name, Long companyId) {
+        return customerRepository.findByNameAndCompany_Id(name, companyId);
+    }
 }

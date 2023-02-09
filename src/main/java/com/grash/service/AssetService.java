@@ -36,6 +36,8 @@ public class AssetService {
     private final AssetCategoryService assetCategoryService;
     private final DeprecationService deprecationService;
     private final UserService userService;
+    private final CustomerService customerService;
+    private final VendorService vendorService;
     private final CompanyService companyService;
     private final NotificationService notificationService;
     private final TeamService teamService;
@@ -217,6 +219,18 @@ public class AssetService {
         asset.setTeams(teams);
         asset.setStatus(AssetStatus.getAssetStatusFromString(dto.getStatus()));
         asset.setAcquisitionCost(dto.getAcquisitionCost());
+        List<Customer> customers = new ArrayList<>();
+        dto.getCustomersNames().forEach(name -> {
+            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            optionalCustomer.ifPresent(customers::add);
+        });
+        asset.setCustomers(customers);
+        List<Vendor> vendors = new ArrayList<>();
+        dto.getVendorsNames().forEach(name -> {
+            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            optionalVendor.ifPresent(vendors::add);
+        });
+        asset.setVendors(vendors);
         assetRepository.save(asset);
     }
 

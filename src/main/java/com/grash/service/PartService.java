@@ -33,6 +33,8 @@ public class PartService {
     private final FileService fileService;
     private final PartConsumptionService partConsumptionService;
     private final CompanyService companyService;
+    private final CustomerService customerService;
+    private final VendorService vendorService;
     private final LocationService locationService;
     private final PartMapper partMapper;
     private final EntityManager em;
@@ -168,6 +170,18 @@ public class PartService {
             optionalTeam.ifPresent(teams::add);
         });
         part.setTeams(teams);
+        List<Customer> customers = new ArrayList<>();
+        dto.getCustomersNames().forEach(name -> {
+            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            optionalCustomer.ifPresent(customers::add);
+        });
+        part.setCustomers(customers);
+        List<Vendor> vendors = new ArrayList<>();
+        dto.getVendorsNames().forEach(name -> {
+            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            optionalVendor.ifPresent(vendors::add);
+        });
+        part.setVendors(vendors);
         partRepository.save(part);
     }
 

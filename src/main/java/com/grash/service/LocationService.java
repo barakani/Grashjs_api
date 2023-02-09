@@ -25,6 +25,8 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final UserService userService;
     private final CompanyService companyService;
+    private final CustomerService customerService;
+    private final VendorService vendorService;
     private final LocationMapper locationMapper;
     private final NotificationService notificationService;
     private final TeamService teamService;
@@ -134,6 +136,18 @@ public class LocationService {
             optionalTeam.ifPresent(teams::add);
         });
         location.setTeams(teams);
+        List<Customer> customers = new ArrayList<>();
+        dto.getCustomersNames().forEach(name -> {
+            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            optionalCustomer.ifPresent(customers::add);
+        });
+        location.setCustomers(customers);
+        List<Vendor> vendors = new ArrayList<>();
+        dto.getVendorsNames().forEach(name -> {
+            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            optionalVendor.ifPresent(vendors::add);
+        });
+        location.setVendors(vendors);
         locationRepository.save(location);
     }
 

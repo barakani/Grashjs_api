@@ -24,4 +24,8 @@ public class LocationImportDTO {
 
     private Collection<String> teamsNames;
 
+    private Collection<String> customersNames;
+    
+    private Collection<String> vendorsNames;
+
 }

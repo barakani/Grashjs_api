@@ -35,4 +35,5 @@ public class WorkOrderImportDTO {
     private Double completedOn;
     private String archived;
     private String feedback;
+    private List<String> customersNames;
 }

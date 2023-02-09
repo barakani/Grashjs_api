@@ -39,6 +39,7 @@ public class WorkOrderService {
     private final WorkOrderRepository workOrderRepository;
     private final WorkOrderHistoryRepository workOrderHistoryRepository;
     private final LocationService locationService;
+    private final CustomerService customerService;
     private final TeamService teamService;
     private final AssetService assetService;
     private final UserService userService;
@@ -300,6 +301,12 @@ public class WorkOrderService {
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
         workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
         workOrder.setFeedback(dto.getFeedback());
+        List<Customer> customers = new ArrayList<>();
+        dto.getCustomersNames().forEach(name -> {
+            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            optionalCustomer.ifPresent(customers::add);
+        });
+        workOrder.setCustomers(customers);
         workOrderRepository.save(workOrder);
     }
 }

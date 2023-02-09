@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface VendorRepository extends JpaRepository<Vendor, Long>, JpaSpecificationExecutor<Vendor> {
     Collection<Vendor> findByCompany_Id(Long id);
+
+    Optional<Vendor> findByNameAndCompany_Id(String name, Long companyId);
 }

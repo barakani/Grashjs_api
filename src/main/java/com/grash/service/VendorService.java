@@ -80,11 +80,15 @@ public class VendorService {
             return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
         }
     }
-    
+
     public Page<Vendor> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Vendor> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return vendorRepository.findAll(builder.build(), page);
+    }
+
+    public Optional<Vendor> findByNameAndCompany(String name, Long companyId) {
+        return vendorRepository.findByNameAndCompany_Id(name, companyId);
     }
 }
