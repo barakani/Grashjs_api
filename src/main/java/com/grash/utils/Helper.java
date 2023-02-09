@@ -114,8 +114,8 @@ public class Helper {
         }
     }
 
-    public static String getEmails(Collection<OwnUser> users) {
-        return users.stream().map(OwnUser::getEmail).reduce("", (acc, email) -> acc + ", " + email);
+    public static String enumerate(Collection<String> strings) {
+        return strings.stream().reduce("", (acc, string) -> acc + ", " + string);
     }
 
     public static boolean getBooleanFromString(String string) {

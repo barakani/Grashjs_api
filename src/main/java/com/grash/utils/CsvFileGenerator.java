@@ -1,6 +1,6 @@
 package com.grash.utils;
 
-import com.grash.model.WorkOrder;
+import com.grash.model.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -38,12 +38,58 @@ public class CsvFileGenerator {
                         workOrder.getLocation() == null ? null : workOrder.getLocation().getName(),
                         workOrder.getTeam() == null ? null : workOrder.getTeam().getName(),
                         workOrder.getPrimaryUser() == null ? null : workOrder.getPrimaryUser().getEmail(),
-                        Helper.getEmails(workOrder.getAssignedTo()),
+                        Helper.enumerate(workOrder.getAssignedTo().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
                         workOrder.getAsset() == null ? null : workOrder.getAsset().getName(),
                         workOrder.getCompletedBy() == null ? null : workOrder.getCompletedBy().getEmail(),
                         workOrder.getCompletedOn(),
                         Helper.getStringFromBoolean(workOrder.isArchived(), messageSource, locale),
                         workOrder.getFeedback()
+                );
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale) {
+        try {
+            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+            List<String> headers = Arrays.asList("ID", "Name",
+                    "Description",
+                    "Status",
+                    "Archived",
+                    "Location_Name",
+                    "Parent_Asset",
+                    "Area",
+                    "Barcode",
+                    "Category",
+                    "Primary_User_Email",
+                    "Warranty_Expiration_Date",
+                    "Additional_Informations",
+                    "Serial_Number",
+                    "Assigned_To_Emails",
+                    "Teams_Names",
+                    "Parts");
+            printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+            for (Asset asset : assets) {
+                printer.printRecord(asset.getId(),
+                        asset.getName(),
+                        asset.getDescription(),
+                        asset.getStatus(),
+                        Helper.getStringFromBoolean(asset.isArchived(), messageSource, locale),
+                        asset.getLocation().getName(),
+                        asset.getParentAsset().getName(),
+                        asset.getArea(),
+                        asset.getBarCode(),
+                        asset.getCategory().getName(),
+                        asset.getPrimaryUser().getEmail(),
+                        asset.getWarrantyExpirationDate(),
+                        asset.getAdditionalInfos(),
+                        asset.getSerialNumber(),
+                        Helper.enumerate(asset.getAssignedTo().stream().map(OwnUser::getEmail).collect(Collectors.toList())),
+                        Helper.enumerate(asset.getTeams().stream().map(Team::getName).collect(Collectors.toList())),
+                        Helper.enumerate(asset.getParts().stream().map(Part::getName).collect(Collectors.toList()))
                 );
             }
             writer.close();
