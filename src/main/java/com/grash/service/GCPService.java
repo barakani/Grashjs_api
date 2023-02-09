@@ -40,7 +40,7 @@ public class GCPService {
                 .setProjectId("radiant-rookery-370411").build().getService();
         try {
             BlobInfo blobInfo = storage.create(
-                    BlobInfo.newBuilder("grash", folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
+                    BlobInfo.newBuilder("grash", folder + "/" + file.getOriginalFilename() + " " + helper.generateString()).build(), //get original file name
                     file.getBytes(), // the file
                     BlobTargetOption.predefinedAcl(PredefinedAcl.PUBLIC_READ) // Set file permission
             );
