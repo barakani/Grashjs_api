@@ -41,7 +41,7 @@ public class WorkOrder extends WorkOrderBase {
 
     private boolean archived;
 
-    @ManyToOne
+    @OneToOne
     @JsonIgnore
     private Request parentRequest;
 
