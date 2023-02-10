@@ -80,7 +80,9 @@ public class UserService {
             if (user.getRole() == null) {
                 //create company with default roles
                 Subscription subscription = Subscription.builder().usersCount(3).monthly(true)
-                        .subscriptionPlan(subscriptionPlanService.findByCode("BUS").get()).build();
+                        .startsOn(new Date())
+                        .endsOn(Helper.incrementDays(new Date(), 15))
+                        .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
                 subscriptionService.create(subscription);
                 Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
                 company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());

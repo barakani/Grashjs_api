@@ -8,6 +8,7 @@ import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -42,9 +44,13 @@ public class FastSpringController {
                 Subscription savedSubscription = optionalSubscription.get();
                 savedSubscription.setUsersCount(order.getEvents().get(0).getData().getItems().get(0).getQuantity());
                 String product = order.getEvents().get(0).getData().getItems().get(0).getProduct();
-                savedSubscription.setMonthly(product.contains("monthly"));
+                boolean monthly = product.contains("monthly");
+                savedSubscription.setMonthly(monthly);
                 SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByCode(product.split("-")[0].toUpperCase()).get();
                 savedSubscription.setSubscriptionPlan(subscriptionPlan);
+                Date now = new Date();
+                savedSubscription.setStartsOn(now);
+                savedSubscription.setEndsOn(Helper.incrementDays(now, monthly ? 30 : 365));
                 subscriptionService.save(savedSubscription);
             } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);

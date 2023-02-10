@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Data
@@ -27,5 +28,9 @@ public class Subscription extends Audit {
     @ManyToOne
     @NotNull
     private SubscriptionPlan subscriptionPlan;
+
+    private Date startsOn;
+
+    private Date endsOn;
 
 }
