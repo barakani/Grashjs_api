@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
+import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CompanyService companyService;
+    private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionMapper subscriptionMapper;
     private final EntityManager em;
 
@@ -71,5 +72,21 @@ public class SubscriptionService {
 
     public boolean canPatch(OwnUser user, SubscriptionPatchDTO subscriptionReq) {
         return true;
+    }
+
+    public void scheduleEnd(Subscription subscription) {
+        boolean shouldSchedule = subscription.getEndsOn().after(new Date());
+        if (shouldSchedule) {
+            Timer timer = new Timer();
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    SubscriptionPlan freeSubscriptionPlan = subscriptionPlanService.findByCode("FREE").get();
+                    subscription.setSubscriptionPlan(freeSubscriptionPlan);
+                    subscriptionRepository.save(subscription);
+                }
+            };
+            timer.schedule(timerTask, subscription.getEndsOn());
+        }
     }
 }

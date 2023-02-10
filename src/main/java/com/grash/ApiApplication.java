@@ -1,16 +1,10 @@
 package com.grash;
 
-import com.grash.model.Company;
-import com.grash.model.Role;
-import com.grash.model.Schedule;
-import com.grash.model.SubscriptionPlan;
+import com.grash.model.*;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
-import com.grash.service.CompanyService;
-import com.grash.service.RoleService;
-import com.grash.service.ScheduleService;
-import com.grash.service.SubscriptionPlanService;
+import com.grash.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -31,6 +25,7 @@ public class ApiApplication implements CommandLineRunner {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
     private final ScheduleService scheduleService;
 
     public static void main(String[] args) {
@@ -87,5 +82,7 @@ public class ApiApplication implements CommandLineRunner {
         }
         Collection<Schedule> schedules = scheduleService.getAll();
         schedules.forEach(scheduleService::scheduleWorkOrder);
+        Collection<Subscription> subscriptions = subscriptionService.getAll();
+        subscriptions.forEach(subscriptionService::scheduleEnd);
     }
 }
