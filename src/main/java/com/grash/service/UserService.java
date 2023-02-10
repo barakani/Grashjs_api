@@ -15,6 +15,7 @@ import com.grash.utils.Helper;
 import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +44,7 @@ public class UserService {
     private final EntityManager em;
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
-    private final EmailService emailService;
+    private final MessageSource messageSource;
     private final EmailService2 emailService2;
     private final RoleService roleService;
     private final CompanyService companyService;
@@ -113,7 +114,7 @@ public class UserService {
                 }};
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
-                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, "Confirmation Email", variables, "signup.html", Helper.getLocale(user));
+                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables, "signup.html", Helper.getLocale(user));
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
@@ -172,7 +173,7 @@ public class UserService {
             put("featuresLink", frontendUrl + "/#key-features");
             put("password", password);
         }};
-        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Grash Password Reset", variables, "reset-password.html", Helper.getLocale(user));
+        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, messageSource.getMessage("password_reset", null, Helper.getLocale(user)), variables, "reset-password.html", Helper.getLocale(user));
         return new SuccessResponse(true, "Password changed successfully");
     }
 
@@ -193,7 +194,7 @@ public class UserService {
                 put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
                 put("company", inviter.getCompany().getName());
             }};
-            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, "Invitation to use Grash", variables, "invite.html", Helper.getLocale(inviter));
+            emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, messageSource.getMessage("invitation_to_use", null, Helper.getLocale(inviter)), variables, "invite.html", Helper.getLocale(inviter));
         } else throw new CustomException("Email already in use", HttpStatus.NOT_ACCEPTABLE);
     }
 

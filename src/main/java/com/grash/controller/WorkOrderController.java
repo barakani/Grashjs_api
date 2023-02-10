@@ -274,7 +274,7 @@ public class WorkOrderController {
                             put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                             put("message", message);
                         }};
-                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, "Work Order Request Update", mailVariables, "requester-update.html", Helper.getLocale(user));
+                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, messageSource.getMessage("request_update", null, locale), mailVariables, "requester-update.html", Helper.getLocale(user));
                     }
                 }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
