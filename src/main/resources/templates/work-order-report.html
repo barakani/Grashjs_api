@@ -8,24 +8,50 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="invoice-title">
-                <h3>Company</h3>
-                <h3 class="pull-right">Work Order # 12345</h3>
+                <h3 th:text="${companyName}"></h3>
+                <h3 class="pull-right" th:text="#{wo_number(${workOrder.id})}"></h3>
             </div>
             <hr>
             <div class="row">
                 <div class="col-xs-6">
                     <address>
-                        +21274578544<br>
-                        <strong>Created On:</strong>12/05/2023<br>
-                        <strong>Last Updated:</strong>12/05/2023<br>
+                        <div th:text="${companyPhone}"></div>
+                        <strong>Created On:</strong>
+                        <span th:text="${workOrder.createdAt}"></span>
+                        <br>
+                        <strong>Last Updated: </strong><span th:text="${workOrder.updatedAt}"></span><br>
                     </address>
                 </div>
                 <div class="col-xs-6 text-right">
                     <address>
-                        <strong>Assigned To: </strong>Ibrahima Coulibaly<br>
-                        <strong>Due Date: </strong>12/04/2023<br>
-                        <strong>Status: </strong>Open<br>
-                        <strong>Priority: </strong>Medium<br>
+                        <div th:if="${primaryUserName}">
+                            <strong>Assigned To: </strong>
+                            <span
+                                    th:text="${primaryUserName}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.dueDate}">
+                            <strong>Due Date: </strong>
+                            <span
+                                    th:text="${workOrder.dueDate}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.status}">
+                            <strong>Status: </strong>
+                            <span
+                                    th:text="${workOrder.status}">
+                            </span>
+                            <br>
+                        </div>
+                        <div th:if="${workOrder.priority}">
+                            <strong>Priority: </strong>
+                            <span
+                                    th:text="${workOrder.priority}">
+                            </span>
+                            <br>
+                        </div>
                     </address>
                 </div>
             </div>
@@ -38,11 +64,10 @@
                     <h3 class="panel-title"><strong>Work Order</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <h3>
-                        HVAC Monthly Preventive Maintenance
+                    <h3 th:text="${workOrder.title}">
+
                     </h3>
-                    <h5>
-                        Description
+                    <h5 th:text="${workOrder.description}">
                     </h5>
                 </div>
             </div>
@@ -57,18 +82,68 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-xs-6">
-                            <strong>Location: </strong>Locations2<br>
-                            <strong>Asset: </strong>Asset2<br>
-                            <strong>Barcode: </strong>Asset2<br>
-                            <strong>Area: </strong>Asset2<br>
-                            <strong>Model: </strong>Asset2<br>
+                            <div th:if="${workOrder.location}">
+                                <strong>Location: </strong>
+                                <span
+                                        th:text="${workOrder.location.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.asset}">
+                                <strong>Asset: </strong>
+                                <span
+                                        th:text="${workOrder.asset.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.estimatedDuration}">
+                                <strong>Estimated Duration: </strong>
+                                <span
+                                        th:text="${workOrder.estimatedDuration}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.team}">
+                                <strong>Team: </strong>
+                                <span
+                                        th:text="${workOrder.team.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.category}">
+                                <strong>Category: </strong>
+                                <span
+                                        th:text="${workOrder.category.name}">
+                                </span>
+                            </div>
                         </div>
                         <div class="col-xs-6">
-                            <strong>Location: </strong>Locations2<br>
-                            <strong>Asset: </strong>Asset2<br>
-                            <strong>Barcode: </strong>Asset2<br>
-                            <strong>Area: </strong>Asset2<br>
-                            <strong>Model: </strong>Asset2<br>
+                            <div th:if="${!#strings.isEmpty(assignedTo)}">
+                                <strong>Assigned To: </strong>
+                                <span
+                                        th:text="${assignedTo}">
+                                </span>
+                            </div>
+                            <div th:if="${!#strings.isEmpty(customers)}">
+                                <strong>Customers: </strong>
+                                <span
+                                        th:text="${customers}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.completedBy}">
+                                <strong>Completed By: </strong>
+                                <span
+                                        th:text="${workOrder.completedBy.name}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.completedOn}">
+                                <strong>Completed On: </strong>
+                                <span
+                                        th:text="${workOrder.completedOn}">
+                                </span>
+                            </div>
+                            <div th:if="${workOrder.feedback}">
+                                <strong>Feedback: </strong>
+                                <span
+                                        th:text="${workOrder.feedback}">
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,8 +157,9 @@
                     <h3 class="panel-title"><strong>Tasks</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <th:block th:each="task : ${tasks}">
+                        <div th:text="${task}"></div>
+                    </th:block>
                 </div>
             </div>
         </div>
@@ -95,8 +171,12 @@
                     <h3 class="panel-title"><strong>Labors</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <!--                    TODO-->
+                    <!--                    <th:block th:each="labor : ${labors}">-->
+                    <!--                        <div>-->
+                    <!--                            <span th:text=""></span>-->
+                    <!--                        </div>-->
+                    <!--                    </th:block>-->
                 </div>
             </div>
         </div>
@@ -108,8 +188,9 @@
                     <h3 class="panel-title"><strong>Relations</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <th:block th:each="relation : ${relations}">
+                        <div th:text="${relation.parent.title} + ' '+${relation.relationType} + ' '+ ${relation.child.title}"></div>
+                    </th:block>
                 </div>
             </div>
         </div>

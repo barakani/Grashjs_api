@@ -326,7 +326,12 @@ public class WorkOrderController {
                 Collection<AdditionalCost> additionalCosts = additionalCostService.findByWorkOrder(id);
                 Collection<WorkOrderHistory> workOrderHistories = workOrderHistoryService.findByWorkOrder(id);
                 Map<String, Object> variables = new HashMap<String, Object>() {{
+                    put("companyName", user.getCompany().getName());
+                    put("companyPhone", user.getCompany().getPhone());
+                    put("assignedTo", Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(OwnUser::getFullName).collect(Collectors.toList())));
+                    put("customers", Helper.enumerate(savedWorkOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())));
                     put("workOrder", savedWorkOrder);
+                    put("primaryUserName", savedWorkOrder.getPrimaryUser() == null ? null : savedWorkOrder.getPrimaryUser().getFullName());
                     put("createdBy", creator.<Object>map(OwnUser::getFullName).orElse(null));
                     put("tasks", tasks);
                     put("labors", labors);
