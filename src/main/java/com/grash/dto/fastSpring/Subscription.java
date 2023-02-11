@@ -37,7 +37,7 @@ public class Subscription {
     public String subtotalDisplay;
     public int subtotalInPayoutCurrency;
     public String subtotalInPayoutCurrencyDisplay;
-    public OrderDTO.Tags tags;
+    public Tags tags;
     public long next;
     public long nextValue;
     public int nextInSeconds;

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Audit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,9 @@ public class Subscription extends Audit {
     private int usersCount;
 
     private boolean monthly;
+
+    @JsonIgnore
+    private String fastSpringId;
 
     @ManyToOne
     @NotNull

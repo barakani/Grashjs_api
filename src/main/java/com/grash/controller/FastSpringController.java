@@ -1,6 +1,8 @@
 package com.grash.controller;
 
-import com.grash.dto.fastSpring.OrderDTO;
+import com.grash.dto.fastSpring.Item;
+import com.grash.dto.fastSpring.WebhookPayload;
+import com.grash.dto.fastSpring.payloads.Order;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
@@ -33,7 +35,7 @@ public class FastSpringController {
     private final SubscriptionPlanService subscriptionPlanService;
 
     @PostMapping("/order-completed")
-    public void onSubscriptionChange(@Valid @RequestBody OrderDTO order) {
+    public void onSubscriptionChange(@Valid @RequestBody WebhookPayload<Order> order) {
         long userId = order.getEvents().get(0).getData().getTags().getUserId();
         Optional<OwnUser> optionalOwnUser = userService.findById(userId);
         if (optionalOwnUser.isPresent()) {
@@ -41,7 +43,7 @@ public class FastSpringController {
             Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
             if (optionalSubscription.isPresent()) {
                 Subscription savedSubscription = optionalSubscription.get();
-                OrderDTO.Item item = order.getEvents().get(0).getData().getItems().get(0);
+                Item item = order.getEvents().get(0).getData().getItems().get(0);
                 savedSubscription.setUsersCount(item.getQuantity());
                 String product = item.getProduct();
                 boolean monthly = product.contains("monthly");
@@ -50,6 +52,7 @@ public class FastSpringController {
                 savedSubscription.setSubscriptionPlan(subscriptionPlan);
                 savedSubscription.setStartsOn(new Date(item.getSubscription().getBegin()));
                 savedSubscription.setEndsOn(new Date(item.getSubscription().getNextChargeDate()));
+                savedSubscription.setFastSpringId(item.getSubscription().getId());
                 subscriptionService.save(savedSubscription);
             } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
