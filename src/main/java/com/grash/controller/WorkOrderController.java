@@ -328,6 +328,7 @@ public class WorkOrderController {
                 Map<String, Object> variables = new HashMap<String, Object>() {{
                     put("companyName", user.getCompany().getName());
                     put("companyPhone", user.getCompany().getPhone());
+                    put("currency", user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
                     put("assignedTo", Helper.enumerate(savedWorkOrder.getAssignedTo().stream().map(OwnUser::getFullName).collect(Collectors.toList())));
                     put("customers", Helper.enumerate(savedWorkOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())));
                     put("workOrder", savedWorkOrder);

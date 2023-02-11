@@ -31,6 +31,8 @@ public class WorkOrderBasePatchDTO {
 
     private List<OwnUser> assignedTo;
 
+    private List<Customer> customers;
+
     private List<File> files;
 
     private Asset asset;

@@ -42,6 +42,10 @@ public class Labor extends Time {
     @NotNull
     private WorkOrder workOrder;
 
+    public long getCost() {
+        return hourlyRate * this.getDuration() / 3600;
+    }
+
     public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean logged, TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;

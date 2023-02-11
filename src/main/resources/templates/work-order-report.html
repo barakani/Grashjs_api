@@ -1,9 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <style>
     .invoice-title h2, .invoice-title h3 {
         display: inline-block;
     }
 </style>
+<body>
+<!--@thymesVar id="workOrder" type="com.grash.model.WorkOrder"-->
+<!--@thymesVar id="companyName" type="java.lang.String"-->
+<!--/*@thymesVar id="relations" type="java.util.List<com.grash.model.Relation>"*/-->
+<!--/*@thymesVar id="tasks" type="java.util.List<java.lang.String>"*/-->
+<!--/*@thymesVar id="assignedTo" type="java.lang.String"*/-->
+<!--/*@thymesVar id="customers" type="java.lang.String"*/-->
+<!--/*@thymesVar id="companyPhone" type="java.lang.String"*/-->
+<!--/*@thymesVar id="primaryUserName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="currency" type="java.lang.String"*/-->
+<!--/*@thymesVar id="additionalCosts" type="java.util.List<com.grash.model.AdditionalCost>"*/-->
+<!--/*@thymesVar id="workOrderHistories" type="java.util.List<com.grash.model.WorkOrderHistory>"*/-->
+<!--/*@thymesVar id="partQuantities" type="java.util.List<com.grash.model.PartQuantity>"*/-->
+<!--/*@thymesVar id="labors" type="java.util.List<com.grash.model.Labor>"*/-->
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
@@ -129,7 +145,7 @@
                             <div th:if="${workOrder.completedBy}">
                                 <strong>Completed By: </strong>
                                 <span
-                                        th:text="${workOrder.completedBy.name}">
+                                        th:text="${workOrder.completedBy.getFullName()}">
                                 </span>
                             </div>
                             <div th:if="${workOrder.completedOn}">
@@ -150,7 +166,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(tasks)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -164,24 +180,31 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(labors)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><strong>Labors</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <!--                    TODO-->
-                    <!--                    <th:block th:each="labor : ${labors}">-->
-                    <!--                        <div>-->
-                    <!--                            <span th:text=""></span>-->
-                    <!--                        </div>-->
-                    <!--                    </th:block>-->
+                    <th:block th:each="labor : ${labors}">
+                        <div>
+                            <strong>User: </strong> <span th:text="${labor.getAssignedTo().getFullName()}"></span>
+                        </div>
+                        <div>
+                            <strong>Duration: </strong> <span
+                                th:text="#{format_date(${labor.getFormattedDuration().get(0)},${labor.getFormattedDuration().get(1)},${labor.getFormattedDuration().get(2)})}"></span>
+                        </div>
+                        <div>
+                            <strong>Cost: </strong> <span th:text="${labor.getCost()}+' '+ ${currency}"></span>
+                        </div>
+                        <br>
+                    </th:block>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(relations)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -189,47 +212,59 @@
                 </div>
                 <div class="panel-body">
                     <th:block th:each="relation : ${relations}">
-                        <div th:text="${relation.parent.title} + ' '+${relation.relationType} + ' '+ ${relation.child.title}"></div>
+                        <div th:text="${relation.getParent().getTitle()} + ' '+${relation.getRelationType()} + ' '+ ${relation.getChild().getTitle()}"></div>
                     </th:block>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(additionalCosts)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><strong>Additional Costs</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <th:block th:each="additionalCost : ${additionalCosts}">
+                        <div th:text="${additionalCost.getDescription()} + ': '+${additionalCost.getCost()} + ' '+ ${currency}"></div>
+                    </th:block>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(workOrderHistories)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><strong>History</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <th:block th:each="workOrderHistory : ${workOrderHistories}">
+                        <div>
+                            <strong>User:</strong><span th:text="${workOrderHistory.getUser().getFullName()}"></span>
+                        </div>
+                        <div th:text="${workOrderHistory.getName()}"></div>
+                        <div th:text="${workOrderHistory.getCreatedAt()}"></div>
+                        <br>
+                    </th:block>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" th:if="${not #lists.isEmpty(partQuantities)}">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title"><strong>Parts</strong></h3>
                 </div>
                 <div class="panel-body">
-                    Check filter<br>
-                    DSsdd<br>
+                    <th:block th:each="partQuantity : ${partQuantities}">
+                        <div>
+                            <strong th:text="${partQuantity.getPart().getName()}"></strong>
+                        </div>
+                        <div>Quantity: <span th:text="${partQuantity.getQuantity()}"></span></div>
+                        <div>Cost: <span th:text="${partQuantity.getCost()}+' '+ ${currency}"></span></div>
+                    </th:block>
                 </div>
             </div>
         </div>
@@ -243,3 +278,5 @@
         </div>
     </div>
 </div>
+</body>
+</html>
