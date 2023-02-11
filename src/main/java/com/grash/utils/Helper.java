@@ -120,7 +120,16 @@ public class Helper {
     }
 
     public static String enumerate(Collection<String> strings) {
-        return strings.stream().reduce("", (acc, string) -> acc + ", " + string);
+        StringBuilder stringBuilder = new StringBuilder();
+        int size = strings.size();
+        int index = 0;
+        for (String string : strings) {
+            stringBuilder.append(string);
+            if (index < size - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     public static boolean getBooleanFromString(String string) {
