@@ -4,27 +4,43 @@ import lombok.Data;
 
 import java.util.ArrayList;
 
-// import com.fasterxml.jackson.databind.ObjectMapper; // version 2.11.1
-// import com.fasterxml.jackson.annotation.JsonProperty; // version 2.11.1
-/* ObjectMapper om = new ObjectMapper();
-Root root = om.readValue(myJsonString, Root.class); */
-
 @Data
 public class OrderDTO {
     public ArrayList<Event> events;
 
-    @Data
-    public static class Withholdings {
-        public boolean taxWithholdings;
+    @lombok.Data
+    public static class Account {
+        public String id;
+        public String account;
+        public Contact contact;
+        public Address address;
+        public String language;
+        public String country;
+        public Lookup lookup;
+        public String url;
     }
 
-    @Data
+    @lombok.Data
     public static class Address {
+        public Object city;
         public String country;
+        public Object postalCode;
+        public Object region;
+        public Object company;
         public String display;
     }
 
-    @Data
+    @lombok.Data
+    public static class Contact {
+        public String first;
+        public String last;
+        public String email;
+        public Object company;
+        public String phone;
+        public boolean subscribed;
+    }
+
+    @lombok.Data
     public static class Customer {
         public String first;
         public String last;
@@ -34,8 +50,8 @@ public class OrderDTO {
         public boolean subscribed;
     }
 
-    @Data
-    public static class Data1 {
+    @lombok.Data
+    public static class Data {
         public String order;
         public String id;
         public String reference;
@@ -53,7 +69,7 @@ public class OrderDTO {
         public String payoutCurrency;
         public Object quote;
         public String invoiceUrl;
-        public String account;
+        public Account account;
         public int total;
         public String totalDisplay;
         public int totalInPayoutCurrency;
@@ -84,32 +100,17 @@ public class OrderDTO {
         public ArrayList<Item> items;
     }
 
-    @Data
-    public static class Driver {
-        public String type;
-        public String path;
-    }
-
-    @Data
+    @lombok.Data
     public static class Event {
         public String id;
         public boolean processed;
         public long created;
         public String type;
         public boolean live;
-        public Data1 data;
+        public Data data;
     }
 
-    @Data
-    public static class Tags {
-        public long userId;
-    }
-
-    @Data
-    public static class Fulfillments {
-    }
-
-    @Data
+    @lombok.Data
     public static class Item {
         public String product;
         public int quantity;
@@ -124,24 +125,29 @@ public class OrderDTO {
         public String discountDisplay;
         public int discountInPayoutCurrency;
         public String discountInPayoutCurrencyDisplay;
-        public String subscription;
+        public Subscription subscription;
         public Fulfillments fulfillments;
-        public Driver driver;
         public Withholdings withholdings;
     }
 
-    @Data
+    @lombok.Data
+    public static class Lookup {
+        public String global;
+    }
+
+    @lombok.Data
     public static class Payment {
         public String type;
         public String cardEnding;
     }
 
-    @Data
+
+    @lombok.Data
     public static class Recipient {
         public Recipient recipient;
     }
 
-    @Data
+    @lombok.Data
     public static class Recipient2 {
         public String first;
         public String last;
@@ -149,8 +155,19 @@ public class OrderDTO {
         public Object company;
         public String phone;
         public boolean subscribed;
-        public String account;
+        public Account account;
         public Address address;
     }
+
+    @lombok.Data
+    public static class Tags {
+        public int userId;
+    }
+
+    @lombok.Data
+    public static class Withholdings {
+        public boolean taxWithholdings;
+    }
+
 
 }

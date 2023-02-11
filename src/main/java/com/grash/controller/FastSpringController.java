@@ -8,7 +8,6 @@ import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
-import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,15 +41,15 @@ public class FastSpringController {
             Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
             if (optionalSubscription.isPresent()) {
                 Subscription savedSubscription = optionalSubscription.get();
-                savedSubscription.setUsersCount(order.getEvents().get(0).getData().getItems().get(0).getQuantity());
-                String product = order.getEvents().get(0).getData().getItems().get(0).getProduct();
+                OrderDTO.Item item = order.getEvents().get(0).getData().getItems().get(0);
+                savedSubscription.setUsersCount(item.getQuantity());
+                String product = item.getProduct();
                 boolean monthly = product.contains("monthly");
                 savedSubscription.setMonthly(monthly);
                 SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByCode(product.split("-")[0].toUpperCase()).get();
                 savedSubscription.setSubscriptionPlan(subscriptionPlan);
-                Date now = new Date();
-                savedSubscription.setStartsOn(now);
-                savedSubscription.setEndsOn(Helper.incrementDays(now, monthly ? 30 : 365));
+                savedSubscription.setStartsOn(new Date(item.getSubscription().getBegin()));
+                savedSubscription.setEndsOn(new Date(item.getSubscription().getNextChargeDate()));
                 subscriptionService.save(savedSubscription);
             } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);

@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.LocationMiniDTO;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationShowDTO;
@@ -18,6 +19,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,23 +41,20 @@ public class LocationController {
     private final LocationMapper locationMapper;
     private final UserService userService;
 
-    @GetMapping("")
+    @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "LocationCategory not found")})
-    public List<LocationShowDTO> getAll(HttpServletRequest req) {
+    public ResponseEntity<Page<LocationShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS);
-                    return canViewOthers || location.getCreatedBy().equals(user.getId());
-                }).map(locationMapper::toShowDto).collect(Collectors.toList());
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else
-            return locationService.getAll().stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(locationService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/children/{id}")

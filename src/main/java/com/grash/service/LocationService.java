@@ -1,6 +1,9 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.LocationPatchDTO;
+import com.grash.dto.LocationShowDTO;
 import com.grash.dto.imports.LocationImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
@@ -10,6 +13,9 @@ import com.grash.model.enums.RoleType;
 import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,5 +158,12 @@ public class LocationService {
 
     public Optional<Location> findByIdAndCompany(Long id, Long companyId) {
         return locationRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
+    public Page<LocationShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Location> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return locationRepository.findAll(builder.build(), page).map(locationMapper::toShowDto);
     }
 }

@@ -234,7 +234,10 @@ public class WorkOrderController {
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-
+        if (workOrder.getStatus() != Status.COMPLETE) {
+            workOrder.setCompletedOn(null);
+            workOrder.setCompletedBy(null);
+        }
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
