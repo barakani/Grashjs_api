@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.fastSpring.Item;
 import com.grash.dto.fastSpring.WebhookPayload;
+import com.grash.dto.fastSpring.payloads.DeactivatedPayload;
 import com.grash.dto.fastSpring.payloads.Order;
 import com.grash.dto.fastSpring.payloads.ResumePayload;
 import com.grash.dto.fastSpring.payloads.SubscriptionCharge;
@@ -60,7 +61,7 @@ public class FastSpringController {
     }
 
     @PostMapping("/renew-subscription")
-    public void onRebill(@Valid @RequestBody WebhookPayload<SubscriptionCharge> subscriptionChargeWebhookPayload) {
+    public void onRenewSubscription(@Valid @RequestBody WebhookPayload<SubscriptionCharge> subscriptionChargeWebhookPayload) {
         SubscriptionCharge subscriptionCharge = subscriptionChargeWebhookPayload.getEvents().get(0).getData();
         long userId = subscriptionCharge.getSubscription().getTags().getUserId();
         Optional<OwnUser> optionalOwnUser = userService.findById(userId);
@@ -73,6 +74,16 @@ public class FastSpringController {
                 subscriptionService.save(savedSubscription);
             } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/deactivate")
+    public void onDeactivatedSubscription(@Valid @RequestBody WebhookPayload<DeactivatedPayload> deactivatedPayloadWebhookPayload) {
+        DeactivatedPayload deactivatedPayload = deactivatedPayloadWebhookPayload.getEvents().get(0).getData();
+        Optional<Subscription> optionalSubscription = subscriptionService.findByFastSpringId(deactivatedPayload.getSubscription());
+        if (optionalSubscription.isPresent()) {
+            Subscription savedSubscription = optionalSubscription.get();
+            subscriptionService.resetToFreePlan(savedSubscription);
+        } else throw new CustomException("Subscription Not found", HttpStatus.NOT_FOUND);
     }
 
     private void setSubscriptionFromFastSpring(com.grash.dto.fastSpring.Subscription subscription, Subscription savedSubscription) {

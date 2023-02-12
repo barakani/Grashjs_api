@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
-import com.grash.model.SubscriptionPlan;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -81,12 +80,25 @@ public class SubscriptionService {
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    SubscriptionPlan freeSubscriptionPlan = subscriptionPlanService.findByCode("FREE").get();
-                    subscription.setSubscriptionPlan(freeSubscriptionPlan);
-                    subscriptionRepository.save(subscription);
+                    resetToFreePlan(subscription);
                 }
             };
             timer.schedule(timerTask, subscription.getEndsOn());
         }
+    }
+
+    public Optional<Subscription> findByFastSpringId(String id) {
+        return subscriptionRepository.findByFastSpringId(id);
+    }
+
+    public void resetToFreePlan(Subscription subscription) {
+        subscription.setActivated(false);
+        subscription.setUsersCount(3);
+        subscription.setMonthly(true);
+        subscription.setCancelled(false);
+        subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
+        subscription.setStartsOn(new Date());
+        subscription.setEndsOn(null);
+        subscriptionRepository.save(subscription);
     }
 }
