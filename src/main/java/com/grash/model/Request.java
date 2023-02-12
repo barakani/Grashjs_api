@@ -18,9 +18,4 @@ public class Request extends WorkOrderBase {
     @OneToOne
     private WorkOrder workOrder;
 
-    @PreRemove
-    private void preRemove() {
-        workOrder.setParentRequest(null);
-    }
-
 }
