@@ -5,7 +5,10 @@ import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,7 +20,6 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private Date dueDate;
     private Priority priority = Priority.NONE;
     private int estimatedDuration;
-    @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
     @NotNull
     private String title;
