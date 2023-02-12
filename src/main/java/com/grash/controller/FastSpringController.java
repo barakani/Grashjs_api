@@ -45,45 +45,51 @@ public class FastSpringController {
 
     @PostMapping("/new-subscription")
     public void onNewSubscription(@Valid @RequestBody WebhookPayload<Order> order) {
-        long userId = order.getEvents().get(0).getData().getTags().getUserId();
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
-        if (optionalOwnUser.isPresent()) {
-            OwnUser user = optionalOwnUser.get();
-            Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
-            if (optionalSubscription.isPresent()) {
-                Subscription savedSubscription = optionalSubscription.get();
-                Item item = order.getEvents().get(0).getData().getItems().get(0);
-                savedSubscription.setUsersCount(item.getQuantity());
-                setSubscriptionFromFastSpring(item.getSubscription(), savedSubscription);
-                subscriptionService.save(savedSubscription);
-            } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+        order.getEvents().forEach(event -> {
+            long userId = event.getData().getTags().getUserId();
+            Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+            if (optionalOwnUser.isPresent()) {
+                OwnUser user = optionalOwnUser.get();
+                Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
+                if (optionalSubscription.isPresent()) {
+                    Subscription savedSubscription = optionalSubscription.get();
+                    Item item = event.getData().getItems().get(0);
+                    savedSubscription.setUsersCount(item.getQuantity());
+                    setSubscriptionFromFastSpring(item.getSubscription(), savedSubscription);
+                    subscriptionService.save(savedSubscription);
+                } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+            } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+        });
     }
 
     @PostMapping("/renew-subscription")
     public void onRenewSubscription(@Valid @RequestBody WebhookPayload<SubscriptionCharge> subscriptionChargeWebhookPayload) {
-        SubscriptionCharge subscriptionCharge = subscriptionChargeWebhookPayload.getEvents().get(0).getData();
-        long userId = subscriptionCharge.getSubscription().getTags().getUserId();
-        Optional<OwnUser> optionalOwnUser = userService.findById(userId);
-        if (optionalOwnUser.isPresent()) {
-            OwnUser user = optionalOwnUser.get();
-            Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
-            if (optionalSubscription.isPresent()) {
-                Subscription savedSubscription = optionalSubscription.get();
-                setSubscriptionFromFastSpring(subscriptionCharge.getSubscription(), savedSubscription);
-                subscriptionService.save(savedSubscription);
-            } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+        subscriptionChargeWebhookPayload.getEvents().forEach(event -> {
+            SubscriptionCharge subscriptionCharge = event.getData();
+            long userId = subscriptionCharge.getSubscription().getTags().getUserId();
+            Optional<OwnUser> optionalOwnUser = userService.findById(userId);
+            if (optionalOwnUser.isPresent()) {
+                OwnUser user = optionalOwnUser.get();
+                Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
+                if (optionalSubscription.isPresent()) {
+                    Subscription savedSubscription = optionalSubscription.get();
+                    setSubscriptionFromFastSpring(subscriptionCharge.getSubscription(), savedSubscription);
+                    subscriptionService.save(savedSubscription);
+                } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+            } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
+        });
     }
 
     @PostMapping("/deactivate")
     public void onDeactivatedSubscription(@Valid @RequestBody WebhookPayload<DeactivatedPayload> deactivatedPayloadWebhookPayload) {
-        DeactivatedPayload deactivatedPayload = deactivatedPayloadWebhookPayload.getEvents().get(0).getData();
-        Optional<Subscription> optionalSubscription = subscriptionService.findByFastSpringId(deactivatedPayload.getSubscription());
-        if (optionalSubscription.isPresent()) {
-            Subscription savedSubscription = optionalSubscription.get();
-            subscriptionService.resetToFreePlan(savedSubscription);
-        } else throw new CustomException("Subscription Not found", HttpStatus.NOT_FOUND);
+        deactivatedPayloadWebhookPayload.getEvents().forEach(event -> {
+                    Optional<Subscription> optionalSubscription = subscriptionService.findByFastSpringId(event.getData().getSubscription());
+                    if (optionalSubscription.isPresent()) {
+                        Subscription savedSubscription = optionalSubscription.get();
+                        subscriptionService.resetToFreePlan(savedSubscription);
+                    } else throw new CustomException("Subscription Not found", HttpStatus.NOT_FOUND);
+                }
+        );
     }
 
     private void setSubscriptionFromFastSpring(com.grash.dto.fastSpring.Subscription subscription, Subscription savedSubscription) {
@@ -100,11 +106,14 @@ public class FastSpringController {
     }
 
     @GetMapping("/cancel")
-    public Object onCancel(HttpServletRequest req) {
+    public SuccessResponse onCancel(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {
             Subscription savedSubscription = optionalSubscription.get();
+            if (!savedSubscription.isActivated()) {
+                throw new CustomException("Subscription is not activated", HttpStatus.NOT_ACCEPTABLE);
+            }
             if (savedSubscription.isCancelled()) {
                 throw new CustomException("Subscription already cancelled", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -116,11 +125,14 @@ public class FastSpringController {
     }
 
     @GetMapping("/resume")
-    public Object onResume(HttpServletRequest req) {
+    public SuccessResponse onResume(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {
             Subscription savedSubscription = optionalSubscription.get();
+            if (!savedSubscription.isActivated()) {
+                throw new CustomException("Subscription is not activated", HttpStatus.NOT_ACCEPTABLE);
+            }
             if (!savedSubscription.isCancelled()) {
                 throw new CustomException("Subscription is active", HttpStatus.NOT_ACCEPTABLE);
             }

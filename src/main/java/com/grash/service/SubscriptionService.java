@@ -74,7 +74,7 @@ public class SubscriptionService {
     }
 
     public void scheduleEnd(Subscription subscription) {
-        boolean shouldSchedule = subscription.getEndsOn().after(new Date());
+        boolean shouldSchedule = subscription.getEndsOn().after(new Date()) && !subscription.getSubscriptionPlan().getCode().equals("FREE");
         if (shouldSchedule) {
             Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
@@ -95,6 +95,7 @@ public class SubscriptionService {
         subscription.setActivated(false);
         subscription.setUsersCount(3);
         subscription.setMonthly(true);
+        subscription.setFastSpringId(null);
         subscription.setCancelled(false);
         subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
         subscription.setStartsOn(new Date());
