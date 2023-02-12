@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,10 +38,6 @@ public class Company extends Audit {
 
     @OneToOne(cascade = CascadeType.ALL)
     private CompanySettings companySettings = new CompanySettings(this);
-
-    @OneToOne
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private BankCard bankCard;
 
     public Company(String companyName, int employeesCount, Subscription subscription) {
         this.name = companyName;
