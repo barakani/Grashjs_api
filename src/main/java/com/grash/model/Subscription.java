@@ -26,6 +26,8 @@ public class Subscription extends Audit {
 
     private boolean monthly;
 
+    private boolean cancelled;
+
     @JsonIgnore
     private String fastSpringId;
 

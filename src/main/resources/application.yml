@@ -63,3 +63,6 @@ superAdmin:
     name: SuperAdministratorGrash@p;l
 gcp:
   value: ${GCP_JSON}
+fast-spring:
+  username: ${FASTSPRING_USER}
+  password: ${FASTSPRING_PWD}
