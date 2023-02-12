@@ -28,6 +28,8 @@ public class Subscription extends Audit {
 
     private boolean cancelled;
 
+    private boolean activated;
+
     @JsonIgnore
     private String fastSpringId;
 

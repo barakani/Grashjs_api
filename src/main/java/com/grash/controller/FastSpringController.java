@@ -4,6 +4,7 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.fastSpring.Item;
 import com.grash.dto.fastSpring.WebhookPayload;
 import com.grash.dto.fastSpring.payloads.Order;
+import com.grash.dto.fastSpring.payloads.ResumePayload;
 import com.grash.dto.fastSpring.payloads.SubscriptionCharge;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
@@ -78,6 +79,7 @@ public class FastSpringController {
         String product = subscription.getProduct();
         boolean monthly = product.contains("monthly");
         savedSubscription.setMonthly(monthly);
+        savedSubscription.setActivated(true);
         SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByCode(product.split("-")[0].toUpperCase()).get();
         savedSubscription.setFastSpringId(subscription.getId());
         savedSubscription.setSubscriptionPlan(subscriptionPlan);
@@ -102,13 +104,40 @@ public class FastSpringController {
         } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/resume")
+    public Object onResume(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
+        if (optionalSubscription.isPresent()) {
+            Subscription savedSubscription = optionalSubscription.get();
+            if (!savedSubscription.isCancelled()) {
+                throw new CustomException("Subscription is active", HttpStatus.NOT_ACCEPTABLE);
+            }
+            resumeRemoteSubscription(savedSubscription.getFastSpringId());
+            savedSubscription.setCancelled(false);
+            subscriptionService.save(savedSubscription);
+            return new SuccessResponse(true, "Subscription cancelled");
+        } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+    }
+
     private void cancelRemoteSubscription(String subscriptionId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(username, password);
-        HttpEntity<String> request = new HttpEntity<String>(headers);
+        HttpEntity<String> request = new HttpEntity<>(headers);
         String url = "https://api.fastspring.com/subscriptions/" + subscriptionId;
         ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.DELETE,
+                request, Object.class);
+    }
+
+    private void resumeRemoteSubscription(String subscriptionId) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(username, password);
+        ResumePayload resumePayload = new ResumePayload(subscriptionId, null);
+        HttpEntity<ResumePayload> request = new HttpEntity<>(resumePayload, headers);
+        String url = "https://api.fastspring.com/subscriptions/" + subscriptionId;
+        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.POST,
                 request, Object.class);
     }
 }
