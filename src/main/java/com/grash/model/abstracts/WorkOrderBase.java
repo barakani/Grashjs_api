@@ -17,7 +17,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private Date dueDate;
     private Priority priority = Priority.NONE;
     private int estimatedDuration;
-    @Column(length = 90000)
+    @Column(length = 10000)
     private String description;
     @NotNull
     private String title;
