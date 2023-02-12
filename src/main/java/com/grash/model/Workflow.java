@@ -2,7 +2,6 @@ package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.WFMainCondition;
-import com.grash.model.enums.WorkflowAction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,5 +22,6 @@ public class Workflow extends CompanyAudit {
     private WFMainCondition mainCondition;
     @OneToMany
     private List<WorkflowCondition> secondaryConditions;
+    @OneToOne
     private WorkflowAction action;
 }

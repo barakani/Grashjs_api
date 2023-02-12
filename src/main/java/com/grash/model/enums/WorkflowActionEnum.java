@@ -1,6 +1,6 @@
 package com.grash.model.enums;
 
-public enum WorkflowAction {
+public enum WorkflowActionEnum {
     ASSIGN_PRIORITY_WORK_ORDER,
     ASSIGN_ASSET_WORK_ORDER,
     ASSIGN_LOCATION_WORK_ORDER,
