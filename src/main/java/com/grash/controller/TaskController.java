@@ -4,15 +4,10 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.TaskBaseDTO;
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
-import com.grash.model.Task;
-import com.grash.model.TaskBase;
-import com.grash.model.WorkOrder;
+import com.grash.model.*;
 import com.grash.model.enums.TaskType;
-import com.grash.service.TaskBaseService;
-import com.grash.service.TaskService;
-import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
+import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -39,6 +34,7 @@ public class TaskController {
     private final UserService userService;
     private final TaskBaseService taskBaseService;
     private final WorkOrderService workOrderService;
+    private final WorkflowService workflowService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -110,7 +106,10 @@ public class TaskController {
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
             if (taskService.hasAccess(user, savedTask) && taskService.canPatch(user, task)) {
-                return taskService.update(id, task);
+                Task patchedTask = taskService.update(id, task);
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runTask(workflow, patchedTask));
+                return patchedTask;
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }

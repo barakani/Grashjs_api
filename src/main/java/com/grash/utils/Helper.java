@@ -140,4 +140,13 @@ public class Helper {
     public static String getStringFromBoolean(boolean bool, MessageSource messageSource, Locale locale) {
         return messageSource.getMessage(bool ? "Yes" : "No", null, locale);
     }
+
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

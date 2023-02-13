@@ -267,9 +267,15 @@ public class WorkOrderController {
                     Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
                     primaryTimes.forEach(laborService::stop);
                 }
+
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
-                if (patchedWorkOrder.getStatus().equals(Status.COMPLETE)) {
+
+                if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrder.getStatus().equals(Status.COMPLETE)) {
                     Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED, user.getCompany().getId());
+                    workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
+                }
+                if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
+                    Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_ARCHIVED, user.getCompany().getId());
                     workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
                 }
                 if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()

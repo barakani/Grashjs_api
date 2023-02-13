@@ -11,12 +11,15 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
+import com.grash.model.Workflow;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.NotificationService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
+import com.grash.service.WorkflowService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -46,6 +50,7 @@ public class RequestController {
     private final RequestMapper requestMapper;
     private final NotificationService notificationService;
     private final MessageSource messageSource;
+    private final WorkflowService workflowService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -94,6 +99,8 @@ public class RequestController {
             userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
                     .forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())));
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
             return requestMapper.toShowDto(createdRequest);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -139,6 +146,8 @@ public class RequestController {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
             if (requestService.hasAccess(user, savedRequest)) {
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
                 return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
 
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -163,6 +172,8 @@ public class RequestController {
             }
             if (requestService.hasAccess(user, savedRequest)) {
                 savedRequest.setCancelled(true);
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
                 return requestMapper.toShowDto(requestService.save(savedRequest));
 
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

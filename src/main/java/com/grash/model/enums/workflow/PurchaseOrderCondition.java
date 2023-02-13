@@ -6,6 +6,4 @@ public enum PurchaseOrderCondition {
     STATUS_IS,
     DUE_DATE_BETWEEN,
     DUE_DATE_AFTER,
-    DATE_BETWEEN,
-    DATE_AFTER
 }

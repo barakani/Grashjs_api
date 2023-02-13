@@ -1,7 +1,9 @@
 package com.grash.dto;
 
 import com.grash.model.*;
-import com.grash.model.enums.*;
+import com.grash.model.enums.ApprovalStatus;
+import com.grash.model.enums.Priority;
+import com.grash.model.enums.Status;
 import com.grash.model.enums.workflow.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,15 +27,13 @@ public class WorkflowConditionPatchDTO {
     private Checklist checklist;
     private Integer createdTimeStart;
     private Integer createdTimeEnd;
-    private Date dueDateStart;
-    private Date dueDateEnd;
     private Vendor vendor;
     private Part part;
     private PurchaseOrderCategory purchaseOrderCategory;
     private Status workOrderStatus;
     private ApprovalStatus purchaseOrderStatus;
-    private Date start;
-    private Date end;
+    private Date startDate;
+    private Date endDate;
     private String label;
     private String value;
     private Integer numberValue;

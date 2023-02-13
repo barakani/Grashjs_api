@@ -3,10 +3,8 @@ package com.grash.service;
 import com.grash.dto.WorkflowPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowMapper;
-import com.grash.model.OwnUser;
-import com.grash.model.WorkOrder;
-import com.grash.model.Workflow;
-import com.grash.model.WorkflowAction;
+import com.grash.model.*;
+import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
@@ -23,6 +21,9 @@ public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
     private final WorkOrderService workOrderService;
+    private final RequestService requestService;
+    private final AssetService assetService;
+    private final PurchaseOrderService purchaseOrderService;
 
     public Workflow create(Workflow Workflow) {
         return workflowRepository.save(Workflow);
@@ -71,8 +72,10 @@ public class WorkflowService {
             switch (action.getWorkOrderAction()) {
                 case ADD_CHECKLIST:
                     //TODO
+                    return;
                 case SEND_REMINDER_EMAIL:
                     //TODO
+                    return;
                 case ASSIGN_TEAM:
                     workOrder.setTeam(action.getTeam());
                     break;
@@ -98,4 +101,95 @@ public class WorkflowService {
         }
     }
 
+    public void runRequest(Workflow workflow, Request request) {
+        if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForRequest(request))) {
+            WorkflowAction action = workflow.getAction();
+            switch (action.getRequestAction()) {
+                case ADD_CHECKLIST:
+                    //TODO
+                    return;
+                case SEND_REMINDER_EMAIL:
+                    //TODO
+                    return;
+                case ASSIGN_TEAM:
+                    request.setTeam(action.getTeam());
+                    break;
+                case ASSIGN_USER:
+                    request.setPrimaryUser(action.getUser());
+                    break;
+                case ASSIGN_ASSET:
+                    request.setAsset(action.getAsset());
+                    break;
+                case ASSIGN_CATEGORY:
+                    request.setCategory(action.getWorkOrderCategory());
+                    break;
+                case ASSIGN_LOCATION:
+                    request.setLocation(action.getLocation());
+                    break;
+                case ASSIGN_PRIORITY:
+                    request.setPriority(action.getPriority());
+                    break;
+                default:
+                    break;
+            }
+            requestService.save(request);
+        }
+    }
+
+    public void runPurchaseOrder(Workflow workflow, PurchaseOrder purchaseOrder) {
+        if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForPurchaseOrder(purchaseOrder))) {
+            WorkflowAction action = workflow.getAction();
+            switch (action.getPurchaseOrderAction()) {
+                case APPROVE:
+                    purchaseOrder.setStatus(ApprovalStatus.APPROVED);
+                    break;
+                case REJECT:
+                    purchaseOrder.setStatus(ApprovalStatus.REJECTED);
+                    break;
+                case ASSIGN_VENDOR:
+                    purchaseOrder.setVendor(action.getVendor());
+                    break;
+                case SEND_REMINDER_EMAIL:
+//                    TODO
+                    return;
+                default:
+                    break;
+            }
+            purchaseOrderService.save(purchaseOrder);
+        }
+    }
+
+    public void runPart(Workflow workflow, Part part) {
+        if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForPart(part))) {
+            WorkflowAction action = workflow.getAction();
+            switch (action.getPartAction()) {
+                case CREATE_PURCHASE_ORDER:
+                    //TODO
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void runTask(Workflow workflow, Task task) {
+        if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForTask(task))) {
+            WorkflowAction action = workflow.getAction();
+            switch (action.getTaskAction()) {
+                case CREATE_REQUEST:
+                case CREATE_WORK_ORDER:
+//                   TODO
+                    break;
+                case SET_ASSET_STATUS:
+                    Asset asset = task.getWorkOrder().getAsset();
+                    if (asset != null) {
+                        asset.setStatus(action.getAssetStatus());
+                        assetService.save(asset);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }

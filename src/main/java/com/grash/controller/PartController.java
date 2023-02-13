@@ -9,10 +9,13 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
+import com.grash.model.Workflow;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.PartService;
 import com.grash.service.UserService;
+import com.grash.service.WorkflowService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -40,7 +43,7 @@ public class PartController {
     private final PartService partService;
     private final PartMapper partMapper;
     private final UserService userService;
-
+    private final WorkflowService workflowService;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -106,6 +109,8 @@ public class PartController {
             if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 Part patchedPart = partService.update(id, part);
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
                 partService.patchNotify(savedPart, patchedPart, Helper.getLocale(user));
                 return partMapper.toShowDto(patchedPart);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

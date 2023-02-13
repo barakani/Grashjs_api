@@ -9,6 +9,7 @@ import com.grash.mapper.PartQuantityMapper;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
@@ -47,6 +48,7 @@ public class PurchaseOrderController {
     private final PartService partService;
     private final NotificationService notificationService;
     private final EmailService2 emailService2;
+    private final WorkflowService workflowService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -94,7 +96,10 @@ public class PurchaseOrderController {
         OwnUser user = userService.whoami(req);
         if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
-            PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.create(purchaseOrderReq)));
+            PurchaseOrder savedPurchaseOrder = purchaseOrderService.create(purchaseOrderReq);
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runPurchaseOrder(workflow, savedPurchaseOrder));
+            PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
             long cost = result.getPartQuantities().stream().mapToLong(partQuantityShowDTO -> partQuantityShowDTO.getQuantity() * partQuantityShowDTO.getPart().getCost()).sum();
             String message = messageSource.getMessage("notification_new_po_request", new Object[]{result.getName(), cost, user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode()}, Helper.getLocale(user));
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
@@ -128,7 +133,10 @@ public class PurchaseOrderController {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)
                     && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId())) {
-                return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.update(id, purchaseOrder)));
+                PurchaseOrder patchedPurchaseOrder = purchaseOrderService.update(id, purchaseOrder);
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_UPDATED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runPurchaseOrder(workflow, patchedPurchaseOrder));
+                return setPartQuantities(purchaseOrderMapper.toShowDto(patchedPurchaseOrder));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
     }

@@ -10,6 +10,5 @@ public enum RequestCondition {
     CREATED_AT_BETWEEN,
     DUE_DATE_BETWEEN,
     DUE_DATE_AFTER,
-    STATUS_IS,
     TITLE_CONTAINS
 }
