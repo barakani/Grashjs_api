@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +27,6 @@ public class WorkflowConditionPostDTO {
     private Checklist checklist;
     private Integer createdTimeStart;
     private Integer createdTimeEnd;
-    private Integer dueDateStart;
-    private Integer dueDateEnd;
+    private Date dueDateStart;
+    private Date dueDateEnd;
 }

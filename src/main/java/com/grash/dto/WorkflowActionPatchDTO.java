@@ -6,8 +6,6 @@ import com.grash.model.enums.WorkflowActionEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 public class WorkflowActionPatchDTO {
@@ -19,9 +17,4 @@ public class WorkflowActionPatchDTO {
     private Team team;
     private WorkOrderCategory category;
     private Checklist checklist;
-    private Workflow workflow;
-    private Integer createdTimeStart;
-    private Integer createdTimeEnd;
-    private Date dueDateStart;
-    private Date dueDateEnd;
 }

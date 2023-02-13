@@ -6,6 +6,8 @@ import com.grash.model.enums.WFSecondaryCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 public class WorkflowConditionPatchDTO {
@@ -19,6 +21,6 @@ public class WorkflowConditionPatchDTO {
     private Workflow workflow;
     private Integer createdTimeStart;
     private Integer createdTimeEnd;
-    private Integer dueDateStart;
-    private Integer dueDateEnd;
+    private Date dueDateStart;
+    private Date dueDateEnd;
 }
