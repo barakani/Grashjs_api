@@ -1,7 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
-import com.grash.model.enums.WFMainCondition;
+import com.grash.model.enums.workflow.WFMainCondition;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +21,8 @@ public class Workflow extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
+    private String title;
     @NotNull
     private WFMainCondition mainCondition;
     @OneToMany(cascade = CascadeType.ALL)

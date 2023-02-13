@@ -1,7 +1,7 @@
 package com.grash.repository;
 
 import com.grash.model.Workflow;
-import com.grash.model.enums.WFMainCondition;
+import com.grash.model.enums.workflow.WFMainCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

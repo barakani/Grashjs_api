@@ -8,7 +8,7 @@ import com.grash.model.WorkOrder;
 import com.grash.model.Workflow;
 import com.grash.model.WorkflowAction;
 import com.grash.model.enums.RoleType;
-import com.grash.model.enums.WFMainCondition;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -68,27 +68,27 @@ public class WorkflowService {
     public void runWorkOrder(Workflow workflow, WorkOrder workOrder) {
         if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForWorkOrder(workOrder))) {
             WorkflowAction action = workflow.getAction();
-            switch (action.getWorkflowActionEnum()) {
+            switch (action.getWorkOrderAction()) {
                 case ADD_CHECKLIST:
                     //TODO
                 case SEND_REMINDER_EMAIL:
                     //TODO
-                case ASSIGN_TEAM_WORK_ORDER:
+                case ASSIGN_TEAM:
                     workOrder.setTeam(action.getTeam());
                     break;
-                case ASSIGN_USER_WORK_ORDER:
+                case ASSIGN_USER:
                     workOrder.setPrimaryUser(action.getUser());
                     break;
-                case ASSIGN_ASSET_WORK_ORDER:
+                case ASSIGN_ASSET:
                     workOrder.setAsset(action.getAsset());
                     break;
-                case ASSIGN_CATEGORY_WORK_ORDER:
-                    workOrder.setCategory(action.getCategory());
+                case ASSIGN_CATEGORY:
+                    workOrder.setCategory(action.getWorkOrderCategory());
                     break;
-                case ASSIGN_LOCATION_WORK_ORDER:
+                case ASSIGN_LOCATION:
                     workOrder.setLocation(action.getLocation());
                     break;
-                case ASSIGN_PRIORITY_WORK_ORDER:
+                case ASSIGN_PRIORITY:
                     workOrder.setPriority(action.getPriority());
                     break;
                 default:

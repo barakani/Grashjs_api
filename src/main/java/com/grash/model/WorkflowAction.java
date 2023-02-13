@@ -1,8 +1,9 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.WorkflowActionEnum;
+import com.grash.model.enums.workflow.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -22,8 +22,11 @@ public class WorkflowAction extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotNull
-    private WorkflowActionEnum workflowActionEnum;
+    private WorkOrderAction workOrderAction;
+    private RequestAction requestAction;
+    private PurchaseOrderAction purchaseOrderAction;
+    private PartAction partAction;
+    private TaskAction taskAction;
     private Priority priority;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -39,8 +42,18 @@ public class WorkflowAction extends CompanyAudit {
     private Team team;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private WorkOrderCategory category;
+    private WorkOrderCategory workOrderCategory;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Checklist checklist;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Vendor vendor;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private PurchaseOrderCategory purchaseOrderCategory;
+
+    private String email;
+
+    private AssetStatus assetStatus;
 }
