@@ -57,4 +57,8 @@ public class WorkflowService {
     public boolean canPatch(OwnUser user, WorkflowPatchDTO workflow) {
         return true;
     }
+
+    public Collection<Workflow> findByCompany(Long id) {
+        return workflowRepository.findByCompany_Id(id);
+    }
 }

@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.WorkflowConditionPatchDTO;
+import com.grash.dto.WorkflowConditionPostDTO;
 import com.grash.model.WorkflowCondition;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -12,4 +13,7 @@ public interface WorkflowConditionMapper {
 
     @Mappings({})
     WorkflowConditionPatchDTO toPatchDto(WorkflowCondition model);
+
+    @Mappings({})
+    WorkflowCondition toModel(WorkflowConditionPostDTO dto);
 }

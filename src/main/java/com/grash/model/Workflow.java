@@ -8,7 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -19,9 +21,11 @@ public class Workflow extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
     private WFMainCondition mainCondition;
-    @OneToMany
-    private List<WorkflowCondition> secondaryConditions;
-    @OneToOne
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<WorkflowCondition> secondaryConditions = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @NotNull
     private WorkflowAction action;
 }

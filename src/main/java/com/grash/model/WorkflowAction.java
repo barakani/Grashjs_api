@@ -1,6 +1,5 @@
 package com.grash.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.WorkflowActionEnum;
@@ -12,6 +11,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -22,6 +22,7 @@ public class WorkflowAction extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
     private WorkflowActionEnum workflowActionEnum;
     private Priority priority;
     @ManyToOne
@@ -42,12 +43,4 @@ public class WorkflowAction extends CompanyAudit {
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Checklist checklist;
-    @JsonIgnore
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToOne
-    private Workflow workflow;
-    private Integer createdTimeStart;
-    private Integer createdTimeEnd;
-    private Integer dueDateStart;
-    private Integer dueDateEnd;
 }

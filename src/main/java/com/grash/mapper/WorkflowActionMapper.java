@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.WorkflowActionPatchDTO;
+import com.grash.dto.WorkflowActionPostDTO;
 import com.grash.model.WorkflowAction;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -12,4 +13,7 @@ public interface WorkflowActionMapper {
 
     @Mappings({})
     WorkflowActionPatchDTO toPatchDto(WorkflowAction model);
+
+    @Mappings({})
+    WorkflowAction toModel(WorkflowActionPostDTO dto);
 }

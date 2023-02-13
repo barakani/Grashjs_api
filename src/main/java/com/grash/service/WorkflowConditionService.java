@@ -43,6 +43,10 @@ public class WorkflowConditionService {
         return workflowConditionRepository.findById(id);
     }
 
+    public Collection<WorkflowCondition> saveAll(Collection<WorkflowCondition> workflowConditions) {
+        return workflowConditionRepository.saveAll(workflowConditions);
+    }
+
     public boolean hasAccess(OwnUser user, WorkflowCondition workflowCondition) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
