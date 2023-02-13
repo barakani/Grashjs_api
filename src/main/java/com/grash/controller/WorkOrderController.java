@@ -68,6 +68,7 @@ public class WorkOrderController {
     private final WorkOrderHistoryService workOrderHistoryService;
     private final SpringTemplateEngine thymeleafTemplateEngine;
     private final GCPService gcp;
+    private final WorkflowService workflowService;
 
 
     @Value("${frontend.url}")
@@ -200,6 +201,8 @@ public class WorkOrderController {
                 }
             }
             workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, createdWorkOrder));
             return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -264,6 +267,10 @@ public class WorkOrderController {
                     primaryTimes.forEach(laborService::stop);
                 }
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
+                if (patchedWorkOrder.getStatus().equals(Status.COMPLETE)) {
+                    Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED, user.getCompany().getId());
+                    workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
+                }
                 if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
                         && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                         && patchedWorkOrder.getParentRequest() != null) {

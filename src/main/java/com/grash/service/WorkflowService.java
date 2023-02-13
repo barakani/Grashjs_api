@@ -4,7 +4,9 @@ import com.grash.dto.WorkflowPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowMapper;
 import com.grash.model.OwnUser;
+import com.grash.model.WorkOrder;
 import com.grash.model.Workflow;
+import com.grash.model.WorkflowAction;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
+    private final WorkOrderService workOrderService;
 
     public Workflow create(Workflow Workflow) {
         return workflowRepository.save(Workflow);
@@ -61,4 +64,38 @@ public class WorkflowService {
     public Collection<Workflow> findByCompany(Long id) {
         return workflowRepository.findByCompany_Id(id);
     }
+
+    public void runWorkOrder(Workflow workflow, WorkOrder workOrder) {
+        if (workflow.getSecondaryConditions().stream().allMatch(workflowCondition -> workflowCondition.isMetForWorkOrder(workOrder))) {
+            WorkflowAction action = workflow.getAction();
+            switch (action.getWorkflowActionEnum()) {
+                case ADD_CHECKLIST:
+                    //TODO
+                case SEND_REMINDER_EMAIL:
+                    //TODO
+                case ASSIGN_TEAM_WORK_ORDER:
+                    workOrder.setTeam(action.getTeam());
+                    break;
+                case ASSIGN_USER_WORK_ORDER:
+                    workOrder.setPrimaryUser(action.getUser());
+                    break;
+                case ASSIGN_ASSET_WORK_ORDER:
+                    workOrder.setAsset(action.getAsset());
+                    break;
+                case ASSIGN_CATEGORY_WORK_ORDER:
+                    workOrder.setCategory(action.getCategory());
+                    break;
+                case ASSIGN_LOCATION_WORK_ORDER:
+                    workOrder.setLocation(action.getLocation());
+                    break;
+                case ASSIGN_PRIORITY_WORK_ORDER:
+                    workOrder.setPriority(action.getPriority());
+                    break;
+                default:
+                    break;
+            }
+            workOrderService.save(workOrder);
+        }
+    }
+
 }
