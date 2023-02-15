@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.dto.WorkflowPatchDTO;
+import com.grash.dto.WorkflowPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowMapper;
 import com.grash.model.*;
@@ -58,7 +59,7 @@ public class WorkflowService {
         } else return user.getCompany().getId().equals(workflow.getCompany().getId());
     }
 
-    public boolean canPatch(OwnUser user, WorkflowPatchDTO workflow) {
+    public boolean canPatch(OwnUser user, WorkflowPostDTO workflow) {
         return true;
     }
 

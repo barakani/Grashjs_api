@@ -71,18 +71,22 @@ public class WorkOrder extends WorkOrderBase {
         return users.stream().anyMatch(user1 -> user1.getId().equals(user.getId()));
     }
 
+    @JsonIgnore
     public boolean isCompliant() {
         return this.getDueDate() == null || this.getCompletedOn().before(this.getDueDate());
     }
 
+    @JsonIgnore
     public boolean isReactive() {
         return this.getParentPreventiveMaintenance() == null;
     }
 
+    @JsonIgnore
     public Date getRealCreatedAt() {
         return this.getParentRequest() == null ? this.getCreatedAt() : this.getParentRequest().getCreatedAt();
     }
 
+    @JsonIgnore
     public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
         Collection<OwnUser> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).
@@ -96,6 +100,7 @@ public class WorkOrder extends WorkOrderBase {
     }
 
     //in days
+    @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
         List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
         return completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();

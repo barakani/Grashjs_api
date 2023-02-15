@@ -1,15 +1,11 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.WorkflowPatchDTO;
 import com.grash.dto.WorkflowPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowActionMapper;
 import com.grash.mapper.WorkflowConditionMapper;
-import com.grash.model.OwnUser;
-import com.grash.model.Workflow;
-import com.grash.model.WorkflowAction;
-import com.grash.model.WorkflowCondition;
+import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
@@ -67,20 +63,7 @@ public class WorkflowController {
     public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel).peek(workflowCondition -> workflowCondition.setCompany(user.getCompany()))
-                    .collect(Collectors.toList());
-            Collection<WorkflowCondition> savedWorkOrderConditions = workflowConditionService.saveAll(workflowConditions);
-            WorkflowAction workflowAction = workflowActionMapper.toModel(workflowReq.getAction());
-            workflowAction.setCompany(user.getCompany());
-            WorkflowAction savedWorkflowAction = workflowActionService.create(workflowAction);
-            Workflow workflow = Workflow.builder()
-                    .title(workflowReq.getTitle())
-                    .mainCondition(workflowReq.getMainCondition())
-                    .secondaryConditions(savedWorkOrderConditions)
-                    .action(savedWorkflowAction)
-                    .build();
-            workflow.setCompany(user.getCompany());
-            return workflowService.create(workflow);
+            return createWorkflow(workflowReq, user.getCompany());
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -107,7 +90,7 @@ public class WorkflowController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Workflow not found")})
-    public Workflow patch(@ApiParam("Workflow") @Valid @RequestBody WorkflowPatchDTO workflow, @ApiParam("id") @PathVariable("id") Long id,
+    public Workflow patch(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflow, @ApiParam("id") @PathVariable("id") Long id,
                           HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
@@ -115,7 +98,8 @@ public class WorkflowController {
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
             if (workflowService.hasAccess(user, savedWorkflow) && workflowService.canPatch(user, workflow)) {
-                return workflowService.update(id, workflow);
+                workflowService.delete(id);
+                return createWorkflow(workflow, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
     }
@@ -140,4 +124,20 @@ public class WorkflowController {
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
     }
 
+    private Workflow createWorkflow(WorkflowPostDTO workflowReq, Company company) {
+        List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel).peek(workflowCondition -> workflowCondition.setCompany(company))
+                .collect(Collectors.toList());
+        Collection<WorkflowCondition> savedWorkOrderConditions = workflowConditionService.saveAll(workflowConditions);
+        WorkflowAction workflowAction = workflowActionMapper.toModel(workflowReq.getAction());
+        workflowAction.setCompany(company);
+        WorkflowAction savedWorkflowAction = workflowActionService.create(workflowAction);
+        Workflow workflow = Workflow.builder()
+                .title(workflowReq.getTitle())
+                .mainCondition(workflowReq.getMainCondition())
+                .secondaryConditions(savedWorkOrderConditions)
+                .action(savedWorkflowAction)
+                .build();
+        workflow.setCompany(company);
+        return workflowService.create(workflow);
+    }
 }
