@@ -26,9 +26,9 @@ public interface MeterMapper {
     default MeterShowDTO toShowDto(Meter model, @MappingTarget MeterShowDTO target, @Context ReadingService readingService) {
         Collection<Reading> readings = readingService.findByMeter(target.getId());
         if (!readings.isEmpty()) {
-            Reading lastReading = Collections.min(readings, new AuditComparator());
+            Reading lastReading = Collections.max(readings, new AuditComparator());
             target.setLastReading(lastReading.getCreatedAt());
-            Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), target.getUpdateFrequency());
+            Date nextReading = Helper.getNextOccurence(lastReading.getCreatedAt(), target.getUpdateFrequency());
             target.setNextReading(nextReading);
         }
         return target;

@@ -113,8 +113,8 @@ public class AssetAnalyticsController {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             if (workOrders.size() > 2) {
                 AuditComparator auditComparator = new AuditComparator();
-                WorkOrder firstWorkOrder = Collections.max(workOrders, auditComparator);
-                WorkOrder lastWorkOrder = Collections.min(workOrders, auditComparator);
+                WorkOrder firstWorkOrder = Collections.min(workOrders, auditComparator);
+                WorkOrder lastWorkOrder = Collections.max(workOrders, auditComparator);
                 betweenMaintenances = (Helper.getDateDiff(firstWorkOrder.getCreatedAt(), lastWorkOrder.getCreatedAt(), TimeUnit.HOURS)) / (workOrders.size() - 1);
             }
             return Meantimes.builder()
