@@ -81,7 +81,7 @@ public class WorkOrderService {
             WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
-                    .name("Updating " + workOrder.getTitle())
+                    .name(messageSource.getMessage("updating_wo", new Object[]{workOrder.getTitle()}, Helper.getLocale(user)))
                     .workOrder(updatedWorkOrder)
                     .user(user)
                     .build();
