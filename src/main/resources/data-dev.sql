@@ -1,5 +1,6 @@
 INSERT INTO currency (name, code)
 VALUES ('Euro', '€'),
-       ('Dollar', '$')
+       ('Dollar', '$'),
+       ('Dirham', 'DH')
 ON DUPLICATE KEY
     UPDATE name = name;
