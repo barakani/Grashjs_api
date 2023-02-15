@@ -165,7 +165,12 @@ public class Asset extends CompanyAudit {
 
     @JsonIgnore
     public long getAge() {
-        return Helper.getDateDiff(this.getInServiceDate() == null ? this.getCreatedAt() : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
+        return Helper.getDateDiff(getRealCreatedAt(), new Date(), TimeUnit.SECONDS);
+    }
+
+    @JsonIgnore
+    public Date getRealCreatedAt() {
+        return this.inServiceDate == null ? this.getCreatedAt() : this.inServiceDate;
     }
 }
 

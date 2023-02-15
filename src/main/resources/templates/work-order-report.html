@@ -219,7 +219,7 @@
                 </div>
                 <div class="panel-body">
                     <th:block th:each="relation : ${relations}">
-                        <div th:text="${relation.getParent().getTitle()} + ' '+${relation.getRelationType()} + ' '+ ${relation.getChild().getTitle()}"></div>
+                        <div th:text="${relation.getParent().getTitle()} + ' '+#{${relation.getRelationType()}} + ' '+ ${relation.getChild().getTitle()}"></div>
                     </th:block>
                 </div>
             </div>

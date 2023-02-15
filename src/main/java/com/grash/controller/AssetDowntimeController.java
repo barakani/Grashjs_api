@@ -67,6 +67,9 @@ public class AssetDowntimeController {
         if (!optionalAsset.isPresent()) {
             throw new CustomException("Asset Not found", HttpStatus.BAD_REQUEST);
         }
+        if (optionalAsset.get().getRealCreatedAt().after(assetDowntimeReq.getStartsOn())) {
+            throw new CustomException("The downtime can't occur before the asset in service date", HttpStatus.NOT_ACCEPTABLE);
+        }
         if (assetDowntimeService.canCreate(user, assetDowntimeReq) &&
                 user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
             return assetDowntimeService.create(assetDowntimeReq);
