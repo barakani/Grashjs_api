@@ -53,7 +53,9 @@ public class WorkflowAction extends CompanyAudit {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PurchaseOrderCategory purchaseOrderCategory;
 
-    private String email;
+    private String value;
 
     private AssetStatus assetStatus;
+
+    private Integer numberValue;
 }

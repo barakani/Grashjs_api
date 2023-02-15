@@ -29,7 +29,7 @@ public class WorkflowConditionPostDTO {
     private Location location;
     private OwnUser user;
     private Team team;
-    private WorkOrderCategory category;
+    private WorkOrderCategory workOrderCategory;
     private Checklist checklist;
     private Integer createdTimeStart;
     private Integer createdTimeEnd;

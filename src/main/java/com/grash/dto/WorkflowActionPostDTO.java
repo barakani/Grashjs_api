@@ -28,8 +28,7 @@ public class WorkflowActionPostDTO {
     private Checklist checklist;
     private Vendor vendor;
     private PurchaseOrderCategory purchaseOrderCategory;
-
-    private String email;
-
+    private String value;
     private AssetStatus assetStatus;
+    private Integer numberValue;
 }

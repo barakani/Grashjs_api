@@ -12,5 +12,6 @@ public enum PlanFeatures {
     ANALYTICS,
     REQUEST_PORTAL,
     SIGNATURE,
-    ROLE
+    ROLE,
+    WORKFLOW
 }

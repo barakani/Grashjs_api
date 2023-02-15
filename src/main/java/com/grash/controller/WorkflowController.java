@@ -67,17 +67,19 @@ public class WorkflowController {
     public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            Workflow workflow = new Workflow();
-            workflow.setCompany(user.getCompany());
-            workflow.setMainCondition(workflowReq.getMainCondition());
             List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel).peek(workflowCondition -> workflowCondition.setCompany(user.getCompany()))
                     .collect(Collectors.toList());
             Collection<WorkflowCondition> savedWorkOrderConditions = workflowConditionService.saveAll(workflowConditions);
-            workflow.setSecondaryConditions(savedWorkOrderConditions);
             WorkflowAction workflowAction = workflowActionMapper.toModel(workflowReq.getAction());
             workflowAction.setCompany(user.getCompany());
             WorkflowAction savedWorkflowAction = workflowActionService.create(workflowAction);
-            workflow.setAction(savedWorkflowAction);
+            Workflow workflow = Workflow.builder()
+                    .title(workflowReq.getTitle())
+                    .mainCondition(workflowReq.getMainCondition())
+                    .secondaryConditions(savedWorkOrderConditions)
+                    .action(savedWorkflowAction)
+                    .build();
+            workflow.setCompany(user.getCompany());
             return workflowService.create(workflow);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

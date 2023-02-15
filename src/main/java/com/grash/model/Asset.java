@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
@@ -162,6 +163,7 @@ public class Asset extends CompanyAudit {
                         ArrayList::new));
     }
 
+    @JsonIgnore
     public long getAge() {
         return Helper.getDateDiff(this.getInServiceDate() == null ? this.getCreatedAt() : this.getInServiceDate(), new Date(), TimeUnit.SECONDS);
     }
