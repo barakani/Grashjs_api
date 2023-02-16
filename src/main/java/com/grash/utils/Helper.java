@@ -119,6 +119,11 @@ public class Helper {
         }
     }
 
+    public static boolean isSameDay(Date date1, Date date2) {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        return fmt.format(date1).equals(fmt.format(date2));
+    }
+
     public static String enumerate(Collection<String> strings) {
         StringBuilder stringBuilder = new StringBuilder();
         int size = strings.size();

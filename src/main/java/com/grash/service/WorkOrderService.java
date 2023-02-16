@@ -311,4 +311,12 @@ public class WorkOrderService {
         workOrder.setCustomers(customers);
         workOrderRepository.save(workOrder);
     }
+
+    public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
+        return workOrderRepository.findByCreatedByAndCreatedAtBetween(id, date1, date2);
+    }
+
+    public Collection<WorkOrder> findByCompletedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
+        return workOrderRepository.findByCompletedBy_IdAndCreatedAtBetween(id, date1, date2);
+    }
 }

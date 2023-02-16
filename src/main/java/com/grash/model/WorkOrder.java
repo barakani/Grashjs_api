@@ -51,6 +51,7 @@ public class WorkOrder extends WorkOrderBase {
     @ManyToOne
     private PreventiveMaintenance parentPreventiveMaintenance;
 
+    @JsonIgnore
     public Collection<OwnUser> getUsers() {
         Collection<OwnUser> users = new ArrayList<>();
         if (this.getPrimaryUser() != null) {

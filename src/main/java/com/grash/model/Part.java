@@ -131,6 +131,7 @@ public class Part extends CompanyAudit {
             })
     private List<MultiParts> multiParts = new ArrayList<>();
 
+    @JsonIgnore
     public Collection<OwnUser> getUsers() {
         Collection<OwnUser> users = new ArrayList<>();
 
@@ -146,6 +147,7 @@ public class Part extends CompanyAudit {
                 ArrayList::new));
     }
 
+    @JsonIgnore
     public List<OwnUser> getNewUsersToNotify(Collection<OwnUser> newUsers) {
         Collection<OwnUser> oldUsers = getUsers();
         return newUsers.stream().filter(newUser -> oldUsers.stream().noneMatch(user -> user.getId().equals(newUser.getId()))).

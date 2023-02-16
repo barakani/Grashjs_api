@@ -1,21 +1,26 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.analytics.users.UserWOStats;
+import com.grash.dto.analytics.users.WOStatsByDay;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderService;
+import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("/analytics/users")
@@ -40,4 +45,27 @@ public class UserAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @GetMapping("/two-weeks/work-orders/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<WOStatsByDay> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            Date firstDay = Helper.localDateToDate(LocalDate.now().minusDays(14));
+            Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedByAndCreatedAtBetween(user.getId(), firstDay, new Date());
+            Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedByAndCreatedAtBetween(user.getId(), firstDay, new Date());
+            List<WOStatsByDay> result = new ArrayList<>();
+            for (int i = 0; i < 14; i++) {
+                Date date = Helper.localDateToDate(LocalDate.now().minusDays(i));
+                int createdWorkOrdersInDay = (int) createdWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
+                int completedWorkOrdersInDay = (int) completedWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
+                result.add(WOStatsByDay.builder()
+                        .created(createdWorkOrdersInDay)
+                        .completed(completedWorkOrdersInDay)
+                        .date(date)
+                        .build());
+            }
+            Collections.reverse(result);
+            return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
 }
