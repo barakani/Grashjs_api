@@ -41,4 +41,8 @@ public class Subscription extends Audit {
 
     private Date endsOn;
 
+    private boolean downgradeNeeded;
+
+    private boolean upgradeNeeded;
+
 }

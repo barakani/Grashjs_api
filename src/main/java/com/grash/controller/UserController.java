@@ -155,4 +155,44 @@ public class UserController {
         }
 
     }
+
+    @PostMapping("/upgrade/enable-users")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse enableUsers(@RequestBody Collection<Long> usersIds,
+                                       HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
+            int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
+            if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
+                Collection<OwnUser> users = usersIds.stream().map(userId -> userService.findById(userId).get()).collect(Collectors.toList());
+                if (users.stream().noneMatch(OwnUser::isEnabledInSubscription)) {
+                    users.forEach(user1 -> user1.setEnabledInSubscription(true));
+                    userService.saveAll(users);
+                    return new SuccessResponse(true, "Users enabled successfully");
+                } else throw new CustomException("There are some already enabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation", HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/downgrade/disable-users")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse disableUsers(@RequestBody Collection<Long> usersIds,
+                                        HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
+            int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
+            if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
+                Collection<OwnUser> users = usersIds.stream().map(userId -> userService.findById(userId).get()).collect(Collectors.toList());
+                if (users.stream().allMatch(OwnUser::isEnabledInSubscription)) {
+                    users.forEach(user1 -> user1.setEnabledInSubscription(false));
+                    userService.saveAll(users);
+                    return new SuccessResponse(true, "Users enabled successfully");
+                } else throw new CustomException("There are some already disabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation", HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
 }

@@ -11,9 +11,11 @@ import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
+import com.grash.service.WorkflowService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +39,7 @@ public class FastSpringController {
     private final UserService userService;
     private final SubscriptionService subscriptionService;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final WorkflowService workflowService;
 
     @Value("${fast-spring.username}")
     private String username;
@@ -54,8 +57,18 @@ public class FastSpringController {
                 if (optionalSubscription.isPresent()) {
                     Subscription savedSubscription = optionalSubscription.get();
                     Item item = event.getData().getItems().get(0);
-                    savedSubscription.setUsersCount(item.getQuantity());
-                    setSubscriptionFromFastSpring(item.getSubscription(), savedSubscription);
+                    int newUsersCount = item.getQuantity();
+                    int subscriptionUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
+                    if (newUsersCount < subscriptionUsersCount) {
+                        savedSubscription.setDowngradeNeeded(true);
+                    } else {
+                        int usersNotInSubscriptionCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).count();
+                        if (usersNotInSubscriptionCount > 0) {
+                            savedSubscription.setUpgradeNeeded(true);
+                        }
+                    }
+                    savedSubscription.setUsersCount(newUsersCount);
+                    setSubscriptionFromFastSpring(item.getSubscription(), savedSubscription, user.getCompany().getId());
                     subscriptionService.save(savedSubscription);
                 } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
             } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
@@ -73,7 +86,7 @@ public class FastSpringController {
                 Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
                 if (optionalSubscription.isPresent()) {
                     Subscription savedSubscription = optionalSubscription.get();
-                    setSubscriptionFromFastSpring(subscriptionCharge.getSubscription(), savedSubscription);
+                    setSubscriptionFromFastSpring(subscriptionCharge.getSubscription(), savedSubscription, user.getCompany().getId());
                     subscriptionService.save(savedSubscription);
                 } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
             } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
@@ -92,12 +105,17 @@ public class FastSpringController {
         );
     }
 
-    private void setSubscriptionFromFastSpring(com.grash.dto.fastSpring.Subscription subscription, Subscription savedSubscription) {
+    private void setSubscriptionFromFastSpring(com.grash.dto.fastSpring.Subscription subscription, Subscription savedSubscription, Long companyId) {
         String product = subscription.getProduct();
         boolean monthly = product.contains("monthly");
         savedSubscription.setMonthly(monthly);
         savedSubscription.setActivated(true);
         SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByCode(product.split("-")[0].toUpperCase()).get();
+        if (subscriptionPlan.getFeatures().contains(PlanFeatures.WORKFLOW)) {
+            workflowService.enableWorkflows(companyId);
+        } else {
+            workflowService.disableWorkflows(companyId);
+        }
         savedSubscription.setFastSpringId(subscription.getId());
         savedSubscription.setSubscriptionPlan(subscriptionPlan);
         savedSubscription.setStartsOn(new Date(subscription.getBegin()));

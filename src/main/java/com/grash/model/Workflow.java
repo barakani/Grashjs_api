@@ -30,4 +30,6 @@ public class Workflow extends CompanyAudit {
     @OneToOne(cascade = CascadeType.ALL)
     @NotNull
     private WorkflowAction action;
+
+    private boolean enabled = true;
 }

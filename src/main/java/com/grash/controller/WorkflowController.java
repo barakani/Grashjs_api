@@ -7,6 +7,7 @@ import com.grash.mapper.WorkflowActionMapper;
 import com.grash.mapper.WorkflowConditionMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.WorkflowActionService;
@@ -63,7 +64,10 @@ public class WorkflowController {
     public Workflow create(@ApiParam("Workflow") @Valid @RequestBody WorkflowPostDTO workflowReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            return createWorkflow(workflowReq, user.getCompany());
+            int workflowsCount = (int) workflowService.findByCompany(user.getCompany().getId()).stream().filter(Workflow::isEnabled).count();
+            if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.WORKFLOW) || workflowsCount == 0) {
+                return createWorkflow(workflowReq, user.getCompany());
+            } else throw new CustomException("You can't create a new workflow", HttpStatus.NOT_ACCEPTABLE);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

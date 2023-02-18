@@ -214,6 +214,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public Collection<OwnUser> saveAll(Collection<OwnUser> users) {
+        return userRepository.saveAll(users);
+    }
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }

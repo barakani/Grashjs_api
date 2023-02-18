@@ -9,12 +9,15 @@ import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
+import com.grash.utils.AuditComparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -192,5 +195,19 @@ public class WorkflowService {
                     break;
             }
         }
+    }
+
+    public void disableWorkflows(Long companyId) {
+        Collection<Workflow> workflows = findByCompany(companyId);
+        Workflow firstWorkflow = Collections.min(workflows, new AuditComparator());
+        Collection<Workflow> workflowsToDisable = workflows.stream().filter(workflow -> !workflow.getId().equals(firstWorkflow.getId())).collect(Collectors.toList());
+        workflowsToDisable.forEach(workflow -> workflow.setEnabled(false));
+        workflowRepository.saveAll(workflowsToDisable);
+    }
+
+    public void enableWorkflows(Long companyId) {
+        Collection<Workflow> workflows = findByCompany(companyId);
+        workflows.forEach(workflow -> workflow.setEnabled(true));
+        workflowRepository.saveAll(workflows);
     }
 }

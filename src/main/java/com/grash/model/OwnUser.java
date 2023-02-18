@@ -54,6 +54,9 @@ public class OwnUser extends Audit {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean enabled;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean enabledInSubscription = true;
+
     @ManyToOne
     private Company company;
 
