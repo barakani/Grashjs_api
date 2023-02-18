@@ -138,6 +138,10 @@ public class UserService {
         return userRepository.findByEmailAndCompany_Id(email, companyId);
     }
 
+    public Optional<OwnUser> findByIdAndCompany(Long id, Long companyId) {
+        return userRepository.findByIdAndCompany_Id(id, companyId);
+    }
+
     public OwnUser whoami(HttpServletRequest req) {
         return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
     }
