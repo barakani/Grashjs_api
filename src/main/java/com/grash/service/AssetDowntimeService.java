@@ -32,7 +32,6 @@ public class AssetDowntimeService {
     }
 
     public AssetDowntime save(AssetDowntime assetDowntime) {
-        checkOverlapping(assetDowntime);
         return assetDowntimeRepository.save(assetDowntime);
     }
 
@@ -96,7 +95,6 @@ public class AssetDowntimeService {
     }
 
     private void checkOverlapping(AssetDowntime assetDowntime) {
-        if (assetDowntime.getId() != null) return;
         Collection<AssetDowntime> assetDowntimes = findByAsset(assetDowntime.getAsset().getId());
         Date startedOn = assetDowntime.getStartsOn();
         Date endedOn = assetDowntime.getEndsOn();
