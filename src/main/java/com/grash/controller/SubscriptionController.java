@@ -90,7 +90,9 @@ public class SubscriptionController {
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
             if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
-                Collection<OwnUser> users = usersIds.stream().map(userId -> userService.findByIdAndCompany(userId, user.getCompany().getId()).get()).collect(Collectors.toList());
+                Collection<OwnUser> users = usersIds.stream().map(userId ->
+                                userService.findByIdAndCompany(userId, user.getCompany().getId()).get())
+                        .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
                 if (users.stream().allMatch(OwnUser::isEnabledInSubscription)) {
                     users.forEach(user1 -> user1.setEnabledInSubscription(false));
                     userService.saveAll(users);
