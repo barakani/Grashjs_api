@@ -17,5 +17,7 @@ public class PreventiveMaintenancePostDTO extends WorkOrderBase {
     @NotNull
     private int frequency;
 
+    private Integer dueDateDelay;
+
     private Date endsOn;
 }

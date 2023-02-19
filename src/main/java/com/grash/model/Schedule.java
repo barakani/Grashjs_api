@@ -29,6 +29,8 @@ public class Schedule extends Audit {
 
     private Date endsOn;
 
+    private Integer dueDateDelay;
+
     @OneToOne
     @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)

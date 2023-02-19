@@ -80,6 +80,9 @@ public class ScheduleService {
                 public void run() {
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
                     workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
+                    if (schedule.getDueDateDelay() != null) {
+                        workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
+                    }
                     WorkOrder savedWorkOrder = workOrderService.create(workOrder);
                     workOrderService.notify(savedWorkOrder, Helper.getLocale(workOrder.getCompany()));
                 }

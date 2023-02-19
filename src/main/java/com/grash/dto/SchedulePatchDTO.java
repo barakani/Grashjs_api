@@ -13,4 +13,6 @@ public class SchedulePatchDTO {
     private int frequency;
 
     private Date endsOn;
+
+    private Integer dueDateDelay;
 }

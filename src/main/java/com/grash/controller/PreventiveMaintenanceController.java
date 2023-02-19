@@ -90,7 +90,7 @@ public class PreventiveMaintenanceController {
             schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
             schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ? preventiveMaintenancePost.getStartsOn() : new Date());
             schedule.setFrequency(preventiveMaintenancePost.getFrequency());
-
+            schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
             Schedule savedSchedule = scheduleService.save(schedule);
             em.refresh(savedSchedule);
             em.refresh(preventiveMaintenance);
