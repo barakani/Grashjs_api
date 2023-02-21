@@ -1,10 +1,8 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
-import com.grash.dto.fastSpring.Item;
 import com.grash.dto.fastSpring.WebhookPayload;
 import com.grash.dto.fastSpring.payloads.DeactivatedPayload;
-import com.grash.dto.fastSpring.payloads.Order;
 import com.grash.dto.fastSpring.payloads.ResumePayload;
 import com.grash.dto.fastSpring.payloads.SubscriptionCharge;
 import com.grash.exception.CustomException;
@@ -47,8 +45,8 @@ public class FastSpringController {
     private String password;
 
     @PostMapping("/new-subscription")
-    public void onNewSubscription(@Valid @RequestBody WebhookPayload<Order> order) {
-        order.getEvents().forEach(event -> {
+    public void onNewSubscription(@Valid @RequestBody WebhookPayload<com.grash.dto.fastSpring.Subscription> subscription) {
+        subscription.getEvents().forEach(event -> {
             long userId = event.getData().getTags().getUserId();
             Optional<OwnUser> optionalOwnUser = userService.findById(userId);
             if (optionalOwnUser.isPresent()) {
@@ -56,8 +54,8 @@ public class FastSpringController {
                 Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
                 if (optionalSubscription.isPresent()) {
                     Subscription savedSubscription = optionalSubscription.get();
-                    Item item = event.getData().getItems().get(0);
-                    int newUsersCount = item.getQuantity();
+                    com.grash.dto.fastSpring.Subscription fastSpringSubscription = event.getData();
+                    int newUsersCount = fastSpringSubscription.getQuantity();
                     int subscriptionUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
                     if (newUsersCount < subscriptionUsersCount) {
                         savedSubscription.setDowngradeNeeded(true);
@@ -68,7 +66,7 @@ public class FastSpringController {
                         }
                     }
                     savedSubscription.setUsersCount(newUsersCount);
-                    setSubscriptionFromFastSpring(item.getSubscription(), savedSubscription, user.getCompany().getId());
+                    setSubscriptionFromFastSpring(fastSpringSubscription, savedSubscription, user.getCompany().getId());
                     subscriptionService.save(savedSubscription);
                 } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
             } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
