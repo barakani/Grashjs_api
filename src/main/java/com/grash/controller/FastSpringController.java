@@ -45,7 +45,7 @@ public class FastSpringController {
     private String password;
 
     @PostMapping("/new-subscription")
-    public void onNewSubscription(@Valid @RequestBody WebhookPayload<com.grash.dto.fastSpring.Subscription> subscription) {
+    public void onNewSubscription(@Valid @RequestBody WebhookPayload<com.grash.dto.fastSpring.payloads.SubscriptionPayload> subscription) {
         subscription.getEvents().forEach(event -> {
             long userId = event.getData().getTags().getUserId();
             Optional<OwnUser> optionalOwnUser = userService.findById(userId);
@@ -54,7 +54,7 @@ public class FastSpringController {
                 Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
                 if (optionalSubscription.isPresent()) {
                     Subscription savedSubscription = optionalSubscription.get();
-                    com.grash.dto.fastSpring.Subscription fastSpringSubscription = event.getData();
+                    com.grash.dto.fastSpring.payloads.SubscriptionPayload fastSpringSubscription = event.getData();
                     int newUsersCount = fastSpringSubscription.getQuantity();
                     int subscriptionUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
                     if (newUsersCount < subscriptionUsersCount) {
@@ -66,7 +66,11 @@ public class FastSpringController {
                         }
                     }
                     savedSubscription.setUsersCount(newUsersCount);
-                    setSubscriptionFromFastSpring(fastSpringSubscription, savedSubscription, user.getCompany().getId());
+                    setSubscriptionFromFastSpring(fastSpringSubscription.getProduct().getProduct(),
+                            fastSpringSubscription.getId(),
+                            fastSpringSubscription.getBegin(),
+                            fastSpringSubscription.getNextChargeDate(),
+                            savedSubscription, user.getCompany().getId());
                     subscriptionService.save(savedSubscription);
                 } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
             } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
@@ -84,7 +88,11 @@ public class FastSpringController {
                 Optional<Subscription> optionalSubscription = subscriptionService.findById(user.getCompany().getSubscription().getId());
                 if (optionalSubscription.isPresent()) {
                     Subscription savedSubscription = optionalSubscription.get();
-                    setSubscriptionFromFastSpring(subscriptionCharge.getSubscription(), savedSubscription, user.getCompany().getId());
+                    setSubscriptionFromFastSpring(subscriptionCharge.getSubscription().getProduct(),
+                            subscriptionCharge.getSubscription().getId(),
+                            subscriptionCharge.getSubscription().getBegin(),
+                            subscriptionCharge.getSubscription().getNextChargeDate(),
+                            savedSubscription, user.getCompany().getId());
                     subscriptionService.save(savedSubscription);
                 } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
             } else throw new CustomException("User Not Found", HttpStatus.NOT_FOUND);
@@ -103,8 +111,7 @@ public class FastSpringController {
         );
     }
 
-    private void setSubscriptionFromFastSpring(com.grash.dto.fastSpring.Subscription subscription, Subscription savedSubscription, Long companyId) {
-        String product = subscription.getProduct();
+    private void setSubscriptionFromFastSpring(String product, String id, long begin, long nextChargeDate, Subscription savedSubscription, Long companyId) {
         boolean monthly = product.contains("monthly");
         savedSubscription.setMonthly(monthly);
         savedSubscription.setActivated(true);
@@ -114,10 +121,10 @@ public class FastSpringController {
         } else {
             workflowService.disableWorkflows(companyId);
         }
-        savedSubscription.setFastSpringId(subscription.getId());
+        savedSubscription.setFastSpringId(id);
         savedSubscription.setSubscriptionPlan(subscriptionPlan);
-        savedSubscription.setStartsOn(new Date(subscription.getBegin()));
-        savedSubscription.setEndsOn(new Date(subscription.getNextChargeDate()));
+        savedSubscription.setStartsOn(new Date(begin));
+        savedSubscription.setEndsOn(new Date(nextChargeDate));
         savedSubscription.setCancelled(false);
     }
 
