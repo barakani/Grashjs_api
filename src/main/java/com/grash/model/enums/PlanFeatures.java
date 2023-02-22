@@ -13,5 +13,7 @@ public enum PlanFeatures {
     REQUEST_PORTAL,
     SIGNATURE,
     ROLE,
-    WORKFLOW
+    WORKFLOW,
+    API_ACCESS,
+    WEBHOOK
 }
