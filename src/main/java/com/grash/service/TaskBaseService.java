@@ -31,8 +31,11 @@ public class TaskBaseService {
     private final AssetService assetService;
     private final EntityManager em;
 
+    @Transactional
     public TaskBase create(TaskBase TaskBase) {
-        return taskBaseRepository.save(TaskBase);
+        TaskBase taskBase = taskBaseRepository.saveAndFlush(TaskBase);
+        em.refresh(taskBase);
+        return taskBase;
     }
 
     @Transactional
