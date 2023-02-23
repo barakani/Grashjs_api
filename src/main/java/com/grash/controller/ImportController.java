@@ -4,6 +4,7 @@ import com.grash.dto.imports.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.*;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,8 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         final int[] created = {0};
         final int[] updated = {0};
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             toImport.forEach(workOrderImportDTO -> {
                 Long id = workOrderImportDTO.getId();
                 WorkOrder workOrder = new WorkOrder();
@@ -69,7 +71,8 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         final int[] created = {0};
         final int[] updated = {0};
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             toImport.forEach(assetImportDTO -> {
                 Long id = assetImportDTO.getId();
                 Asset asset = new Asset();
@@ -98,7 +101,8 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         final int[] created = {0};
         final int[] updated = {0};
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             toImport.forEach(locationImportDTO -> {
                 Long id = locationImportDTO.getId();
                 Location location = new Location();
@@ -127,7 +131,7 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         final int[] created = {0};
         final int[] updated = {0};
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS) && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             toImport.forEach(meterImportDTO -> {
                 Long id = meterImportDTO.getId();
                 Meter meter = new Meter();
@@ -156,7 +160,8 @@ public class ImportController {
         OwnUser user = userService.whoami(req);
         final int[] created = {0};
         final int[] updated = {0};
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
             toImport.forEach(partImportDTO -> {
                 Long id = partImportDTO.getId();
                 Part part = new Part();
