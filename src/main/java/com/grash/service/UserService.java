@@ -97,6 +97,7 @@ public class UserService {
                         throw new CustomException("You are not invited to this organization for this role", HttpStatus.NOT_ACCEPTABLE);
                     } else {
                         user.setRole(optionalRole.get());
+                        user.setEnabled(true);
                         user.setCompany(optionalRole.get().getCompanySettings().getCompany());
                     }
 
@@ -107,16 +108,17 @@ public class UserService {
                 userRepository.save(user);
                 return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
             } else {
-                //send mail
-                String token = UUID.randomUUID().toString();
-                String link = API_HOST + "/auth/activate-account?token=" + token;
-                Map<String, Object> variables = new HashMap<String, Object>() {{
-                    put("verifyTokenLink", link);
-                    put("featuresLink", frontendUrl + "/#key-features");
-                }};
-                VerificationToken newUserToken = new VerificationToken(token, user);
-                verificationTokenRepository.save(newUserToken);
-                emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables, "signup.html", Helper.getLocale(user));
+                if (user.getRole() == null) { //send mail
+                    String token = UUID.randomUUID().toString();
+                    String link = API_HOST + "/auth/activate-account?token=" + token;
+                    Map<String, Object> variables = new HashMap<String, Object>() {{
+                        put("verifyTokenLink", link);
+                        put("featuresLink", frontendUrl + "/#key-features");
+                    }};
+                    VerificationToken newUserToken = new VerificationToken(token, user);
+                    verificationTokenRepository.save(newUserToken);
+                    emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables, "signup.html", Helper.getLocale(user));
+                }
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
