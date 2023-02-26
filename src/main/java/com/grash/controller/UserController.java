@@ -156,8 +156,12 @@ public class UserController {
         if (optionalUserToPatch.isPresent() && optionalRole.isPresent()) {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (userToPatch.getCompany().getId().equals(requester.getCompany().getId()) && requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                userToPatch.setRole(optionalRole.get());
-                return userMapper.toPatchDto(userService.save(userToPatch));
+                int usersCount = (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
+                if (usersCount < requester.getCompany().getSubscription().getUsersCount()) {
+                    userToPatch.setRole(optionalRole.get());
+                    return userMapper.toPatchDto(userService.save(userToPatch));
+                } else
+                    throw new CustomException("Company subscription users count doesn't allow this operation", HttpStatus.NOT_ACCEPTABLE);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

@@ -143,5 +143,10 @@ public class OwnUser extends Audit {
     public String getFullName() {
         return this.firstName + " " + this.lastName;
     }
+
+    @JsonIgnore
+    public boolean isEnabledInSubscriptionAndPaid() {
+        return enabledInSubscription && this.getRole().isPaid();
+    }
 }
 

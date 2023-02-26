@@ -56,7 +56,7 @@ public class FastSpringController {
                     Subscription savedSubscription = optionalSubscription.get();
                     com.grash.dto.fastSpring.payloads.SubscriptionPayload fastSpringSubscription = event.getData();
                     int newUsersCount = fastSpringSubscription.getQuantity();
-                    int subscriptionUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).count();
+                    int subscriptionUsersCount = (int) userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
                     if (newUsersCount < subscriptionUsersCount) {
                         savedSubscription.setDowngradeNeeded(true);
                     } else {
