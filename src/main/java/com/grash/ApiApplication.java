@@ -55,7 +55,10 @@ public class ApiApplication implements CommandLineRunner {
                     .code("STARTER")
                     .name("Starter").features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
                             PlanFeatures.CHECKLIST,
-                            PlanFeatures.FILE)))
+                            PlanFeatures.FILE,
+                            PlanFeatures.METER,
+                            PlanFeatures.ADDITIONAL_COST,
+                            PlanFeatures.ADDITIONAL_TIME)))
                     .monthlyCostPerUser(20)
                     .yearlyCostPerUser(200).build());
         }
@@ -67,8 +70,14 @@ public class ApiApplication implements CommandLineRunner {
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.PREVENTIVE_MAINTENANCE,
                             PlanFeatures.CHECKLIST,
                             PlanFeatures.FILE,
+                            PlanFeatures.METER,
+                            PlanFeatures.ADDITIONAL_COST,
+                            PlanFeatures.ADDITIONAL_TIME,
                             PlanFeatures.REQUEST_CONFIGURATION,
-                            PlanFeatures.ADDITIONAL_TIME
+                            PlanFeatures.PURCHASE_ORDER,
+                            PlanFeatures.SIGNATURE,
+                            PlanFeatures.ANALYTICS,
+                            PlanFeatures.IMPORT_CSV
                     )))
                     .yearlyCostPerUser(400).build());
         }
