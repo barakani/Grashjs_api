@@ -24,4 +24,6 @@ public class UserSettings {
 
     private boolean emailUpdatesForPurchaseOrders = true;
 
+    private boolean statsForAssignedWorkOrders = true;
+
 }
