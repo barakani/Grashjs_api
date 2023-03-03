@@ -63,9 +63,9 @@ public class WOAnalyticsController {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> workOrders;
         if (assignedToMe) {
-            workOrders = workOrderService.findByPrimaryUser(user.getId());
+            workOrders = workOrderService.findByPrimaryUser(user.getId()).stream().filter(workOrder -> !workOrder.isArchived()).collect(Collectors.toList());
         } else {
-            workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            workOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> !workOrder.isArchived()).collect(Collectors.toList());
         }
         int open = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.OPEN)).count();
         int onHold = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.ON_HOLD)).count();
