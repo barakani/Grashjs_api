@@ -98,7 +98,7 @@ public class WOAnalyticsController {
     public MobileWOStatsExtended getMobileExtendedStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Date weekStart = Helper.localDateToDate(LocalDate.now().minusDays(7));
-        Collection<WorkOrder> workOrders = workOrderService.findByPrimaryUser(user.getId());
+        Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
         Collection<WorkOrder> completeWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         Collection<WorkOrder> compliantWO = workOrders.stream().filter(WorkOrder::isCompliant).collect(Collectors.toList());
         Collection<WorkOrder> completeWOWeek = completeWO.stream().filter(workOrder -> workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).collect(Collectors.toList());
