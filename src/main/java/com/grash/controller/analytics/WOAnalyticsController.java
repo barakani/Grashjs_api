@@ -63,9 +63,9 @@ public class WOAnalyticsController {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> workOrders;
         if (assignedToMe) {
-            workOrders = workOrderService.findByPrimaryUser(user.getId()).stream().filter(workOrder -> !workOrder.isArchived()).collect(Collectors.toList());
+            workOrders = workOrderService.findByPrimaryUser(user.getId()).stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         } else {
-            workOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> !workOrder.isArchived()).collect(Collectors.toList());
+            workOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         }
         int open = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.OPEN)).count();
         int onHold = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.ON_HOLD)).count();
@@ -76,7 +76,7 @@ public class WOAnalyticsController {
             LocalDate today = LocalDate.now(ZoneId.of("UTC"));
             LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
             LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1);
-            return workOrder.getCreatedAt().after(Helper.localDateTimeToDate(todayMidnight)) && workOrder.getCreatedAt().before(Helper.localDateTimeToDate(tomorrowMidnight));
+            return workOrder.getDueDate() != null && workOrder.getDueDate().after(Helper.localDateTimeToDate(todayMidnight)) && workOrder.getDueDate().before(Helper.localDateTimeToDate(tomorrowMidnight));
         }).count();
         int high = (int) workOrders.stream().filter(workOrder -> workOrder.getPriority().equals(Priority.HIGH)).count();
         return MobileWOStats.builder()
