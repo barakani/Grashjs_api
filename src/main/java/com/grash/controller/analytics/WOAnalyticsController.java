@@ -15,10 +15,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +55,37 @@ public class WOAnalyticsController {
                     .compliant(compliant)
                     .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/mobile/overview")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public MobileWOStats getMobileOverview(HttpServletRequest req, @RequestParam("assignedToMe") boolean assignedToMe) {
+        OwnUser user = userService.whoami(req);
+        Collection<WorkOrder> workOrders;
+        if (assignedToMe) {
+            workOrders = workOrderService.findByPrimaryUser(user.getId());
+        } else {
+            workOrders = workOrderService.findByCompany(user.getCompany().getId());
+        }
+        int open = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.OPEN)).count();
+        int onHold = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.ON_HOLD)).count();
+        int inProgress = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.IN_PROGRESS)).count();
+        int complete = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
+        int todayWO = (int) workOrders.stream().filter(workOrder -> {
+            LocalTime midnight = LocalTime.MIDNIGHT;
+            LocalDate today = LocalDate.now(ZoneId.of("UTC"));
+            LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
+            LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1);
+            return workOrder.getCreatedAt().after(Helper.localDateTimeToDate(todayMidnight)) && workOrder.getCreatedAt().before(Helper.localDateTimeToDate(tomorrowMidnight));
+        }).count();
+        int high = (int) workOrders.stream().filter(workOrder -> workOrder.getPriority().equals(Priority.HIGH)).count();
+        return MobileWOStats.builder()
+                .open(open)
+                .onHold(onHold)
+                .inProgress(inProgress)
+                .complete(complete)
+                .today(todayWO)
+                .high(high).build();
     }
 
     @GetMapping("/incomplete/overview")
