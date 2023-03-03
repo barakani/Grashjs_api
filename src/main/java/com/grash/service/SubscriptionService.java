@@ -74,7 +74,7 @@ public class SubscriptionService {
     }
 
     public void scheduleEnd(Subscription subscription) {
-        boolean shouldSchedule = subscription.getEndsOn().after(new Date()) && !subscription.getSubscriptionPlan().getCode().equals("FREE");
+        boolean shouldSchedule = !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn().after(new Date());
         if (shouldSchedule) {
             Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
