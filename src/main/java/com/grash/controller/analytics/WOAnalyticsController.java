@@ -102,7 +102,11 @@ public class WOAnalyticsController {
         Collection<WorkOrder> completeWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         Collection<WorkOrder> compliantWO = workOrders.stream().filter(WorkOrder::isCompliant).collect(Collectors.toList());
         Collection<WorkOrder> completeWOWeek = completeWO.stream().filter(workOrder -> workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).collect(Collectors.toList());
-        Collection<WorkOrder> compliantWOWeek = compliantWO.stream().filter(workOrder -> workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).collect(Collectors.toList());
+        Collection<WorkOrder> compliantWOWeek = compliantWO.stream().filter(workOrder -> {
+            if (workOrder.getCompletedOn() == null) {
+                return true;
+            } else return workOrder.getCompletedOn().after(weekStart);
+        }).collect(Collectors.toList());
         return MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
