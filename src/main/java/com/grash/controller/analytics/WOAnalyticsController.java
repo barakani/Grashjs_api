@@ -62,15 +62,20 @@ public class WOAnalyticsController {
     public MobileWOStats getMobileOverview(HttpServletRequest req, @RequestParam("assignedToMe") boolean assignedToMe) {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> workOrders;
+        Collection<WorkOrder> completeWorkOrders;
         if (assignedToMe) {
-            workOrders = workOrderService.findByPrimaryUser(user.getId()).stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<WorkOrder> result = workOrderService.findByPrimaryUser(user.getId());
+            workOrders = result.stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            completeWorkOrders = result.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         } else {
-            workOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<WorkOrder> result = workOrderService.findByCompany(user.getCompany().getId());
+            workOrders = result.stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            completeWorkOrders = result.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
         }
         int open = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.OPEN)).count();
         int onHold = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.ON_HOLD)).count();
         int inProgress = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.IN_PROGRESS)).count();
-        int complete = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
+        int complete = completeWorkOrders.size();
         int todayWO = (int) workOrders.stream().filter(workOrder -> {
             LocalTime midnight = LocalTime.MIDNIGHT;
             LocalDate today = LocalDate.now(ZoneId.of("UTC"));
