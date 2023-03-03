@@ -110,8 +110,8 @@ public class WOAnalyticsController {
         return MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
-                .compliantRate(((double) compliantWO.size()) / workOrders.size())
-                .compliantRateWeek(((double) compliantWOWeek.size()) / completeWOWeek.size())
+                .compliantRate(workOrders.size() == 0 ? 1 : ((double) compliantWO.size()) / workOrders.size())
+                .compliantRateWeek(completeWOWeek.size() == 0 ? 1 : ((double) compliantWOWeek.size()) / completeWOWeek.size())
                 .build();
     }
 
