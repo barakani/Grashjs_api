@@ -93,6 +93,24 @@ public class WOAnalyticsController {
                 .high(high).build();
     }
 
+    @GetMapping("/mobile/complete-compliant")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public MobileWOStatsExtended getMobileExtendedStats(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Date weekStart = Helper.localDateToDate(LocalDate.now().minusDays(7));
+        Collection<WorkOrder> workOrders = workOrderService.findByPrimaryUser(user.getId());
+        Collection<WorkOrder> completeWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+        Collection<WorkOrder> compliantWO = workOrders.stream().filter(WorkOrder::isCompliant).collect(Collectors.toList());
+        Collection<WorkOrder> completeWOWeek = completeWO.stream().filter(workOrder -> workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).collect(Collectors.toList());
+        Collection<WorkOrder> compliantWOWeek = compliantWO.stream().filter(workOrder -> workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).collect(Collectors.toList());
+        return MobileWOStatsExtended.builder()
+                .complete(completeWO.size())
+                .completeWeek(completeWOWeek.size())
+                .compliantRate(((double) compliantWO.size()) / workOrders.size())
+                .compliantRateWeek(((double) compliantWOWeek.size()) / completeWOWeek.size())
+                .build();
+    }
+
     @GetMapping("/incomplete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WOIncompleteStats getIncompleteStats(HttpServletRequest req) {
