@@ -50,22 +50,25 @@ public class UserAnalyticsController {
     public List<WOStatsByDay> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            Date firstDay = Helper.localDateToDate(LocalDate.now().minusDays(14));
-            Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedByAndCreatedAtBetween(user.getId(), firstDay, new Date());
-            Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedByAndCreatedAtBetween(user.getId(), firstDay, new Date());
-            List<WOStatsByDay> result = new ArrayList<>();
-            for (int i = 0; i < 14; i++) {
-                Date date = Helper.localDateToDate(LocalDate.now().minusDays(i));
-                int createdWorkOrdersInDay = (int) createdWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
-                int completedWorkOrdersInDay = (int) completedWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
-                result.add(WOStatsByDay.builder()
-                        .created(createdWorkOrdersInDay)
-                        .completed(completedWorkOrdersInDay)
-                        .date(date)
-                        .build());
-            }
-            Collections.reverse(result);
-            return result;
+            Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
+            if (optionalUser.isPresent()) {
+                Date firstDay = Helper.localDateToDate(LocalDate.now().minusDays(14));
+                Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedByAndCreatedAtBetween(id, firstDay, new Date());
+                Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedByAndCreatedAtBetween(id, firstDay, new Date());
+                List<WOStatsByDay> result = new ArrayList<>();
+                for (int i = 0; i < 14; i++) {
+                    Date date = Helper.localDateToDate(LocalDate.now().minusDays(i));
+                    int createdWorkOrdersInDay = (int) createdWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
+                    int completedWorkOrdersInDay = (int) completedWorkOrders.stream().filter(workOrder -> Helper.isSameDay(workOrder.getCreatedAt(), date)).count();
+                    result.add(WOStatsByDay.builder()
+                            .created(createdWorkOrdersInDay)
+                            .completed(completedWorkOrdersInDay)
+                            .date(date)
+                            .build());
+                }
+                Collections.reverse(result);
+                return result;
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }

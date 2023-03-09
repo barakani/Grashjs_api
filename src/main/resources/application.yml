@@ -52,7 +52,7 @@ security:
   jwt:
     token:
       secret-key: Grash4785@jk
-      expire-length: 172800000 # 1000*60*60*24*2
+      expire-length: 1209600000 # 1000*60*60*24*14
 
 frontend:
   url: http://localhost:3000
