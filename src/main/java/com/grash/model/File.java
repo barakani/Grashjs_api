@@ -29,6 +29,8 @@ public class File extends CompanyAudit {
 
     private FileType type = FileType.OTHER;
 
+    private boolean hidden = false;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
@@ -89,11 +91,12 @@ public class File extends CompanyAudit {
             })
     private List<Location> locations = new ArrayList<>();
 
-    public File(String name, String url, Company company, FileType fileType, Task task) {
+    public File(String name, String url, Company company, FileType fileType, Task task, boolean hidden) {
         this.name = name;
         this.url = url;
         this.type = fileType;
         this.task = task;
+        this.hidden = hidden;
         this.setCompany(company);
     }
 }

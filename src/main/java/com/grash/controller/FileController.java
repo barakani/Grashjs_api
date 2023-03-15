@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
@@ -46,7 +47,7 @@ public class FileController {
     private final TaskService taskService;
 
     @PostMapping(value = "/upload", produces = "application/json")
-    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, HttpServletRequest req, @RequestParam("type") FileType fileType,
+    public Collection<File> handleFileUpload(@RequestParam("files") MultipartFile[] filesReq, @RequestParam("folder") String folder, @RequestParam("hidden") String hidden, HttpServletRequest req, @RequestParam("type") FileType fileType,
                                              @RequestParam(value = "taskId", required = false) Integer taskId) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
@@ -61,7 +62,7 @@ public class FileController {
                         task = optionalTask.get();
                     }
                 }
-                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType, task)));
+                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType, task, hidden.equals("true"))));
             });
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -78,6 +79,12 @@ public class FileController {
                 if (!canViewOthers) {
                     searchCriteria.filterCreatedBy(user);
                 }
+                searchCriteria.getFilterFields().add(FilterField.builder()
+                        .field("hidden")
+                        .value(false)
+                        .operation("eq")
+                        .values(new ArrayList<>())
+                        .alternatives(new ArrayList<>()).build());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(fileService.findBySearchCriteria(searchCriteria));
