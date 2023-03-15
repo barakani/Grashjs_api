@@ -11,6 +11,7 @@ import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
+import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -62,16 +63,23 @@ public class PartService {
 
     public void consumePart(Long id, int quantity, Company company, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
-        if (part.getQuantity() >= quantity) {
-            part.setQuantity(part.getQuantity() - quantity);
-            if (part.getQuantity() < part.getMinQuantity()) {
-                part.getAssignedTo().forEach(user ->
-                        notificationService.create(new Notification(messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale), user, NotificationType.PART, part.getId()))
-                );
-            }
-            partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
+        part.setQuantity(part.getQuantity() - quantity);
+        if (quantity < 0) {
+            PartConsumption partConsumption = Collections.max(partConsumptionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()), new AuditComparator());
+            partConsumption.setQuantity(partConsumption.getQuantity() + quantity);
             partRepository.save(part);
-        } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
+            partConsumptionService.save(partConsumption);
+        } else {
+            if (part.getQuantity() >= quantity) {
+                if (part.getQuantity() < part.getMinQuantity()) {
+                    part.getAssignedTo().forEach(user ->
+                            notificationService.create(new Notification(messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale), user, NotificationType.PART, part.getId()))
+                    );
+                }
+                partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
+                partRepository.save(part);
+            } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 
     public Collection<Part> getAll() {

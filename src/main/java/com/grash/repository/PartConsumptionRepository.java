@@ -17,4 +17,5 @@ public interface PartConsumptionRepository extends JpaRepository<PartConsumption
                                                                             date1, Date date2, Long companyId);
 
 
+    Collection<PartConsumption> findByWorkOrder_IdAndPart_Id(Long workOrderId, Long partId);
 }

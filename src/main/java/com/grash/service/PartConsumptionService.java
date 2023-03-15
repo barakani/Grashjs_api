@@ -45,4 +45,12 @@ public class PartConsumptionService {
     public Collection<PartConsumption> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
         return partConsumptionRepository.findByCreatedAtBetweenAndCompany_Id(date1, date2, id);
     }
+
+    public Collection<PartConsumption> findByWorkOrderAndPart(Long workOrderId, Long partId) {
+        return partConsumptionRepository.findByWorkOrder_IdAndPart_Id(workOrderId, partId);
+    }
+
+    public void save(PartConsumption partConsumption) {
+        partConsumptionRepository.save(partConsumption);
+    }
 }
