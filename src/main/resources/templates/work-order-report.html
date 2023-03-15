@@ -14,7 +14,7 @@
 <!--@thymesVar id="workOrder" type="com.grash.model.WorkOrder"-->
 <!--@thymesVar id="companyName" type="java.lang.String"-->
 <!--/*@thymesVar id="relations" type="java.util.List<com.grash.model.Relation>"*/-->
-<!--/*@thymesVar id="tasks" type="java.util.List<java.lang.String>"*/-->
+<!--/*@thymesVar id="tasks" type="java.util.List<org.springframework.data.util.Pair<java.lang.String, java.lang.String>>"*/-->
 <!--/*@thymesVar id="assignedTo" type="java.lang.String"*/-->
 <!--/*@thymesVar id="customers" type="java.lang.String"*/-->
 <!--/*@thymesVar id="companyPhone" type="java.lang.String"*/-->
@@ -179,7 +179,8 @@
                 </div>
                 <div class="panel-body">
                     <th:block th:each="task : ${tasks}">
-                        <div th:text="${task}"></div>
+                        <strong th:text="${task.getFirst()}"></strong>
+                        <div th:text="${task.getSecond()}"></div>
                     </th:block>
                 </div>
             </div>

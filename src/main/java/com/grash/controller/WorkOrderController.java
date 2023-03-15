@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -336,7 +337,7 @@ public class WorkOrderController {
                 Context thymeleafContext = new Context();
                 thymeleafContext.setLocale(Helper.getLocale(user));
                 Optional<OwnUser> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() : userService.findById(savedWorkOrder.getCreatedBy());
-                List<String> tasks = taskService.findByWorkOrder(id).stream().map(task -> task.getTaskBase().getLabel()).collect(Collectors.toList());
+                List<Pair<String, String>> tasks = taskService.findByWorkOrder(id).stream().map(task -> Pair.of(task.getTaskBase().getLabel(), translateTaskValue(task.getValue(), Helper.getLocale(user)))).collect(Collectors.toList());
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
                 Collection<Relation> relations = relationService.findByWorkOrder(id);
@@ -374,5 +375,12 @@ public class WorkOrderController {
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
+    }
+
+    private String translateTaskValue(String value, Locale locale) {
+        List<String> taskOptions = Arrays.asList("OPEN", "ON_HOLD", "IN_PROGRESS", "COMPLETE", "PASS", "FLAG", "FAIL");
+        if (taskOptions.contains(value)) {
+            return messageSource.getMessage(value, null, locale);
+        } else return value;
     }
 }
