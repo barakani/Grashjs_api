@@ -117,10 +117,9 @@ public class AssetService {
         boolean fifth = isAssetInCompany(assetReq.getParentAsset(), companyId, true);
         boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
         boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
-        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
-            Optional<OwnUser> optionalUser1 = userService.findById(user1.getId());
-            return optionalUser1.map(value -> value.getCompany().getId().equals(companyId)).orElse(false);
-        });
+        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 ->
+                userService.isUserInCompany(user1,companyId,true)
+            );
 
         return second && third && fourth && fifth && sixth && seventh && eighth;
     }
