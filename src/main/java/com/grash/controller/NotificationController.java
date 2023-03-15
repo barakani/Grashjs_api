@@ -1,5 +1,7 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.FilterField;
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.NotificationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
@@ -12,12 +14,15 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -41,6 +46,21 @@ public class NotificationController {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return notificationService.findByUser(user.getId());
         } else return notificationService.getAll();
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Page<Notification>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            searchCriteria.getFilterFields().add(FilterField.builder()
+                    .field("user")
+                    .value(user.getId())
+                    .operation("eq")
+                    .values(new ArrayList<>())
+                    .build());
+        }
+        return ResponseEntity.ok(notificationService.findBySearchCriteria(searchCriteria));
     }
 
     @GetMapping("/{id}")

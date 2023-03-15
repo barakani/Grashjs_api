@@ -1,5 +1,7 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.NotificationPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.NotificationMapper;
@@ -8,6 +10,9 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -55,5 +60,12 @@ public class NotificationService {
 
     public boolean canPatch(OwnUser user, NotificationPatchDTO notification) {
         return true;
+    }
+
+    public Page<Notification> findBySearchCriteria(SearchCriteria searchCriteria) {
+        SpecificationBuilder<Notification> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
+        return notificationRepository.findAll(builder.build(), page);
     }
 }
