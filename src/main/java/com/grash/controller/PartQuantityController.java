@@ -89,7 +89,8 @@ public class PartQuantityController {
                     if (!partQuantityMappedPartIds.contains(partId)) {
                         Optional<Part> optionalPart = partService.findById(partId);
                         if (optionalPart.isPresent()) {
-                            PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), savedWorkOrder, null, 0);
+                            partService.consumePart(optionalPart.get().getId(), 1, user.getCompany(), savedWorkOrder, Helper.getLocale(user));
+                            PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), savedWorkOrder, null, 1);
                             partQuantityService.create(partQuantity);
                         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
                     }
