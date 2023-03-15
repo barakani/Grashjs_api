@@ -66,7 +66,11 @@ public class UserService {
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
-            return jwtTokenProvider.createToken(email, Arrays.asList(userRepository.findByEmail(email).get().getRole().getRoleType()));
+            Optional<OwnUser> optionalUser = userRepository.findByEmail(email);
+            OwnUser user = optionalUser.get();
+            user.setLastLogin(new Date());
+            userRepository.save(user);
+            return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
         }

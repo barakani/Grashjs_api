@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -50,6 +51,8 @@ public class OwnUser extends Audit {
     @JsonIgnore
     @NotNull
     private String password;
+
+    private Date lastLogin;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean enabled;
