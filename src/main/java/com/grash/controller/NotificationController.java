@@ -3,11 +3,14 @@ package com.grash.controller;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.NotificationPatchDTO;
+import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
+import com.grash.model.PushNotificationToken;
 import com.grash.model.enums.RoleType;
 import com.grash.service.NotificationService;
+import com.grash.service.PushNotificationTokenService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -34,6 +37,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final UserService userService;
+    private final PushNotificationTokenService pushNotificationTokenService;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -99,5 +103,21 @@ public class NotificationController {
         } else throw new CustomException("Notification not found", HttpStatus.NOT_FOUND);
     }
 
-
+    @PostMapping("/push-token")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse savePushToken(@RequestParam String token, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        PushNotificationToken pushNotificationToken;
+        Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());
+        if (optionalPushNotificationToken.isPresent()) {
+            pushNotificationToken = optionalPushNotificationToken.get();
+            pushNotificationToken.setToken(token);
+        } else {
+            pushNotificationToken = PushNotificationToken.builder()
+                    .user(user)
+                    .token(token).build();
+        }
+        pushNotificationTokenService.save(pushNotificationToken);
+        return new SuccessResponse(true, "Ok");
+    }
 }
