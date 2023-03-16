@@ -134,12 +134,13 @@ public class NotificationService {
             );
 
 
+            // TODO
             // Countdown 30s
-            int wait = 30;
-            for (int i = wait; i >= 0; i--) {
-                System.out.print("Waiting for " + wait + " seconds. " + i + "s\r");
-                Thread.sleep(1000);
-            }
+//            int wait = 30;
+//            for (int i = wait; i >= 0; i--) {
+//                System.out.print("Waiting for " + wait + " seconds. " + i + "s\r");
+//                Thread.sleep(1000);
+//            }
             System.out.println("Fetching receipts...");
 
             List<String> ticketIds = (client.getTicketIdsFromPairs(okTicketMessages));
