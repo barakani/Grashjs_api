@@ -20,7 +20,7 @@ public class PushNotificationToken {
 
     private String token;
 
-    @OneToOne(targetEntity = OwnUser.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private OwnUser user;
 }
