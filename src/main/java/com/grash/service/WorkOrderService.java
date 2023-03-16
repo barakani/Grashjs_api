@@ -17,6 +17,7 @@ import com.grash.model.enums.Status;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
+import io.github.jav.exposerversdk.PushClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -137,8 +138,19 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder, Locale locale) {
 
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
+        String title = messageSource.getMessage("new_wo", null, locale);
         Collection<OwnUser> users = workOrder.getUsers();
-        users.forEach(user -> notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())));
+        users.forEach(user -> {
+            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
+            try {
+                notificationService.sendPushNotification(user, title, message, new HashMap<String, Object>() {{
+                    put("type", NotificationType.WORK_ORDER);
+                    put("id", workOrder.getId());
+                }});
+            } catch (PushClientException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("featuresLink", frontendUrl + "/#key-features");
