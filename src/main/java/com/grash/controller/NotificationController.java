@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.NotificationPatchDTO;
+import com.grash.dto.PushTokenPayload;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
@@ -105,8 +106,9 @@ public class NotificationController {
 
     @PostMapping("/push-token")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse savePushToken(@RequestParam String token, HttpServletRequest req) {
+    public SuccessResponse savePushToken(@RequestBody @Valid PushTokenPayload tokenPayload, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
+        String token = tokenPayload.getToken();
         PushNotificationToken pushNotificationToken;
         Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());
         if (optionalPushNotificationToken.isPresent()) {
