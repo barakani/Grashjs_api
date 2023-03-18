@@ -74,6 +74,7 @@ public class NotificationService {
         return notificationRepository.findAll(builder.build(), page);
     }
 
+    //TODO change param to users list same for create method. Better to create notifications then saveAll
     public void sendPushNotification(OwnUser user, String title, String message, Map<String, Object> data) throws PushClientException, InterruptedException {
 
         Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());

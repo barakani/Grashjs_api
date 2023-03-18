@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.dto.SuccessResponse;
@@ -60,6 +61,17 @@ public class MeterController {
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(meterService.findBySearchCriteria(searchCriteria));
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<MeterMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

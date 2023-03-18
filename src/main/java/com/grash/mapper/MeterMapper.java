@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterShowDTO;
 import com.grash.model.Meter;
@@ -34,4 +35,5 @@ public interface MeterMapper {
         return target;
     }
 
+    MeterMiniDTO toMiniDto(Meter model);
 }
