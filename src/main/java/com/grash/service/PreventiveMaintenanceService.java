@@ -96,4 +96,14 @@ public class PreventiveMaintenanceService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return preventiveMaintenanceRepository.findAll(builder.build(), page).map(preventiveMaintenanceMapper::toShowDto);
     }
+
+    public boolean isPreventiveMaintenanceInCompany(PreventiveMaintenance preventiveMaintenance, long companyId, boolean optional) {
+        if (optional) {
+            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenance == null ? Optional.empty() : findById(preventiveMaintenance.getId());
+            return preventiveMaintenance == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = findById(preventiveMaintenance.getId());
+            return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

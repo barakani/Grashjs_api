@@ -117,10 +117,9 @@ public class AssetService {
         boolean fourth = assetCategoryService.isAssetCategoryInCompany(assetReq.getCategory(), companyId, true);
         boolean fifth = isAssetInCompany(assetReq.getParentAsset(), companyId, true);
         boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
-        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, false);
+        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
         boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(item ->
-                userService.isUserInCompany(item,companyId,false)
-            );
+                userService.isUserInCompany(item,companyId,false));
         boolean nineth = assetReq.getCustomers() == null || assetReq.getCustomers().stream().allMatch(item ->
                 customerService.isCustomerInCompany(item,companyId,false));
         boolean tenth = assetReq.getVendors() == null || assetReq.getVendors().stream().allMatch(item ->
