@@ -18,13 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CurrencyService {
     private final CurrencyRepository currencyRepository;
-    private final AssetService assetService;
-    private final LocationService locationService;
-    private final MeterService meterService;
-    private final PartService partService;
-    private final TeamService teamService;
-    private final PreventiveMaintenanceService preventiveMaintenanceService;
-    private final WorkOrderService workOrderService;
     private final CurrencyMapper currencyMapper;
 
     public Currency create(Currency Currency) {
@@ -60,28 +53,11 @@ public class CurrencyService {
     }
 
     public boolean canCreate(OwnUser user) {
-        return canPatch(user);
+        return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
     }
 
     public boolean canPatch(OwnUser user) {
-        Long companyId = user.getCompany().getId();
+        return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
 
-        boolean first = user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
-
-        boolean second = user.getAsset() == null || user.getAsset().stream().allMatch(item ->
-                assetService.isAssetInCompany(item,companyId,false));
-        boolean third = user.getLocation() == null || user.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item,companyId,false));
-        boolean fourth = user.getMeters() == null || user.getMeters().stream().allMatch(item ->
-                meterService.isMeterInCompany(item,companyId,false));
-        boolean fifth = user.getParts() == null || user.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item,companyId,false));
-        boolean sixth = user.getTeams() == null || user.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item,companyId,false));
-        boolean seventh = user.getPreventiveMaintenances() == null || user.getPreventiveMaintenances().stream().allMatch(item ->
-                preventiveMaintenanceService.isPreventiveMaintenanceInCompany(item,companyId,false));
-        boolean eighth = user.getWorkOrders() == null || user.getWorkOrders().stream().allMatch(item ->
-                workOrderService.isWorkOrderInCompany(item,companyId,false));
-        return first && second && third && fourth && fifth && sixth && seventh && eighth;
     }
 }
