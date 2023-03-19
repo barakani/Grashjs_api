@@ -42,6 +42,7 @@ public class AssetService {
     private final CompanyService companyService;
     private final NotificationService notificationService;
     private final TeamService teamService;
+    private final PartService partService;
     private final AssetMapper assetMapper;
     private final EntityManager em;
     private final AssetDowntimeService assetDowntimeService;
@@ -116,12 +117,23 @@ public class AssetService {
         boolean fourth = assetCategoryService.isAssetCategoryInCompany(assetReq.getCategory(), companyId, true);
         boolean fifth = isAssetInCompany(assetReq.getParentAsset(), companyId, true);
         boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
-        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
-        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 ->
-                userService.isUserInCompany(user1,companyId,true)
+        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, false);
+        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(item ->
+                userService.isUserInCompany(item,companyId,false)
             );
+        boolean nineth = assetReq.getCustomers() == null || assetReq.getCustomers().stream().allMatch(item ->
+                customerService.isCustomerInCompany(item,companyId,false));
+        boolean tenth = assetReq.getVendors() == null || assetReq.getVendors().stream().allMatch(item ->
+                vendorService.isVendorInCompany(item,companyId,false));
+        boolean eleventh = assetReq.getTeams() == null || assetReq.getTeams().stream().allMatch(item ->
+                teamService.isTeamInCompany(item,companyId,false));
+        boolean twelveth = assetReq.getFiles() == null || assetReq.getFiles().stream().allMatch(item ->
+                fileService.isFileInCompany(item,companyId,false));
+        boolean thirteenth = assetReq.getParts() == null || assetReq.getParts().stream().allMatch(item ->
+                partService.isPartInCompany(item,companyId,false));
 
-        return second && third && fourth && fifth && sixth && seventh && eighth;
+        return second && third && fourth && fifth && sixth && seventh && eighth && nineth && tenth
+                && eleventh && twelveth && thirteenth;
     }
 
     public void notify(Asset asset, String message) {
