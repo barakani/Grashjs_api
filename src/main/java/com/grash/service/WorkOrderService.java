@@ -17,7 +17,6 @@ import com.grash.model.enums.Status;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
-import io.github.jav.exposerversdk.PushClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -136,19 +135,10 @@ public class WorkOrderService {
     }
 
     public void notify(WorkOrder workOrder, Locale locale) {
-
-        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
         String title = messageSource.getMessage("new_wo", null, locale);
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
         Collection<OwnUser> users = workOrder.getUsers();
-        notificationService.createMultiple(users.stream().map(user -> new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()));
-        try {
-            notificationService.sendPushNotifications(users, title, message, new HashMap<String, Object>() {{
-                put("type", NotificationType.WORK_ORDER);
-                put("id", workOrder.getId());
-            }});
-        } catch (PushClientException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        notificationService.createMultiple(users.stream().map(user -> new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()), true, title);
 
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
@@ -161,10 +151,11 @@ public class WorkOrderService {
         }
     }
 
-    public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
+    public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder, Locale locale) {
+        String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
         notificationService.createMultiple(oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).stream().map(user ->
-                new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()));
+                new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()), true, title);
     }
 
     public Collection<WorkOrder> findByAsset(Long id) {

@@ -92,20 +92,22 @@ public class TeamService {
     }
 
     public void notify(Team team, Locale locale) {
+        String title = messageSource.getMessage("new_team", null, locale);
         String message = messageSource.getMessage("notification_team_added", new Object[]{team.getName()}, locale);
         if (team.getUsers() != null) {
             notificationService.createMultiple(team.getUsers().stream().map(assignedUser ->
-                    new Notification(message, assignedUser, NotificationType.TEAM, team.getId())).collect(Collectors.toList()));
+                    new Notification(message, assignedUser, NotificationType.TEAM, team.getId())).collect(Collectors.toList()), true, title);
         }
     }
 
     public void patchNotify(Team oldTeam, Team newTeam, Locale locale) {
+        String title = messageSource.getMessage("new_team", null, locale);
         String message = messageSource.getMessage("notification_team_added", new Object[]{newTeam.getName()}, locale);
         if (newTeam.getUsers() != null) {
             List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             notificationService.createMultiple(newUsers.stream().map(newUser ->
-                    new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())).collect(Collectors.toList()));
+                    new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())).collect(Collectors.toList()), true, title);
         }
     }
 

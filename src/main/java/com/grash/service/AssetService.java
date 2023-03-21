@@ -120,30 +120,31 @@ public class AssetService {
         boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
         boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
         boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(item ->
-                userService.isUserInCompany(item,companyId,false));
+                userService.isUserInCompany(item, companyId, false));
         boolean nineth = assetReq.getCustomers() == null || assetReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item,companyId,false));
+                customerService.isCustomerInCompany(item, companyId, false));
         boolean tenth = assetReq.getVendors() == null || assetReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item,companyId,false));
+                vendorService.isVendorInCompany(item, companyId, false));
         boolean eleventh = assetReq.getTeams() == null || assetReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item,companyId,false));
+                teamService.isTeamInCompany(item, companyId, false));
         boolean twelveth = assetReq.getFiles() == null || assetReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item,companyId,false));
+                fileService.isFileInCompany(item, companyId, false));
         boolean thirteenth = assetReq.getParts() == null || assetReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item,companyId,false));
+                partService.isPartInCompany(item, companyId, false));
 
         return second && third && fourth && fifth && sixth && seventh && eighth && nineth && tenth
                 && eleventh && twelveth && thirteenth;
     }
 
-    public void notify(Asset asset, String message) {
-        notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user, NotificationType.ASSET, asset.getId())).collect(Collectors.toList()));
+    public void notify(Asset asset, String title, String message) {
+        notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user, NotificationType.ASSET, asset.getId())).collect(Collectors.toList()), true, title);
     }
 
     public void patchNotify(Asset oldAsset, Asset newAsset, Locale locale) {
+        String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_asset_assigned", new Object[]{newAsset.getName()}, locale);
         notificationService.createMultiple(oldAsset.getNewUsersToNotify(newAsset.getUsers()).stream().map(user ->
-                new Notification(message, user, NotificationType.ASSET, newAsset.getId())).collect(Collectors.toList()));
+                new Notification(message, user, NotificationType.ASSET, newAsset.getId())).collect(Collectors.toList()), true, title);
     }
 
     public Collection<Asset> findByLocation(Long id) {
@@ -162,7 +163,7 @@ public class AssetService {
         savedAsset.setStatus(AssetStatus.OPERATIONAL);
         save(savedAsset);
         String message = messageSource.getMessage("notification_asset_operational", new Object[]{savedAsset.getName()}, locale);
-        notify(savedAsset, message);
+        notify(savedAsset, message, messageSource.getMessage("asset_status_change", null, locale));
     }
 
     public void triggerDownTime(Long id, Locale locale) {
@@ -177,7 +178,7 @@ public class AssetService {
         asset.setStatus(AssetStatus.DOWN);
         save(asset);
         String message = messageSource.getMessage("notification_asset_down", new Object[]{asset.getName()}, locale);
-        notify(asset, message);
+        notify(asset, message, messageSource.getMessage("asset_status_change", null, locale));
 
     }
 

@@ -101,6 +101,7 @@ public class PurchaseOrderController {
             workflows.forEach(workflow -> workflowService.runPurchaseOrder(workflow, savedPurchaseOrder));
             PurchaseOrderShowDTO result = setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
             long cost = result.getPartQuantities().stream().mapToLong(partQuantityShowDTO -> partQuantityShowDTO.getQuantity() * partQuantityShowDTO.getPart().getCost()).sum();
+            String title = messageSource.getMessage("new_po", null, Helper.getLocale(user));
             String message = messageSource.getMessage("notification_new_po_request", new Object[]{result.getName(), cost, user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode()}, Helper.getLocale(user));
             Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                 put("purchaseOrderLink", frontendUrl + "/app/purchase-orders/" + result.getId());
@@ -108,7 +109,7 @@ public class PurchaseOrderController {
             }};
             Collection<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
-            notificationService.createMultiple(usersToNotify.stream().map(user1 -> new Notification(message, user1, NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()));
+            notificationService.createMultiple(usersToNotify.stream().map(user1 -> new Notification(message, user1, NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()), true, title);
             Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user1 -> user1.getUserSettings().isEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user));
             return result;

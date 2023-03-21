@@ -90,14 +90,16 @@ public class LocationService {
     }
 
     public void notify(Location location, Locale locale) {
+        String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_location_assigned", new Object[]{location.getName()}, locale);
-        notificationService.createMultiple(location.getUsers().stream().map(user -> new Notification(message, user, NotificationType.LOCATION, location.getId())).collect(Collectors.toList()));
+        notificationService.createMultiple(location.getUsers().stream().map(user -> new Notification(message, user, NotificationType.LOCATION, location.getId())).collect(Collectors.toList()), true, title);
     }
 
     public void patchNotify(Location oldLocation, Location newLocation, Locale locale) {
+        String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_location_assigned", new Object[]{newLocation.getName()}, locale);
         notificationService.createMultiple(oldLocation.getNewUsersToNotify(newLocation.getUsers()).stream().map(user ->
-                new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()));
+                new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()), true, title);
     }
 
     public Collection<Location> findLocationChildren(Long id) {

@@ -96,10 +96,11 @@ public class RequestController {
         OwnUser user = userService.whoami(req);
         if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
+            String title = "new_request";
             String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
-                    .map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()));
+                    .map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()), true, title);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
             return requestMapper.toShowDto(createdRequest);

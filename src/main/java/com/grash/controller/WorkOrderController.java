@@ -296,7 +296,8 @@ public class WorkOrderController {
                     }
                 }
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
-                if (shouldNotify) workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder);
+                if (shouldNotify)
+                    workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder, Helper.getLocale(user));
                 return workOrderMapper.toShowDto(patchedWorkOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);

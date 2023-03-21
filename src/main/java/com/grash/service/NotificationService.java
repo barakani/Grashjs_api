@@ -34,8 +34,18 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public List<Notification> createMultiple(List<Notification> notifications) {
-        return notificationRepository.saveAll(notifications);
+    public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
+        notificationRepository.saveAll(notifications);
+        if (mobile && notifications.size() > 0)
+            try {
+                sendPushNotifications(notifications.stream().map(Notification::getUser).collect(Collectors.toList()),
+                        title, notifications.get(0).getMessage(), new HashMap<String, Object>() {{
+                            put("type", notifications.get(0).getNotificationType());
+                            put("id", notifications.get(0).getResourceId());
+                        }});
+            } catch (PushClientException | InterruptedException e) {
+                e.printStackTrace();
+            }
     }
 
     public Notification update(Long id, NotificationPatchDTO notificationsPatchDTO) {

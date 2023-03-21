@@ -78,6 +78,7 @@ public class ReadingController {
                 meterTriggers.forEach(meterTrigger -> {
                     boolean error = false;
                     StringBuilder message = new StringBuilder();
+                    String title = "new_wo";
                     Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
                     if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
                         if (readingReq.getValue() < meterTrigger.getValue()) {
@@ -91,7 +92,7 @@ public class ReadingController {
                     if (error) {
                         notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
                                 new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
-                        ).collect(Collectors.toList()));
+                        ).collect(Collectors.toList()), true, title);
                         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
                         WorkOrder createdWorkOrder = workOrderService.create(workOrder);
                         workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
