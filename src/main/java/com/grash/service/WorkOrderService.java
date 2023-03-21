@@ -140,17 +140,16 @@ public class WorkOrderService {
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()}, locale);
         String title = messageSource.getMessage("new_wo", null, locale);
         Collection<OwnUser> users = workOrder.getUsers();
-        users.forEach(user -> {
-            notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId()));
-            try {
-                notificationService.sendPushNotification(user, title, message, new HashMap<String, Object>() {{
-                    put("type", NotificationType.WORK_ORDER);
-                    put("id", workOrder.getId());
-                }});
-            } catch (PushClientException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        notificationService.createMultiple(users.stream().map(user -> new Notification(message, user, NotificationType.WORK_ORDER, workOrder.getId())).collect(Collectors.toList()));
+        try {
+            notificationService.sendPushNotifications(users, title, message, new HashMap<String, Object>() {{
+                put("type", NotificationType.WORK_ORDER);
+                put("id", workOrder.getId());
+            }});
+        } catch (PushClientException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Map<String, Object> mailVariables = new HashMap<String, Object>() {{
             put("workOrderLink", frontendUrl + "/app/work-orders/" + workOrder.getId());
             put("featuresLink", frontendUrl + "/#key-features");
@@ -164,8 +163,8 @@ public class WorkOrderService {
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
-        oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).forEach(user -> notificationService.create(
-                new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
+        notificationService.createMultiple(oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).stream().map(user ->
+                new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()));
     }
 
     public Collection<WorkOrder> findByAsset(Long id) {

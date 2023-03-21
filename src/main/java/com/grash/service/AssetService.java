@@ -27,6 +27,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,20 +119,20 @@ public class AssetService {
         boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
         boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
         boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 ->
-                userService.isUserInCompany(user1,companyId,true)
-            );
+                userService.isUserInCompany(user1, companyId, true)
+        );
 
         return second && third && fourth && fifth && sixth && seventh && eighth;
     }
 
     public void notify(Asset asset, String message) {
-        asset.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.ASSET, asset.getId())));
+        notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user, NotificationType.ASSET, asset.getId())).collect(Collectors.toList()));
     }
 
     public void patchNotify(Asset oldAsset, Asset newAsset, Locale locale) {
         String message = messageSource.getMessage("notification_asset_assigned", new Object[]{newAsset.getName()}, locale);
-        oldAsset.getNewUsersToNotify(newAsset.getUsers()).forEach(user -> notificationService.create(
-                new Notification(message, user, NotificationType.ASSET, newAsset.getId())));
+        notificationService.createMultiple(oldAsset.getNewUsersToNotify(newAsset.getUsers()).stream().map(user ->
+                new Notification(message, user, NotificationType.ASSET, newAsset.getId())).collect(Collectors.toList()));
     }
 
     public Collection<Asset> findByLocation(Long id) {

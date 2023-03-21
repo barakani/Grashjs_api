@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,13 +91,13 @@ public class LocationService {
 
     public void notify(Location location, Locale locale) {
         String message = messageSource.getMessage("notification_location_assigned", new Object[]{location.getName()}, locale);
-        location.getUsers().forEach(user -> notificationService.create(new Notification(message, user, NotificationType.LOCATION, location.getId())));
+        notificationService.createMultiple(location.getUsers().stream().map(user -> new Notification(message, user, NotificationType.LOCATION, location.getId())).collect(Collectors.toList()));
     }
 
     public void patchNotify(Location oldLocation, Location newLocation, Locale locale) {
         String message = messageSource.getMessage("notification_location_assigned", new Object[]{newLocation.getName()}, locale);
-        oldLocation.getNewUsersToNotify(newLocation.getUsers()).forEach(user -> notificationService.create(
-                new Notification(message, user, NotificationType.LOCATION, newLocation.getId())));
+        notificationService.createMultiple(oldLocation.getNewUsersToNotify(newLocation.getUsers()).stream().map(user ->
+                new Notification(message, user, NotificationType.LOCATION, newLocation.getId())).collect(Collectors.toList()));
     }
 
     public Collection<Location> findLocationChildren(Long id) {

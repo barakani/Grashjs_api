@@ -99,8 +99,8 @@ public class MeterService {
     public void notify(Meter meter, Locale locale) {
         String message = messageSource.getMessage("notification_meter_assigned", new Object[]{meter.getName()}, locale);
         if (meter.getUsers() != null) {
-            meter.getUsers().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.METER, meter.getId())));
+            notificationService.createMultiple(meter.getUsers().stream().map(assignedUser ->
+                    new Notification(message, assignedUser, NotificationType.METER, meter.getId())).collect(Collectors.toList()));
         }
     }
 
@@ -109,8 +109,8 @@ public class MeterService {
         if (newMeter.getUsers() != null) {
             List<OwnUser> newUsers = newMeter.getUsers().stream().filter(
                     user -> oldMeter.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
-            newUsers.forEach(newUser ->
-                    notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())));
+            notificationService.createMultiple(newUsers.stream().map(newUser ->
+                    new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())).collect(Collectors.toList()));
         }
     }
 

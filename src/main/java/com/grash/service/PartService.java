@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,9 +73,9 @@ public class PartService {
         } else {
             if (part.getQuantity() >= quantity) {
                 if (part.getQuantity() < part.getMinQuantity()) {
-                    part.getAssignedTo().forEach(user ->
-                            notificationService.create(new Notification(messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale), user, NotificationType.PART, part.getId()))
-                    );
+                    notificationService.createMultiple(part.getAssignedTo().stream().map(user ->
+                            new Notification(messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale), user, NotificationType.PART, part.getId())
+                    ).collect(Collectors.toList()));
                 }
                 partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
                 partRepository.save(part);
@@ -120,13 +121,13 @@ public class PartService {
 
     public void notify(Part part, Locale locale) {
         String message = messageSource.getMessage("notification_part_assigned", new Object[]{part.getName()}, locale);
-        part.getUsers().forEach(user -> notificationService.create(notificationService.create(new Notification(message, user, NotificationType.PART, part.getId()))));
+        notificationService.createMultiple(part.getUsers().stream().map(user -> new Notification(message, user, NotificationType.PART, part.getId())).collect(Collectors.toList()));
     }
 
     public void patchNotify(Part oldPart, Part newPart, Locale locale) {
         String message = messageSource.getMessage("notification_part_assigned", new Object[]{newPart.getName()}, locale);
-        oldPart.getNewUsersToNotify(newPart.getUsers()).forEach(user -> notificationService.create(
-                new Notification(message, user, NotificationType.PART, newPart.getId())));
+        notificationService.createMultiple(oldPart.getNewUsersToNotify(newPart.getUsers()).stream().map(user ->
+                new Notification(message, user, NotificationType.PART, newPart.getId())).collect(Collectors.toList()));
     }
 
     public Part save(Part part) {

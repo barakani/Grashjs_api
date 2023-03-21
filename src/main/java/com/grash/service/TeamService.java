@@ -94,8 +94,8 @@ public class TeamService {
     public void notify(Team team, Locale locale) {
         String message = messageSource.getMessage("notification_team_added", new Object[]{team.getName()}, locale);
         if (team.getUsers() != null) {
-            team.getUsers().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.TEAM, team.getId())));
+            notificationService.createMultiple(team.getUsers().stream().map(assignedUser ->
+                    new Notification(message, assignedUser, NotificationType.TEAM, team.getId())).collect(Collectors.toList()));
         }
     }
 
@@ -104,8 +104,8 @@ public class TeamService {
         if (newTeam.getUsers() != null) {
             List<OwnUser> newUsers = newTeam.getUsers().stream().filter(
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
-            newUsers.forEach(newUser ->
-                    notificationService.create(new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())));
+            notificationService.createMultiple(newUsers.stream().map(newUser ->
+                    new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())).collect(Collectors.toList()));
         }
     }
 

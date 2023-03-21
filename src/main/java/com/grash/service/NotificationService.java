@@ -34,6 +34,10 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
+    public List<Notification> createMultiple(List<Notification> notifications) {
+        return notificationRepository.saveAll(notifications);
+    }
+
     public Notification update(Long id, NotificationPatchDTO notificationsPatchDTO) {
         if (notificationRepository.existsById(id)) {
             Notification savedNotification = notificationRepository.findById(id).get();
@@ -74,97 +78,100 @@ public class NotificationService {
         return notificationRepository.findAll(builder.build(), page);
     }
 
-    //TODO change param to users list same for create method. Better to create notifications then saveAll
-    public void sendPushNotification(OwnUser user, String title, String message, Map<String, Object> data) throws PushClientException, InterruptedException {
+    public void sendPushNotifications(Collection<OwnUser> users, String title, String message, Map<String, Object> data) throws PushClientException, InterruptedException {
 
-        Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());
-        if (optionalPushNotificationToken.isPresent()) {
-            String token = optionalPushNotificationToken.get().getToken();
-            if (!PushClient.isExponentPushToken(token))
-                throw new Error("Token:" + token + " is not a valid token.");
-
-            ExpoPushMessage expoPushMessage = new ExpoPushMessage();
-            expoPushMessage.getTo().add(token);
-            expoPushMessage.setTitle(title);
-            expoPushMessage.setBody(message);
-            expoPushMessage.setData(data);
-
-            List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
-            expoPushMessages.add(expoPushMessage);
-
-            PushClient client = new PushClient();
-            List<List<ExpoPushMessage>> chunks = client.chunkPushNotifications(expoPushMessages);
-
-            List<CompletableFuture<List<ExpoPushTicket>>> messageRepliesFutures = new ArrayList<>();
-
-            for (List<ExpoPushMessage> chunk : chunks) {
-                messageRepliesFutures.add(client.sendPushNotificationsAsync(chunk));
+        List<String> tokens = new ArrayList<>();
+        users.forEach(user -> {
+            Optional<PushNotificationToken> optionalPushNotificationToken = pushNotificationTokenService.findByUser(user.getId());
+            if (optionalPushNotificationToken.isPresent()) {
+                String token = optionalPushNotificationToken.get().getToken();
+                if (PushClient.isExponentPushToken(token))
+                    tokens.add(token);
             }
+        });
 
-            // Wait for each completable future to finish
-            List<ExpoPushTicket> allTickets = new ArrayList<>();
-            for (CompletableFuture<List<ExpoPushTicket>> messageReplyFuture : messageRepliesFutures) {
-                try {
-                    allTickets.addAll(messageReplyFuture.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+        ExpoPushMessage expoPushMessage = new ExpoPushMessage();
+        expoPushMessage.getTo().addAll(tokens);
+        expoPushMessage.setTitle(title);
+        expoPushMessage.setBody(message);
+        expoPushMessage.setData(data);
+
+        List<ExpoPushMessage> expoPushMessages = new ArrayList<>();
+        expoPushMessages.add(expoPushMessage);
+
+        PushClient client = new PushClient();
+        List<List<ExpoPushMessage>> chunks = client.chunkPushNotifications(expoPushMessages);
+
+        List<CompletableFuture<List<ExpoPushTicket>>> messageRepliesFutures = new ArrayList<>();
+
+        for (List<ExpoPushMessage> chunk : chunks) {
+            messageRepliesFutures.add(client.sendPushNotificationsAsync(chunk));
+        }
+
+        // Wait for each completable future to finish
+        List<ExpoPushTicket> allTickets = new ArrayList<>();
+        for (CompletableFuture<List<ExpoPushTicket>> messageReplyFuture : messageRepliesFutures) {
+            try {
+                allTickets.addAll(messageReplyFuture.get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
+        }
 
-            List<ExpoPushMessageTicketPair<ExpoPushMessage>> zippedMessagesTickets = client.zipMessagesTickets(expoPushMessages, allTickets);
+        List<ExpoPushMessageTicketPair<ExpoPushMessage>> zippedMessagesTickets = client.zipMessagesTickets(expoPushMessages, allTickets);
 
-            List<ExpoPushMessageTicketPair<ExpoPushMessage>> okTicketMessages = client.filterAllSuccessfulMessages(zippedMessagesTickets);
-            String okTicketMessagesString = okTicketMessages.stream().map(
-                    p -> "Title: " + p.message.getTitle() + ", Id:" + p.ticket.getId()
-            ).collect(Collectors.joining(","));
-            System.out.println(
-                    "Recieved OK ticket for " +
-                            okTicketMessages.size() +
-                            " messages: " + okTicketMessagesString
-            );
+        List<ExpoPushMessageTicketPair<ExpoPushMessage>> okTicketMessages = client.filterAllSuccessfulMessages(zippedMessagesTickets);
+        String okTicketMessagesString = okTicketMessages.stream().map(
+                p -> "Title: " + p.message.getTitle() + ", Id:" + p.ticket.getId()
+        ).collect(Collectors.joining(","));
+        System.out.println(
+                "Recieved OK ticket for " +
+                        okTicketMessages.size() +
+                        " messages: " + okTicketMessagesString
+        );
 
-            List<ExpoPushMessageTicketPair<ExpoPushMessage>> errorTicketMessages = client.filterAllMessagesWithError(zippedMessagesTickets);
-            String errorTicketMessagesString = errorTicketMessages.stream().map(
-                    p -> "Title: " + p.message.getTitle() + ", Error: " + p.ticket.getDetails().getError()
-            ).collect(Collectors.joining(","));
-            System.out.println(
-                    "Recieved ERROR ticket for " +
-                            errorTicketMessages.size() +
-                            " messages: " +
-                            errorTicketMessagesString
-            );
+        List<ExpoPushMessageTicketPair<ExpoPushMessage>> errorTicketMessages = client.filterAllMessagesWithError(zippedMessagesTickets);
+        String errorTicketMessagesString = errorTicketMessages.stream().map(
+                p -> "Title: " + p.message.getTitle() + ", Error: " + p.ticket.getDetails().getError()
+        ).collect(Collectors.joining(","));
+        System.out.println(
+                "Recieved ERROR ticket for " +
+                        errorTicketMessages.size() +
+                        " messages: " +
+                        errorTicketMessagesString
+        );
 
 
-            // TODO
-            // Countdown 30s
+        // TODO
+        // Countdown 30s
 //            int wait = 30;
 //            for (int i = wait; i >= 0; i--) {
 //                System.out.print("Waiting for " + wait + " seconds. " + i + "s\r");
 //                Thread.sleep(1000);
 //            }
-            System.out.println("Fetching receipts...");
+//        System.out.println("Fetching receipts...");
+//
+//        List<String> ticketIds = (client.getTicketIdsFromPairs(okTicketMessages));
+//        CompletableFuture<List<ExpoPushReceipt>> receiptFutures = client.getPushNotificationReceiptsAsync(ticketIds);
+//
+//        List<ExpoPushReceipt> receipts = new ArrayList<>();
+//        try {
+//            receipts = receiptFutures.get();
+//        } catch (ExecutionException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        System.out.println(
+//                "Received " + receipts.size() + " receipts:");
+//
+//        for (ExpoPushReceipt receipt : receipts) {
+//            System.out.println(
+//                    "Receipt for id: " +
+//                            receipt.getId() +
+//                            " had status: " +
+//                            receipt.getStatus());
+//
+//        }
 
-            List<String> ticketIds = (client.getTicketIdsFromPairs(okTicketMessages));
-            CompletableFuture<List<ExpoPushReceipt>> receiptFutures = client.getPushNotificationReceiptsAsync(ticketIds);
-
-            List<ExpoPushReceipt> receipts = new ArrayList<>();
-            try {
-                receipts = receiptFutures.get();
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            System.out.println(
-                    "Received " + receipts.size() + " receipts:");
-
-            for (ExpoPushReceipt receipt : receipts) {
-                System.out.println(
-                        "Receipt for id: " +
-                                receipt.getId() +
-                                " had status: " +
-                                receipt.getStatus());
-
-            }
-        }
     }
 }

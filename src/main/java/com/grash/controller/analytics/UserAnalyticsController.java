@@ -35,14 +35,12 @@ public class UserAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserWOStats getWOStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
-            Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
-            return UserWOStats.builder()
-                    .created(createdWorkOrders.size())
-                    .completed(completedWorkOrders.size())
-                    .build();
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
+        Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
+        return UserWOStats.builder()
+                .created(createdWorkOrders.size())
+                .completed(completedWorkOrders.size())
+                .build();
     }
 
     @GetMapping("/two-weeks/work-orders/{id}")

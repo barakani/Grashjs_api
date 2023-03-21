@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/requests")
@@ -96,9 +97,9 @@ public class RequestController {
         if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
             String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
-            userService.findByCompany(user.getCompany().getId()).stream()
+            notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
-                    .forEach(user1 -> notificationService.create(new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())));
+                    .map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()));
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
             return requestMapper.toShowDto(createdRequest);

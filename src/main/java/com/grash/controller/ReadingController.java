@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/readings")
@@ -88,9 +89,9 @@ public class ReadingController {
                         message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs, locale));
                     }
                     if (error) {
-                        meter.getUsers().forEach(user1 -> {
-                            notificationService.create(new Notification(message.toString(), user1, NotificationType.METER, meter.getId()));
-                        });
+                        notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
+                                new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
+                        ).collect(Collectors.toList()));
                         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
                         WorkOrder createdWorkOrder = workOrderService.create(workOrder);
                         workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
