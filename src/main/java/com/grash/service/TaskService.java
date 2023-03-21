@@ -22,6 +22,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final WorkOrderService workOrderService;
     private final CompanyService companyService;
+    private final FileService fileService;
     private final TaskMapper taskMapper;
     private final EntityManager em;
 
@@ -65,7 +66,9 @@ public class TaskService {
         //@NotNull fields
         boolean first = companyService.isCompanyValid(taskReq.getCompany(), companyId);
         boolean second = workOrderService.isWorkOrderInCompany(taskReq.getWorkOrder(), companyId, false);
-        return first && second && canPatch(user, taskMapper.toPatchDto(taskReq));
+        boolean third = taskReq.getImages() == null || taskReq.getImages().stream().allMatch(item ->
+                fileService.isFileInCompany(item,companyId,false));
+        return first && second && third && canPatch(user, taskMapper.toPatchDto(taskReq));
     }
 
     public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {
