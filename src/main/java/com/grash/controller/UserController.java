@@ -8,6 +8,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.security.CurrentUser;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -20,8 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Optional;
@@ -39,8 +40,7 @@ public class UserController {
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public ResponseEntity<Page<OwnUser>> search(@RequestBody SearchCriteria searchCriteria, @ApiIgnore @CurrentUser OwnUser user) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 searchCriteria.filterCompany(user);
@@ -55,8 +55,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "TeamCategory not found")})
-    public SuccessResponse invite(HttpServletRequest req, @RequestBody UserInvitationDTO invitation) {
-        OwnUser user = userService.whoami(req);
+    public SuccessResponse invite(@RequestBody UserInvitationDTO invitation, @ApiIgnore @CurrentUser OwnUser user) {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             int companyUsersCount = userService.findByCompany(user.getCompany().getId()).size();
             Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
@@ -79,8 +78,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<UserMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -90,8 +88,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
-    public Collection<UserMiniDTO> getMiniDisabled(HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public Collection<UserMiniDTO> getMiniDisabled(@ApiIgnore @CurrentUser OwnUser user) {
         return userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> !user1.isEnabledInSubscription()).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
@@ -104,9 +101,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "User not found")})
     public UserResponseDTO patch(@ApiParam("User") @Valid @RequestBody UserPatchDTO userReq,
                                  @ApiParam("id") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
-
+                                 @ApiIgnore @CurrentUser OwnUser user) {
         Optional<OwnUser> optionalUser = userService.findById(id);
 
         if (optionalUser.isPresent()) {
@@ -128,8 +123,7 @@ public class UserController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "User not found")})
-    public UserResponseDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
+    public UserResponseDTO getById(@ApiParam("id") @PathVariable("id") Long id, @ApiIgnore @CurrentUser OwnUser user) {
         Optional<OwnUser> optionalUser = userService.findById(id);
         if (optionalUser.isPresent()) {
             OwnUser savedUser = optionalUser.get();
@@ -147,9 +141,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "User not found")})
     public UserResponseDTO patchRole(@ApiParam("id") @PathVariable("id") Long id,
                                      @RequestParam("role") Long roleId,
-                                     HttpServletRequest req) {
-        OwnUser requester = userService.whoami(req);
-
+                                     @ApiIgnore @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUserToPatch = userService.findById(id);
         Optional<Role> optionalRole = roleService.findById(roleId);
 
