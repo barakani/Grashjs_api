@@ -17,5 +17,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
     Optional<Asset> findByNameAndCompany_Id(String assetName, Long companyId);
 
     Optional<Asset> findByIdAndCompany_Id(Long id, Long companyId);
+
+    Optional<Asset> findByNfcIdAndCompany_Id(String nfcId, Long companyId);
 }
 

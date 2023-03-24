@@ -57,6 +57,9 @@ public class Asset extends CompanyAudit {
     private OwnUser primaryUser;
 
     private Long acquisitionCost;
+    
+    @Column(unique = true)
+    private String nfcId;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

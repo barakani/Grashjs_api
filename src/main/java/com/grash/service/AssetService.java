@@ -88,6 +88,10 @@ public class AssetService {
         return assetRepository.findById(id);
     }
 
+    public Optional<Asset> findByNfcIdAndCompany(String nfcId, Long companyId) {
+        return assetRepository.findByNfcIdAndCompany_Id(nfcId, companyId);
+    }
+
     public Collection<Asset> findByCompany(Long id) {
         return assetRepository.findByCompany_Id(id);
     }

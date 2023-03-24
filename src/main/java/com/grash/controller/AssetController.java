@@ -14,6 +14,7 @@ import com.grash.model.Part;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
+import com.grash.security.CurrentUser;
 import com.grash.service.AssetService;
 import com.grash.service.LocationService;
 import com.grash.service.PartService;
@@ -30,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -64,6 +66,23 @@ public class AssetController {
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(assetService.findBySearchCriteria(searchCriteria));
+    }
+
+    @GetMapping("/nfc/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Asset not found")})
+    public AssetShowDTO getByNfcId(@ApiParam("id") @PathVariable("id") String nfcId, @ApiIgnore @CurrentUser OwnUser user) {
+        Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
+                return assetMapper.toShowDto(savedAsset);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")
