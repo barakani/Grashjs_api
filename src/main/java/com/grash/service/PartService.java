@@ -42,6 +42,8 @@ public class PartService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final TeamService teamService;
+    private final OwnUserService ownUserService;
+
 
 
     @Transactional
@@ -115,9 +117,20 @@ public class PartService {
 
     public boolean canPatch(OwnUser user, PartPatchDTO partReq) {
         Long companyId = user.getCompany().getId();
-        boolean third = fileService.isFileInCompany(partReq.getImage(), companyId, true);
-        boolean fourth = locationService.isLocationInCompany(partReq.getLocation(), companyId, true);
-        return third && fourth;
+
+        boolean first = fileService.isFileInCompany(partReq.getImage(), companyId, true);
+        boolean second = locationService.isLocationInCompany(partReq.getLocation(), companyId, true);
+        boolean third = partReq.getAssignedTo() == null || partReq.getAssignedTo().stream().allMatch(item ->
+                ownUserService.isOwnUserInCompany(item,companyId,false));
+        boolean fourth = partReq.getFiles() == null || partReq.getFiles().stream().allMatch(item ->
+                fileService.isFileInCompany(item,companyId,false));
+        boolean fifth = partReq.getCustomers() == null || partReq.getCustomers().stream().allMatch(item ->
+                customerService.isCustomerInCompany(item,companyId,false));
+        boolean sixth = partReq.getVendors() == null || partReq.getVendors().stream().allMatch(item ->
+                vendorService.isVendorInCompany(item,companyId,false));
+        boolean seventh = partReq.getTeams() == null || partReq.getTeams().stream().allMatch(item ->
+                teamService.isTeamInCompany(item,companyId,false));
+        return first && second && third && fourth && fifth && sixth && seventh;
     }
 
     public void notify(Part part, Locale locale) {
