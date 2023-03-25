@@ -58,4 +58,14 @@ public class TaskOptionService {
         return first;
     }
 
+    public boolean isTaskOptionInCompany (TaskOption taskOption, long companyId, boolean optional){
+        if (optional){
+            Optional<TaskOption> optionalTaskOption = taskOption == null ? Optional.empty() : findById(taskOption.getId());
+            return taskOption == null || (optionalTaskOption.isPresent() && optionalTaskOption.get().getId().equals(companyId));
+        } else {
+            Optional<TaskOption> optionalTaskOption = findById(taskOption.getId());
+            return optionalTaskOption.isPresent() && optionalTaskOption.get().getCompany().getId().equals(companyId);
+        }
+    }
+
 }
