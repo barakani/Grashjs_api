@@ -23,6 +23,7 @@ public class MultiPartsService {
     private final CompanyService companyService;
     private final MultiPartsMapper multiPartsMapper;
     private final EntityManager em;
+    private final PartService partService;
 
     @Transactional
     public MultiParts create(MultiParts multiParts) {
@@ -70,6 +71,9 @@ public class MultiPartsService {
     }
 
     public boolean canPatch(OwnUser user, MultiPartsPatchDTO multiPartsReq) {
-        return true;
+        Long companyId = user.getCompany().getId();
+        boolean first = multiPartsReq.getParts() == null || multiPartsReq.getParts().stream().allMatch(item ->
+                partService.isPartInCompany(item,companyId,false));
+        return first;
     }
 }
