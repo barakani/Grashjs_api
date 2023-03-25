@@ -126,4 +126,14 @@ public class RequestService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
     }
+
+    public boolean isRequestInCompany(Request request, long companyId, boolean optional){
+        if (optional){
+            Optional<Request> optionalRequest = request == null ? Optional.empty() : findById(request.getId());
+            return request == null || (optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId));
+        } else {
+            Optional<Request> optionalRequest = findById(request.getId());
+            return optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId);
+        }
+    }
 }

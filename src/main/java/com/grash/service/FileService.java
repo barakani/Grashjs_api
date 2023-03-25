@@ -19,6 +19,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository fileRepository;
+    private final AssetService assetService;
+    private final PartService partService;
+    private final RequestService requestService;
+    private final WorkOrderService workOrderService;
+    private final LocationService locationService;
 
     public File create(File File) {
         return fileRepository.save(File);
@@ -51,7 +56,18 @@ public class FileService {
     }
 
     public boolean canCreate(OwnUser user, File fileReq) {
-        return true;
+        Long companyId = user.getCompany().getId();
+        boolean first = fileReq.getAssets() == null || fileReq.getAssets().stream().allMatch(item ->
+                assetService.isAssetInCompany(item,companyId,false));
+        boolean second = fileReq.getParts() == null || fileReq.getParts().stream().allMatch(item ->
+                partService.isPartInCompany(item, companyId, false));
+        boolean third = fileReq.getRequests() == null || fileReq.getRequests().stream().allMatch(item ->
+                requestService.isRequestInCompany(item,companyId,false));
+        boolean fourth = fileReq.getWorkOrders() == null || fileReq.getWorkOrders().stream().allMatch(item ->
+                workOrderService.isWorkOrderInCompany(item,companyId,false));
+        boolean fifth = fileReq.getLocations() == null || fileReq.getLocations().stream().allMatch(item ->
+                locationService.isLocationInCompany(item,companyId,false));
+        return first && second && third && fourth && fifth;
     }
 
     public boolean isFileInCompany(File file, long companyId, boolean optional) {

@@ -24,6 +24,9 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CompanyService companyService;
+    private final PartService partService;
+    private final LocationService locationService;
+    private final AssetService assetService;
     private final CustomerMapper customerMapper;
 
     public Customer create(Customer Customer) {
@@ -63,7 +66,13 @@ public class CustomerService {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
         boolean first = companyService.isCompanyValid(customerReq.getCompany(), companyId);
-        return first && canPatch(user, customerMapper.toPatchDto(customerReq));
+        boolean second = customerReq.getParts() == null || customerReq.getParts().stream().allMatch(item ->
+                partService.isPartInCompany(item, companyId, false));
+        boolean third = customerReq.getLocations() == null || customerReq.getLocations().stream().allMatch(item ->
+                locationService.isLocationInCompany(item,companyId,false));
+        boolean fourth = customerReq.getAssets() == null || customerReq.getAssets().stream().allMatch(item ->
+                assetService.isAssetInCompany(item,companyId,false));
+        return first && second && third && fourth && canPatch(user, customerMapper.toPatchDto(customerReq));
     }
 
     public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {

@@ -58,6 +58,5 @@ public class CurrencyService {
 
     public boolean canPatch(OwnUser user) {
         return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
-
     }
 }
