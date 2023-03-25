@@ -10,6 +10,8 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +26,18 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CompanyService companyService;
-    private final PartService partService;
-    private final LocationService locationService;
-    private final AssetService assetService;
+    private PartService partService;
+    private LocationService locationService;
+    private AssetService assetService;
     private final CustomerMapper customerMapper;
+
+    @Autowired
+    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService, @Lazy AssetService assetService
+    ) {
+        this.partService = partService;
+        this.locationService = locationService;
+        this.assetService = assetService;
+    }
 
     public Customer create(Customer Customer) {
         return customerRepository.save(Customer);
@@ -69,9 +79,9 @@ public class CustomerService {
         boolean second = customerReq.getParts() == null || customerReq.getParts().stream().allMatch(item ->
                 partService.isPartInCompany(item, companyId, false));
         boolean third = customerReq.getLocations() == null || customerReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item,companyId,false));
+                locationService.isLocationInCompany(item, companyId, false));
         boolean fourth = customerReq.getAssets() == null || customerReq.getAssets().stream().allMatch(item ->
-                assetService.isAssetInCompany(item,companyId,false));
+                assetService.isAssetInCompany(item, companyId, false));
         return first && second && third && fourth && canPatch(user, customerMapper.toPatchDto(customerReq));
     }
 

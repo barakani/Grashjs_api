@@ -37,7 +37,6 @@ public class LocationService {
     private final NotificationService notificationService;
     private final TeamService teamService;
     private final EntityManager em;
-    private final OwnUserService ownUserService;
     private final FileService fileService;
 
     @Transactional
@@ -85,7 +84,6 @@ public class LocationService {
         boolean first = companyService.isCompanyValid(locationReq.getCompany(), companyId);
 
 
-
         return first && canPatch(user, locationMapper.toPatchDto(locationReq));
     }
 
@@ -93,15 +91,15 @@ public class LocationService {
         Long companyId = user.getCompany().getId();
         boolean first = isLocationInCompany(locationReq.getParentLocation(), companyId, true);
         boolean second = locationReq.getWorkers() == null || locationReq.getWorkers().stream().allMatch(item ->
-                ownUserService.isOwnUserInCompany(item,companyId,false));
+                userService.isUserInCompany(item, companyId, false));
         boolean third = locationReq.getTeams() == null || locationReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item,companyId,false));
+                teamService.isTeamInCompany(item, companyId, false));
         boolean fourth = locationReq.getVendors() == null || locationReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item,companyId,false));
+                vendorService.isVendorInCompany(item, companyId, false));
         boolean fifth = locationReq.getCustomers() == null || locationReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item,companyId,false));
+                customerService.isCustomerInCompany(item, companyId, false));
         boolean sixth = locationReq.getFiles() == null || locationReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item,companyId,false));
+                fileService.isFileInCompany(item, companyId, false));
 
         return first && second && third && fourth && fifth && sixth;
     }

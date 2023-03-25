@@ -10,6 +10,8 @@ import com.grash.model.Vendor;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +27,17 @@ public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
     private final VendorMapper vendorMapper;
-    private final AssetService assetService;
-    private final LocationService locationService;
-    private final PartService partService;
+    private AssetService assetService;
+    private LocationService locationService;
+    private PartService partService;
+
+    @Autowired
+    public void setDeps(@Lazy PartService partService, @Lazy LocationService locationService, @Lazy AssetService assetService
+    ) {
+        this.partService = partService;
+        this.locationService = locationService;
+        this.assetService = assetService;
+    }
 
     public Vendor create(Vendor Vendor) {
         return vendorRepository.save(Vendor);
@@ -67,11 +77,11 @@ public class VendorService {
         //@NotNull fields
         boolean first = companyService.isCompanyValid(vendorReq.getCompany(), companyId);
         boolean second = vendorReq.getAssets() == null || vendorReq.getAssets().stream().allMatch(item ->
-                assetService.isAssetInCompany(item, companyId,false));
+                assetService.isAssetInCompany(item, companyId, false));
         boolean third = vendorReq.getParts() == null || vendorReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item,companyId,false));
+                partService.isPartInCompany(item, companyId, false));
         boolean fifth = vendorReq.getLocations() == null || vendorReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item,companyId,false));
+                locationService.isLocationInCompany(item, companyId, false));
 
         return first && second && third && fifth && canPatch(user, vendorMapper.toPatchDto(vendorReq));
     }

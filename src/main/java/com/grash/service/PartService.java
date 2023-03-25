@@ -42,9 +42,6 @@ public class PartService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final TeamService teamService;
-    private final OwnUserService ownUserService;
-
-
 
     @Transactional
     public Part create(Part Part) {
@@ -121,15 +118,15 @@ public class PartService {
         boolean first = fileService.isFileInCompany(partReq.getImage(), companyId, true);
         boolean second = locationService.isLocationInCompany(partReq.getLocation(), companyId, true);
         boolean third = partReq.getAssignedTo() == null || partReq.getAssignedTo().stream().allMatch(item ->
-                ownUserService.isOwnUserInCompany(item,companyId,false));
+                userService.isUserInCompany(item, companyId, false));
         boolean fourth = partReq.getFiles() == null || partReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item,companyId,false));
+                fileService.isFileInCompany(item, companyId, false));
         boolean fifth = partReq.getCustomers() == null || partReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item,companyId,false));
+                customerService.isCustomerInCompany(item, companyId, false));
         boolean sixth = partReq.getVendors() == null || partReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item,companyId,false));
+                vendorService.isVendorInCompany(item, companyId, false));
         boolean seventh = partReq.getTeams() == null || partReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item,companyId,false));
+                teamService.isTeamInCompany(item, companyId, false));
         return first && second && third && fourth && fifth && sixth && seventh;
     }
 

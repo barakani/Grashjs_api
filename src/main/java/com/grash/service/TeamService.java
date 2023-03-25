@@ -14,7 +14,9 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +40,16 @@ public class TeamService {
     private final NotificationService notificationService;
     private final EntityManager em;
     private final MessageSource messageSource;
-    private final OwnUserService ownUserService;
-    private final AssetService assetService;
-    private final LocationService locationService;
+    private AssetService assetService;
+    private LocationService locationService;
+    private final UserService userService;
+
+    @Autowired
+    public void setDeps(@Lazy AssetService assetService, @Lazy LocationService locationService
+    ) {
+        this.assetService = assetService;
+        this.locationService = locationService;
+    }
 
     @Transactional
     public Team create(Team team) {
@@ -87,11 +96,11 @@ public class TeamService {
         boolean first = companyService.isCompanyValid(teamReq.getCompany(), companyId);
         boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
         boolean third = teamReq.getUsers() == null || teamReq.getUsers().stream().allMatch(item ->
-                ownUserService.isOwnUserInCompany(item,companyId,false));
+                userService.isUserInCompany(item, companyId, false));
         boolean fourth = teamReq.getAsset() == null || teamReq.getAsset().stream().allMatch(item ->
-                assetService.isAssetInCompany(item,companyId,false));
+                assetService.isAssetInCompany(item, companyId, false));
         boolean fifth = teamReq.getLocations() == null || teamReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item,companyId,false));
+                locationService.isLocationInCompany(item, companyId, false));
 
         return first && second && third && fourth && fifth && canPatch(user, teamMapper.toPatchDto(teamReq));
     }
