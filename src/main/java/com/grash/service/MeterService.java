@@ -39,6 +39,7 @@ public class MeterService {
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
     private final ReadingService readingService;
+    private final OwnUserService ownUserService;
 
     @Transactional
     public Meter create(Meter meter) {
@@ -93,7 +94,9 @@ public class MeterService {
         boolean second = meterCategoryService.isMeterCategoryInCompany(meterReq.getMeterCategory(), companyId, true);
         boolean third = fileService.isFileInCompany(meterReq.getImage(), companyId, true);
         boolean fourth = locationService.isLocationInCompany(meterReq.getLocation(), companyId, true);
-        return second && third && fourth;
+        boolean fifth = meterReq.getUsers() == null || meterReq.getUsers().stream().allMatch(item ->
+                ownUserService.isOwnUserInCompany(item,companyId,false));
+        return second && third && fourth && fifth;
     }
 
     public void notify(Meter meter, Locale locale) {
