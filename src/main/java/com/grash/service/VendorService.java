@@ -25,6 +25,9 @@ public class VendorService {
     private final VendorRepository vendorRepository;
     private final CompanyService companyService;
     private final VendorMapper vendorMapper;
+    private final AssetService assetService;
+    private final LocationService locationService;
+    private final PartService partService;
 
     public Vendor create(Vendor Vendor) {
         return vendorRepository.save(Vendor);
@@ -63,8 +66,14 @@ public class VendorService {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
         boolean first = companyService.isCompanyValid(vendorReq.getCompany(), companyId);
+        boolean second = vendorReq.getAssets() == null || vendorReq.getAssets().stream().allMatch(item ->
+                assetService.isAssetInCompany(item, companyId,false));
+        boolean third = vendorReq.getParts() == null || vendorReq.getParts().stream().allMatch(item ->
+                partService.isPartInCompany(item,companyId,false));
+        boolean fifth = vendorReq.getLocations() == null || vendorReq.getLocations().stream().allMatch(item ->
+                locationService.isLocationInCompany(item,companyId,false));
 
-        return first && canPatch(user, vendorMapper.toPatchDto(vendorReq));
+        return first && second && third && fifth && canPatch(user, vendorMapper.toPatchDto(vendorReq));
     }
 
     public boolean canPatch(OwnUser user, VendorPatchDTO vendorReq) {
