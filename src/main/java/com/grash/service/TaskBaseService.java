@@ -97,7 +97,10 @@ public class TaskBaseService {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
         boolean first = companyService.isCompanyValid(taskBaseReq.getCompany(), companyId);
-        return first && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
+        boolean second = taskBaseReq.getOptions() == null || taskBaseReq.getOptions().stream().allMatch(item ->
+                taskOptionService.isTaskOptionInCompany(item,companyId,false));
+
+        return first && second && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
     }
 
     public boolean canPatch(OwnUser user, TaskBasePatchDTO taskBaseReq) {
