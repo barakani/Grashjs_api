@@ -38,6 +38,9 @@ public class TeamService {
     private final NotificationService notificationService;
     private final EntityManager em;
     private final MessageSource messageSource;
+    private final OwnUserService ownUserService;
+    private final AssetService assetService;
+    private final LocationService locationService;
 
     @Transactional
     public Team create(Team team) {
@@ -83,8 +86,14 @@ public class TeamService {
         //@NotNull fields
         boolean first = companyService.isCompanyValid(teamReq.getCompany(), companyId);
         boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
+        boolean third = teamReq.getUsers() == null || teamReq.getUsers().stream().allMatch(item ->
+                ownUserService.isOwnUserInCompany(item,companyId,false));
+        boolean fourth = teamReq.getAsset() == null || teamReq.getAsset().stream().allMatch(item ->
+                assetService.isAssetInCompany(item,companyId,false));
+        boolean fifth = teamReq.getLocations() == null || teamReq.getLocations().stream().allMatch(item ->
+                locationService.isLocationInCompany(item,companyId,false));
 
-        return first && second && canPatch(user, teamMapper.toPatchDto(teamReq));
+        return first && second && third && fourth && fifth && canPatch(user, teamMapper.toPatchDto(teamReq));
     }
 
     public boolean canPatch(OwnUser user, TeamPatchDTO teamReq) {
