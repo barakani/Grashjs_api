@@ -79,14 +79,14 @@ public class AssetController {
         return getAsset(optionalAsset, user);
     }
 
-    @GetMapping("/barcode/{type}/{data}")
+    @GetMapping("/barcode/{data}")
     @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Asset not found")})
-    public AssetShowDTO getByBarcode(@ApiParam("type") @PathVariable("type") String type, @ApiParam("data") @PathVariable("data") String data, @ApiIgnore @CurrentUser OwnUser user) {
-        Optional<Asset> optionalAsset = assetService.findByBarcodeTypeAndDataAndCompany(type, data, user.getCompany().getId());
+    public AssetShowDTO getByBarcode(@ApiParam("data") @PathVariable("data") String data, @ApiIgnore @CurrentUser OwnUser user) {
+        Optional<Asset> optionalAsset = assetService.findByBarcodeAndCompany(data, user.getCompany().getId());
         return getAsset(optionalAsset, user);
     }
 

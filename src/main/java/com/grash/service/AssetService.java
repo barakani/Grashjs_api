@@ -259,7 +259,7 @@ public class AssetService {
         return assetRepository.findByIdAndCompany_Id(id, companyId);
     }
 
-    public Optional<Asset> findByBarcodeTypeAndDataAndCompany(String type, String data, Long id) {
-        return assetRepository.findByBarCodeAndBarCodeTypeAndCompany_Id(data, type, id);
+    public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {
+        return assetRepository.findByBarCodeAndCompany_Id(data, id);
     }
 }

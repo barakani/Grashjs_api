@@ -23,8 +23,6 @@ public class AssetPatchDTO {
 
     private String barCode;
 
-    private String barCodeType;
-
     private AssetCategory category;
 
     private String name;

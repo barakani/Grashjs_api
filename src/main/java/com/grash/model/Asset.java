@@ -48,8 +48,6 @@ public class Asset extends CompanyAudit {
     @Column(unique = true)
     private String barCode;
 
-    private String barCodeType;
-
     @ManyToOne
     private AssetCategory category;
 
