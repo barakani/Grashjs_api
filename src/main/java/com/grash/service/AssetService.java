@@ -258,4 +258,8 @@ public class AssetService {
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
         return assetRepository.findByIdAndCompany_Id(id, companyId);
     }
+
+    public Optional<Asset> findByBarcodeTypeAndDataAndCompany(String type, String data, Long id) {
+        return assetRepository.findByBarCodeAndBarCodeTypeAndCompany_Id(data, type, id);
+    }
 }

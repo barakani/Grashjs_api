@@ -41,10 +41,17 @@ public class Task extends CompanyAudit {
     @NotNull
     private WorkOrder workOrder;
 
-    public Task(TaskBase taskBase, WorkOrder workOrder, Company company, String value) {
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotNull
+    private PreventiveMaintenance preventiveMaintenance;
+
+    public Task(TaskBase taskBase, WorkOrder workOrder, PreventiveMaintenance preventiveMaintenance, Company company, String value) {
         this.taskBase = taskBase;
         this.workOrder = workOrder;
         this.value = value;
+        this.preventiveMaintenance = preventiveMaintenance;
         this.setCompany(company);
     }
 }

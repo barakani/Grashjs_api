@@ -76,13 +76,18 @@ public class AssetController {
             @ApiResponse(code = 404, message = "Asset not found")})
     public AssetShowDTO getByNfcId(@ApiParam("id") @PathVariable("id") String nfcId, @ApiIgnore @CurrentUser OwnUser user) {
         Optional<Asset> optionalAsset = assetService.findByNfcIdAndCompany(nfcId, user.getCompany().getId());
-        if (optionalAsset.isPresent()) {
-            Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
-                return assetMapper.toShowDto(savedAsset);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        return getAsset(optionalAsset, user);
+    }
+
+    @GetMapping("/barcode/{type}/{data}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Asset not found")})
+    public AssetShowDTO getByBarcode(@ApiParam("type") @PathVariable("type") String type, @ApiParam("data") @PathVariable("data") String data, @ApiIgnore @CurrentUser OwnUser user) {
+        Optional<Asset> optionalAsset = assetService.findByBarcodeTypeAndDataAndCompany(type, data, user.getCompany().getId());
+        return getAsset(optionalAsset, user);
     }
 
     @GetMapping("/{id}")
@@ -94,6 +99,10 @@ public class AssetController {
     public AssetShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
+        return getAsset(optionalAsset, user);
+    }
+
+    private AssetShowDTO getAsset(Optional<Asset> optionalAsset, OwnUser user) {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
