@@ -11,7 +11,9 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -178,18 +180,20 @@ public class WOAnalyticsController {
 
     @GetMapping("/incomplete/statuses")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOStatuses getWOStatuses(HttpServletRequest req) {
+    public ResponseEntity<WOStatuses> getWOStatuses(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
-            return WOStatuses.builder()
-                    .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
-                    .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
-                    .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
-                    .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
-                    .build();
+            CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.DAYS);
+            return ResponseEntity.ok()
+                    .cacheControl(cacheControl).body(WOStatuses.builder()
+                            .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
+                            .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
+                            .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
+                            .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
+                            .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
