@@ -15,6 +15,7 @@ import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,7 +41,7 @@ public class RequestAnalyticsController {
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestStats getRequestStats(HttpServletRequest req) {
+    public ResponseEntity<RequestStats> getRequestStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCompany(user.getCompany().getId());
@@ -49,18 +50,18 @@ public class RequestAnalyticsController {
             Collection<Request> pendingRequests = requests.stream().filter(request -> request.getWorkOrder() == null && !request.isCancelled()).collect(Collectors.toList());
             Collection<Request> completeRequests = approvedRequests.stream().filter(request -> request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             long cycleTime = WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
-            return RequestStats.builder()
+            return Helper.withCache(RequestStats.builder()
                     .approved(approvedRequests.size())
                     .pending(pendingRequests.size())
                     .cancelled(cancelledRequests.size())
                     .cycleTime(cycleTime)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public RequestStatsByPriority getByPriority(HttpServletRequest req) {
+    public ResponseEntity<RequestStatsByPriority> getByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Request> requests = requestService.findByCompany(user.getCompany().getId());
@@ -70,7 +71,7 @@ public class RequestAnalyticsController {
             int lowCounts = getCountsByPriority(Priority.LOW, requests);
             int mediumCounts = getCountsByPriority(Priority.MEDIUM, requests);
 
-            return RequestStatsByPriority.builder()
+            return Helper.withCache(RequestStatsByPriority.builder()
                     .high(RequestStatsByPriority.BasicStats.builder()
                             .count(highCounts)
                             .build())
@@ -83,14 +84,14 @@ public class RequestAnalyticsController {
                     .medium(RequestStatsByPriority.BasicStats.builder()
                             .count(mediumCounts)
                             .build())
-                    .build();
+                    .build());
 
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/cycle-time/month")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<RequestsByMonth> getCycleTimeByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<RequestsByMonth> result = new ArrayList<>();
@@ -108,7 +109,7 @@ public class RequestAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

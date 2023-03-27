@@ -11,6 +11,7 @@ import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,23 +36,23 @@ public class PartAnalyticsController {
 
     @GetMapping("/consumptions/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public PartStats getPartStats(HttpServletRequest req) {
+    public ResponseEntity<PartStats> getPartStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompany(user.getCompany().getId());
             long totalConsumptionCost = partConsumptions.stream().mapToLong(PartConsumption::getCost).sum();
             int consumedCount = partConsumptions.stream().mapToInt(PartConsumption::getQuantity).sum();
 
-            return PartStats.builder()
+            return Helper.withCache(PartStats.builder()
                     .consumedCount(consumedCount)
                     .totalConsumptionCost(totalConsumptionCost)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/consumptions/month")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<PartConsumptionsByMonth> getPartConsumptionsByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<PartConsumptionsByMonth> result = new ArrayList<>();
@@ -68,7 +69,7 @@ public class PartAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }

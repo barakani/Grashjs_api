@@ -16,6 +16,7 @@ import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +45,7 @@ public class AssetAnalyticsController {
 
     @GetMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TimeCostByAsset> getTimeCostByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
@@ -61,13 +62,13 @@ public class AssetAnalyticsController {
                         .id(asset.getId())
                         .build());
             });
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetStats getOverviewStats(HttpServletRequest req) {
+    public ResponseEntity<AssetStats> getOverviewStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
@@ -75,21 +76,21 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             long ages = assets.stream().mapToLong(Asset::getAge).sum();
             long availability = (ages - downtimesDuration) * 100 / ages;
-            return AssetStats.builder()
+            return Helper.withCache(AssetStats.builder()
                     .downtime(downtimesDuration)
                     .availability(availability)
                     .downtimeEvents(downtimes.size())
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/downtimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<DowntimesByAsset> getDowntimesByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return assets.stream().map(asset -> {
+            return Helper.withCache(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long percent = downtimesDuration * 100 / asset.getAge();
@@ -99,13 +100,13 @@ public class AssetAnalyticsController {
                         .id(asset.getId())
                         .name(asset.getName())
                         .build();
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/meantimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Meantimes getMeantimes(HttpServletRequest req) {
+    public ResponseEntity<Meantimes> getMeantimes(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
@@ -117,33 +118,33 @@ public class AssetAnalyticsController {
                 WorkOrder lastWorkOrder = Collections.max(workOrders, auditComparator);
                 betweenMaintenances = (Helper.getDateDiff(firstWorkOrder.getCreatedAt(), lastWorkOrder.getCreatedAt(), TimeUnit.HOURS)) / (workOrders.size() - 1);
             }
-            return Meantimes.builder()
+            return Helper.withCache(Meantimes.builder()
                     .betweenDowntimes(assetDowntimeService.getDowntimesMeantime(downtimes))
                     .betweenMaintenances(betweenMaintenances)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/repair-times")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<RepairTimeByAsset> getRepairTimeByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return assets.stream().map(asset -> {
+            return Helper.withCache(assets.stream().map(asset -> {
                 Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 return RepairTimeByAsset.builder()
                         .id(asset.getId())
                         .name(asset.getName())
                         .duration(WorkOrder.getAverageAge(completeWO))
                         .build();
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/downtimes/meantime/month")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<DowntimesMeantimeByMonth> getDowntimesMeantimeByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<DowntimesMeantimeByMonth>> getDowntimesMeantimeByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<DowntimesMeantimeByMonth> result = new ArrayList<>();
@@ -159,13 +160,13 @@ public class AssetAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/costs/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public AssetsCosts getAssetsCosts(HttpServletRequest req) {
+    public ResponseEntity<AssetsCosts> getAssetsCosts(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         boolean includeLaborCost = user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
         if (user.canSeeAnalytics()) {
@@ -174,20 +175,20 @@ public class AssetAnalyticsController {
             long totalAcquisitionCost = assetsWithAcquisitionCost.stream().mapToLong(Asset::getAcquisitionCost).sum();
             long totalWOCosts = getCompleteWOCosts(assets, includeLaborCost);
             long rav = assetsWithAcquisitionCost.size() == 0 ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost, includeLaborCost) * 100 / totalAcquisitionCost;
-            return AssetsCosts.builder()
+            return Helper.withCache(AssetsCosts.builder()
                     .totalWOCosts(totalWOCosts)
                     .totalAcquisitionCost(totalAcquisitionCost)
-                    .rav(rav).build();
+                    .rav(rav).build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/downtimes/costs")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<DowntimesAndCostsByAsset> getDowntimesAndCosts(HttpServletRequest req) {
+    public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return assets.stream().map(asset -> {
+            return Helper.withCache(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost());
@@ -197,13 +198,13 @@ public class AssetAnalyticsController {
                         .duration(downtimesDuration)
                         .workOrdersCosts(totalWOCosts)
                         .build();
-            }).collect(Collectors.toList());
+            }).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/downtimes/costs/month")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<DowntimesByMonth> getDowntimesByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<DowntimesByMonth>> getDowntimesByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<DowntimesByMonth> result = new ArrayList<>();
@@ -222,7 +223,7 @@ public class AssetAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

@@ -12,6 +12,7 @@ import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,19 +34,19 @@ public class UserAnalyticsController {
 
     @GetMapping("/me/work-orders/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public UserWOStats getWOStats(HttpServletRequest req) {
+    public ResponseEntity<UserWOStats> getWOStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
-        return UserWOStats.builder()
+        return Helper.withCache(UserWOStats.builder()
                 .created(createdWorkOrders.size())
                 .completed(completedWorkOrders.size())
-                .build();
+                .build());
     }
 
     @GetMapping("/two-weeks/work-orders/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<WOStatsByDay> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<List<WOStatsByDay>> getWoStatsByUserFor2Weeks(@PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Optional<OwnUser> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
@@ -65,7 +66,7 @@ public class UserAnalyticsController {
                             .build());
                 }
                 Collections.reverse(result);
-                return result;
+                return Helper.withCache(result);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
