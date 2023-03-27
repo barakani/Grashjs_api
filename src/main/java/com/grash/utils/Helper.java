@@ -6,7 +6,9 @@ import com.grash.model.OwnUser;
 import com.grash.model.enums.Language;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -158,5 +160,11 @@ public class Helper {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public static <T> ResponseEntity<T> withCache(T entity) {
+        CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.DAYS);
+        return ResponseEntity.ok()
+                .cacheControl(cacheControl).body(entity);
     }
 }

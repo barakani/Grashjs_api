@@ -11,7 +11,6 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +42,7 @@ public class WOAnalyticsController {
 
     @GetMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOStats getCompleteStats(HttpServletRequest req) {
+    public ResponseEntity<WOStats> getCompleteStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -51,17 +50,17 @@ public class WOAnalyticsController {
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
-            return WOStats.builder()
+            return Helper.withCache(WOStats.builder()
                     .total(total)
                     .complete(complete)
                     .compliant(compliant)
-                    .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build();
+                    .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/mobile/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public MobileWOStats getMobileOverview(HttpServletRequest req, @RequestParam("assignedToMe") boolean assignedToMe) {
+    public ResponseEntity<MobileWOStats> getMobileOverview(HttpServletRequest req, @RequestParam("assignedToMe") boolean assignedToMe) {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> workOrders;
         Collection<WorkOrder> completeWorkOrders;
@@ -86,18 +85,18 @@ public class WOAnalyticsController {
             return workOrder.getDueDate() != null && workOrder.getDueDate().after(Helper.localDateTimeToDate(todayMidnight)) && workOrder.getDueDate().before(Helper.localDateTimeToDate(tomorrowMidnight));
         }).count();
         int high = (int) workOrders.stream().filter(workOrder -> workOrder.getPriority().equals(Priority.HIGH)).count();
-        return MobileWOStats.builder()
+        return Helper.withCache(MobileWOStats.builder()
                 .open(open)
                 .onHold(onHold)
                 .inProgress(inProgress)
                 .complete(complete)
                 .today(todayWO)
-                .high(high).build();
+                .high(high).build());
     }
 
     @GetMapping("/mobile/complete-compliant")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public MobileWOStatsExtended getMobileExtendedStats(HttpServletRequest req) {
+    public ResponseEntity<MobileWOStatsExtended> getMobileExtendedStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Date weekStart = Helper.localDateToDate(LocalDate.now().minusDays(7));
         Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -109,17 +108,17 @@ public class WOAnalyticsController {
                 return true;
             } else return workOrder.getCompletedOn().after(weekStart);
         }).collect(Collectors.toList());
-        return MobileWOStatsExtended.builder()
+        return Helper.withCache(MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
                 .compliantRate(workOrders.size() == 0 ? 1 : ((double) compliantWO.size()) / workOrders.size())
                 .compliantRateWeek(completeWOWeek.size() == 0 ? 1 : ((double) compliantWOWeek.size()) / completeWOWeek.size())
-                .build();
+                .build());
     }
 
     @GetMapping("/incomplete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOIncompleteStats getIncompleteStats(HttpServletRequest req) {
+    public ResponseEntity<WOIncompleteStats> getIncompleteStats(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -127,16 +126,16 @@ public class WOAnalyticsController {
             int total = incompleteWO.size();
             List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getRealCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
             int averageAge = ages.size() == 0 ? 0 : ages.stream().mapToInt(Long::intValue).sum() / ages.size();
-            return WOIncompleteStats.builder()
+            return Helper.withCache(WOIncompleteStats.builder()
                     .total(total)
                     .averageAge(averageAge)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/incomplete/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOStatsByPriority getIncompleteByPriority(HttpServletRequest req) {
+    public ResponseEntity<WOStatsByPriority> getIncompleteByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -156,7 +155,7 @@ public class WOAnalyticsController {
             int noneCounts = noneValues.get(0);
             int noneEstimatedDurations = noneValues.get(1);
 
-            return WOStatsByPriority.builder()
+            return Helper.withCache(WOStatsByPriority.builder()
                     .high(WOStatsByPriority.BasicStats.builder()
                             .count(highCounts)
                             .estimatedHours(highEstimatedDurations)
@@ -173,7 +172,7 @@ public class WOAnalyticsController {
                             .count(mediumCounts)
                             .estimatedHours(mediumEstimatedDurations)
                             .build())
-                    .build();
+                    .build());
 
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
@@ -186,20 +185,18 @@ public class WOAnalyticsController {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
-            CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.DAYS);
-            return ResponseEntity.ok()
-                    .cacheControl(cacheControl).body(WOStatuses.builder()
-                            .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
-                            .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
-                            .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
-                            .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
-                            .build());
+            return Helper.withCache(WOStatuses.builder()
+                    .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
+                    .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
+                    .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
+                    .complete(getWOCountsByStatus(Status.COMPLETE, incompleteWO))
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/incomplete/age/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<IncompleteWOByAsset> getIncompleteByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<IncompleteWOByAsset>> getIncompleteByAsset(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
@@ -216,13 +213,13 @@ public class WOAnalyticsController {
                         .id(asset.getId())
                         .build());
             });
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/incomplete/age/users")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<IncompleteWOByUser> getIncompleteByUser(HttpServletRequest req) {
+    public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
@@ -240,13 +237,13 @@ public class WOAnalyticsController {
                         .id(user1.getId())
                         .build());
             });
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/hours")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOHours getHours(HttpServletRequest req) {
+    public ResponseEntity<WOHours> getHours(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
@@ -254,16 +251,16 @@ public class WOAnalyticsController {
             Collection<Labor> labors = new ArrayList<>();
             workOrders.forEach(workOrder -> labors.addAll(laborService.findByWorkOrder(workOrder.getId())));
             int actual = labors.stream().map(Labor::getDuration).mapToInt(Math::toIntExact).sum() / 3600;
-            return WOHours.builder()
+            return Helper.withCache(WOHours.builder()
                     .estimated(estimated)
                     .actual(actual)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/counts/primaryUser")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<WOCountByUser> getCountsByUser(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
@@ -278,13 +275,13 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return results;
+            return Helper.withCache(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/counts/completedBy")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<WOCountByUser> getCountsByCompletedBy(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
@@ -299,13 +296,13 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return results;
+            return Helper.withCache(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/counts/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Map<Priority, Integer> getCountsByPriority(HttpServletRequest req) {
+    public ResponseEntity<Map<Priority, Integer>> getCountsByPriority(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Priority[] priorities = Priority.values();
@@ -315,13 +312,13 @@ public class WOAnalyticsController {
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.put(priority, count);
             });
-            return results;
+            return Helper.withCache(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/counts/category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<WOCountByCategory> getCountsByCategory(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByCategory>> getCountsByCategory(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
@@ -335,13 +332,13 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return results;
+            return Helper.withCache(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/counts/week")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<WOCountByWeek> getCompleteByWeek(HttpServletRequest req) {
+    public ResponseEntity<List<WOCountByWeek>> getCompleteByWeek(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<WOCountByWeek> result = new ArrayList<>();
@@ -361,13 +358,13 @@ public class WOAnalyticsController {
                 previousMonday = previousMonday.minusDays(7);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/time/week")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<WOTimeByWeek> getCompleteTimeByWeek(HttpServletRequest req) {
+    public ResponseEntity<List<WOTimeByWeek>> getCompleteTimeByWeek(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<WOTimeByWeek> result = new ArrayList<>();
@@ -388,13 +385,13 @@ public class WOAnalyticsController {
                 previousMonday = previousMonday.minusDays(7);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/costs-time")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WOCostsAndTime getCompleteCostsAndTime(HttpServletRequest req) {
+    public ResponseEntity<WOCostsAndTime> getCompleteCostsAndTime(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
@@ -404,20 +401,20 @@ public class WOAnalyticsController {
             long partCost = workOrderService.getPartCost(completeWorkOrders);
             long total = laborCost + partCost + additionalCost;
 
-            return WOCostsAndTime.builder()
+            return Helper.withCache(WOCostsAndTime.builder()
                     .total(total)
                     .average(completeWorkOrders.size() == 0 ? 0 : total / completeWorkOrders.size())
                     .additionalCost(additionalCost)
                     .laborCost(laborCost)
                     .partCost(partCost)
                     .laborTime(laborTime)
-                    .build();
+                    .build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/complete/costs/month")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<WOCostsByMonth> getCompleteCostsByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<WOCostsByMonth>> getCompleteCostsByMonth(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<WOCostsByMonth> result = new ArrayList<>();
@@ -436,7 +433,7 @@ public class WOAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return result;
+            return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
