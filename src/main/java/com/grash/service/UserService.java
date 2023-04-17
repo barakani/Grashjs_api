@@ -112,7 +112,7 @@ public class UserService {
                 userRepository.save(user);
                 return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
             } else {
-                if (user.getRole() == null) { //send mail
+                if (userReq.getRole() == null) { //send mail
                     String token = UUID.randomUUID().toString();
                     String link = API_HOST + "/auth/activate-account?token=" + token;
                     Map<String, Object> variables = new HashMap<String, Object>() {{

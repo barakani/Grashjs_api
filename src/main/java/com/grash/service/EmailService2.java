@@ -27,8 +27,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailService2 {
 
-    private static final String NOREPLY_ADDRESS = "noreply@grash.com";
-
     private final JavaMailSender emailSender;
 
     private final SimpleMailMessage template;
@@ -41,7 +39,6 @@ public class EmailService2 {
     public void sendSimpleMessage(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(NOREPLY_ADDRESS);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(text);
@@ -68,7 +65,6 @@ public class EmailService2 {
             // pass 'true' to the constructor to create a multipart message
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            helper.setFrom(NOREPLY_ADDRESS);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(text);
@@ -105,7 +101,6 @@ public class EmailService2 {
 
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(NOREPLY_ADDRESS);
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlBody, true);
