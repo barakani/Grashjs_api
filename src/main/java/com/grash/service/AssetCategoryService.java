@@ -22,7 +22,7 @@ public class AssetCategoryService {
     private final AssetCategoryMapper assetCategoryMapper;
 
     public AssetCategory create(AssetCategory assetCategory) {
-        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByName(assetCategory.getName());
+        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByNameAndCompanySettings_Id(assetCategory.getName(), assetCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }

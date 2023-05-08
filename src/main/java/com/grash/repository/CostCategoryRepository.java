@@ -10,7 +10,7 @@ public interface CostCategoryRepository extends JpaRepository<CostCategory, Long
 
     Collection<CostCategory> findByCompanySettings_Id(Long id);
 
-    Optional<CostCategory> findByName(String name);
+    Optional<CostCategory> findByNameAndCompanySettings_Id(String name, Long id);
 
 
 }
