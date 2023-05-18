@@ -31,7 +31,6 @@ public class CompanyAudit extends Audit {
 
 
     @PostLoad
-    @PreRemove
     public void afterLoad() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null)
