@@ -65,28 +65,6 @@ public class LaborService {
         return laborRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, Labor labor) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(labor.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Labor laborReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(laborReq.getCompany(), companyId);
-        boolean second = workOrderService.isWorkOrderInCompany(laborReq.getWorkOrder(), companyId, false);
-        return first && second && canPatch(user, laborMapper.toPatchDto(laborReq));
-    }
-
-    public boolean canPatch(OwnUser user, LaborPatchDTO laborReq) {
-        Long companyId = user.getCompany().getId();
-        //optional fields
-        boolean third = timeCategoryService.isTimeCategoryInCompany(laborReq.getTimeCategory(), companyId, true);
-        boolean sixth = userService.isUserInCompany(laborReq.getAssignedTo(), companyId, true);
-        return third && sixth;
-    }
-
     public Collection<Labor> findByWorkOrder(Long id) {
         return laborRepository.findByWorkOrder_Id(id);
     }

@@ -43,16 +43,6 @@ public class CompanyService {
         return companyRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, Company company) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(company.getId());
-    }
-
-    public boolean canPatch(OwnUser user, CompanyPatchDTO company) {
-        return true;
-    }
-
     @Transactional
     public Company update(Long id, CompanyPatchDTO company) {
         if (companyRepository.existsById(id)) {
@@ -63,8 +53,4 @@ public class CompanyService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public boolean isCompanyValid(Company company, long companyId) {
-        Optional<Company> optionalCompany = findById(company.getId());
-        return optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-    }
 }

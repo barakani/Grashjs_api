@@ -35,11 +35,4 @@ public class WorkOrderRequestConfigurationService {
     public Optional<WorkOrderRequestConfiguration> findById(Long id) {
         return workOrderRequestConfigurationRepository.findById(id);
     }
-
-    public boolean hasAccess(OwnUser user, WorkOrderRequestConfiguration workOrderRequestConfiguration) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else
-            return user.getCompany().getId().equals(workOrderRequestConfiguration.getCompanySettings().getCompany().getId());
-    }
 }

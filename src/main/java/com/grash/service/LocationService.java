@@ -72,38 +72,6 @@ public class LocationService {
         return locationRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Location location) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(location.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Location locationReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(locationReq.getCompany(), companyId);
-
-
-        return first && canPatch(user, locationMapper.toPatchDto(locationReq));
-    }
-
-    public boolean canPatch(OwnUser user, LocationPatchDTO locationReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = isLocationInCompany(locationReq.getParentLocation(), companyId, true);
-        boolean second = locationReq.getWorkers() == null || locationReq.getWorkers().stream().allMatch(item ->
-                userService.isUserInCompany(item, companyId, false));
-        boolean third = locationReq.getTeams() == null || locationReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item, companyId, false));
-        boolean fourth = locationReq.getVendors() == null || locationReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item, companyId, false));
-        boolean fifth = locationReq.getCustomers() == null || locationReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item, companyId, false));
-        boolean sixth = locationReq.getFiles() == null || locationReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item, companyId, false));
-
-        return first && second && third && fourth && fifth && sixth;
-    }
-
     public void notify(Location location, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_location_assigned", new Object[]{location.getName()}, locale);

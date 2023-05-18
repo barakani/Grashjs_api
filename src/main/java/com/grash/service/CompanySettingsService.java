@@ -35,20 +35,4 @@ public class CompanySettingsService {
     public Optional<CompanySettings> findById(Long id) {
         return companySettingsRepository.findById(id);
     }
-
-    public boolean hasAccess(OwnUser user, CompanySettings companySettings) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getCompanySettings().getId().equals(companySettings.getId());
-    }
-
-    public boolean isCompanySettingsInCompany(CompanySettings companySettings, long companyId, boolean optional) {
-        if (optional) {
-            Optional<CompanySettings> optionalCompanySettings = companySettings == null ? Optional.empty() : findById(companySettings.getId());
-            return companySettings == null || (optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<CompanySettings> optionalCompanySettings = findById(companySettings.getId());
-            return optionalCompanySettings.isPresent() && optionalCompanySettings.get().getCompany().getId().equals(companyId);
-        }
-    }
 }

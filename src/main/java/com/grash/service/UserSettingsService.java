@@ -34,11 +34,4 @@ public class UserSettingsService {
     public Optional<UserSettings> findById(Long id) {
         return userSettingsRepository.findById(id);
     }
-
-    public boolean hasAccess(OwnUser user, UserSettings userSettings) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else
-            return user.getUserSettings().getId().equals(userSettings.getId());
-    }
 }

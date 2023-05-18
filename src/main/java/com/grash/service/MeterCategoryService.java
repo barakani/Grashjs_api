@@ -53,32 +53,6 @@ public class MeterCategoryService {
         return meterCategoryRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, MeterCategory meterCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(meterCategory.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, MeterCategory meterCategoryReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = companySettingsService.isCompanySettingsInCompany(meterCategoryReq.getCompanySettings(), companyId, false);
-        return first && canPatch(user, meterCategoryMapper.toPatchDto(meterCategoryReq));
-    }
-
-    public boolean canPatch(OwnUser user, CategoryPatchDTO meterCategoryReq) {
-        return true;
-    }
-
-    public boolean isMeterCategoryInCompany(MeterCategory meterCategory, long companyId, boolean optional) {
-        if (optional) {
-            Optional<MeterCategory> optionalMeterCategory = meterCategory == null ? Optional.empty() : findById(meterCategory.getId());
-            return meterCategory == null || (optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        } else {
-            Optional<MeterCategory> optionalMeterCategory = findById(meterCategory.getId());
-            return optionalMeterCategory.isPresent() && optionalMeterCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Optional<MeterCategory> findByNameAndCompanySettings(String name, Long companySettingsId) {
         return meterCategoryRepository.findByNameAndCompanySettings_Id(name, companySettingsId);
     }

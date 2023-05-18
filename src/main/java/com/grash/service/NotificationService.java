@@ -71,12 +71,6 @@ public class NotificationService {
         return notificationRepository.findByUser_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Notification notification) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getId().equals(notification.getUser().getId());
-    }
-
     public boolean canPatch(OwnUser user, NotificationPatchDTO notification) {
         return true;
     }

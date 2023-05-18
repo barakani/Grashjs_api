@@ -47,11 +47,7 @@ public class AssetDowntimeController {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
             Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
             if (optionalAssetDowntime.isPresent()) {
-                if (assetDowntimeService.hasAccess(user, optionalAssetDowntime.get())) {
-                    return assetDowntimeService.findById(id).get();
-                } else {
-                    throw new CustomException("Can't get assetDowntime from other company", HttpStatus.NOT_ACCEPTABLE);
-                }
+                return assetDowntimeService.findById(id).get();
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

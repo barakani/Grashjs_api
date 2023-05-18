@@ -54,26 +54,6 @@ public class TimeCategoryService {
 
     }
 
-    public boolean hasAccess(OwnUser user, TimeCategory timeCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(timeCategory.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, TimeCategory timeCategoryReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<CompanySettings> optionalCompanySettings = companySettingsService.findById(timeCategoryReq.getCompanySettings().getId());
-
-        //@NotNull fields
-        boolean first = companySettingsService.isCompanySettingsInCompany(timeCategoryReq.getCompanySettings(), companyId, false);
-        return first && canPatch(user, timeCategoryMapper.toPatchDto(timeCategoryReq));
-    }
-
-    public boolean canPatch(OwnUser user, CategoryPatchDTO timeCategoryReq) {
-        return true;
-    }
-
     public boolean isTimeCategoryInCompany(TimeCategory timeCategory, long companyId, boolean optional) {
         if (optional) {
             Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() : findById(timeCategory.getId());

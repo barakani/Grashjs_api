@@ -6,7 +6,6 @@ import com.grash.dto.PurchaseOrderPatchDTO;
 import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.PurchaseOrder;
 import com.grash.model.enums.RoleType;
@@ -62,25 +61,6 @@ public class PurchaseOrderService {
 
     public Collection<PurchaseOrder> findByCompany(Long id) {
         return purchaseOrderRepository.findByCompany_Id(id);
-    }
-
-    public boolean hasAccess(OwnUser user, PurchaseOrder purchaseOrder) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(purchaseOrder.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, PurchaseOrder purchaseOrderReq) {
-        Long companyId = user.getCompany().getId();
-
-        Optional<Company> optionalCompany = companyService.findById(purchaseOrderReq.getCompany().getId());
-
-        boolean first = companyService.isCompanyValid(purchaseOrderReq.getCompany(), companyId);
-        return first && canPatch(user, purchaseOrderMapper.toPatchDto(purchaseOrderReq));
-    }
-
-    public boolean canPatch(OwnUser user, PurchaseOrderPatchDTO purchaseOrderReq) {
-        return true;
     }
 
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {

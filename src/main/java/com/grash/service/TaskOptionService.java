@@ -44,22 +44,8 @@ public class TaskOptionService {
         return taskOptionRepository.findById(id);
     }
 
-
-    public boolean hasAccess(OwnUser user, TaskOption taskOption) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(taskOption.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, TaskOption taskOptionReq) {
-        Long companyId = user.getCompany().getId();
-
-        boolean first = companyService.isCompanyValid(taskOptionReq.getCompany(), companyId);
-        return first;
-    }
-
-    public boolean isTaskOptionInCompany (TaskOption taskOption, long companyId, boolean optional){
-        if (optional){
+    public boolean isTaskOptionInCompany(TaskOption taskOption, long companyId, boolean optional) {
+        if (optional) {
             Optional<TaskOption> optionalTaskOption = taskOption == null ? Optional.empty() : findById(taskOption.getId());
             return taskOption == null || (optionalTaskOption.isPresent() && optionalTaskOption.get().getId().equals(companyId));
         } else {

@@ -46,11 +46,4 @@ public class GeneralPreferencesService {
     public Collection<GeneralPreferences> findByCompanySettings(Long id) {
         return generalPreferencesRepository.findByCompanySettings_Id(id);
     }
-
-    public boolean hasAccess(OwnUser user, GeneralPreferences generalPreferences) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getCompanySettings().getId().equals(
-                generalPreferences.getCompanySettings().getId());
-    }
 }

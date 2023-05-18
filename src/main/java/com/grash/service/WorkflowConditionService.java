@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowConditionMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkflowCondition;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkflowConditionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,12 +44,6 @@ public class WorkflowConditionService {
 
     public Collection<WorkflowCondition> saveAll(Collection<WorkflowCondition> workflowConditions) {
         return workflowConditionRepository.saveAll(workflowConditions);
-    }
-
-    public boolean hasAccess(OwnUser user, WorkflowCondition workflowCondition) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workflowCondition.getCompany().getId());
     }
 
     public boolean canPatch(OwnUser user, WorkflowConditionPatchDTO workflowCondition) {

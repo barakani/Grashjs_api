@@ -55,26 +55,6 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, Task task) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(task.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Task taskReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(taskReq.getCompany(), companyId);
-        boolean second = workOrderService.isWorkOrderInCompany(taskReq.getWorkOrder(), companyId, false);
-        boolean third = taskReq.getImages() == null || taskReq.getImages().stream().allMatch(item ->
-                fileService.isFileInCompany(item,companyId,false));
-        return first && second && third && canPatch(user, taskMapper.toPatchDto(taskReq));
-    }
-
-    public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {
-        return true;
-    }
-
     public Collection<Task> findByWorkOrder(Long id) {
         return taskRepository.findByWorkOrder_Id(id);
     }

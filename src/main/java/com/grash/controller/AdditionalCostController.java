@@ -47,9 +47,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
-                return savedAdditionalCost;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -93,9 +91,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost) && additionalCostService.canPatch(user, additionalCost)) {
-                return additionalCostService.update(id, additionalCost);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return additionalCostService.update(id, additionalCost);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
@@ -111,11 +107,9 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
-                additionalCostService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            additionalCostService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 

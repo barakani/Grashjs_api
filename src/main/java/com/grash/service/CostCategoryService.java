@@ -23,7 +23,7 @@ public class CostCategoryService {
 
     public CostCategory create(CostCategory costCategory) {
         Optional<CostCategory> categoryWithSameName = costCategoryRepository.findByName(costCategory.getName());
-        if(categoryWithSameName.isPresent()) {
+        if (categoryWithSameName.isPresent()) {
             throw new CustomException("CostCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
         return costCategoryRepository.save(costCategory);
@@ -51,11 +51,5 @@ public class CostCategoryService {
 
     public Collection<CostCategory> findByCompanySettings(Long id) {
         return costCategoryRepository.findByCompanySettings_Id(id);
-    }
-
-    public boolean hasAccess(OwnUser user, CostCategory costCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(costCategory.getCompanySettings().getCompany().getId());
     }
 }

@@ -65,23 +65,6 @@ public class RelationService {
         return relationRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Relation relation) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(relation.getChild().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, RelationPostDTO relationReq) {
-        return canPatch(user, relationMapper.toPatchDto(relationReq));
-    }
-
-    public boolean canPatch(OwnUser user, RelationPatchDTO relationReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = workOrderService.isWorkOrderInCompany(relationReq.getParent(), companyId, true);
-        boolean second = workOrderService.isWorkOrderInCompany(relationReq.getChild(), companyId, true);
-        return first && second;
-    }
-
     public Relation createPost(RelationPostDTO relationReq) {
         WorkOrder parent = relationReq.getParent();
         WorkOrder child = relationReq.getChild();

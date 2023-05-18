@@ -54,24 +54,6 @@ public class FloorPlanService {
         return floorPlanRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, FloorPlan floorPlan) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, FloorPlan floorPlanReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = locationService.isLocationInCompany(floorPlanReq.getLocation(), companyId, false);
-        return first && canPatch(user, floorPlanMapper.toPatchDto(floorPlanReq));
-    }
-
-    public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {
-        Long companyId = user.getCompany().getId();
-        //optional fields
-        return fileService.isFileInCompany(floorPlanReq.getImage(), companyId, true);
-    }
 
     public Collection<FloorPlan> findByLocation(Long id) {
         return floorPlanRepository.findByLocation_Id(id);

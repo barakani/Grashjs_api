@@ -57,22 +57,6 @@ public class SubscriptionService {
         return subscriptionRepository.findById(id);
     }
 
-
-    public boolean hasAccess(OwnUser user, Subscription subscription) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return true;
-    }
-
-    public boolean canCreate(OwnUser user, Subscription subscriptionReq) {
-        Long companyId = user.getCompany().getId();
-        return true;
-    }
-
-    public boolean canPatch(OwnUser user, SubscriptionPatchDTO subscriptionReq) {
-        return true;
-    }
-
     public void scheduleEnd(Subscription subscription) {
         boolean shouldSchedule = !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn().after(new Date());
         if (shouldSchedule) {

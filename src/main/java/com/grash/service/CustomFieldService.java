@@ -43,21 +43,4 @@ public class CustomFieldService {
     public Optional<CustomField> findById(Long id) {
         return customFieldRepository.findById(id);
     }
-
-    public boolean hasAccess(OwnUser user, CustomField customField) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, CustomField customFieldReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = vendorService.isVendorInCompany(customFieldReq.getVendor(), companyId, false);
-        return first && canPatch(user, customFieldMapper.toPatchDto(customFieldReq));
-    }
-
-    public boolean canPatch(OwnUser user, CustomFieldPatchDTO customFieldReq) {
-        return true;
-    }
 }

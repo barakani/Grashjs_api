@@ -10,7 +10,6 @@ import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.Team;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -82,31 +81,6 @@ public class TeamService {
 
     public Collection<Team> findByCompany(Long id) {
         return teamRepository.findByCompany_Id(id);
-    }
-
-    public boolean hasAccess(OwnUser user, Team team) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(team.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Team teamReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(teamReq.getCompany(), companyId);
-        boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
-        boolean third = teamReq.getUsers() == null || teamReq.getUsers().stream().allMatch(item ->
-                userService.isUserInCompany(item, companyId, false));
-        boolean fourth = teamReq.getAsset() == null || teamReq.getAsset().stream().allMatch(item ->
-                assetService.isAssetInCompany(item, companyId, false));
-        boolean fifth = teamReq.getLocations() == null || teamReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item, companyId, false));
-
-        return first && second && third && fourth && fifth && canPatch(user, teamMapper.toPatchDto(teamReq));
-    }
-
-    public boolean canPatch(OwnUser user, TeamPatchDTO teamReq) {
-        return user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
     }
 
     public void notify(Team team, Locale locale) {

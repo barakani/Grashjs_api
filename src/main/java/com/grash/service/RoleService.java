@@ -53,23 +53,4 @@ public class RoleService {
         return roleRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Role role) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(role.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Role roleReq) {
-        if (roleReq.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return false;
-        }
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            return canPatch(user, roleMapper.toPatchDto(roleReq));
-        } else return false;
-    }
-
-    public boolean canPatch(OwnUser user, RolePatchDTO roleReq) {
-        Long companyId = user.getCompany().getId();
-        return true;
-    }
 }

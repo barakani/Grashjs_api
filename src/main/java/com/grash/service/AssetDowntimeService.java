@@ -64,20 +64,6 @@ public class AssetDowntimeService {
         return assetDowntimeRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, AssetDowntime assetDowntime) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(assetDowntime.getAsset().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, AssetDowntime assetDowntimeReq) {
-        return true;
-    }
-
-    public boolean canPatch(OwnUser user, AssetDowntimePatchDTO assetDowntimeReq) {
-        return true;
-    }
-
     public Collection<AssetDowntime> findByStartsOnBetweenAndCompany(Date date1, Date date2, Long id) {
         return assetDowntimeRepository.findByStartsOnBetweenAndCompany_Id(date1, date2, id);
 

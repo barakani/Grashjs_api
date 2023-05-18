@@ -56,24 +56,6 @@ public class ReadingService {
         return readingRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Reading reading) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(reading.getMeter().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Reading readingReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = meterService.isMeterInCompany(readingReq.getMeter(), companyId, false);
-        return first && canPatch(user, readingMapper.toPatchDto(readingReq));
-    }
-
-    public boolean canPatch(OwnUser user, ReadingPatchDTO readingReq) {
-        Long companyId = user.getCompany().getId();
-        return meterService.isMeterInCompany(readingReq.getMeter(), companyId, true);
-    }
-
     public Collection<Reading> findByMeter(Long id) {
         return readingRepository.findByMeter_Id(id);
     }

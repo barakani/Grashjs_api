@@ -73,31 +73,6 @@ public class MeterService {
         return meterRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Meter meter) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(meter.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Meter meterReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(meterReq.getCompany(), companyId);
-        boolean second = assetService.isAssetInCompany(meterReq.getAsset(), companyId, false);
-        return first && second && canPatch(user, meterMapper.toPatchDto(meterReq));
-    }
-
-    public boolean canPatch(OwnUser user, MeterPatchDTO meterReq) {
-        Long companyId = user.getCompany().getId();
-        //optional fields
-        boolean second = meterCategoryService.isMeterCategoryInCompany(meterReq.getMeterCategory(), companyId, true);
-        boolean third = fileService.isFileInCompany(meterReq.getImage(), companyId, true);
-        boolean fourth = locationService.isLocationInCompany(meterReq.getLocation(), companyId, true);
-        boolean fifth = meterReq.getUsers() == null || meterReq.getUsers().stream().allMatch(item ->
-                userService.isUserInCompany(item, companyId, false));
-        return second && third && fourth && fifth;
-    }
-
     public void notify(Meter meter, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_meter_assigned", new Object[]{meter.getName()}, locale);
