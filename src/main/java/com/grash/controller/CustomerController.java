@@ -86,7 +86,7 @@ public class CustomerController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Customer create(@ApiParam("Customer") @Valid @RequestBody Customer customerReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (customerService.canCreate(user, customerReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return customerService.create(customerReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

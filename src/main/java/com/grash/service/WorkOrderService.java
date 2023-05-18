@@ -12,7 +12,6 @@ import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.Priority;
-import com.grash.model.enums.RoleType;
 import com.grash.model.enums.Status;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
@@ -108,30 +107,6 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCompany(Long id) {
         return workOrderRepository.findByCompany_Id(id);
-    }
-
-    public boolean hasAccess(OwnUser user, WorkOrder workOrder) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workOrder.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(workOrderReq.getCompany(), companyId);
-
-        return first && canPatch(user, workOrderMapper.toPatchDto(workOrderReq));
-    }
-
-    public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {
-        Long companyId = user.getCompany().getId();
-
-        boolean second = locationService.isLocationInCompany(workOrderReq.getLocation(), companyId, true);
-        boolean third = teamService.isTeamInCompany(workOrderReq.getTeam(), companyId, true);
-        boolean fourth = userService.isUserInCompany(workOrderReq.getPrimaryUser(), companyId, true);
-        boolean fifth = assetService.isAssetInCompany(workOrderReq.getAsset(), companyId, true);
-        return second && third && fourth && fifth;
     }
 
     public void notify(WorkOrder workOrder, Locale locale) {

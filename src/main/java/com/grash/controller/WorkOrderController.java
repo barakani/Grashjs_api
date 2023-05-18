@@ -173,7 +173,7 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -188,7 +188,7 @@ public class WorkOrderController {
     public WorkOrderShowDTO create(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrder
                                            workOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (workOrderService.canCreate(user, workOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && (workOrderReq.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             if (user.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignWorkOrders()) {
@@ -246,8 +246,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && workOrderService.canPatch(user, workOrder)
-                    && savedWorkOrder.canBeEditedBy(user)
+            if (savedWorkOrder.canBeEditedBy(user)
                     && (workOrder.getSignature() == null ||
                     user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
                 if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
@@ -315,9 +314,9 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && (
+            if (
                     user.getId().equals(savedWorkOrder.getCreatedBy()) ||
-                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS))) {
+                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
                 workOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
@@ -333,7 +332,7 @@ public class WorkOrderController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
                 Context thymeleafContext = new Context();
                 thymeleafContext.setLocale(Helper.getLocale(user));

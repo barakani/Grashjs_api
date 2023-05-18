@@ -49,7 +49,7 @@ public class PartQuantityController {
     public Collection<PartQuantityShowDTO> getByWorkOrder(HttpServletRequest req, @ApiParam("id") @PathVariable("id") Long id) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent()) {
             return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -81,7 +81,7 @@ public class PartQuantityController {
 
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (workOrderService.hasAccess(user, savedWorkOrder) && savedWorkOrder.canBeEditedBy(user)) {
+            if (savedWorkOrder.canBeEditedBy(user)) {
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
                 Collection<Long> partQuantityMappedPartIds = partQuantities.stream().map
                         (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
