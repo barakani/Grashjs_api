@@ -61,37 +61,6 @@ public class FileService {
         return fileRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, File file) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(file.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, File fileReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = fileReq.getAssets() == null || fileReq.getAssets().stream().allMatch(item ->
-                assetService.isAssetInCompany(item, companyId, false));
-        boolean second = fileReq.getParts() == null || fileReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item, companyId, false));
-        boolean third = fileReq.getRequests() == null || fileReq.getRequests().stream().allMatch(item ->
-                requestService.isRequestInCompany(item, companyId, false));
-        boolean fourth = fileReq.getWorkOrders() == null || fileReq.getWorkOrders().stream().allMatch(item ->
-                workOrderService.isWorkOrderInCompany(item, companyId, false));
-        boolean fifth = fileReq.getLocations() == null || fileReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item, companyId, false));
-        return first && second && third && fourth && fifth;
-    }
-
-    public boolean isFileInCompany(File file, long companyId, boolean optional) {
-        if (optional) {
-            Optional<File> optionalFile = file == null ? Optional.empty() : findById(file.getId());
-            return file == null || (optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<File> optionalFile = findById(file.getId());
-            return optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<File> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<File> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

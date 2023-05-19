@@ -42,13 +42,4 @@ public class FieldConfigurationService {
     public Optional<FieldConfiguration> findById(Long id) {
         return fieldConfigurationRepository.findById(id);
     }
-
-    public boolean hasAccess(OwnUser user, FieldConfiguration fieldConfiguration) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else if (fieldConfiguration.getWorkOrderConfiguration() != null)
-            return user.getCompany().getId().equals(fieldConfiguration.getWorkOrderConfiguration().getCompanySettings().getCompany().getId());
-        else
-            return user.getCompany().getId().equals(fieldConfiguration.getWorkOrderRequestConfiguration().getCompanySettings().getCompany().getId());
-    }
 }

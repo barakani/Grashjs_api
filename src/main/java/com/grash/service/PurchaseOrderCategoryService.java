@@ -53,20 +53,4 @@ public class PurchaseOrderCategoryService {
         return purchaseOrderCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, PurchaseOrderCategory purchaseOrderCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(purchaseOrderCategory.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, PurchaseOrderCategory purchaseOrderCategoryReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = companySettingsService.isCompanySettingsInCompany(purchaseOrderCategoryReq.getCompanySettings(), companyId, false);
-        return first && canPatch(user, purchaseOrderCategoryMapper.toPatchDto(purchaseOrderCategoryReq));
-    }
-
-    public boolean canPatch(OwnUser user, CategoryPatchDTO purchaseOrderCategoryReq) {
-        return true;
-    }
-
 }

@@ -46,17 +46,4 @@ public class CurrencyService {
     public Optional<Currency> findByCode(String code) {
         return currencyRepository.findByCode(code);
     }
-
-    public boolean hasAccess(OwnUser user) {
-        return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) ||
-                user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT);
-    }
-
-    public boolean canCreate(OwnUser user) {
-        return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
-    }
-
-    public boolean canPatch(OwnUser user) {
-        return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN);
-    }
 }

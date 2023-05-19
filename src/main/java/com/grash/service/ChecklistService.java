@@ -81,18 +81,4 @@ public class ChecklistService {
         return checklistRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Checklist checklist) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(checklist.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, ChecklistPostDTO checklistReq) {
-        //@NotNull fields
-        return companySettingsService.isCompanySettingsInCompany(checklistReq.getCompanySettings(), user.getCompany().getId(), false);
-    }
-
-    public boolean canPatch(OwnUser user, ChecklistPatchDTO checklistReq) {
-        return true;
-    }
 }

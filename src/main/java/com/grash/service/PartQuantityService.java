@@ -55,26 +55,6 @@ public class PartQuantityService {
         return partQuantityRepository.findByWorkOrder_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, PartQuantity partQuantity) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(partQuantity.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, PartQuantity partQuantityReq) {
-        Long companyId = user.getCompany().getId();
-        
-        boolean first = companyService.isCompanyValid(partQuantityReq.getCompany(), companyId);
-        boolean second = partService.isPartInCompany(partQuantityReq.getPart(), companyId, false);
-        boolean third = purchaseOrderService.isPurchaseOrderInCompany(partQuantityReq.getPurchaseOrder(), companyId, true);
-        boolean fourth = workOrderService.isWorkOrderInCompany(partQuantityReq.getWorkOrder(), companyId, true);
-        return first && second && third && fourth && canPatch(user, partQuantityMapper.toPatchDto(partQuantityReq));
-    }
-
-    public boolean canPatch(OwnUser user, PartQuantityPatchDTO partQuantityReq) {
-        return true;
-    }
-
     public Collection<PartQuantity> findByPart(Long id) {
         return partQuantityRepository.findByPart_Id(id);
     }

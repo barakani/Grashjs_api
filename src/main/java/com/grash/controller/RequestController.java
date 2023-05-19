@@ -80,7 +80,7 @@ public class RequestController {
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (requestService.hasAccess(user, savedRequest) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId()))) {
                 return requestMapper.toShowDto(savedRequest);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -94,7 +94,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied")})
     public RequestShowDTO create(@ApiParam("Request") @Valid @RequestBody Request requestReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (requestService.canCreate(user, requestReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
             Request createdRequest = requestService.create(requestReq);
             String title = "new_request";
             String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
@@ -123,8 +123,7 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (requestService.hasAccess(user, savedRequest) && requestService.canPatch(user, request) &&
-                    user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
                 Request patchedRequest = requestService.update(id, request);
                 return requestMapper.toShowDto(patchedRequest);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -147,12 +146,9 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (requestService.hasAccess(user, savedRequest)) {
-                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED, user.getCompany().getId());
-                workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
-                return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
-
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+            return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
 
@@ -172,13 +168,10 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (requestService.hasAccess(user, savedRequest)) {
-                savedRequest.setCancelled(true);
-                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
-                workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
-                return requestMapper.toShowDto(requestService.save(savedRequest));
-
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            savedRequest.setCancelled(true);
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+            return requestMapper.toShowDto(requestService.save(savedRequest));
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
 
@@ -194,8 +187,8 @@ public class RequestController {
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (requestService.hasAccess(user, savedRequest) && (savedRequest.getCreatedBy().equals(user.getId()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS))) {
+            if (savedRequest.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS)) {
                 requestService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

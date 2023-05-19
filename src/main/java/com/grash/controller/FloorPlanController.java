@@ -45,9 +45,7 @@ public class FloorPlanController {
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
-                return savedFloorPlan;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -60,7 +58,7 @@ public class FloorPlanController {
     public Collection<FloorPlan> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
+        if (optionalLocation.isPresent()) {
             return floorPlanService.findByLocation(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -72,9 +70,7 @@ public class FloorPlanController {
             @ApiResponse(code = 403, message = "Access denied")})
     public FloorPlan create(@ApiParam("FloorPlan") @Valid @RequestBody FloorPlan floorPlanReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (floorPlanService.canCreate(user, floorPlanReq)) {
-            return floorPlanService.create(floorPlanReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return floorPlanService.create(floorPlanReq);
     }
 
     @PatchMapping("/{id}")
@@ -90,9 +86,7 @@ public class FloorPlanController {
 
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan) && floorPlanService.canPatch(user, floorPlan)) {
-                return floorPlanService.update(id, floorPlan);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return floorPlanService.update(id, floorPlan);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 
@@ -107,12 +101,9 @@ public class FloorPlanController {
 
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
-            FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            if (floorPlanService.hasAccess(user, savedFloorPlan)) {
-                floorPlanService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            floorPlanService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 

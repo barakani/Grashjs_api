@@ -79,9 +79,7 @@ public class NotificationController {
         Optional<Notification> optionalNotification = notificationService.findById(id);
         if (optionalNotification.isPresent()) {
             Notification savedNotification = optionalNotification.get();
-            if (notificationService.hasAccess(user, savedNotification)) {
-                return savedNotification;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedNotification;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -98,9 +96,7 @@ public class NotificationController {
 
         if (optionalNotification.isPresent()) {
             Notification savedNotification = optionalNotification.get();
-            if (notificationService.hasAccess(user, savedNotification) && notificationService.canPatch(user, notification)) {
-                return notificationService.update(id, notification);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return notificationService.update(id, notification);
         } else throw new CustomException("Notification not found", HttpStatus.NOT_FOUND);
     }
 

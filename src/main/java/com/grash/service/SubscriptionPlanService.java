@@ -50,16 +50,4 @@ public class SubscriptionPlanService {
     public boolean existByCode(String code) {
         return subscriptionPlanRepository.existsByCode(code);
     }
-
-    public boolean hasAccess(OwnUser user, SubscriptionPlan subscriptionPlan) {
-        return true;
-    }
-
-    public boolean canCreate(OwnUser user, SubscriptionPlan subscriptionPlanReq) {
-        return true;
-    }
-
-    public boolean canPatch(OwnUser user, SubscriptionPlanPatchDTO subscriptionPlanReq) {
-        return true;
-    }
 }

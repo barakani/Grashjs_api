@@ -52,23 +52,6 @@ public class ScheduleService {
         return scheduleRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Schedule schedule) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(schedule.getPreventiveMaintenance().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Schedule scheduleReq) {
-
-        return canPatch(user, scheduleMapper.toPatchDto(scheduleReq));
-    }
-
-    public boolean canPatch(OwnUser user, SchedulePatchDTO scheduleReq) {
-        Long companyId = user.getCompany().getId();
-        return true;
-    }
-
-
     public void scheduleWorkOrder(Schedule schedule) {
         boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date()));
         if (shouldSchedule) {

@@ -58,23 +58,6 @@ public class AdditionalCostService {
         return additionalCostRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, AdditionalCost additionalCost) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, AdditionalCost additionalCostReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = workOrderService.isWorkOrderInCompany(additionalCostReq.getWorkOrder(), companyId, false);
-        return first && canPatch(user, additionalCostMapper.toPatchDto(additionalCostReq));
-    }
-
-    public boolean canPatch(OwnUser user, AdditionalCostPatchDTO additionalCostReq) {
-        Long companyId = user.getCompany().getId();
-        return userService.isUserInCompany(additionalCostReq.getAssignedTo(), companyId, true);
-    }
-
     public Collection<AdditionalCost> findByWorkOrder(Long id) {
         return additionalCostRepository.findByWorkOrder_Id(id);
     }

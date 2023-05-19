@@ -105,7 +105,7 @@ public class AssetController {
     private AssetShowDTO getAsset(Optional<Asset> optionalAsset, OwnUser user) {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
                 return assetMapper.toShowDto(savedAsset);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -121,7 +121,7 @@ public class AssetController {
     public Collection<AssetShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
+        if (optionalLocation.isPresent()) {
             return assetService.findByLocation(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -136,7 +136,7 @@ public class AssetController {
     public Collection<AssetShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
-        if (optionalPart.isPresent() && partService.hasAccess(user, optionalPart.get())) {
+        if (optionalPart.isPresent()) {
             return optionalPart.get().getAssets().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -155,7 +155,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
                 return assetService.findAssetChildren(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
@@ -169,7 +169,7 @@ public class AssetController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (assetService.canCreate(user, assetReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
             if (assetReq.getParentAsset() != null) {
                 Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
                 if (optionalParentAsset.isPresent()) {
@@ -199,8 +199,7 @@ public class AssetController {
 
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && assetService.canPatch(user, asset)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {
                     assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));
@@ -237,8 +236,8 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (assetService.hasAccess(user, savedAsset) && (savedAsset.getCreatedBy().equals(user.getId()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS))) {
+            if (savedAsset.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS)) {
                 Asset parent = savedAsset.getParentAsset();
                 assetService.delete(id);
                 if (parent != null) {

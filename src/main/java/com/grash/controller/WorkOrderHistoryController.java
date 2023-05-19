@@ -6,7 +6,6 @@ import com.grash.mapper.WorkOrderHistoryMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderHistory;
-import com.grash.model.enums.RoleType;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderHistoryService;
 import com.grash.service.WorkOrderService;
@@ -49,9 +48,7 @@ public class WorkOrderHistoryController {
         Optional<WorkOrderHistory> optionalWorkOrderHistory = workOrderHistoryService.findById(id);
         if (optionalWorkOrderHistory.isPresent()) {
             WorkOrderHistory savedWorkOrderHistory = optionalWorkOrderHistory.get();
-            if (hasAccess(user, savedWorkOrderHistory)) {
-                return workOrderHistoryMapper.toShowDto(savedWorkOrderHistory);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return workOrderHistoryMapper.toShowDto(savedWorkOrderHistory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -64,15 +61,9 @@ public class WorkOrderHistoryController {
     public Collection<WorkOrderHistoryShowDTO> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent()) {
             return workOrderHistoryService.findByWorkOrder(id).stream().map(workOrderHistoryMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    private boolean hasAccess(OwnUser user, WorkOrderHistory workOrderHistory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());
     }
 
 }

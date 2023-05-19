@@ -3,9 +3,7 @@ package com.grash.service;
 import com.grash.dto.WorkflowActionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowActionMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.WorkflowAction;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkflowActionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,13 +41,4 @@ public class WorkflowActionService {
         return workflowActionRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, WorkflowAction workflowAction) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workflowAction.getCompany().getId());
-    }
-
-    public boolean canPatch(OwnUser user, WorkflowActionPatchDTO workflowAction) {
-        return true;
-    }
 }

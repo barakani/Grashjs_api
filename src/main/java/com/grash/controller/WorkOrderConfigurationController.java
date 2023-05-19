@@ -40,9 +40,7 @@ public class WorkOrderConfigurationController {
         Optional<WorkOrderConfiguration> optionalWorkOrderConfiguration = workOrderConfigurationService.findById(id);
         if (optionalWorkOrderConfiguration.isPresent()) {
             WorkOrderConfiguration savedWorkOrderConfiguration = optionalWorkOrderConfiguration.get();
-            if (workOrderConfigurationService.hasAccess(user, savedWorkOrderConfiguration)) {
-                return savedWorkOrderConfiguration;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedWorkOrderConfiguration;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

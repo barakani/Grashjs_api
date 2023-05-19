@@ -72,31 +72,6 @@ public class RequestService {
         return requestRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Request request) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(request.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Request requestReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(requestReq.getCompany(), companyId);
-        return first && canPatch(user, requestMapper.toPatchDto(requestReq));
-    }
-
-    public boolean canPatch(OwnUser user, RequestPatchDTO requestReq) {
-        Long companyId = user.getCompany().getId();
-        //optional fields
-        boolean first = assetService.isAssetInCompany(requestReq.getAsset(), companyId, true);
-        boolean second = locationService.isLocationInCompany(requestReq.getLocation(), companyId, true);
-        boolean third = fileService.isFileInCompany(requestReq.getImage(), companyId, true);
-        boolean fourth = userService.isUserInCompany(requestReq.getPrimaryUser(), companyId, true);
-        boolean fifth = teamService.isTeamInCompany(requestReq.getTeam(), companyId, true);
-
-        return first && second && third && fourth && fifth;
-    }
-
     public WorkOrder createWorkOrderFromRequest(Request request, OwnUser creator) {
         WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         if (creator.getCompany().getCompanySettings().getGeneralPreferences().isAutoAssignRequests()) {
@@ -127,8 +102,8 @@ public class RequestService {
         return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
     }
 
-    public boolean isRequestInCompany(Request request, long companyId, boolean optional){
-        if (optional){
+    public boolean isRequestInCompany(Request request, long companyId, boolean optional) {
+        if (optional) {
             Optional<Request> optionalRequest = request == null ? Optional.empty() : findById(request.getId());
             return request == null || (optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId));
         } else {

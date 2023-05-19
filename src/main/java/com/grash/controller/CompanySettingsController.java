@@ -41,11 +41,7 @@ public class CompanySettingsController {
 
         Optional<CompanySettings> companySettingsOptional = companySettingsService.findById(id);
         if (companySettingsOptional.isPresent()) {
-            if (companySettingsService.hasAccess(user, companySettingsOptional.get())) {
-                return companySettingsService.findById(id).get();
-            } else {
-                throw new CustomException("Can't get someone else's companySettings", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return companySettingsService.findById(id).get();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 }

@@ -49,7 +49,7 @@ public class ReadingController {
     public Collection<Reading> getByMeter(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
-        if (optionalMeter.isPresent() && meterService.hasAccess(user, optionalMeter.get())) {
+        if (optionalMeter.isPresent()) {
             return readingService.findByMeter(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -61,46 +61,44 @@ public class ReadingController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Reading create(@ApiParam("Reading") @Valid @RequestBody Reading readingReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (readingService.canCreate(user, readingReq)) {
-            Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
-            if (optionalMeter.isPresent()) {
-                Meter meter = optionalMeter.get();
-                Collection<Reading> readings = readingService.findByMeter(readingReq.getMeter().getId());
-                if (!readings.isEmpty()) {
-                    Reading lastReading = Collections.max(readings, new AuditComparator());
-                    Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), meter.getUpdateFrequency());
-                    if (new Date().before(nextReading)) {
-                        throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
-                    }
+        Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
+        if (optionalMeter.isPresent()) {
+            Meter meter = optionalMeter.get();
+            Collection<Reading> readings = readingService.findByMeter(readingReq.getMeter().getId());
+            if (!readings.isEmpty()) {
+                Reading lastReading = Collections.max(readings, new AuditComparator());
+                Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), meter.getUpdateFrequency());
+                if (new Date().before(nextReading)) {
+                    throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                 }
-                Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
-                Locale locale = Helper.getLocale(user);
-                meterTriggers.forEach(meterTrigger -> {
-                    boolean error = false;
-                    StringBuilder message = new StringBuilder();
-                    String title = "new_wo";
-                    Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
-                    if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
-                        if (readingReq.getValue() < meterTrigger.getValue()) {
-                            error = true;
-                            message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs, locale));
-                        }
-                    } else if (readingReq.getValue() > meterTrigger.getValue()) {
+            }
+            Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
+            Locale locale = Helper.getLocale(user);
+            meterTriggers.forEach(meterTrigger -> {
+                boolean error = false;
+                StringBuilder message = new StringBuilder();
+                String title = "new_wo";
+                Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
+                if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
+                    if (readingReq.getValue() < meterTrigger.getValue()) {
                         error = true;
-                        message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs, locale));
+                        message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs, locale));
                     }
-                    if (error) {
-                        notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
-                                new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
-                        ).collect(Collectors.toList()), true, title);
-                        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                        WorkOrder createdWorkOrder = workOrderService.create(workOrder);
-                        workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
-                    }
-                });
-                return readingService.create(readingReq);
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                } else if (readingReq.getValue() > meterTrigger.getValue()) {
+                    error = true;
+                    message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs, locale));
+                }
+                if (error) {
+                    notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
+                            new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
+                    ).collect(Collectors.toList()), true, title);
+                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
+                    WorkOrder createdWorkOrder = workOrderService.create(workOrder);
+                    workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
+                }
+            });
+            return readingService.create(readingReq);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/{id}")
@@ -116,9 +114,7 @@ public class ReadingController {
 
         if (optionalReading.isPresent()) {
             Reading savedReading = optionalReading.get();
-            if (readingService.hasAccess(user, savedReading) && readingService.canPatch(user, reading)) {
-                return readingService.update(id, reading);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return readingService.update(id, reading);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
 
@@ -133,12 +129,9 @@ public class ReadingController {
 
         Optional<Reading> optionalReading = readingService.findById(id);
         if (optionalReading.isPresent()) {
-            Reading savedReading = optionalReading.get();
-            if (readingService.hasAccess(user, savedReading)) {
-                readingService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            readingService.delete(id);
+            return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
 }

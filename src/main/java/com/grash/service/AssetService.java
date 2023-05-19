@@ -100,46 +100,6 @@ public class AssetService {
         return assetRepository.findByParentAsset_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Asset asset) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(asset.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Asset assetReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(assetReq.getCompany(), companyId);
-
-        return first && canPatch(user, assetMapper.toPatchDto(assetReq));
-    }
-
-    public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {
-        Long companyId = user.getCompany().getId();
-        //optional fields
-        boolean second = locationService.isLocationInCompany(assetReq.getLocation(), companyId, true);
-        boolean third = fileService.isFileInCompany(assetReq.getImage(), companyId, true);
-        boolean fourth = assetCategoryService.isAssetCategoryInCompany(assetReq.getCategory(), companyId, true);
-        boolean fifth = isAssetInCompany(assetReq.getParentAsset(), companyId, true);
-        boolean sixth = userService.isUserInCompany(assetReq.getPrimaryUser(), companyId, true);
-        boolean seventh = deprecationService.isDeprecationInCompany(assetReq.getDeprecation(), companyId, true);
-        boolean eighth = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(item ->
-                userService.isUserInCompany(item, companyId, false));
-        boolean nineth = assetReq.getCustomers() == null || assetReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item, companyId, false));
-        boolean tenth = assetReq.getVendors() == null || assetReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item, companyId, false));
-        boolean eleventh = assetReq.getTeams() == null || assetReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item, companyId, false));
-        boolean twelveth = assetReq.getFiles() == null || assetReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item, companyId, false));
-        boolean thirteenth = assetReq.getParts() == null || assetReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item, companyId, false));
-
-        return second && third && fourth && fifth && sixth && seventh && eighth && nineth && tenth
-                && eleventh && twelveth && thirteenth;
-    }
-
     public void notify(Asset asset, String title, String message) {
         notificationService.createMultiple(asset.getUsers().stream().map(user -> new Notification(message, user, NotificationType.ASSET, asset.getId())).collect(Collectors.toList()), true, title);
     }

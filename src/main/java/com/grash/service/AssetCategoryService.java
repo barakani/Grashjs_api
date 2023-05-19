@@ -52,21 +52,6 @@ public class AssetCategoryService {
         return assetCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, AssetCategory assetCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(assetCategory.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, AssetCategory assetCategoryReq) {
-        boolean first = companySettingsService.isCompanySettingsInCompany(assetCategoryReq.getCompanySettings(), user.getCompany().getId(), false);
-        return first && canPatch(user, assetCategoryMapper.toPatchDto(assetCategoryReq));
-    }
-
-    public boolean canPatch(OwnUser user, CategoryPatchDTO assetCategoryReq) {
-        return true;
-    }
-
     public boolean isAssetCategoryInCompany(AssetCategory assetCategory, long companyId, boolean optional) {
         if (optional) {
             Optional<AssetCategory> optionalAssetCategory = assetCategory == null ? Optional.empty() : findById(assetCategory.getId());

@@ -40,11 +40,7 @@ public class CompanyController {
 
         Optional<Company> companyOptional = companyService.findById(id);
         if (companyOptional.isPresent()) {
-            if (companyService.hasAccess(user, companyOptional.get())) {
-                return companyService.findById(id).get();
-            } else {
-                throw new CustomException("Can't get someone else's company", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return companyService.findById(id).get();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -61,9 +57,7 @@ public class CompanyController {
 
         if (optionalCompany.isPresent()) {
             Company savedCompany = optionalCompany.get();
-            if (companyService.hasAccess(user, savedCompany) && companyService.canPatch(user, company)) {
-                return companyService.update(id, company);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return companyService.update(id, company);
         } else throw new CustomException("Company not found", HttpStatus.NOT_FOUND);
     }
 

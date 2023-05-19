@@ -87,23 +87,4 @@ public class TaskBaseService {
         return taskBaseRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, TaskBase taskBase) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(taskBase.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, TaskBase taskBaseReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(taskBaseReq.getCompany(), companyId);
-        boolean second = taskBaseReq.getOptions() == null || taskBaseReq.getOptions().stream().allMatch(item ->
-                taskOptionService.isTaskOptionInCompany(item,companyId,false));
-
-        return first && second && canPatch(user, taskBaseMapper.toPatchDto(taskBaseReq));
-    }
-
-    public boolean canPatch(OwnUser user, TaskBasePatchDTO taskBaseReq) {
-        return true;
-    }
 }

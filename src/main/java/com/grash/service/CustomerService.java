@@ -66,39 +66,6 @@ public class CustomerService {
         return customerRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Customer customer) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(customer.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Customer customerReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(customerReq.getCompany(), companyId);
-        boolean second = customerReq.getParts() == null || customerReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item, companyId, false));
-        boolean third = customerReq.getLocations() == null || customerReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item, companyId, false));
-        boolean fourth = customerReq.getAssets() == null || customerReq.getAssets().stream().allMatch(item ->
-                assetService.isAssetInCompany(item, companyId, false));
-        return first && second && third && fourth && canPatch(user, customerMapper.toPatchDto(customerReq));
-    }
-
-    public boolean canPatch(OwnUser user, CustomerPatchDTO customerReq) {
-        return true;
-    }
-
-    public boolean isCustomerInCompany(Customer customer, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Customer> optionalCustomer = customer == null ? Optional.empty() : findById(customer.getId());
-            return customer == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Customer> optionalCustomer = findById(customer.getId());
-            return optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<Customer> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Customer> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

@@ -38,7 +38,7 @@ public class VendorController {
     private final VendorService vendorService;
     private final UserService userService;
     private final VendorMapper vendorMapper;
-    
+
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<Vendor>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
@@ -62,7 +62,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor) && user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 return savedVendor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -86,7 +86,7 @@ public class VendorController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Vendor create(@ApiParam("Vendor") @Valid @RequestBody Vendor vendorReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (vendorService.canCreate(user, vendorReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
             return vendorService.create(vendorReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -104,7 +104,7 @@ public class VendorController {
 
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor) && vendorService.canPatch(user, vendor) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedVendor.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedVendor.getCreatedBy().equals(user.getId())) {
                 return vendorService.update(id, vendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
@@ -122,9 +122,8 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (vendorService.hasAccess(user, savedVendor)
-                    && (savedVendor.getCreatedBy().equals(user.getId()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS))) {
+            if (savedVendor.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
                 vendorService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

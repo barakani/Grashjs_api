@@ -57,7 +57,7 @@ public class RelationController {
     public Collection<Relation> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent()) {
             return relationService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -72,11 +72,7 @@ public class RelationController {
         OwnUser user = userService.whoami(req);
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
-            if (relationService.hasAccess(user, optionalRelation.get())) {
-                return relationService.findById(id).get();
-            } else {
-                throw new CustomException("Can't get relation from other company", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return relationService.findById(id).get();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -87,14 +83,12 @@ public class RelationController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Relation create(@ApiParam("Relation") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (relationService.canCreate(user, relationReq)) {
-            Long parentId = relationReq.getParent().getId();
-            Long childId = relationReq.getChild().getId();
-            if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
-                return relationService.createPost(relationReq);
-            } else
-                throw new CustomException("There already is a relation between these 2 Work Orders", HttpStatus.NOT_ACCEPTABLE);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        Long parentId = relationReq.getParent().getId();
+        Long childId = relationReq.getChild().getId();
+        if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
+            return relationService.createPost(relationReq);
+        } else
+            throw new CustomException("There already is a relation between these 2 Work Orders", HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PatchMapping("/{id}")
@@ -111,11 +105,7 @@ public class RelationController {
 
         if (optionalRelation.isPresent()) {
             Relation savedRelation = optionalRelation.get();
-            if (relationService.hasAccess(user, savedRelation) && relationService.canPatch(user, relation)) {
-                return relationService.update(id, relation);
-            } else {
-                throw new CustomException("Can't patch relation from other company", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return relationService.update(id, relation);
         } else {
             return null;
         }
@@ -134,11 +124,9 @@ public class RelationController {
 
         Optional<Relation> optionalRelation = relationService.findById(id);
         if (optionalRelation.isPresent()) {
-            if (relationService.hasAccess(user, optionalRelation.get())) {
-                relationService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            relationService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Relation not found", HttpStatus.NOT_FOUND);
     }
 

@@ -72,7 +72,7 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (partService.hasAccess(user, savedPart) && user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId()))) {
                 return partMapper.toShowDto(savedPart);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -86,7 +86,7 @@ public class PartController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (partService.canCreate(user, partReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             Part savedPart = partService.create(partReq);
             partService.notify(savedPart, Helper.getLocale(user));
             return partMapper.toShowDto(savedPart);
@@ -106,8 +106,7 @@ public class PartController {
 
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (partService.hasAccess(user, savedPart) && partService.canPatch(user, part)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 Part patchedPart = partService.update(id, part);
                 Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
@@ -140,8 +139,7 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (partService.hasAccess(user, savedPart)
-                    && (savedPart.getId().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS))) {
+            if (savedPart.getId().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 partService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

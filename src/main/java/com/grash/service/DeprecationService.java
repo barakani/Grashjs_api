@@ -44,30 +44,4 @@ public class DeprecationService {
         return deprecationRepository.findById(id);
     }
 
-    public boolean hasAccess(OwnUser user, Deprecation deprecation) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(deprecation.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Deprecation deprecationReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(deprecationReq.getCompany(), companyId);
-        return first && canPatch(user, deprecationMapper.toPatchDto(deprecationReq));
-    }
-
-    public boolean canPatch(OwnUser user, DeprecationPatchDTO deprecationReq) {
-        return true;
-    }
-
-    public boolean isDeprecationInCompany(Deprecation deprecation, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Deprecation> optionalDeprecation = deprecation == null ? Optional.empty() : findById(deprecation.getId());
-            return deprecation == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Deprecation> optionalDeprecation = findById(deprecation.getId());
-            return optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId);
-        }
-    }
 }

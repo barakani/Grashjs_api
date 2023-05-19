@@ -50,9 +50,7 @@ public class WorkOrderMeterTriggerController {
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
-            if (workOrderMeterTriggerService.hasAccess(user, savedWorkOrderMeterTrigger)) {
-                return savedWorkOrderMeterTrigger;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedWorkOrderMeterTrigger;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -63,9 +61,7 @@ public class WorkOrderMeterTriggerController {
             @ApiResponse(code = 403, message = "Access denied")})
     public WorkOrderMeterTrigger create(@ApiParam("WorkOrderMeterTrigger") @Valid @RequestBody WorkOrderMeterTrigger workOrderMeterTriggerReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (workOrderMeterTriggerService.canCreate(user, workOrderMeterTriggerReq)) {
-            return workOrderMeterTriggerService.create(workOrderMeterTriggerReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return workOrderMeterTriggerService.create(workOrderMeterTriggerReq);
     }
 
 
@@ -78,7 +74,7 @@ public class WorkOrderMeterTriggerController {
     public Collection<WorkOrderMeterTriggerShowDTO> getByMeter(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
-        if (optionalMeter.isPresent() && meterService.hasAccess(user, optionalMeter.get())) {
+        if (optionalMeter.isPresent()) {
             return workOrderMeterTriggerService.findByMeter(id).stream().map(workOrderMeterTriggerMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -97,9 +93,7 @@ public class WorkOrderMeterTriggerController {
 
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
-            if (workOrderMeterTriggerService.hasAccess(user, savedWorkOrderMeterTrigger) && workOrderMeterTriggerService.canPatch(user, workOrderMeterTrigger)) {
-                return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.update(id, workOrderMeterTrigger));
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.update(id, workOrderMeterTrigger));
         } else throw new CustomException("WorkOrderMeterTrigger not found", HttpStatus.NOT_FOUND);
     }
 
@@ -115,11 +109,9 @@ public class WorkOrderMeterTriggerController {
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
-            if (workOrderMeterTriggerService.hasAccess(user, savedWorkOrderMeterTrigger)) {
-                workOrderMeterTriggerService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            workOrderMeterTriggerService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("WorkOrderMeterTrigger not found", HttpStatus.NOT_FOUND);
     }
 

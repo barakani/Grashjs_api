@@ -39,7 +39,7 @@ public class JwtTokenProvider {
     private long validityInMilliseconds = 3600000; // 1h
 
 
-    private final MyUserDetails myUserDetails;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @PostConstruct
     protected void init() {
@@ -63,7 +63,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = myUserDetails.loadUserByUsername(getUsername(token));
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 

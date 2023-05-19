@@ -1,12 +1,10 @@
 package com.grash.service;
 
 import com.grash.dto.WorkflowPatchDTO;
-import com.grash.dto.WorkflowPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowMapper;
 import com.grash.model.*;
 import com.grash.model.enums.ApprovalStatus;
-import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
 import com.grash.utils.AuditComparator;
@@ -54,16 +52,6 @@ public class WorkflowService {
 
     public Collection<Workflow> findByMainConditionAndCompany(WFMainCondition mainCondition, Long id) {
         return workflowRepository.findByMainConditionAndCompany_Id(mainCondition, id);
-    }
-
-    public boolean hasAccess(OwnUser user, Workflow workflow) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workflow.getCompany().getId());
-    }
-
-    public boolean canPatch(OwnUser user, WorkflowPostDTO workflow) {
-        return true;
     }
 
     public Collection<Workflow> findByCompany(Long id) {

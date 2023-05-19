@@ -99,37 +99,6 @@ public class PartService {
         return partRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Part part) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(part.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Part partReq) {
-        Long companyId = user.getCompany().getId();
-
-        boolean first = companyService.isCompanyValid(partReq.getCompany(), companyId);
-        return first && canPatch(user, partMapper.toPatchDto(partReq));
-    }
-
-    public boolean canPatch(OwnUser user, PartPatchDTO partReq) {
-        Long companyId = user.getCompany().getId();
-
-        boolean first = fileService.isFileInCompany(partReq.getImage(), companyId, true);
-        boolean second = locationService.isLocationInCompany(partReq.getLocation(), companyId, true);
-        boolean third = partReq.getAssignedTo() == null || partReq.getAssignedTo().stream().allMatch(item ->
-                userService.isUserInCompany(item, companyId, false));
-        boolean fourth = partReq.getFiles() == null || partReq.getFiles().stream().allMatch(item ->
-                fileService.isFileInCompany(item, companyId, false));
-        boolean fifth = partReq.getCustomers() == null || partReq.getCustomers().stream().allMatch(item ->
-                customerService.isCustomerInCompany(item, companyId, false));
-        boolean sixth = partReq.getVendors() == null || partReq.getVendors().stream().allMatch(item ->
-                vendorService.isVendorInCompany(item, companyId, false));
-        boolean seventh = partReq.getTeams() == null || partReq.getTeams().stream().allMatch(item ->
-                teamService.isTeamInCompany(item, companyId, false));
-        return first && second && third && fourth && fifth && sixth && seventh;
-    }
-
     public void notify(Part part, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_part_assigned", new Object[]{part.getName()}, locale);

@@ -66,30 +66,6 @@ public class VendorService {
         return vendorRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, Vendor vendor) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(vendor.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, Vendor vendorReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean first = companyService.isCompanyValid(vendorReq.getCompany(), companyId);
-        boolean second = vendorReq.getAssets() == null || vendorReq.getAssets().stream().allMatch(item ->
-                assetService.isAssetInCompany(item, companyId, false));
-        boolean third = vendorReq.getParts() == null || vendorReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item, companyId, false));
-        boolean fifth = vendorReq.getLocations() == null || vendorReq.getLocations().stream().allMatch(item ->
-                locationService.isLocationInCompany(item, companyId, false));
-
-        return first && second && third && fifth && canPatch(user, vendorMapper.toPatchDto(vendorReq));
-    }
-
-    public boolean canPatch(OwnUser user, VendorPatchDTO vendorReq) {
-        return true;
-    }
-
     public boolean isVendorInCompany(Vendor vendor, long companyId, boolean optional) {
         if (optional) {
             Optional<Vendor> optionalVendor = vendor == null ? Optional.empty() : findById(vendor.getId());

@@ -68,28 +68,6 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findByCompany_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, PreventiveMaintenance preventiveMaintenance) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(preventiveMaintenance.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, PreventiveMaintenance preventiveMaintenanceReq) {
-        Long companyId = user.getCompany().getId();
-
-        boolean first = companyService.isCompanyValid(preventiveMaintenanceReq.getCompany(), companyId);
-        return first && canPatch(user, preventiveMaintenanceMapper.toPatchDto(preventiveMaintenanceReq));
-    }
-
-    public boolean canPatch(OwnUser user, PreventiveMaintenancePatchDTO preventiveMaintenanceReq) {
-        Long companyId = user.getCompany().getId();
-        boolean second = assetService.isAssetInCompany(preventiveMaintenanceReq.getAsset(), companyId, true);
-        boolean third = teamService.isTeamInCompany(preventiveMaintenanceReq.getTeam(), companyId, true);
-        boolean fourth = locationService.isLocationInCompany(preventiveMaintenanceReq.getLocation(), companyId, true);
-        boolean fifth = userService.isUserInCompany(preventiveMaintenanceReq.getPrimaryUser(), companyId, true);
-        return second && third && fourth && fifth;
-    }
-
     public Page<PreventiveMaintenanceShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

@@ -56,9 +56,7 @@ public class ScheduleController {
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
-            if (scheduleService.hasAccess(user, savedSchedule)) {
-                return savedSchedule;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedSchedule;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -75,12 +73,10 @@ public class ScheduleController {
 
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
-            if (scheduleService.hasAccess(user, savedSchedule) && scheduleService.canPatch(user, schedule)) {
-                Schedule updatedSchedule = scheduleService.update(id, schedule);
-                //TODO unschedule previous schedule
-                scheduleService.reScheduleWorkOrder(id, updatedSchedule);
-                return updatedSchedule;
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            Schedule updatedSchedule = scheduleService.update(id, schedule);
+            //TODO unschedule previous schedule
+            scheduleService.reScheduleWorkOrder(id, updatedSchedule);
+            return updatedSchedule;
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }
 
@@ -96,11 +92,9 @@ public class ScheduleController {
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
-            if (scheduleService.hasAccess(user, savedSchedule)) {
-                scheduleService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            scheduleService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }
 

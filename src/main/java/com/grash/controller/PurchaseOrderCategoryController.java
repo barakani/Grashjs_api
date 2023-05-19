@@ -60,9 +60,7 @@ public class PurchaseOrderCategoryController {
             Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
             if (optionalPurchaseOrderCategory.isPresent()) {
                 PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
-                if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory)) {
-                    return savedPurchaseOrderCategory;
-                } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                return savedPurchaseOrderCategory;
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 
@@ -75,8 +73,7 @@ public class PurchaseOrderCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PurchaseOrderCategory create(@ApiParam("PurchaseOrderCategory") @Valid @RequestBody PurchaseOrderCategory PurchaseOrderCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (PurchaseOrderCategoryService.canCreate(user, PurchaseOrderCategoryReq)
-                && user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return PurchaseOrderCategoryService.create(PurchaseOrderCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -94,9 +91,7 @@ public class PurchaseOrderCategoryController {
             Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
             if (optionalPurchaseOrderCategory.isPresent()) {
                 PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
-                if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory) && PurchaseOrderCategoryService.canPatch(user, categoryPatchDTO)) {
-                    return PurchaseOrderCategoryService.update(id, categoryPatchDTO);
-                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+                return PurchaseOrderCategoryService.update(id, categoryPatchDTO);
             } else throw new CustomException("PurchaseOrderCategory not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 
@@ -114,9 +109,7 @@ public class PurchaseOrderCategoryController {
         Optional<PurchaseOrderCategory> optionalPurchaseOrderCategory = PurchaseOrderCategoryService.findById(id);
         if (optionalPurchaseOrderCategory.isPresent()) {
             PurchaseOrderCategory savedPurchaseOrderCategory = optionalPurchaseOrderCategory.get();
-            if (PurchaseOrderCategoryService.hasAccess(user, savedPurchaseOrderCategory)
-                    &&
-                    (savedPurchaseOrderCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES))) {
+            if (savedPurchaseOrderCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 PurchaseOrderCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

@@ -3,9 +3,7 @@ package com.grash.service;
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderMeterTrigger;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderMeterTriggerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,23 +49,6 @@ public class WorkOrderMeterTriggerService {
 
     public Optional<WorkOrderMeterTrigger> findById(Long id) {
         return workOrderMeterTriggerRepository.findById(id);
-    }
-
-    public boolean hasAccess(OwnUser user, WorkOrderMeterTrigger workOrderMeterTrigger) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {
-        Long companyId = user.getCompany().getId();
-        //@NotNull fields
-        boolean second = meterService.isMeterInCompany(workOrderMeterTriggerReq.getMeter(), companyId, false);
-        return second && canPatch(user, workOrderMeterTriggerMapper.toPatchDto(workOrderMeterTriggerReq));
-    }
-
-    public boolean canPatch(OwnUser user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {
-        return true;
     }
 
     public Collection<WorkOrderMeterTrigger> findByMeter(Long id) {

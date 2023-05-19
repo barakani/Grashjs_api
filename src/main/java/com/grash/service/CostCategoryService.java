@@ -52,10 +52,4 @@ public class CostCategoryService {
     public Collection<CostCategory> findByCompanySettings(Long id) {
         return costCategoryRepository.findByCompanySettings_Id(id);
     }
-
-    public boolean hasAccess(OwnUser user, CostCategory costCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(costCategory.getCompanySettings().getCompany().getId());
-    }
 }

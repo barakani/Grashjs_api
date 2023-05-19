@@ -60,9 +60,7 @@ public class MeterCategoryController {
             Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
             if (optionalMeterCategory.isPresent()) {
                 MeterCategory savedMeterCategory = optionalMeterCategory.get();
-                if (meterCategoryService.hasAccess(user, savedMeterCategory)) {
-                    return savedMeterCategory;
-                } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                return savedMeterCategory;
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 
@@ -75,7 +73,7 @@ public class MeterCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterCategory create(@ApiParam("MeterCategory") @Valid @RequestBody MeterCategory meterCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (meterCategoryService.canCreate(user, meterCategoryReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return meterCategoryService.create(meterCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -94,9 +92,7 @@ public class MeterCategoryController {
 
             if (optionalMeterCategory.isPresent()) {
                 MeterCategory savedMeterCategory = optionalMeterCategory.get();
-                if (meterCategoryService.hasAccess(user, savedMeterCategory) && meterCategoryService.canPatch(user, meterCategory)) {
-                    return meterCategoryService.update(id, meterCategory);
-                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+                return meterCategoryService.update(id, meterCategory);
             } else throw new CustomException("MeterCategory not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 
@@ -114,8 +110,7 @@ public class MeterCategoryController {
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {
             MeterCategory savedMeterCategory = optionalMeterCategory.get();
-            if (meterCategoryService.hasAccess(user, savedMeterCategory) &&
-                    (savedMeterCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES))) {
+            if (savedMeterCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 meterCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

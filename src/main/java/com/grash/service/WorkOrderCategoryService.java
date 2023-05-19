@@ -53,22 +53,6 @@ public class WorkOrderCategoryService {
         return workOrderCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean hasAccess(OwnUser user, WorkOrderCategory workOrderCategory) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-            return true;
-        } else return user.getCompany().getId().equals(workOrderCategory.getCompanySettings().getCompany().getId());
-    }
-
-    public boolean canCreate(OwnUser user, WorkOrderCategory workOrderCategoryReq) {
-        Long companyId = user.getCompany().getId();
-        boolean first = companySettingsService.isCompanySettingsInCompany(workOrderCategoryReq.getCompanySettings(), companyId, false);
-        return first && canPatch(user, workOrderCategoryMapper.toPatchDto(workOrderCategoryReq));
-    }
-
-    public boolean canPatch(OwnUser user, CategoryPatchDTO workOrderCategory) {
-        return true;
-    }
-
     public Optional<WorkOrderCategory> findByNameAndCompanySettings(String name, Long id) {
         return workOrderCategoryRepository.findByNameAndCompanySettings_Id(name, id);
     }

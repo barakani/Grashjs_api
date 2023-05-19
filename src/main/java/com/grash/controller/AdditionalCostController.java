@@ -47,9 +47,7 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
-                return savedAdditionalCost;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedAdditionalCost;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -62,7 +60,7 @@ public class AdditionalCostController {
     public Collection<AdditionalCost> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+        if (optionalWorkOrder.isPresent()) {
             return additionalCostService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -74,8 +72,7 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (additionalCostService.canCreate(user, additionalCostReq)
-                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
+        if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -93,9 +90,7 @@ public class AdditionalCostController {
 
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost) && additionalCostService.canPatch(user, additionalCost)) {
-                return additionalCostService.update(id, additionalCost);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return additionalCostService.update(id, additionalCost);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 
@@ -111,11 +106,9 @@ public class AdditionalCostController {
         Optional<AdditionalCost> optionalAdditionalCost = additionalCostService.findById(id);
         if (optionalAdditionalCost.isPresent()) {
             AdditionalCost savedAdditionalCost = optionalAdditionalCost.get();
-            if (additionalCostService.hasAccess(user, savedAdditionalCost)) {
-                additionalCostService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            additionalCostService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("AdditionalCost not found", HttpStatus.NOT_FOUND);
     }
 

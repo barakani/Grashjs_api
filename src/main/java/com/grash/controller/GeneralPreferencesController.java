@@ -54,11 +54,7 @@ public class GeneralPreferencesController {
         OwnUser user = userService.whoami(req);
         Optional<GeneralPreferences> optionalGeneralPreferences = generalPreferencesService.findById(id);
         if (optionalGeneralPreferences.isPresent()) {
-            if (generalPreferencesService.hasAccess(user, optionalGeneralPreferences.get())) {
-                return generalPreferencesService.findById(id).get();
-            } else {
-                throw new CustomException("Can't get generalPreferences from other company", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return generalPreferencesService.findById(id).get();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
