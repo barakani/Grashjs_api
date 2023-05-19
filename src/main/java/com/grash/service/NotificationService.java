@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
+    @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
         notificationRepository.saveAll(notifications);
         if (mobile && notifications.size() > 0)

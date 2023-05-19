@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface PurchaseOrderCategoryRepository extends JpaRepository<PurchaseOrderCategory, Long> {
     Collection<PurchaseOrderCategory> findByCompanySettings_Id(Long id);
 
-    Optional<PurchaseOrderCategory> findByName(String name);
+    Optional<PurchaseOrderCategory> findByNameAndCompanySettings_Id(String name, Long id);
 
 }

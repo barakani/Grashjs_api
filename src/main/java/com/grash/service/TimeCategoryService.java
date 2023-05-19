@@ -23,7 +23,7 @@ public class TimeCategoryService {
     private final TimeCategoryMapper timeCategoryMapper;
 
     public TimeCategory create(TimeCategory timeCategory) {
-        Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByName(timeCategory.getName());
+        Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByNameAndCompanySettings_Id(timeCategory.getName(), timeCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
