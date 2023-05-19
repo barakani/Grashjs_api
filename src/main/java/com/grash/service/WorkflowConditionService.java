@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.WorkflowConditionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowConditionMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.WorkflowCondition;
 import com.grash.repository.WorkflowConditionRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +45,4 @@ public class WorkflowConditionService {
         return workflowConditionRepository.saveAll(workflowConditions);
     }
 
-    public boolean canPatch(OwnUser user, WorkflowConditionPatchDTO workflowCondition) {
-        return true;
-    }
 }

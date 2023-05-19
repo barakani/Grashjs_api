@@ -8,7 +8,6 @@ import com.grash.mapper.NotificationMapper;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.PushNotificationToken;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
 import io.github.jav.exposerversdk.*;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +68,6 @@ public class NotificationService {
 
     public Collection<Notification> findByUser(Long id) {
         return notificationRepository.findByUser_Id(id);
-    }
-
-    public boolean canPatch(OwnUser user, NotificationPatchDTO notification) {
-        return true;
     }
 
     public Page<Notification> findBySearchCriteria(SearchCriteria searchCriteria) {

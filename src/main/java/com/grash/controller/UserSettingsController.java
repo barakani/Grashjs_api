@@ -40,11 +40,7 @@ public class UserSettingsController {
         Optional<UserSettings> optionalUserSettings = userSettingsService.findById(id);
         if (optionalUserSettings.isPresent()) {
             UserSettings userSettings = optionalUserSettings.get();
-            if (userSettingsService.hasAccess(user, userSettings)) {
-                return userSettings;
-            } else {
-                throw new CustomException("Can't get someone else's userSettings", HttpStatus.NOT_ACCEPTABLE);
-            }
+            return userSettings;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

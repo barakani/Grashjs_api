@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.WorkflowActionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowActionMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.WorkflowAction;
 import com.grash.repository.WorkflowActionRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,4 @@ public class WorkflowActionService {
         return workflowActionRepository.findById(id);
     }
 
-    public boolean canPatch(OwnUser user, WorkflowActionPatchDTO workflowAction) {
-        return true;
-    }
 }

@@ -41,9 +41,7 @@ public class DeprecationController {
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (deprecationService.hasAccess(user, savedDeprecation)) {
-                return savedDeprecation;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedDeprecation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -54,9 +52,7 @@ public class DeprecationController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Deprecation create(@ApiParam("Deprecation") @Valid @RequestBody Deprecation deprecationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (deprecationService.canCreate(user, deprecationReq)) {
-            return deprecationService.create(deprecationReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return deprecationService.create(deprecationReq);
     }
 
     @PatchMapping("/{id}")
@@ -72,9 +68,7 @@ public class DeprecationController {
 
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (deprecationService.hasAccess(user, savedDeprecation) & deprecationService.canPatch(user, deprecation)) {
-                return deprecationService.update(id, deprecation);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return deprecationService.update(id, deprecation);
         } else throw new CustomException("Deprecation not found", HttpStatus.NOT_FOUND);
     }
 
@@ -90,11 +84,9 @@ public class DeprecationController {
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
         if (optionalDeprecation.isPresent()) {
             Deprecation savedDeprecation = optionalDeprecation.get();
-            if (deprecationService.hasAccess(user, savedDeprecation)) {
-                deprecationService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            deprecationService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Deprecation not found", HttpStatus.NOT_FOUND);
     }
 

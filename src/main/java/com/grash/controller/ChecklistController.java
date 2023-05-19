@@ -61,9 +61,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (checklistService.hasAccess(user, savedChecklist)) {
-                return savedChecklist;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedChecklist;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -74,7 +72,7 @@ public class ChecklistController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Checklist create(@ApiParam("Checklist") @Valid @RequestBody ChecklistPostDTO checklistReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (checklistService.canCreate(user, checklistReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.CHECKLIST)) {
             return checklistService.createPost(checklistReq, user.getCompany());
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -93,7 +91,7 @@ public class ChecklistController {
 
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (checklistService.hasAccess(user, savedChecklist) && checklistService.canPatch(user, checklist) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return checklistService.update(id, checklist, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Checklist not found", HttpStatus.NOT_FOUND);
@@ -111,7 +109,7 @@ public class ChecklistController {
         Optional<Checklist> optionalChecklist = checklistService.findById(id);
         if (optionalChecklist.isPresent()) {
             Checklist savedChecklist = optionalChecklist.get();
-            if (checklistService.hasAccess(user, savedChecklist) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 checklistService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

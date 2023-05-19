@@ -174,10 +174,8 @@ public class PartQuantityController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PartQuantityShowDTO create(@ApiParam("PartQuantity") @Valid @RequestBody PartQuantity partQuantityReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (partQuantityService.canCreate(user, partQuantityReq)) {
-            PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
-            return partQuantityMapper.toShowDto(savedPartQuantity);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
+        return partQuantityMapper.toShowDto(savedPartQuantity);
     }
 
     @PatchMapping("/{id}")

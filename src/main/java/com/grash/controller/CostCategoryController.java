@@ -65,9 +65,7 @@ public class CostCategoryController {
             Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
             if (costCategoryOptional.isPresent()) {
                 CostCategory costCategory = costCategoryOptional.get();
-                if (costCategoryService.hasAccess(user, costCategory)) {
-                    return costCategoryService.findById(id).get();
-                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+                return costCategoryService.findById(id).get();
             } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
 

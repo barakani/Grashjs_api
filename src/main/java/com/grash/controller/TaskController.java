@@ -47,9 +47,7 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (taskService.hasAccess(user, savedTask)) {
-                return savedTask;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedTask;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -105,12 +103,10 @@ public class TaskController {
 
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (taskService.hasAccess(user, savedTask) && taskService.canPatch(user, task)) {
-                Task patchedTask = taskService.update(id, task);
-                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED, user.getCompany().getId());
-                workflows.forEach(workflow -> workflowService.runTask(workflow, patchedTask));
-                return patchedTask;
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            Task patchedTask = taskService.update(id, task);
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED, user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runTask(workflow, patchedTask));
+            return patchedTask;
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }
 
@@ -126,11 +122,9 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
-            if (taskService.hasAccess(user, savedTask)) {
-                taskService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            taskService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }
 

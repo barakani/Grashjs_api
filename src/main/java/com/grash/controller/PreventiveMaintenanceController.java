@@ -68,9 +68,7 @@ public class PreventiveMaintenanceController {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance)) {
-                return preventiveMaintenanceMapper.toShowDto(savedPreventiveMaintenance);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return preventiveMaintenanceMapper.toShowDto(savedPreventiveMaintenance);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -83,20 +81,18 @@ public class PreventiveMaintenanceController {
     public PreventiveMaintenanceShowDTO create(@ApiParam("PreventiveMaintenance") @Valid @RequestBody PreventiveMaintenancePostDTO preventiveMaintenancePost, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
-        if (preventiveMaintenanceService.canCreate(user, preventiveMaintenance)) {
-            preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance);
+        preventiveMaintenance = preventiveMaintenanceService.create(preventiveMaintenance);
 
-            Schedule schedule = preventiveMaintenance.getSchedule();
-            schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
-            schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ? preventiveMaintenancePost.getStartsOn() : new Date());
-            schedule.setFrequency(preventiveMaintenancePost.getFrequency());
-            schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
-            Schedule savedSchedule = scheduleService.save(schedule);
-            em.refresh(savedSchedule);
-            em.refresh(preventiveMaintenance);
-            scheduleService.scheduleWorkOrder(savedSchedule);
-            return preventiveMaintenanceMapper.toShowDto(preventiveMaintenance);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        Schedule schedule = preventiveMaintenance.getSchedule();
+        schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
+        schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ? preventiveMaintenancePost.getStartsOn() : new Date());
+        schedule.setFrequency(preventiveMaintenancePost.getFrequency());
+        schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
+        Schedule savedSchedule = scheduleService.save(schedule);
+        em.refresh(savedSchedule);
+        em.refresh(preventiveMaintenance);
+        scheduleService.scheduleWorkOrder(savedSchedule);
+        return preventiveMaintenanceMapper.toShowDto(preventiveMaintenance);
     }
 
     @PatchMapping("/{id}")
@@ -112,10 +108,8 @@ public class PreventiveMaintenanceController {
 
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance) && preventiveMaintenanceService.canPatch(user, preventiveMaintenance)) {
-                PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id, preventiveMaintenance);
-                return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id, preventiveMaintenance);
+            return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 
@@ -130,12 +124,9 @@ public class PreventiveMaintenanceController {
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
-            PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            if (preventiveMaintenanceService.hasAccess(user, savedPreventiveMaintenance)) {
-                preventiveMaintenanceService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            preventiveMaintenanceService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 

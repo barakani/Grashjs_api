@@ -41,9 +41,7 @@ public class TaskBaseController {
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
-            if (taskBaseService.hasAccess(user, savedTaskBase)) {
-                return savedTaskBase;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedTaskBase;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -54,9 +52,7 @@ public class TaskBaseController {
             @ApiResponse(code = 403, message = "Access denied")})
     public TaskBase create(@ApiParam("TaskBase") @Valid @RequestBody TaskBase taskBaseReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (taskBaseService.canCreate(user, taskBaseReq)) {
-            return taskBaseService.create(taskBaseReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return taskBaseService.create(taskBaseReq);
     }
 
     @PatchMapping("/{id}")
@@ -72,9 +68,7 @@ public class TaskBaseController {
 
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
-            if (taskBaseService.hasAccess(user, savedTaskBase) && taskBaseService.canPatch(user, taskBase)) {
-                return taskBaseService.update(id, taskBase);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return taskBaseService.update(id, taskBase);
         } else throw new CustomException("TaskBase not found", HttpStatus.NOT_FOUND);
     }
 
@@ -90,11 +84,9 @@ public class TaskBaseController {
         Optional<TaskBase> optionalTaskBase = taskBaseService.findById(id);
         if (optionalTaskBase.isPresent()) {
             TaskBase savedTaskBase = optionalTaskBase.get();
-            if (taskBaseService.hasAccess(user, savedTaskBase)) {
-                taskBaseService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            taskBaseService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("TaskBase not found", HttpStatus.NOT_FOUND);
     }
 

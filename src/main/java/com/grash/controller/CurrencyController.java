@@ -55,9 +55,7 @@ public class CurrencyController {
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
             Currency savedCurrency = optionalCurrency.get();
-            if (currencyService.hasAccess(user)) {
-                return savedCurrency;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedCurrency;
         } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
@@ -69,9 +67,7 @@ public class CurrencyController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Currency create(@ApiParam("Asset") @Valid @RequestBody Currency currency, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (currencyService.canCreate(user)) {
-            return currencyService.create(currency);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return currencyService.create(currency);
     }
 
     @PatchMapping("/{id}")
@@ -86,9 +82,7 @@ public class CurrencyController {
         Optional<Currency> optionalCurrency = currencyService.findById(id);
 
         if (optionalCurrency.isPresent()) {
-            if (currencyService.hasAccess(user) && currencyService.canPatch(user)) {
-                return currencyService.update(id, currencyPatchDTO);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return currencyService.update(id, currencyPatchDTO);
         } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
@@ -103,8 +97,7 @@ public class CurrencyController {
 
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
-            if (currencyService.hasAccess(user)
-                    && user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
+            if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
                 currencyService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

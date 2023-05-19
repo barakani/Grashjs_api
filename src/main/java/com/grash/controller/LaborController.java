@@ -49,9 +49,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (laborService.hasAccess(user, savedLabor)) {
-                return savedLabor;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedLabor;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
     }
@@ -120,8 +118,7 @@ public class LaborController {
             @ApiResponse(code = 403, message = "Access denied")})
     public Labor create(@ApiParam("Labor") @Valid @RequestBody Labor laborReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (laborService.canCreate(user, laborReq)
-                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
+        if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
             return laborService.create(laborReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -139,9 +136,7 @@ public class LaborController {
 
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (laborService.hasAccess(user, savedLabor) && laborService.canPatch(user, labor)) {
-                return laborService.update(id, labor);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return laborService.update(id, labor);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
     }
 
@@ -157,11 +152,9 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (laborService.hasAccess(user, savedLabor)) {
-                laborService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            laborService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Labor not found", HttpStatus.NOT_FOUND);
     }
 }

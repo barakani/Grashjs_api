@@ -43,7 +43,7 @@ public class FieldConfigurationController {
 
         if (optionalFieldConfiguration.isPresent()) {
             FieldConfiguration savedFieldConfiguration = optionalFieldConfiguration.get();
-            if (fieldConfigurationService.hasAccess(user, savedFieldConfiguration) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                     && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.REQUEST_CONFIGURATION)) {
                 return fieldConfigurationService.update(id, fieldConfiguration);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

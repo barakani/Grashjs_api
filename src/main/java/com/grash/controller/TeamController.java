@@ -75,9 +75,7 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (teamService.hasAccess(user, savedTeam)) {
-                return teamMapper.toShowDto(savedTeam);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return teamMapper.toShowDto(savedTeam);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -88,7 +86,7 @@ public class TeamController {
             @ApiResponse(code = 403, message = "Access denied")})
     public TeamShowDTO create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (teamService.canCreate(user, teamReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
             teamService.notify(savedTeam, Helper.getLocale(user));
             return teamMapper.toShowDto(savedTeam);
@@ -107,11 +105,9 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (teamService.hasAccess(user, savedTeam) && teamService.canPatch(user, team)) {
-                Team patchTeam = teamService.update(id, team);
-                teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
-                return teamMapper.toShowDto(patchTeam);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            Team patchTeam = teamService.update(id, team);
+            teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
+            return teamMapper.toShowDto(patchTeam);
         } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
     }
 
@@ -127,8 +123,7 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (teamService.hasAccess(user, savedTeam)
-                    && (savedTeam.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))) {
+            if (savedTeam.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 teamService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

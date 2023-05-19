@@ -60,7 +60,7 @@ public class RoleController {
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return savedRole;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -74,7 +74,7 @@ public class RoleController {
     public Role create(@ApiParam("Role") @Valid @RequestBody Role roleReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         roleReq.setPaid(true);
-        if (roleService.canCreate(user, roleReq) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -93,7 +93,7 @@ public class RoleController {
 
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole) && roleService.canPatch(user, role) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return roleService.update(id, role);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
@@ -111,7 +111,7 @@ public class RoleController {
         Optional<Role> optionalRole = roleService.findById(id);
         if (optionalRole.isPresent()) {
             Role savedRole = optionalRole.get();
-            if (roleService.hasAccess(user, savedRole) && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 roleService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

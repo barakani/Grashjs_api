@@ -66,8 +66,7 @@ public class AssetDowntimeController {
         if (optionalAsset.get().getRealCreatedAt().after(assetDowntimeReq.getStartsOn())) {
             throw new CustomException("The downtime can't occur before the asset in service date", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (assetDowntimeService.canCreate(user, assetDowntimeReq) &&
-                user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
+        if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
             return assetDowntimeService.create(assetDowntimeReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -81,7 +80,7 @@ public class AssetDowntimeController {
     public Collection<AssetDowntime> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
-        if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
+        if (optionalAsset.isPresent()) {
             return assetDowntimeService.findByAsset(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -99,9 +98,7 @@ public class AssetDowntimeController {
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             if (optionalAssetDowntime.isPresent()) {
-                AssetDowntime savedAssetDowntime = optionalAssetDowntime.get();
-                if (assetDowntimeService.hasAccess(user, savedAssetDowntime) && assetDowntimeService.canPatch(user, assetDowntime)
-                        && canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
+                if (canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
                     return assetDowntimeService.update(id, assetDowntime);
                 } else {
                     throw new CustomException("Can't patch assetDowntime from other company", HttpStatus.NOT_ACCEPTABLE);
@@ -123,8 +120,7 @@ public class AssetDowntimeController {
 
         Optional<AssetDowntime> optionalAssetDowntime = assetDowntimeService.findById(id);
         if (optionalAssetDowntime.isPresent()) {
-            if (assetDowntimeService.hasAccess(user, optionalAssetDowntime.get()) &&
-                    canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
+            if (canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
                 assetDowntimeService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

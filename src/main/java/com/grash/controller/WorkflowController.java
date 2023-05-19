@@ -82,9 +82,7 @@ public class WorkflowController {
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
-            if (workflowService.hasAccess(user, savedWorkflow)) {
-                return savedWorkflow;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedWorkflow;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -101,10 +99,8 @@ public class WorkflowController {
 
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
-            if (workflowService.hasAccess(user, savedWorkflow) && workflowService.canPatch(user, workflow)) {
-                workflowService.delete(id);
-                return createWorkflow(workflow, user.getCompany());
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            workflowService.delete(id);
+            return createWorkflow(workflow, user.getCompany());
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
     }
 
@@ -120,11 +116,9 @@ public class WorkflowController {
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
         if (optionalWorkflow.isPresent()) {
             Workflow savedWorkflow = optionalWorkflow.get();
-            if (workflowService.hasAccess(user, savedWorkflow)) {
-                workflowService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            workflowService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
     }
 

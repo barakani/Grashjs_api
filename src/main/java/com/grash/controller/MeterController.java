@@ -85,7 +85,7 @@ public class MeterController {
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (meterService.hasAccess(user, savedMeter) && user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId()))) {
                 return meterMapper.toShowDto(savedMeter, readingService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -99,7 +99,7 @@ public class MeterController {
             @ApiResponse(code = 403, message = "Access denied")})
     public MeterShowDTO create(@ApiParam("Meter") @Valid @RequestBody Meter meterReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (meterService.canCreate(user, meterReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
             Meter savedMeter = meterService.create(meterReq);
             meterService.notify(savedMeter, Helper.getLocale(user));
@@ -120,8 +120,7 @@ public class MeterController {
 
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (meterService.hasAccess(user, savedMeter) && meterService.canPatch(user, meter)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
                 Meter patchedMeter = meterService.update(id, meter);
                 meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));
                 return meterMapper.toShowDto(patchedMeter, readingService);
@@ -138,7 +137,7 @@ public class MeterController {
     public Collection<MeterShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
-        if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
+        if (optionalAsset.isPresent()) {
             return meterService.findByAsset(id).stream().map(meter -> meterMapper.toShowDto(meter, readingService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -155,9 +154,8 @@ public class MeterController {
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (meterService.hasAccess(user, savedMeter)
-                    && (savedMeter.getCreatedBy().equals(user.getId()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.METERS))) {
+            if (savedMeter.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.METERS)) {
                 meterService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

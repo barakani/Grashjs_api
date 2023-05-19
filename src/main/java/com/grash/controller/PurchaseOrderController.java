@@ -80,7 +80,7 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId()))) {
                 return setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -94,7 +94,7 @@ public class PurchaseOrderController {
             @ApiResponse(code = 403, message = "Access denied")})
     public PurchaseOrderShowDTO create(@ApiParam("PurchaseOrder") @Valid @RequestBody PurchaseOrder purchaseOrderReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (purchaseOrderService.canCreate(user, purchaseOrderReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderService.create(purchaseOrderReq);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
@@ -132,8 +132,7 @@ public class PurchaseOrderController {
 
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && purchaseOrderService.canPatch(user, purchaseOrder)
-                    && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || savedPurchaseOrder.getCreatedBy().equals(user.getId())) {
                 PurchaseOrder patchedPurchaseOrder = purchaseOrderService.update(id, purchaseOrder);
                 Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_UPDATED, user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runPurchaseOrder(workflow, patchedPurchaseOrder));
@@ -155,7 +154,7 @@ public class PurchaseOrderController {
 
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
                 if (!savedPurchaseOrder.getStatus().equals(ApprovalStatus.APPROVED)) {
                     if (approved) {
                         Collection<PartQuantity> partQuantities = partQuantityService.findByPurchaseOrder(savedPurchaseOrder.getId());
@@ -185,9 +184,8 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (purchaseOrderService.hasAccess(user, savedPurchaseOrder)
-                    && (savedPurchaseOrder.getCreatedBy().equals(user.getId()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS))) {
+            if (savedPurchaseOrder.getCreatedBy().equals(user.getId()) ||
+                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
                 purchaseOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

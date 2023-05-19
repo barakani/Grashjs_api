@@ -3,8 +3,8 @@ package com.grash.controller;
 import com.grash.dto.SubscriptionPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.SubscriptionPlan;
 import com.grash.model.OwnUser;
+import com.grash.model.SubscriptionPlan;
 import com.grash.service.SubscriptionPlanService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -52,9 +52,7 @@ public class SubscriptionPlanController {
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
-            if (subscriptionPlanService.hasAccess(user, savedSubscriptionPlan)) {
-                return savedSubscriptionPlan;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedSubscriptionPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -65,9 +63,7 @@ public class SubscriptionPlanController {
             @ApiResponse(code = 403, message = "Access denied")})
     public SubscriptionPlan create(@ApiParam("SubscriptionPlan") @Valid @RequestBody SubscriptionPlan subscriptionPlanReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (subscriptionPlanService.canCreate(user, subscriptionPlanReq)) {
-            return subscriptionPlanService.create(subscriptionPlanReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return subscriptionPlanService.create(subscriptionPlanReq);
     }
 
     @PatchMapping("/{id}")
@@ -83,9 +79,7 @@ public class SubscriptionPlanController {
 
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
-            if (subscriptionPlanService.hasAccess(user, savedSubscriptionPlan) && subscriptionPlanService.canPatch(user, subscriptionPlan)) {
-                return subscriptionPlanService.update(id, subscriptionPlan);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return subscriptionPlanService.update(id, subscriptionPlan);
         } else throw new CustomException("SubscriptionPlan not found", HttpStatus.NOT_FOUND);
     }
 
@@ -101,11 +95,9 @@ public class SubscriptionPlanController {
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
             SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
-            if (subscriptionPlanService.hasAccess(user, savedSubscriptionPlan)) {
-                subscriptionPlanService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            subscriptionPlanService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("SubscriptionPlan not found", HttpStatus.NOT_FOUND);
     }
 

@@ -143,7 +143,7 @@ public class WorkOrderController {
     public Collection<WorkOrderShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
-        if (optionalAsset.isPresent() && assetService.hasAccess(user, optionalAsset.get())) {
+        if (optionalAsset.isPresent()) {
             return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -157,7 +157,7 @@ public class WorkOrderController {
     public Collection<WorkOrderShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
+        if (optionalLocation.isPresent()) {
             return workOrderService.findByLocation(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -218,7 +218,7 @@ public class WorkOrderController {
     public Collection<WorkOrderShowDTO> getByPart(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
-        if (optionalPart.isPresent() && partService.hasAccess(user, optionalPart.get())) {
+        if (optionalPart.isPresent()) {
             Collection<PartQuantity> partQuantities = partQuantityService.findByPart(id).stream()
                     .filter(partQuantity -> partQuantity.getWorkOrder() != null).collect(Collectors.toList());
             Collection<WorkOrder> workOrders = partQuantities.stream().map(PartQuantity::getWorkOrder).collect(Collectors.toList());

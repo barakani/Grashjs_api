@@ -41,9 +41,7 @@ public class CustomFieldController {
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (customFieldService.hasAccess(user, savedCustomField)) {
-                return savedCustomField;
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedCustomField;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -54,9 +52,7 @@ public class CustomFieldController {
             @ApiResponse(code = 403, message = "Access denied")})
     public CustomField create(@ApiParam("CustomField") @Valid @RequestBody CustomField customFieldReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (customFieldService.canCreate(user, customFieldReq)) {
-            return customFieldService.create(customFieldReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return customFieldService.create(customFieldReq);
     }
 
     @PatchMapping("/{id}")
@@ -72,9 +68,7 @@ public class CustomFieldController {
 
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (customFieldService.hasAccess(user, savedCustomField) && customFieldService.canPatch(user, customField)) {
-                return customFieldService.update(id, customField);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            return customFieldService.update(id, customField);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
     }
 
@@ -90,11 +84,9 @@ public class CustomFieldController {
         Optional<CustomField> optionalCustomField = customFieldService.findById(id);
         if (optionalCustomField.isPresent()) {
             CustomField savedCustomField = optionalCustomField.get();
-            if (customFieldService.hasAccess(user, savedCustomField)) {
-                customFieldService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            customFieldService.delete(id);
+            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                    HttpStatus.OK);
         } else throw new CustomException("CustomField not found", HttpStatus.NOT_FOUND);
     }
 }

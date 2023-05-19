@@ -71,7 +71,7 @@ public class AssetCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AssetCategory create(@ApiParam("AssetCategory") @Valid @RequestBody AssetCategory assetCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (assetCategoryService.canCreate(user, assetCategoryReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return assetCategoryService.create(assetCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

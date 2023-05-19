@@ -101,7 +101,7 @@ public class FileController {
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (fileService.hasAccess(user, savedFile) && user.getRole().getViewPermissions().contains(PermissionEntity.FILES) &&
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId()))) {
                 return savedFile;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
@@ -121,7 +121,7 @@ public class FileController {
 
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (fileService.hasAccess(user, savedFile) && user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId())) {
                 return fileService.update(file);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("File not found", HttpStatus.NOT_FOUND);
@@ -139,9 +139,8 @@ public class FileController {
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (fileService.hasAccess(user, savedFile)
-                    && (user.getId().equals(savedFile.getCreatedBy())
-                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.FILES))) {
+            if (user.getId().equals(savedFile.getCreatedBy())
+                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.FILES)) {
                 fileService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
