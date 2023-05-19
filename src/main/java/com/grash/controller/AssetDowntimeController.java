@@ -101,7 +101,7 @@ public class AssetDowntimeController {
                 if (canPatchAsset(optionalAssetDowntime.get().getAsset(), user)) {
                     return assetDowntimeService.update(id, assetDowntime);
                 } else {
-                    throw new CustomException("Can't patch assetDowntime from other company", HttpStatus.NOT_ACCEPTABLE);
+                    throw new CustomException("Can't patch assetDowntime of someone else", HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
                 throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
