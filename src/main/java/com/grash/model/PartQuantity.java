@@ -37,8 +37,7 @@ public class PartQuantity extends CompanyAudit {
         return quantity * part.getCost();
     }
 
-    public PartQuantity(Company company, Part part, WorkOrder workOrder, PurchaseOrder purchaseOrder, int quantity) {
-        this.setCompany(company);
+    public PartQuantity(Part part, WorkOrder workOrder, PurchaseOrder purchaseOrder, int quantity) {
         this.part = part;
         this.workOrder = workOrder;
         this.purchaseOrder = purchaseOrder;

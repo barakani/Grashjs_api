@@ -28,8 +28,7 @@ public class PartConsumption extends CompanyAudit {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private WorkOrder workOrder;
 
-    public PartConsumption(Company company, Part part, WorkOrder workOrder, int quantity) {
-        this.setCompany(company);
+    public PartConsumption(Part part, WorkOrder workOrder, int quantity) {
         this.part = part;
         this.workOrder = workOrder;
         this.quantity = quantity;

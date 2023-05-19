@@ -46,11 +46,10 @@ public class Task extends CompanyAudit {
     @NotNull
     private PreventiveMaintenance preventiveMaintenance;
 
-    public Task(TaskBase taskBase, WorkOrder workOrder, PreventiveMaintenance preventiveMaintenance, Company company, String value) {
+    public Task(TaskBase taskBase, WorkOrder workOrder, PreventiveMaintenance preventiveMaintenance, String value) {
         this.taskBase = taskBase;
         this.workOrder = workOrder;
         this.value = value;
         this.preventiveMaintenance = preventiveMaintenance;
-        this.setCompany(company);
     }
 }

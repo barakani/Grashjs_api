@@ -89,8 +89,8 @@ public class PartQuantityController {
                     if (!partQuantityMappedPartIds.contains(partId)) {
                         Optional<Part> optionalPart = partService.findById(partId);
                         if (optionalPart.isPresent()) {
-                            partService.consumePart(optionalPart.get().getId(), 1, user.getCompany(), savedWorkOrder, Helper.getLocale(user));
-                            PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), savedWorkOrder, null, 1);
+                            partService.consumePart(optionalPart.get().getId(), 1, savedWorkOrder, Helper.getLocale(user));
+                            PartQuantity partQuantity = new PartQuantity(optionalPart.get(), savedWorkOrder, null, 1);
                             partQuantityService.create(partQuantity);
                         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
                     }
@@ -136,7 +136,7 @@ public class PartQuantityController {
                     //new Parts
                     Optional<Part> optionalPart = partService.findById(partQuantityReq.getPart().getId());
                     if (optionalPart.isPresent()) {
-                        PartQuantity partQuantity = new PartQuantity(user.getCompany(), optionalPart.get(), null, savedPurchaseOrder, partQuantityReq.getQuantity());
+                        PartQuantity partQuantity = new PartQuantity(optionalPart.get(), null, savedPurchaseOrder, partQuantityReq.getQuantity());
                         partQuantityService.create(partQuantity);
                     } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
                 }
@@ -191,7 +191,7 @@ public class PartQuantityController {
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             if (savedPartQuantity.getWorkOrder() != null) {
-                partService.consumePart(savedPartQuantity.getPart().getId(), partQuantity.getQuantity() - savedPartQuantity.getQuantity(), user.getCompany(), savedPartQuantity.getWorkOrder(), Helper.getLocale(user));
+                partService.consumePart(savedPartQuantity.getPart().getId(), partQuantity.getQuantity() - savedPartQuantity.getQuantity(), savedPartQuantity.getWorkOrder(), Helper.getLocale(user));
             }
             PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
             return partQuantityMapper.toShowDto(patchedPartQuantity);

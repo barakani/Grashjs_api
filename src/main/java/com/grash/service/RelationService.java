@@ -4,12 +4,10 @@ import com.grash.dto.RelationPatchDTO;
 import com.grash.dto.RelationPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RelationMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Relation;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.RelationType;
 import com.grash.model.enums.RelationTypeInternal;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.RelationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -80,7 +78,6 @@ public class RelationService {
                 .parent(parent)
                 .child(child)
                 .relationType(relationType).build();
-        relation.setCompany(relationReq.getCompany());
         return create(relation);
     }
 

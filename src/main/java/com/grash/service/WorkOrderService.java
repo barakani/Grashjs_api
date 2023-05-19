@@ -158,7 +158,6 @@ public class WorkOrderService {
 
     public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
         WorkOrder workOrder = new WorkOrder();
-        workOrder.setCompany(workOrderBase.getCompany());
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());

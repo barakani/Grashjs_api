@@ -84,7 +84,7 @@ public class TaskController {
                 } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
                     value.append("FLAG");
                 }
-                Task task = new Task(taskBase, optionalWorkOrder.get(), null, user.getCompany(), value.toString());
+                Task task = new Task(taskBase, optionalWorkOrder.get(), null, value.toString());
                 return taskService.create(task);
             }).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

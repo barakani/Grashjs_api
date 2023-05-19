@@ -22,10 +22,4 @@ public class TaskOption extends CompanyAudit {
     @JoinColumn(name = "task_base_id")
     @JsonBackReference
     private TaskBase taskBase;
-
-    public TaskOption(String label, Company company, TaskBase taskBase) {
-        this.label = label;
-        this.taskBase = taskBase;
-        this.setCompany(company);
-    }
 }

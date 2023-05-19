@@ -9,7 +9,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.PartRepository;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
@@ -61,7 +60,7 @@ public class PartService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public void consumePart(Long id, int quantity, Company company, WorkOrder workOrder, Locale locale) {
+    public void consumePart(Long id, int quantity, WorkOrder workOrder, Locale locale) {
         Part part = findById(id).get();
         part.setQuantity(part.getQuantity() - quantity);
         if (quantity < 0) {
@@ -77,7 +76,7 @@ public class PartService {
                             new Notification(message, user, NotificationType.PART, part.getId())
                     ).collect(Collectors.toList()), true, message);
                 }
-                partConsumptionService.create(new PartConsumption(company, part, workOrder, quantity));
+                partConsumptionService.create(new PartConsumption(part, workOrder, quantity));
                 partRepository.save(part);
             } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
         }

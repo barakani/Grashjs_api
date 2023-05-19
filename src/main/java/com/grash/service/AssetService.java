@@ -10,7 +10,6 @@ import com.grash.mapper.AssetMapper;
 import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -137,7 +136,6 @@ public class AssetService {
                 .startsOn(new Date())
                 .asset(asset)
                 .build();
-        assetDowntime.setCompany(asset.getCompany());
         assetDowntimeService.create(assetDowntime);
         asset.setStatus(AssetStatus.DOWN);
         save(asset);

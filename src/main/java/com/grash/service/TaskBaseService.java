@@ -5,10 +5,8 @@ import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskBaseMapper;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
 import com.grash.model.TaskOption;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskBaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,13 +51,12 @@ public class TaskBaseService {
         if (taskBaseDTO.getMeter() != null) {
             meterService.findById(taskBaseDTO.getMeter().getId()).ifPresent(taskBase::setMeter);
         }
-        taskBase.setCompany(company);
         TaskBase savedTaskBase = create(taskBase);
 
         if (taskBaseDTO.getOptions() != null) {
             taskBaseDTO.getOptions().forEach(option -> {
                 if (!option.trim().isEmpty()) {
-                    TaskOption taskOption = new TaskOption(option, company, savedTaskBase);
+                    TaskOption taskOption = new TaskOption(option, savedTaskBase);
                     taskOptionService.create(taskOption);
                 }
             });

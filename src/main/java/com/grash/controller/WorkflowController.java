@@ -123,11 +123,10 @@ public class WorkflowController {
     }
 
     private Workflow createWorkflow(WorkflowPostDTO workflowReq, Company company) {
-        List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel).peek(workflowCondition -> workflowCondition.setCompany(company))
+        List<WorkflowCondition> workflowConditions = workflowReq.getSecondaryConditions().stream().map(workflowConditionMapper::toModel)
                 .collect(Collectors.toList());
         Collection<WorkflowCondition> savedWorkOrderConditions = workflowConditionService.saveAll(workflowConditions);
         WorkflowAction workflowAction = workflowActionMapper.toModel(workflowReq.getAction());
-        workflowAction.setCompany(company);
         WorkflowAction savedWorkflowAction = workflowActionService.create(workflowAction);
         Workflow workflow = Workflow.builder()
                 .title(workflowReq.getTitle())
@@ -135,7 +134,6 @@ public class WorkflowController {
                 .secondaryConditions(savedWorkOrderConditions)
                 .action(savedWorkflowAction)
                 .build();
-        workflow.setCompany(company);
         return workflowService.create(workflow);
     }
 }

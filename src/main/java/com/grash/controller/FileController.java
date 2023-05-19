@@ -62,7 +62,7 @@ public class FileController {
                         task = optionalTask.get();
                     }
                 }
-                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, user.getCompany(), fileType, task, hidden.equals("true"))));
+                result.add(fileService.create(new File(fileReq.getOriginalFilename(), url, fileType, task, hidden.equals("true"))));
             });
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);

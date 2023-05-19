@@ -87,12 +87,11 @@ public class File extends CompanyAudit {
             })
     private List<Location> locations = new ArrayList<>();
 
-    public File(String name, String url, Company company, FileType fileType, Task task, boolean hidden) {
+    public File(String name, String url, FileType fileType, Task task, boolean hidden) {
         this.name = name;
         this.url = url;
         this.type = fileType;
         this.task = task;
         this.hidden = hidden;
-        this.setCompany(company);
     }
 }

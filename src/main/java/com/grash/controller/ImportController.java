@@ -47,7 +47,6 @@ public class ImportController {
                 Long id = workOrderImportDTO.getId();
                 WorkOrder workOrder = new WorkOrder();
                 if (id == null) {
-                    workOrder.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
                     Optional<WorkOrder> optionalWorkOrder = workOrderService.findByIdAndCompany(id, user.getCompany().getId());
@@ -77,7 +76,6 @@ public class ImportController {
                 Long id = assetImportDTO.getId();
                 Asset asset = new Asset();
                 if (id == null) {
-                    asset.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
                     Optional<Asset> optionalAsset = assetService.findByIdAndCompany(id, user.getCompany().getId());
@@ -107,7 +105,6 @@ public class ImportController {
                 Long id = locationImportDTO.getId();
                 Location location = new Location();
                 if (id == null) {
-                    location.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
                     Optional<Location> optionalLocation = locationService.findByIdAndCompany(id, user.getCompany().getId());
@@ -136,7 +133,6 @@ public class ImportController {
                 Long id = meterImportDTO.getId();
                 Meter meter = new Meter();
                 if (id == null) {
-                    meter.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
                     Optional<Meter> optionalMeter = meterService.findByIdAndCompany(id, user.getCompany().getId());
@@ -166,7 +162,6 @@ public class ImportController {
                 Long id = partImportDTO.getId();
                 Part part = new Part();
                 if (id == null) {
-                    part.setCompany(user.getCompany());
                     created[0] = created[0] + 1;
                 } else {
                     Optional<Part> optionalPart = partService.findByIdAndCompany(id, user.getCompany().getId());

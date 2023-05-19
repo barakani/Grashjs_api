@@ -46,12 +46,11 @@ public class Labor extends Time {
         return hourlyRate * this.getDuration() / 3600;
     }
 
-    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, Company company, boolean logged, TimeStatus status) {
+    public Labor(OwnUser user, long hourlyRate, Date startedAt, WorkOrder workOrder, boolean logged, TimeStatus status) {
         this.assignedTo = user;
         this.hourlyRate = hourlyRate;
         this.startedAt = startedAt;
         this.workOrder = workOrder;
-        this.setCompany(company);
         this.status = status;
         this.logged = logged;
     }
