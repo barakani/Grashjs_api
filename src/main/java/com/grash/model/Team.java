@@ -15,10 +15,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class Team extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Team_User_Associations",

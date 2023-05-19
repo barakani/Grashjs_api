@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -16,10 +17,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 public class Relation extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @NotNull
     private RelationTypeInternal relationType = RelationTypeInternal.RELATED_TO;
 

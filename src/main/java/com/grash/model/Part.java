@@ -21,10 +21,6 @@ import static java.util.stream.Collectors.toCollection;
 @Data
 @NoArgsConstructor
 public class Part extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @NotNull
     private String name;
 

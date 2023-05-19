@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 import java.util.Objects;
 
@@ -23,9 +24,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class WorkflowCondition extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
     private WorkOrderCondition workOrderCondition;
     private RequestCondition requestCondition;
     private PurchaseOrderCondition purchaseOrderCondition;

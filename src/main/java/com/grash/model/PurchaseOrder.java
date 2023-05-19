@@ -5,7 +5,8 @@ import com.grash.model.enums.ApprovalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -13,10 +14,6 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class PurchaseOrder extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     private ApprovalStatus status = ApprovalStatus.PENDING;
 
     @NotNull

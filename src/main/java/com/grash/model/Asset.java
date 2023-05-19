@@ -23,9 +23,6 @@ import static java.util.stream.Collectors.toCollection;
 @Data
 @NoArgsConstructor
 public class Asset extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     private boolean archived;
 

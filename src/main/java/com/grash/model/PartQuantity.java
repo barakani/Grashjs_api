@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
@@ -14,9 +15,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 public class PartQuantity extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     @NotNull
     @Min(value = 0L, message = "The value must be positive")

@@ -16,9 +16,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class Meter extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     @NotNull
     private String name;

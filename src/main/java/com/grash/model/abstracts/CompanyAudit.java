@@ -16,6 +16,9 @@ import javax.persistence.*;
 @MappedSuperclass
 @Data
 public class CompanyAudit extends Audit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @ManyToOne
     @JsonIgnore
@@ -40,7 +43,7 @@ public class CompanyAudit extends Audit {
         Company company = user.getCompany();
         // check if not authorized
         if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) && !company.getId().equals(this.getCompany().getId())) {
-            throw new CustomException("afterLoad:  the user (username=" + user.getUsername() + ")  is not authorized to load  this object " + this.getClass(), HttpStatus.FORBIDDEN);
+            throw new CustomException("afterLoad:  the user (username=" + user.getUsername() + ")  is not authorized to load  this object (" + this.getClass() + ") with id" + this.id, HttpStatus.FORBIDDEN);
         }
     }
 
