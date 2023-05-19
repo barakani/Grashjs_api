@@ -77,11 +77,11 @@ public class CompanySettings {
     }
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {
-        return costCategories.stream().map(costCategory -> new CostCategory(costCategory, this)).collect(Collectors.toList());
+        return costCategories.stream().map(costCategory -> new CostCategory(costCategory)).collect(Collectors.toList());
     }
 
     private List<TimeCategory> createTimeCategories(List<String> timeCategories) {
-        return timeCategories.stream().map(timeCategory -> new TimeCategory(timeCategory, this)).collect(Collectors.toList());
+        return timeCategories.stream().map(timeCategory -> new TimeCategory(timeCategory)).collect(Collectors.toList());
     }
 
     private Set<Role> getDefaultRoles() {
