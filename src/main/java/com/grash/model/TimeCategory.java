@@ -17,7 +17,7 @@ public class TimeCategory extends CategoryAbstract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    public TimeCategory(String name, CompanySettings companySettings) {
-        super(name, companySettings);
+    public TimeCategory(String name) {
+        super(name);
     }
 }

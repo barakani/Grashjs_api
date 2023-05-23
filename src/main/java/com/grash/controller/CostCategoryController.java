@@ -80,7 +80,6 @@ public class CostCategoryController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
-            costCategory.setCompanySettings(user.getCompany().getCompanySettings());
             return costCategoryService.create(costCategory);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
