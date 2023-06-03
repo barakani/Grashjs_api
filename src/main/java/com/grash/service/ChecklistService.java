@@ -5,9 +5,7 @@ import com.grash.dto.ChecklistPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Checklist;
 import com.grash.model.Company;
-import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.CheckListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,10 +53,10 @@ public class ChecklistService {
     public Checklist update(Long id, ChecklistPatchDTO checklistReq, Company company) {
         if (checklistRepository.existsById(id)) {
             Checklist savedChecklist = checklistRepository.getById(id);
-            savedChecklist.getTaskBases().forEach(taskBase -> taskBaseService.delete(taskBase.getId()));
+            savedChecklist.getTaskBases().clear();
             List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                     .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
-            savedChecklist.setTaskBases(taskBases);
+            savedChecklist.getTaskBases().addAll(taskBases);
             Checklist updatedChecklist = checklistRepository.saveAndFlush(savedChecklist);
             em.refresh(updatedChecklist);
             return updatedChecklist;

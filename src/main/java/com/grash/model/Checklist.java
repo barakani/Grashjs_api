@@ -22,7 +22,7 @@ public class Checklist extends DateAudit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany
+    @OneToMany(orphanRemoval = true)
     private List<TaskBase> taskBases = new ArrayList<>();
 
     @NotNull
