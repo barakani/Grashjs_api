@@ -27,7 +27,9 @@ public class CompanyAudit extends Audit {
 
     @PrePersist
     public void beforePersist() {
-        OwnUser user = ((CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return;
+        OwnUser user = ((CustomUserDetail) authentication.getPrincipal()).getUser();
         Company company = user.getCompany();
         this.setCompany(company);
     }
