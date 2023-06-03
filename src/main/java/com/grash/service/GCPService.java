@@ -25,6 +25,10 @@ import java.nio.charset.StandardCharsets;
 public class GCPService {
     @Value("${gcp.value}")
     private String gcpJson;
+    @Value("${gcp.project-id}")
+    private String gcpProjectId;
+    @Value("${gcp.bucket-name}")
+    private String gcpBucketName;
 
     public String upload(MultipartFile file, String folder) {
         Helper helper = new Helper();
@@ -37,10 +41,10 @@ public class GCPService {
             throw new CustomException("Wrong credentials", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Storage storage = StorageOptions.newBuilder().setCredentials(credentials)
-                .setProjectId("radiant-rookery-370411").build().getService();
+                .setProjectId(gcpProjectId).build().getService();
         try {
             BlobInfo blobInfo = storage.create(
-                    BlobInfo.newBuilder("grash", folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
+                    BlobInfo.newBuilder(gcpBucketName, folder + "/" + helper.generateString() + " " + file.getOriginalFilename()).build(), //get original file name
                     file.getBytes(), // the file
                     BlobTargetOption.predefinedAcl(PredefinedAcl.PUBLIC_READ) // Set file permission
             );
