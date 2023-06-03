@@ -37,13 +37,11 @@ public class Task extends CompanyAudit {
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
     private WorkOrder workOrder;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
     private PreventiveMaintenance preventiveMaintenance;
 
     public Task(TaskBase taskBase, WorkOrder workOrder, PreventiveMaintenance preventiveMaintenance, String value) {
