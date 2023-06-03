@@ -3,9 +3,7 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,7 +56,7 @@ public class SubscriptionService {
     }
 
     public void scheduleEnd(Subscription subscription) {
-        boolean shouldSchedule = !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn().after(new Date());
+        boolean shouldSchedule = !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null && subscription.getEndsOn().after(new Date());
         if (shouldSchedule) {
             Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
