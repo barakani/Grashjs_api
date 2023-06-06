@@ -78,6 +78,7 @@ public class UserService {
 
     public SuccessResponse signup(UserSignupRequest userReq) {
         OwnUser user = userMapper.toModel(userReq);
+        user.setEmail(user.getEmail().toLowerCase());
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
