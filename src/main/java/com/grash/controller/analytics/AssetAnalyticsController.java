@@ -75,7 +75,7 @@ public class AssetAnalyticsController {
             long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             long ages = assets.stream().mapToLong(Asset::getAge).sum();
-            long availability = (ages - downtimesDuration) * 100 / ages;
+            long availability = ages == 0 ? 0 : (ages - downtimesDuration) * 100 / ages;
             return Helper.withCache(AssetStats.builder()
                     .downtime(downtimesDuration)
                     .availability(availability)
