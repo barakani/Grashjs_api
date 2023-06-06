@@ -17,7 +17,7 @@ public class MeterCategory extends CategoryAbstract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    public MeterCategory(String name) {
-        super(name);
+    public MeterCategory(String name, CompanySettings companySettings) {
+        super(name, companySettings);
     }
 }

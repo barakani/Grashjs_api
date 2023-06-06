@@ -17,7 +17,7 @@ public class CostCategory extends CategoryAbstract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    public CostCategory(String name) {
-        super(name);
+    public CostCategory(String name, CompanySettings companySettings) {
+        super(name, companySettings);
     }
 }

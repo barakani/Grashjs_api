@@ -17,7 +17,7 @@ public class WorkOrderCategory extends CategoryAbstract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    public WorkOrderCategory(String name) {
-        super(name);
+    public WorkOrderCategory(String name, CompanySettings companySettings) {
+        super(name, companySettings);
     }
 }

@@ -6,6 +6,7 @@ import com.grash.model.OwnUser;
 import com.grash.security.CustomUserDetail;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.JoinColumn;
@@ -29,13 +30,17 @@ public abstract class CategoryAbstract extends Audit {
 
     @PrePersist
     public void beforePersist() {
-        OwnUser user = ((CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || (authentication.getPrincipal().getClass().equals(String.class) && authentication.getPrincipal().equals("anonymousUser")))
+            return;
+        OwnUser user = ((CustomUserDetail) authentication.getPrincipal()).getUser();
         CompanySettings companySettings = user.getCompany().getCompanySettings();
         this.setCompanySettings(companySettings);
     }
 
-    public CategoryAbstract(String name) {
+    public CategoryAbstract(String name, CompanySettings companySettings) {
         this.name = name;
+        this.companySettings = companySettings;
     }
 
 }
