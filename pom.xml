@@ -18,6 +18,7 @@
         <lombok.version>1.18.24</lombok.version>
         <org.thymeleaf-version>3.0.11.RELEASE</org.thymeleaf-version>
         <freemarker.version>2.3.27-incubating</freemarker.version>
+        <liquibase.version>4.22.0</liquibase.version>
     </properties>
     <dependencies>
         <dependency>
@@ -150,6 +151,11 @@
             <groupId>io.github.jav</groupId>
             <artifactId>expo-server-sdk</artifactId>
             <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
     </dependencies>
 

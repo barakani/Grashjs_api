@@ -4,6 +4,8 @@ spring:
   #      max-active: 50
   #      max-idle: 20
   #      min-idle: 15
+  liquibase:
+    change-log: classpath:/db/changelog/master.xml
   messages:
     encoding: UTF-8
   servlet:
@@ -16,15 +18,13 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   jpa:
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
         format_sql: true
         id:
           new_generator_mappings: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     properties.mail.smtp:
       auth: true
       starttls.enable: true
