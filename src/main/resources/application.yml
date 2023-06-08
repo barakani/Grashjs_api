@@ -57,7 +57,7 @@ security:
 frontend:
   url: http://localhost:3000
 mail:
-  recipient: #recipient@gmail.com
+  recipients: ${MAIL_RECIPIENTS}
 superAdmin:
   role:
     name: SuperAdministratorGrash@p;l
