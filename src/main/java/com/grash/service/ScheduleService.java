@@ -3,10 +3,10 @@ package com.grash.service;
 import com.grash.dto.SchedulePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.ScheduleMapper;
-import com.grash.model.OwnUser;
+import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.Task;
 import com.grash.model.WorkOrder;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.ScheduleRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,7 @@ public class ScheduleService {
     private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final ScheduleMapper scheduleMapper;
     private final WorkOrderService workOrderService;
+    private final TaskService taskService;
 
     private Map<Long, Timer> timers = new HashMap<>();
 
@@ -61,12 +62,18 @@ public class ScheduleService {
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(schedule.getPreventiveMaintenance());
+                    PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
+                    WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
+                    Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
                     workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
                     if (schedule.getDueDateDelay() != null) {
                         workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
                     }
                     WorkOrder savedWorkOrder = workOrderService.create(workOrder);
+                    tasks.forEach(task -> {
+                        Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
+                        taskService.create(copiedTask);
+                    });
                     workOrderService.notify(savedWorkOrder, Helper.getLocale(workOrder.getCompany()));
                 }
             };
