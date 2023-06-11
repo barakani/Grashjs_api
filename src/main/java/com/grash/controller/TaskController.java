@@ -35,6 +35,7 @@ public class TaskController {
     private final TaskBaseService taskBaseService;
     private final WorkOrderService workOrderService;
     private final WorkflowService workflowService;
+    private final PreventiveMaintenanceService preventiveMaintenanceService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -62,6 +63,37 @@ public class TaskController {
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return taskService.findByWorkOrder(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/preventive-maintenance/{id}")
+    @PreAuthorize("permitAll()")
+    public Collection<Task> getByPreventiveMaintenance(@ApiParam("id") @PathVariable("id") Long id) {
+        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
+        if (optionalPreventiveMaintenance.isPresent()) {
+            return taskService.findByPreventiveMaintenance(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/preventive-maintenance/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<Task> createByPreventiveMaintenance(@ApiParam("Task") @Valid @RequestBody Collection<TaskBaseDTO> taskBasesReq, @ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
+        if (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().canBeEditedBy(user)) {
+            taskService.findByPreventiveMaintenance(id).forEach(task -> taskService.delete(task.getId()));
+            Collection<TaskBase> taskBases = taskBasesReq.stream().map(taskBaseDTO ->
+                    taskBaseService.createFromTaskBaseDTO(taskBaseDTO, user.getCompany())).collect(Collectors.toList());
+            return taskBases.stream().map(taskBase -> {
+                StringBuilder value = new StringBuilder();
+                if (taskBase.getTaskType().equals(TaskType.SUBTASK)) {
+                    value.append("OPEN");
+                } else if (taskBase.getTaskType().equals(TaskType.INSPECTION)) {
+                    value.append("FLAG");
+                }
+                Task task = new Task(taskBase, null, optionalPreventiveMaintenance.get(), value.toString());
+                return taskService.create(task);
+            }).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

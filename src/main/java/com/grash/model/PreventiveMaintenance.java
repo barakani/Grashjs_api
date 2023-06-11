@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.enums.PermissionEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,5 +21,10 @@ public class PreventiveMaintenance extends WorkOrderBase {
     @OneToOne(cascade = CascadeType.ALL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Schedule schedule = new Schedule(this);
+
+    public boolean canBeEditedBy(OwnUser user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
+                || this.getCreatedBy().equals(user.getId());
+    }
 
 }

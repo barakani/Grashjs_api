@@ -7,4 +7,6 @@ import java.util.Collection;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Collection<Task> findByWorkOrder_Id(Long id);
+
+    Collection<Task> findByPreventiveMaintenance_Id(Long id);
 }

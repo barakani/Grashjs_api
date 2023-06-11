@@ -3,9 +3,7 @@ package com.grash.service;
 import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Task;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,5 +55,9 @@ public class TaskService {
 
     public Collection<Task> findByWorkOrder(Long id) {
         return taskRepository.findByWorkOrder_Id(id);
+    }
+
+    public Collection<Task> findByPreventiveMaintenance(Long id) {
+        return taskRepository.findByPreventiveMaintenance_Id(id);
     }
 }
