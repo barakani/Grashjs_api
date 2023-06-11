@@ -163,8 +163,7 @@ public class WorkOrderService {
         workOrder.setPriority(workOrderBase.getPriority());
         workOrder.setImage(workOrder.getImage());
         workOrder.setCompany(workOrderBase.getCompany());
-        //TODO
-        //workOrder.setFiles(workOrderBase.getFiles());
+        workOrder.getFiles().addAll(workOrderBase.getFiles());
         workOrder.setAsset(workOrderBase.getAsset());
         workOrder.setLocation(workOrderBase.getLocation());
         workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
