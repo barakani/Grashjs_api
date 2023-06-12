@@ -176,6 +176,7 @@ public class UserService {
     }
 
     public SuccessResponse resetPassword(String email) {
+        email = email.toLowerCase();
         OwnUser user = findByEmail(email).get();
         Helper helper = new Helper();
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
