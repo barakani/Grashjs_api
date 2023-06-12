@@ -182,8 +182,9 @@ public class UserService {
         String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+        String finalEmail = email;
         Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("loginLink", frontendUrl + "/account/login?email=" + email);
+            put("loginLink", frontendUrl + "/account/login?email=" + finalEmail);
             put("featuresLink", frontendUrl + "/#key-features");
             put("password", password);
         }};
