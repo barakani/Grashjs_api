@@ -12,14 +12,14 @@
     <artifactId>api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>api</name>
-    <description>Grashjs application programing interface</description>
+    <description>Grash application programming interface</description>
     <properties>
         <java.version>1.8</java.version>
         <lombok.version>1.18.24</lombok.version>
         <org.thymeleaf-version>3.0.11.RELEASE</org.thymeleaf-version>
         <freemarker.version>2.3.27-incubating</freemarker.version>
         <liquibase.version>4.22.0</liquibase.version>
-        <liquibase.propertyFile>src/main/resources/liquibase/liquibase.properties</liquibase.propertyFile>
+        <liquibase.propertyFile>src/main/resources/liquibase/liquibase-diff.properties</liquibase.propertyFile>
     </properties>
     <dependencies>
         <dependency>
