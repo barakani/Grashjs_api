@@ -36,7 +36,7 @@ public class EmailService2 {
     @Value("classpath:/static/images/logo.png")
     private Resource resourceFile;
 
-    public void sendSimpleMessage(String to, String subject, String text) {
+    public void sendSimpleMessage(String[] to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(to);
@@ -47,13 +47,6 @@ public class EmailService2 {
         } catch (MailException exception) {
             exception.printStackTrace();
         }
-    }
-
-    public void sendSimpleMessageUsingTemplate(String to,
-                                               String subject,
-                                               String... templateModel) {
-        String text = String.format(template.getText(), templateModel);
-        sendSimpleMessage(to, subject, text);
     }
 
     public void sendMessageWithAttachment(String to,
@@ -97,7 +90,7 @@ public class EmailService2 {
     }
 
 
-    private void sendHtmlMessage(String[] to, String subject, String htmlBody) throws MessagingException {
+    public void sendHtmlMessage(String[] to, String subject, String htmlBody) throws MessagingException {
 
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

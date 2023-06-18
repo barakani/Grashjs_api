@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,6 +28,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -59,6 +61,8 @@ public class UserService {
     private String API_HOST;
     @Value("${frontend.url}")
     private String frontendUrl;
+    @Value("${mail.recipients}")
+    private String[] recipients;
 
     public String signin(String email, String password, String type) {
         try {
@@ -125,7 +129,7 @@ public class UserService {
                     emailService2.sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()}, messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables, "signup.html", Helper.getLocale(user));
                 }
                 userRepository.save(user);
-
+                sendRegistrationMail(user, userReq.getEmployeesCount());
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
             }
         } else {
@@ -251,5 +255,14 @@ public class UserService {
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return userRepository.findAll(builder.build(), page);
+    }
+
+    @Async
+    void sendRegistrationMail(OwnUser user, int employeesCount) {
+        try {
+            emailService2.sendHtmlMessage(recipients, "New Grash registration", user.getFirstName() + " " + user.getLastName() + " just created an account from company " + user.getCompany().getName() + " with " + employeesCount + " employees.");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }
