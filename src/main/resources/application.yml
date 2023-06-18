@@ -6,6 +6,7 @@ spring:
   #      min-idle: 15
   liquibase:
     change-log: classpath:/db/changelog/master.xml
+    enabled: false
   messages:
     encoding: UTF-8
   servlet:
@@ -18,6 +19,8 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   jpa:
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
