@@ -19,6 +19,7 @@
         <org.thymeleaf-version>3.0.11.RELEASE</org.thymeleaf-version>
         <freemarker.version>2.3.27-incubating</freemarker.version>
         <liquibase.version>4.22.0</liquibase.version>
+        <liquibase.propertyFile>src/main/resources/liquibase/liquibase.properties</liquibase.propertyFile>
     </properties>
     <dependencies>
         <dependency>
@@ -199,11 +200,8 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.version}</version>
                 <configuration>
-                    <driver>org.postgresql.Driver</driver>
-                    <url>jdbc:postgresql://localhost:5432/grash</url>
-                    <username>postgres</username>
-                    <password>postgres</password>
-                    <outputChangeLogFile>src/main/resources/liquibase-outputChangeLog.xml</outputChangeLogFile>
+                    <propertyFileWillOverride>true</propertyFileWillOverride>
+                    <propertyFile>${liquibase.propertyFile}</propertyFile>
                 </configuration>
             </plugin>
         </plugins>
