@@ -44,7 +44,6 @@ public class TaskController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Task not found")})
     public Task getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
             Task savedTask = optionalTask.get();
@@ -59,7 +58,6 @@ public class TaskController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "Task not found")})
     public Collection<Task> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
             return taskService.findByWorkOrder(id);
@@ -134,7 +132,6 @@ public class TaskController {
         Optional<Task> optionalTask = taskService.findById(id);
 
         if (optionalTask.isPresent()) {
-            Task savedTask = optionalTask.get();
             Task patchedTask = taskService.update(id, task);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runTask(workflow, patchedTask));
@@ -153,7 +150,6 @@ public class TaskController {
 
         Optional<Task> optionalTask = taskService.findById(id);
         if (optionalTask.isPresent()) {
-            Task savedTask = optionalTask.get();
             taskService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);

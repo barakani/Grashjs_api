@@ -150,7 +150,7 @@ public class UserController {
             OwnUser userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 int usersCount = (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
-                if (usersCount < requester.getCompany().getSubscription().getUsersCount()) {
+                if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
                     userToPatch.setRole(optionalRole.get());
                     return userMapper.toPatchDto(userService.save(userToPatch));
                 } else
