@@ -16,6 +16,7 @@ public class UserResponseDTO {
     @ApiModelProperty(position = 3)
     private Role role;
 
+    private long rate;
     private String jobTitle;
 
     private String firstName;
