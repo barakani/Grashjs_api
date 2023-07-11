@@ -174,7 +174,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()) || savedWorkOrder.isAssignedTo(user))) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -333,7 +333,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()) || savedWorkOrder.isAssignedTo(user))) {
                 Context thymeleafContext = new Context();
                 thymeleafContext.setLocale(Helper.getLocale(user));
                 Optional<OwnUser> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() : userService.findById(savedWorkOrder.getCreatedBy());
