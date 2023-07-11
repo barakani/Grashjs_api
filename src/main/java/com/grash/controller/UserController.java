@@ -101,12 +101,13 @@ public class UserController {
             @ApiResponse(code = 404, message = "User not found")})
     public UserResponseDTO patch(@ApiParam("User") @Valid @RequestBody UserPatchDTO userReq,
                                  @ApiParam("id") @PathVariable("id") Long id,
-                                 @ApiIgnore @CurrentUser OwnUser user) {
+                                 @ApiIgnore @CurrentUser OwnUser requester) {
         Optional<OwnUser> optionalUser = userService.findById(id);
 
         if (optionalUser.isPresent()) {
-            OwnUser savedOwnUser = optionalUser.get();
-            if (savedOwnUser.getId().equals(user.getId())) {
+            OwnUser savedUser = optionalUser.get();
+            if (requester.getId().equals(savedUser.getId()) ||
+                    requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 return userMapper.toPatchDto(userService.update(id, userReq));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
@@ -147,7 +148,7 @@ public class UserController {
 
         if (optionalUserToPatch.isPresent() && optionalRole.isPresent()) {
             OwnUser userToPatch = optionalUserToPatch.get();
-            if (userToPatch.getCompany().getId().equals(requester.getCompany().getId()) && requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 int usersCount = (int) userService.findByCompany(requester.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscriptionAndPaid).count();
                 if (usersCount < requester.getCompany().getSubscription().getUsersCount()) {
                     userToPatch.setRole(optionalRole.get());
