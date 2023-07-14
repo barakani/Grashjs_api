@@ -19,7 +19,7 @@
         <org.thymeleaf-version>3.0.11.RELEASE</org.thymeleaf-version>
         <freemarker.version>2.3.27-incubating</freemarker.version>
         <liquibase.version>4.22.0</liquibase.version>
-        <liquibase.propertyFile>src/main/resources/liquibase/liquibase-diff.properties</liquibase.propertyFile>
+        <liquibase.propertyFile>src/main/resources/liquibase/liquibase-local.properties</liquibase.propertyFile>
     </properties>
     <dependencies>
         <dependency>

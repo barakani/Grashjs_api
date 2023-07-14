@@ -26,6 +26,6 @@ public class GeneralPreferencesPatchDTO {
     private boolean askFeedBackOnWOClosed;
     private boolean laborCostInTotalCost;
     private boolean woUpdateForRequesters;
-
+    private boolean simplifiedWorkOrder;
 
 }

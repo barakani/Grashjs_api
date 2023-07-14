@@ -42,6 +42,8 @@ public class GeneralPreferences {
 
     private boolean woUpdateForRequesters = true;
 
+    private boolean simplifiedWorkOrder;
+
     @OneToOne
     @JsonIgnore
     private CompanySettings companySettings;

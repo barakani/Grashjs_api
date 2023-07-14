@@ -5,7 +5,7 @@ spring:
   #      max-idle: 20
   #      min-idle: 15
   liquibase:
-    change-log: classpath:/db/changelog/master.xml
+    change-log: classpath:/db/master.xml
     enabled: false
   messages:
     encoding: UTF-8
