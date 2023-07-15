@@ -23,6 +23,8 @@ public class AssetPatchDTO {
 
     private String barCode;
 
+    private String nfcId;
+
     private AssetCategory category;
 
     private String name;

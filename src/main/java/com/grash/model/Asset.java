@@ -42,7 +42,6 @@ public class Asset extends CompanyAudit {
 
     private String description;
 
-    @Column(unique = true)
     private String barCode;
 
     @ManyToOne
@@ -56,7 +55,6 @@ public class Asset extends CompanyAudit {
 
     private Long acquisitionCost;
 
-    @Column(unique = true)
     private String nfcId;
 
     @ManyToMany

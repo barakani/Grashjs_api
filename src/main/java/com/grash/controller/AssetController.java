@@ -170,6 +170,18 @@ public class AssetController {
     public AssetShowDTO create(@ApiParam("Asset") @Valid @RequestBody Asset assetReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
+            if (assetReq.getBarCode() != null) {
+                Optional<Asset> optionalAssetWithSameBarCode = assetService.findByBarcodeAndCompany(assetReq.getBarCode(), user.getCompany().getId());
+                if (optionalAssetWithSameBarCode.isPresent()) {
+                    throw new CustomException("Asset with same barCode exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            if (assetReq.getNfcId() != null) {
+                Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(assetReq.getNfcId(), user.getCompany().getId());
+                if (optionalAssetWithSameNfcId.isPresent()) {
+                    throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
             if (assetReq.getParentAsset() != null) {
                 Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
                 if (optionalParentAsset.isPresent()) {
@@ -205,6 +217,18 @@ public class AssetController {
                     assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));
                 } else if (asset.getStatus().equals(AssetStatus.DOWN) && !savedAsset.getStatus().equals(AssetStatus.DOWN)) {
                     assetService.triggerDownTime(savedAsset.getId(), Helper.getLocale(user));
+                }
+                if (asset.getBarCode() != null) {
+                    Optional<Asset> optionalAssetWithSameBarCode = assetService.findByBarcodeAndCompany(asset.getBarCode(), user.getCompany().getId());
+                    if (optionalAssetWithSameBarCode.isPresent() && !optionalAssetWithSameBarCode.get().getId().equals(id)) {
+                        throw new CustomException("Asset with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                }
+                if (asset.getNfcId() != null) {
+                    Optional<Asset> optionalAssetWithSameNfcId = assetService.findByNfcIdAndCompany(asset.getNfcId(), user.getCompany().getId());
+                    if (optionalAssetWithSameNfcId.isPresent() && !optionalAssetWithSameNfcId.get().getId().equals(id)) {
+                        throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
                 }
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));

@@ -8,4 +8,6 @@
              relativeToChangelogFile="false"/>
     <include file="src/main/resources/db/changelog/ 2023_07_14_1689357579_add_simplifiedWorkOrder.xml"
              relativeToChangelogFile="false"/>
+    <include file="src/main/resources/db/changelog/2023_07_16_1689459801_drop_barcode_nfcId_unique_constraints.xml"
+             relativeToChangelogFile="false"/>
 </databaseChangeLog>
