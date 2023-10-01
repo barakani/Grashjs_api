@@ -5,7 +5,7 @@ application developed with React. The frontend developed with React can be
 found [here](https://github.com/Grashjs/frontend). We are in the beta phase and are planning to create a React Native
 mobile application. The link to the live website can be found [here](https://grash-cmms.com).  
 You can see more explanations in [Purpose.pdf](Purpose.pdf). We would be very happy to have new contributors join us.
-And please star the repo.
+**And please star the repo**.
 
 **Screenshot**:
 ![](https://i.ibb.co/7tGYCtv/Screenshot-502.png)
@@ -31,7 +31,13 @@ You can contribute in different ways. Sending feedback on features, fixing certa
 Here is the [trello dashboard](https://trello.com/invite/b/dHcnX2Y0/ATTI9f361dff4298643df8ef3a80a1413c42E4308099/grash).
 Instructions on _how_ to contribute can be found in [CONTRIBUTING](CONTRIBUTING.md).
 
+## Star History
 
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=grashjs/api&type=Date" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=grashjs/api&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=grashjs/api&type=Date" />
+</picture>
 ----
 
 ## Open source licensing info
