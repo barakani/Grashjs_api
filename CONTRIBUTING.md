@@ -22,5 +22,4 @@ guidance below.
 
 ## Changing the code-base
 
-Generally speaking, you should fork this repository, make changes in your own fork, and then submit a pull request. We
-are using a React template and the `src/content/own` directory contains the tsx pages used in this project.
+Generally speaking, you should fork this repository, make changes in your own fork, and then submit a pull request.
