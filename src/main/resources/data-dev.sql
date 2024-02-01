@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS currency(
-                                       id int,
+                                       id SERIAL PRIMARY KEY,
                                        name varchar unique,
                                        code varchar unique
 );

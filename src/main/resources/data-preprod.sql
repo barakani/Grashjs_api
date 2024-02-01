@@ -1,5 +1,6 @@
-CREATE TABLE IF NOT EXISTS currency(
-    id int,
+CREATE TABLE IF NOT EXISTS currency
+(
+    id   SERIAL PRIMARY KEY,
     name varchar unique,
     code varchar unique
 );
@@ -9,4 +10,4 @@ VALUES (1, 'Euro', '€'),
        (3, 'Dirham', 'DH')
 ON CONFLICT
     (id)
-DO UPDATE SET name = excluded.name;
+    DO UPDATE SET name = excluded.name;
