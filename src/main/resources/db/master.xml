@@ -10,4 +10,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2023_07_16_1689459801_drop_barcode_nfcId_unique_constraints.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_02_1706819741_insert_currencies.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

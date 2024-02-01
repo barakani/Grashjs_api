@@ -9,9 +9,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  sql:
-    init:
-      data-locations: classpath:data-dev.sql
+#  sql:
+#    init:
+#      data-locations: classpath:data-dev.sql
 #logging:
 #  level:
 #    org:
