@@ -1,3 +1,8 @@
+CREATE TABLE IF NOT EXISTS currency(
+                                       id int,
+                                       name varchar unique,
+                                       code varchar unique
+);
 INSERT INTO currency (id, name, code)
 VALUES (1, 'Euro', '€'),
        (2, 'Dollar', '$'),
