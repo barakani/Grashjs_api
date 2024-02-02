@@ -1,4 +1,4 @@
-# Grash CMMS API
+# Atlas CMMS API
 
 This project aims to help manage assets, schedule maintenance and track work orders. This is the REST backend (Java8-Spring Boot) of the web
 application developed with React. The frontend developed with React can be

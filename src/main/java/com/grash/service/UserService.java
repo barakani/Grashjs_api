@@ -260,7 +260,7 @@ public class UserService {
     @Async
     void sendRegistrationMail(OwnUser user, int employeesCount) {
         try {
-            emailService2.sendHtmlMessage(recipients, "New Grash registration", user.getFirstName() + " " + user.getLastName() + " just created an account from company " + user.getCompany().getName() + " with " + employeesCount + " employees.\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone());
+            emailService2.sendHtmlMessage(recipients, "New Atlas registration", user.getFirstName() + " " + user.getLastName() + " just created an account from company " + user.getCompany().getName() + " with " + employeesCount + " employees.\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone());
         } catch (MessagingException e) {
             e.printStackTrace();
         }

@@ -38,7 +38,7 @@ public class SwaggerConfig {
 
     private ApiInfo metadata() {
         return new ApiInfoBuilder()//
-                .title("Grash API")//
+                .title("Atlas API")//
                 .version("1.0.0")//
                 .license("MIT License").licenseUrl("http://opensource.org/licenses/MIT")//
                 .build();
