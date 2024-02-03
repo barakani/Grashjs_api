@@ -4,7 +4,7 @@ This project aims to help manage assets, schedule maintenance and track work ord
 application developed with React. The frontend developed with React can be
 found [here](https://github.com/Grashjs/frontend). We also have
 a [React Native mobile application](https://github.com/Grashjs/mobile). The link to the live website can be
-found [here](https://grash-cmms.com).  
+found [here](https://atlascmms.com).  
 Here are the [current features](Current%20features.pdf). We would be very happy to have new contributors join us.
 **And please star the repo**.
 
