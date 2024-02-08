@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,9 @@ public class EmailService2 {
 
     @Value("classpath:/static/images/logo.png")
     private Resource resourceFile;
+
+    private final Environment environment;
+
 
     public void sendSimpleMessage(String[] to, String subject, String text) {
         try {
@@ -79,7 +83,7 @@ public class EmailService2 {
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(locale);
         thymeleafContext.setVariables(templateModel);
-
+        thymeleafContext.setVariable("environment", environment);
         String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
 
         try {

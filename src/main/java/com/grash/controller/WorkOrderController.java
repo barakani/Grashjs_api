@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -71,6 +72,7 @@ public class WorkOrderController {
     private final SpringTemplateEngine thymeleafTemplateEngine;
     private final GCPService gcp;
     private final WorkflowService workflowService;
+    private final Environment environment;
 
 
     @Value("${frontend.url}")
@@ -358,6 +360,7 @@ public class WorkOrderController {
                     put("additionalCosts", additionalCosts);
                     put("workOrderHistories", workOrderHistories);
                     put("partQuantities", partQuantities);
+                    put("environment", environment);
                 }};
                 thymeleafContext.setVariables(variables);
 
