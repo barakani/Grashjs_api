@@ -95,6 +95,7 @@ public class UserService {
                 subscriptionService.create(subscription);
                 Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
                 company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
+                if(userReq.getLanguage() !=null) company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);
