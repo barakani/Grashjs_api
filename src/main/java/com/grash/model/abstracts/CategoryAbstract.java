@@ -23,6 +23,8 @@ public abstract class CategoryAbstract extends Audit {
     @NotNull
     private String name;
 
+    private String description;
+
     @ManyToOne
     @JoinColumn(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

@@ -16,4 +16,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_22_1708610986_insert_turkish_currency.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_22_1708610987_add_description_in_categories.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_22_1708610988_add_work_order_category_description.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
