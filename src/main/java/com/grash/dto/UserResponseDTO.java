@@ -2,8 +2,12 @@ package com.grash.dto;
 
 import com.grash.model.File;
 import com.grash.model.Role;
+import com.grash.model.SuperAccountRelation;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class UserResponseDTO {
@@ -34,5 +38,9 @@ public class UserResponseDTO {
     private Long userSettingsId;
 
     private File image;
+
+    private List<SuperAccountRelationDTO> superAccountRelations = new ArrayList<>();
+
+    private SuperAccountRelationDTO parentSuperAccount;
 
 }

@@ -135,6 +135,12 @@ public class OwnUser extends Audit {
     @JsonIgnore
     private List<WorkOrder> workOrders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "superUser")
+    private List<SuperAccountRelation> superAccountRelations = new ArrayList<>();
+
+    @OneToOne(mappedBy="childUser")
+    private SuperAccountRelation parentSuperAccount;
+
     public int hashCode() {
         return Math.toIntExact(id);
     }
