@@ -38,8 +38,7 @@ public class CompanyAudit extends Audit {
     @PostLoad
     public void afterLoad() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null)
-            return;
+        if (authentication == null || authentication.getPrincipal() instanceof String) return;
         Object principal = authentication.getPrincipal();
         OwnUser user = ((CustomUserDetail) principal).getUser();
         Company company = user.getCompany();
