@@ -74,24 +74,24 @@ public class AuthController {
         return userService.signup(user);
     }
 
-    @PostMapping(
-            path = "/sendMail",
-            produces = "text/html;charset=UTF-8"
-    )
-    @ApiOperation(value = "${AuthController.signup}")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 422, message = "Username is already in use")})
-    public void sendMail(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
-        String email = "ibracool99@gmail.com";
-        String subject = "GG";
-        Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("verifyTokenLink", "gg");
-            put("featuresLink", "s");
-        }};
-        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html", Locale.FRENCH);
-    }
+//    @PostMapping(
+//            path = "/sendMail",
+//            produces = "text/html;charset=UTF-8"
+//    )
+//    @ApiOperation(value = "${AuthController.signup}")
+//    @ApiResponses(value = {//
+//            @ApiResponse(code = 400, message = "Something went wrong"), //
+//            @ApiResponse(code = 403, message = "Access denied"), //
+//            @ApiResponse(code = 422, message = "Username is already in use")})
+//    public void sendMail(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
+//        String email = "ibracool99@gmail.com";
+//        String subject = "GG";
+//        Map<String, Object> variables = new HashMap<String, Object>() {{
+//            put("verifyTokenLink", "gg");
+//            put("featuresLink", "s");
+//        }};
+//        emailService2.sendMessageUsingThymeleafTemplate(new String[]{email}, subject, variables, "new-work-order.html", Locale.FRENCH);
+//    }
 
     @GetMapping("/activate-account")
     @ApiOperation(value = "activate account")
@@ -183,11 +183,13 @@ public class AuthController {
             SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             OwnUser childUser = userService.findById(id).get();
+            if(!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(), Collections.singletonList(childUser.getRole().getRoleType())));
         } else if (user.getParentSuperAccount() != null) { //user is child
             SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             OwnUser superUser = userService.findById(id).get();
+            if(!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(), Collections.singletonList(superUser.getRole().getRoleType())));
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

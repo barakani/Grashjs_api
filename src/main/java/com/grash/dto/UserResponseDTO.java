@@ -6,6 +6,7 @@ import com.grash.model.SuperAccountRelation;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,7 +39,7 @@ public class UserResponseDTO {
 
     private File image;
 
-    private List<SuperAccountRelationDTO> superAccountRelations;
+    private List<SuperAccountRelationDTO> superAccountRelations = new ArrayList<>();
 
     private SuperAccountRelationDTO parentSuperAccount;
 
