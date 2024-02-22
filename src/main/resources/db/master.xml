@@ -14,4 +14,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_22_1708610985_create_super_account_relation.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_22_1708610986_insert_turkish_currency.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
