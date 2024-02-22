@@ -1,8 +1,13 @@
 package com.grash.controller;
 
 import com.grash.dto.*;
+import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
+import com.grash.model.SuperAccountRelation;
+import com.grash.repository.SuperAccountRelationRepository;
+import com.grash.security.CurrentUser;
+import com.grash.security.JwtTokenProvider;
 import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
@@ -15,13 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,6 +37,8 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
+    private final SuperAccountRelationRepository superAccountRelationRepository;
+    private final JwtTokenProvider jwtTokenProvider;
     private final EmailService2 emailService2;
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -166,5 +172,24 @@ public class AuthController {
             return new ResponseEntity(new SuccessResponse(false, "Bad credentials"),
                     HttpStatus.NOT_ACCEPTABLE);
         }
+    }
+
+    @GetMapping("/switch-account")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AuthResponse switchAccount(
+            @RequestParam("id") Long id, @ApiIgnore @CurrentUser OwnUser user
+    ) {
+        if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
+            SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
+            if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            OwnUser childUser = userService.findById(id).get();
+            return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(), Collections.singletonList(childUser.getRole().getRoleType())));
+        } else if (user.getParentSuperAccount() != null) { //user is child
+            SuperAccountRelation superAccountRelation = superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
+            if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            OwnUser superUser = userService.findById(id).get();
+            return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(), Collections.singletonList(superUser.getRole().getRoleType())));
+        }
+        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 }
