@@ -76,11 +76,10 @@ public class CostCategoryController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public CostCategory create(@ApiParam("CostCategory") @Valid @RequestBody CategoryPostDTO costCategoryReq, HttpServletRequest req) {
+    public CostCategory create(@ApiParam("CostCategory") @Valid @RequestBody CostCategory costCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
-            return costCategoryService.create(costCategory);
+            return costCategoryService.create(costCategoryReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
