@@ -172,6 +172,7 @@ public class AssetService {
         asset.setBarCode(dto.getBarCode());
         asset.setArea(dto.getArea());
         asset.setArchived(Helper.getBooleanFromString(dto.getArchived()));
+        asset.setDescription(dto.getDescription());
         Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
         optionalLocation.ifPresent(asset::setLocation);
         Optional<Asset> optionalAsset = findByNameAndCompany(dto.getParentAssetName(), companyId);

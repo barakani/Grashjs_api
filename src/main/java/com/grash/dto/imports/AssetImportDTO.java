@@ -11,6 +11,7 @@ public class AssetImportDTO {
 
     private Long id;
     private String archived;
+    private String description;
 
     private String locationName;
 
