@@ -177,4 +177,8 @@ public class PartService {
     public Optional<Part> findByIdAndCompany(Long id, Long companyId) {
         return partRepository.findByIdAndCompany_Id(id, companyId);
     }
+
+    public Optional<Part> findByNameAndCompany(String name, Long companyId) {
+        return partRepository.findByNameAndCompany_Id(name, companyId);
+    }
 }

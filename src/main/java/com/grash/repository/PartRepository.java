@@ -12,4 +12,6 @@ public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificat
     Collection<Part> findByCompany_Id(@Param("x") Long id);
 
     Optional<Part> findByIdAndCompany_Id(Long id, Long companyId);
+
+    Optional<Part> findByNameAndCompany_Id(String name, Long companyId);
 }

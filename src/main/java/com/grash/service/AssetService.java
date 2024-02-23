@@ -211,6 +211,13 @@ public class AssetService {
             optionalVendor.ifPresent(vendors::add);
         });
         asset.setVendors(vendors);
+        List<Part> parts = new ArrayList<>();
+        dto.getPartsNames().forEach(name -> {
+            Optional<Part> optionalPart = partService.findByNameAndCompany(name, companyId);
+            optionalPart.ifPresent(parts::add);
+        });
+        asset.setParts(parts);
+
         assetRepository.save(asset);
     }
 

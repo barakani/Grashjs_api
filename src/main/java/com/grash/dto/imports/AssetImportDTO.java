@@ -45,4 +45,6 @@ public class AssetImportDTO {
     private Collection<String> customersNames;
     
     private Collection<String> vendorsNames;
+
+    private Collection<String> partsNames;
 }
