@@ -54,12 +54,17 @@ public class WorkOrderService {
     private final EntityManager em;
     private final EmailService2 emailService2;
     private final WorkOrderCategoryService workOrderCategoryService;
-    private final WorkflowService workflowService;
+    private WorkflowService workflowService;
     private final MessageSource messageSource;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
+    @Autowired
+    public void setDeps(@Lazy WorkflowService workflowService
+    ) {
+        this.workflowService = workflowService;
+    }
     @Transactional
     public WorkOrder create(WorkOrder workOrder) {
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
