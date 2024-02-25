@@ -198,16 +198,8 @@ public class WorkOrderController {
                 workOrderReq.setPrimaryUser(primaryUser == null ? user : primaryUser);
             }
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
-            if (createdWorkOrder.getAsset() != null) {
-                Asset asset = assetService.findById(createdWorkOrder.getAsset().getId()).get();
-                if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
-                    assetService.triggerDownTime(asset.getId(), Helper.getLocale(user));
-                }
-            }
-            workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
-            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, createdWorkOrder));
-            return workOrderMapper.toShowDto(createdWorkOrder);
+
+           return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

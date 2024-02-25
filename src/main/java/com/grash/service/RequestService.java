@@ -80,7 +80,6 @@ public class RequestService {
         }
         workOrder.setParentRequest(request);
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-        workOrderService.notify(savedWorkOrder, Helper.getLocale(savedWorkOrder.getCompany()));
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
 

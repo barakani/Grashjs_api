@@ -10,9 +10,11 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
@@ -52,6 +54,7 @@ public class WorkOrderService {
     private final EntityManager em;
     private final EmailService2 emailService2;
     private final WorkOrderCategoryService workOrderCategoryService;
+    private final WorkflowService workflowService;
     private final MessageSource messageSource;
 
     @Value("${frontend.url}")
@@ -61,6 +64,17 @@ public class WorkOrderService {
     public WorkOrder create(WorkOrder workOrder) {
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
+        Company company = savedWorkOrder.getCompany();
+        if (savedWorkOrder.getAsset() != null) {
+            Asset asset = savedWorkOrder.getAsset();
+            if (asset.getStatus().equals(AssetStatus.OPERATIONAL)) {
+                assetService.triggerDownTime(asset.getId(), Helper.getLocale(company));
+            }
+        }
+            notify(savedWorkOrder, Helper.getLocale(company));
+            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
+            workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
+
         return savedWorkOrder;
     }
 
