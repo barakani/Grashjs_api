@@ -20,4 +20,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_22_1708610988_add_work_order_category_description.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_26_1708902397_alter_location_foreign_keys.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
