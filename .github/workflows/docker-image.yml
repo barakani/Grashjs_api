@@ -33,5 +33,5 @@ jobs:
           tags: latest
           registry: docker.io
           dockerfile: Dockerfile
-          username: ${{ secrets.DOCKERHUB_TOKEN }}
-          password: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
