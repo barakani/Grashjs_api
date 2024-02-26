@@ -16,5 +16,5 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-        docker push amb0u/my-image-name:$(date +%s)
+        docker build . --file Dockerfile --tag atlas-api:$(date +%s)
+        docker push amb0u/atlas-api:$(date +%s)
