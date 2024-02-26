@@ -1,9 +1,11 @@
 package com.grash.model.abstracts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -53,4 +55,8 @@ public abstract class WorkOrderBase extends CompanyAudit {
     @ManyToOne
     private Asset asset;
 
+    public void setEstimatedDuration(int estimatedDuration) {
+        if(estimatedDuration <0) throw new CustomException("Estimated duration should not be negative", HttpStatus.NOT_ACCEPTABLE);
+        this.estimatedDuration = estimatedDuration;
+    }
 }

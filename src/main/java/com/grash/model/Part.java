@@ -2,9 +2,11 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.exception.CustomException;
 import com.grash.model.abstracts.CompanyAudit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -153,4 +155,13 @@ public class Part extends CompanyAudit {
 
     //TODO
     //Location
+
+    public void setQuantity(int quantity){
+        if(quantity<0) throw new CustomException("The quantity should not be negative", HttpStatus.NOT_ACCEPTABLE);
+        this.quantity=quantity;
+    }
+    public void setMinQuantity(int minQuantity){
+        if(minQuantity<0) throw new CustomException("The quantity should not be negative", HttpStatus.NOT_ACCEPTABLE);
+        this.minQuantity=minQuantity;
+    }
 }

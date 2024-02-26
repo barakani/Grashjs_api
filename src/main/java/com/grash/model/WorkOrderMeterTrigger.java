@@ -1,12 +1,14 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.exception.CustomException;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -39,5 +41,10 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
 
+    public void setWaitBefore(int waitBefore) {
+        if (waitBefore < 1)
+            throw new CustomException("Wait Before should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        this.waitBefore = waitBefore;
+    }
 }
 

@@ -1,11 +1,13 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.exception.CustomException;
 import com.grash.model.abstracts.Audit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -45,4 +47,8 @@ public class Subscription extends Audit {
 
     private boolean upgradeNeeded;
 
+    public void setUsersCount(int usersCount) {
+        if (usersCount < 1) throw new CustomException("Users count should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        this.usersCount = usersCount;
+    }
 }

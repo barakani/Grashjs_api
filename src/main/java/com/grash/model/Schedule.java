@@ -46,4 +46,8 @@ public class Schedule extends Audit {
         if(frequency<1) throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
         this.frequency = frequency;
     }
+    public void setDueDateDelay(Integer dueDateDelay) {
+        if(dueDateDelay !=null && dueDateDelay<1) throw new CustomException("Due date delay should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        this.dueDateDelay = dueDateDelay;
+    }
 }
