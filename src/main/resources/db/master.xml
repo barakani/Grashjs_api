@@ -22,4 +22,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_26_1708902397_alter_location_foreign_keys.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_27_1708989935_set_null.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
