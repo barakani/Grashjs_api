@@ -21,7 +21,7 @@ ENV SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE
 WORKDIR /app
 
 # Copy the compiled Spring Boot application JAR file into the container at /app
-COPY target/*.jar /app/my-spring-boot-app.jar
+ADD ./target/*.jar /app/my-spring-boot-app.jar
 
 # Expose the port that the Spring Boot application will run on
 EXPOSE 8080
