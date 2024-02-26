@@ -1,11 +1,13 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.exception.CustomException;
 import com.grash.model.abstracts.Audit;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -40,4 +42,8 @@ public class Schedule extends Audit {
         this.preventiveMaintenance = preventiveMaintenance;
     }
 
+    public void setFrequency(int frequency) {
+        if(frequency<1) throw new CustomException("Frequency should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
+        this.frequency = frequency;
+    }
 }

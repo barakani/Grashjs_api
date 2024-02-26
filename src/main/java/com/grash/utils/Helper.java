@@ -1,6 +1,7 @@
 package com.grash.utils;
 
 
+import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.Language;
@@ -8,6 +9,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.mail.internet.AddressException;
@@ -65,6 +67,7 @@ public class Helper {
     }
 
     public static Date getNextOccurence(Date date, int days) {
+        if(days ==0) throw new CustomException("getNextOccurence should not have 0 as parameter", HttpStatus.INTERNAL_SERVER_ERROR);
         Date result = date;
         if (result.after(new Date())) {
             result = incrementDays(result, days);

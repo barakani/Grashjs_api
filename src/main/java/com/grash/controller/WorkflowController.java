@@ -133,6 +133,7 @@ public class WorkflowController {
                 .mainCondition(workflowReq.getMainCondition())
                 .secondaryConditions(savedWorkOrderConditions)
                 .action(savedWorkflowAction)
+                .enabled(true)
                 .build();
         return workflowService.create(workflow);
     }
