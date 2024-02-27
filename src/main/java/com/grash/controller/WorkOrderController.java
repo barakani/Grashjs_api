@@ -2,10 +2,7 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
-import com.grash.dto.DateRange;
-import com.grash.dto.SuccessResponse;
-import com.grash.dto.WorkOrderPatchDTO;
-import com.grash.dto.WorkOrderShowDTO;
+import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
@@ -73,6 +70,7 @@ public class WorkOrderController {
     private final GCPService gcp;
     private final WorkflowService workflowService;
     private final Environment environment;
+    private final PreventiveMaintenanceService preventiveMaintenanceService;
 
 
     @Value("${frontend.url}")
@@ -117,23 +115,23 @@ public class WorkOrderController {
     }
 
     @PostMapping("/events")
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
-    public Collection<WorkOrderShowDTO> getByMonth(@Valid @RequestBody DateRange
-                                                           dateRange, HttpServletRequest req) {
+    public Collection<CalendarEvent> getEvents(@Valid @RequestBody DateRange
+                                                        dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                //TODO Add preventive Maintenances
-                return workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
-                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                    return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
-                }).map(workOrderMapper::toShowDto).collect(Collectors.toList());
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        } else return workOrderService.getAll().stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+            List<CalendarEvent> result = new ArrayList<>();
+            result.addAll(preventiveMaintenanceService.getEvents(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()));
+            result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
+                return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
+            }).map(workOrderMapper::toShowDto).map(workOrderShowDTO -> new CalendarEvent("WORK_ORDER", workOrderShowDTO, workOrderShowDTO.getDueDate())).collect(Collectors.toList()));
+        return result;
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/asset/{id}")
@@ -199,7 +197,7 @@ public class WorkOrderController {
             }
             WorkOrder createdWorkOrder = workOrderService.create(workOrderReq);
 
-           return workOrderMapper.toShowDto(createdWorkOrder);
+            return workOrderMapper.toShowDto(createdWorkOrder);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

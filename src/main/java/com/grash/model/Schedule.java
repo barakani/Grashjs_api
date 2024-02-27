@@ -27,7 +27,7 @@ public class Schedule extends Audit {
     private Date startsOn = new Date();
 
     @NotNull
-    private int frequency = 1;
+    private int frequency = 1; //day
 
     private Date endsOn;
 

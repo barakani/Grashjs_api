@@ -2,12 +2,14 @@ package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
+import com.grash.dto.CalendarEvent;
 import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.dto.PreventiveMaintenanceShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.PreventiveMaintenance;
+import com.grash.model.Schedule;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PreventiveMaintenanceRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,5 +85,36 @@ public class PreventiveMaintenanceService {
             Optional<PreventiveMaintenance> optionalPreventiveMaintenance = findById(preventiveMaintenance.getId());
             return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId);
         }
+    }
+
+    public List<CalendarEvent> getEvents(Date start, Date end, Long companyId) {
+        List<PreventiveMaintenance> preventiveMaintenances = preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(start, companyId);
+        List<CalendarEvent> result = new ArrayList<>();
+        for (PreventiveMaintenance preventiveMaintenance : preventiveMaintenances) {
+            Schedule schedule = preventiveMaintenance.getSchedule();
+            List<Date> dates = new ArrayList<>();
+
+            // Create a Calendar instance and set the start date
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(schedule.getStartsOn());
+
+            // Add the start date to the list
+            dates.add(schedule.getStartsOn());
+
+            Date max = schedule.getEndsOn() == null ? end : schedule.getEndsOn().before(end) ? schedule.getEndsOn() : end;
+            // Loop until the calendar date is after the end date
+            while (calendar.getTime().before(schedule.getEndsOn())) {
+                // Add the frequency days to the current date
+                calendar.add(Calendar.DAY_OF_MONTH, schedule.getFrequency());
+
+                // Add the new date to the list if it's before or equal to the end date
+                if (!calendar.getTime().after(max)) {
+                    dates.add(calendar.getTime());
+                }
+            }
+
+            result.addAll(dates.stream().map(date -> new CalendarEvent("PREVENTIVE_MAINTENANCE", preventiveMaintenanceMapper.toShowDto(preventiveMaintenance), date)).collect(Collectors.toList()));
+        }
+        return result;
     }
 }
