@@ -103,7 +103,7 @@ public class PreventiveMaintenanceService {
 
             Date max = schedule.getEndsOn() == null ? end : schedule.getEndsOn().before(end) ? schedule.getEndsOn() : end;
             // Loop until the calendar date is after the end date
-            while (calendar.getTime().before(schedule.getEndsOn())) {
+            while (calendar.getTime().before(max)) {
                 // Add the frequency days to the current date
                 calendar.add(Calendar.DAY_OF_MONTH, schedule.getFrequency());
 
