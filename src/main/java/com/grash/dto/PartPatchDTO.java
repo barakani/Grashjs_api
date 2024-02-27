@@ -14,7 +14,7 @@ public class PartPatchDTO {
 
     private long cost;
 
-    private String category;
+    private PartCategory category;
 
     private boolean nonStock;
 

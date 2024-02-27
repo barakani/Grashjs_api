@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartService {
     private final PartRepository partRepository;
-    private final FileService fileService;
+    private final PartCategoryService partCategoryService;
     private final PartConsumptionService partConsumptionService;
     private final CompanyService companyService;
     private final CustomerService customerService;
@@ -137,7 +137,8 @@ public class PartService {
         Long companySettingsId = company.getCompanySettings().getId();
         part.setName(dto.getName());
         part.setCost(dto.getCost());
-        part.setCategory(dto.getCategory());
+        Optional<PartCategory> optionalPartCategory = partCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        optionalPartCategory.ifPresent(part::setCategory);
         part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
         part.setBarcode(dto.getBarcode());
         part.setDescription(dto.getDescription());

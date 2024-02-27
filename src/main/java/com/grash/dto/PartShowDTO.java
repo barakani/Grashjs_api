@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.File;
+import com.grash.model.PartCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,7 @@ public class PartShowDTO extends AuditShowDTO {
 
     private long cost;
 
-    private String category;
+    private PartCategory category;
 
     private boolean nonStock;
 

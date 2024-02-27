@@ -155,7 +155,7 @@ public class CsvFileGenerator {
                 printer.printRecord(part.getId(),
                         part.getName(),
                         part.getCost(),
-                        part.getCategory(),
+                        part.getCategory().getName(),
                         Helper.getStringFromBoolean(part.isNonStock(), messageSource, locale),
                         part.getBarcode(),
                         part.getDescription(),

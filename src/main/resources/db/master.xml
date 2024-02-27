@@ -24,4 +24,10 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_27_1708989935_set_null.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_28_1709064806_part_category.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_28_1709064806_part_category2.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_02_28_1709064806_part_category3.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

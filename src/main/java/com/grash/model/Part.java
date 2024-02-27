@@ -44,7 +44,8 @@ public class Part extends CompanyAudit {
 
     private String description;
 
-    private String category;
+    @ManyToOne
+    private PartCategory category;
 
     private int quantity;
 
