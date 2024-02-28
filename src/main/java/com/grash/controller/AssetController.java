@@ -107,7 +107,7 @@ public class AssetController {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
-                return assetMapper.toShowDto(savedAsset);
+                return assetMapper.toShowDto(savedAsset, assetService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -122,7 +122,7 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
-            return assetService.findByLocation(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+            return assetService.findByLocation(id).stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -137,7 +137,7 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
-            return optionalPart.get().getAssets().stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+            return optionalPart.get().getAssets().stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -150,13 +150,13 @@ public class AssetController {
     public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(assetMapper::toShowDto).collect(Collectors.toList());
+            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findAssetChildren(id).stream().map(assetMapper::toShowDto).collect(Collectors.toList());
+                return assetService.findAssetChildren(id).stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -182,19 +182,10 @@ public class AssetController {
                     throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
-            if (assetReq.getParentAsset() != null) {
-                Optional<Asset> optionalParentAsset = assetService.findById(assetReq.getParentAsset().getId());
-                if (optionalParentAsset.isPresent()) {
-                    Asset parentAsset = optionalParentAsset.get();
-                    parentAsset.setHasChildren(true);
-                    assetService.save(parentAsset);
-                } else throw new CustomException("Parent Asset not found", HttpStatus.NOT_FOUND);
-
-            }
             Asset createdAsset = assetService.create(assetReq);
             String message = messageSource.getMessage("notification_asset_assigned", new Object[]{createdAsset.getName()}, Helper.getLocale(user));
             assetService.notify(createdAsset, messageSource.getMessage("new_assignment", null, Helper.getLocale(user)), message);
-            return assetMapper.toShowDto(createdAsset);
+            return assetMapper.toShowDto(createdAsset, assetService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -232,7 +223,7 @@ public class AssetController {
                 }
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
-                return assetMapper.toShowDto(patchedAsset);
+                return assetMapper.toShowDto(patchedAsset, assetService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
     }
@@ -262,15 +253,7 @@ public class AssetController {
             Asset savedAsset = optionalAsset.get();
             if (savedAsset.getCreatedBy().equals(user.getId()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS)) {
-                Asset parent = savedAsset.getParentAsset();
                 assetService.delete(id);
-                if (parent != null) {
-                    Collection<Asset> siblings = assetService.findAssetChildren(parent.getId());
-                    if (siblings.isEmpty()) {
-                        parent.setHasChildren(false);
-                        assetService.save(parent);
-                    }
-                }
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

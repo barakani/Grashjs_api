@@ -158,7 +158,7 @@ public class AssetService {
         SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
-        return assetRepository.findAll(builder.build(), page).map(assetMapper::toShowDto);
+        return assetRepository.findAll(builder.build(), page).map(asset->assetMapper.toShowDto(asset,this));
     }
 
     public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
@@ -258,5 +258,9 @@ public class AssetService {
                 orderAssetsRecursive(assetMap, children, orderedAssets);
             }
         }
+    }
+
+    public Boolean hasChildren(Long assetId){
+        return assetRepository.countByParentAsset_Id(assetId)>0;
     }
 }

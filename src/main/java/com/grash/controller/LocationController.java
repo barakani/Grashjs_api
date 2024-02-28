@@ -135,9 +135,6 @@ public class LocationController {
     public LocationShowDTO create(@ApiParam("Location") @Valid @RequestBody Location locationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
-            if (locationReq.getParentLocation() != null) {
-                setParentLocationHasChildren(locationReq.getParentLocation().getId());
-            }
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation, Helper.getLocale(user));
             return locationMapper.toShowDto(savedLocation);
@@ -157,9 +154,6 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId())) {
-                if (location.getParentLocation() != null) {
-                    setParentLocationHasChildren(location.getParentLocation().getId());
-                }
                 Location patchedLocation = locationService.update(id, location);
                 locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
                 return locationMapper.toShowDto(patchedLocation);
@@ -181,31 +175,11 @@ public class LocationController {
             Location savedLocation = optionalLocation.get();
             if (savedLocation.getCreatedBy().equals(user.getId()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
-                Location parent = savedLocation.getParentLocation();
                 locationService.delete(id);
-                if (parent != null) {
-                    Collection<Location> siblings = locationService.findLocationChildren(parent.getId());
-                    if (siblings.isEmpty()) {
-                        parent.setHasChildren(false);
-                        locationService.save(parent);
-                    }
-                }
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
-    }
-
-    private void setParentLocationHasChildren(Long id) throws CustomException {
-        Optional<Location> optionalParentLocation = locationService.findById(id);
-        if (optionalParentLocation.isPresent()) {
-            Location parentLocation = optionalParentLocation.get();
-//            if (parentLocation.getParentLocation() != null) {
-//                throw new CustomException("Parent location has a Parent Location ", HttpStatus.NOT_ACCEPTABLE);
-//            }
-            parentLocation.setHasChildren(true);
-            locationService.save(parentLocation);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
 }
