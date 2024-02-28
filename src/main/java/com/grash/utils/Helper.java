@@ -103,6 +103,8 @@ public class Helper {
         switch (language) {
             case FR:
                 return Locale.FRANCE;
+            case TR:
+                return new Locale("tr","TR");
             default:
                 return Locale.getDefault();
         }
