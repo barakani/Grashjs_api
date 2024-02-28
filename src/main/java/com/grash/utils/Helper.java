@@ -150,7 +150,7 @@ public class Helper {
     }
 
     public static boolean getBooleanFromString(String string) {
-        List<String> trues = Arrays.asList("true", "Yes", "Oui");
+        List<String> trues = Arrays.asList("true", "Yes", "Oui", "Evet");
         return trues.stream().anyMatch(value -> value.equalsIgnoreCase(string));
     }
 
