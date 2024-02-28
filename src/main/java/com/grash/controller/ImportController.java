@@ -72,7 +72,7 @@ public class ImportController {
         final int[] updated = {0};
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            toImport.forEach(assetImportDTO -> {
+            AssetService.orderAssets(toImport).forEach(assetImportDTO -> {
                 Long id = assetImportDTO.getId();
                 Asset asset = new Asset();
                 if (id == null) {
@@ -101,7 +101,7 @@ public class ImportController {
         final int[] updated = {0};
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-            toImport.forEach(locationImportDTO -> {
+            LocationService.orderLocations(toImport).forEach(locationImportDTO -> {
                 Long id = locationImportDTO.getId();
                 Location location = new Location();
                 if (id == null) {

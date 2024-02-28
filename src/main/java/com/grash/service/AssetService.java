@@ -228,4 +228,35 @@ public class AssetService {
     public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {
         return assetRepository.findByBarCodeAndCompany_Id(data, id);
     }
+
+
+    public static List<AssetImportDTO> orderAssets(List<AssetImportDTO> assets) {
+        Map<String, List<AssetImportDTO>> assetMap = new HashMap<>();
+        List<AssetImportDTO> topLevelAssets = new ArrayList<>();
+
+        // Group assets by parent name
+        for (AssetImportDTO asset : assets) {
+            String parentName = asset.getParentAssetName();
+            assetMap.computeIfAbsent(parentName, k -> new ArrayList<>()).add(asset);
+            if (parentName == null) {
+                topLevelAssets.add(asset);
+            }
+        }
+
+        // Order assets recursively
+        List<AssetImportDTO> orderedAssets = new ArrayList<>();
+        orderAssetsRecursive(assetMap, topLevelAssets, orderedAssets);
+
+        return orderedAssets;
+    }
+
+    private static void orderAssetsRecursive(Map<String, List<AssetImportDTO>> assetMap, List<AssetImportDTO> assets, List<AssetImportDTO> orderedAssets) {
+        for (AssetImportDTO asset : assets) {
+            orderedAssets.add(asset);
+            List<AssetImportDTO> children = assetMap.get(asset.getName());
+            if (children != null) {
+                orderAssetsRecursive(assetMap, children, orderedAssets);
+            }
+        }
+    }
 }

@@ -152,4 +152,33 @@ public class LocationService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return locationRepository.findAll(builder.build(), page).map(locationMapper::toShowDto);
     }
+    public static List<LocationImportDTO> orderLocations(List<LocationImportDTO> locations) {
+        Map<String, List<LocationImportDTO>> locationMap = new HashMap<>();
+        List<LocationImportDTO> topLevelLocations = new ArrayList<>();
+
+        // Group locations by parent name
+        for (LocationImportDTO location : locations) {
+            String parentName = location.getParentLocationName();
+            locationMap.computeIfAbsent(parentName, k -> new ArrayList<>()).add(location);
+            if (parentName == null) {
+                topLevelLocations.add(location);
+            }
+        }
+
+        // Order locations recursively
+        List<LocationImportDTO> orderedLocations = new ArrayList<>();
+        orderLocationsRecursive(locationMap, topLevelLocations, orderedLocations);
+
+        return orderedLocations;
+    }
+
+    private static void orderLocationsRecursive(Map<String, List<LocationImportDTO>> locationMap, List<LocationImportDTO> locations, List<LocationImportDTO> orderedLocations) {
+        for (LocationImportDTO location : locations) {
+            orderedLocations.add(location);
+            List<LocationImportDTO> children = locationMap.get(location.getName());
+            if (children != null) {
+                orderLocationsRecursive(locationMap, children, orderedLocations);
+            }
+        }
+    }
 }
