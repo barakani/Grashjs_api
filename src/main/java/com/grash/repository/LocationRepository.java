@@ -15,4 +15,6 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
     Optional<Location> findByNameAndCompany_Id(String locationName, Long companyId);
 
     Optional<Location> findByIdAndCompany_Id(Long id, Long companyId);
+
+    int countByParentLocation_Id(Long locationId);
 }

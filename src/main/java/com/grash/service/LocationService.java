@@ -150,7 +150,7 @@ public class LocationService {
         SpecificationBuilder<Location> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
-        return locationRepository.findAll(builder.build(), page).map(locationMapper::toShowDto);
+        return locationRepository.findAll(builder.build(), page).map(location->locationMapper.toShowDto(location, this));
     }
     public static List<LocationImportDTO> orderLocations(List<LocationImportDTO> locations) {
         Map<String, List<LocationImportDTO>> locationMap = new HashMap<>();
@@ -180,5 +180,9 @@ public class LocationService {
                 orderLocationsRecursive(locationMap, children, orderedLocations);
             }
         }
+    }
+
+    public boolean hasChildren(Long locationId) {
+        return locationRepository.countByParentLocation_Id(locationId)>0;
     }
 }

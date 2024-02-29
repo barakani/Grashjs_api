@@ -55,10 +55,10 @@ public class LocationController {
                 return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> {
                     boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS);
                     return canViewOthers || location.getCreatedBy().equals(user.getId());
-                }).map(locationMapper::toShowDto).collect(Collectors.toList());
+                }).map(location->locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else
-            return locationService.getAll().stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+            return locationService.getAll().stream().map(location->locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
     }
 
     @PostMapping("/search")
@@ -86,13 +86,13 @@ public class LocationController {
     public Collection<LocationShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> location.getParentLocation() == null).map(locationMapper::toShowDto).collect(Collectors.toList());
+            return locationService.findByCompany(user.getCompany().getId()).stream().filter(location -> location.getParentLocation() == null).map(location->locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
         }
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                return locationService.findLocationChildren(id).stream().map(locationMapper::toShowDto).collect(Collectors.toList());
+                return locationService.findLocationChildren(id).stream().map(location->locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -122,7 +122,7 @@ public class LocationController {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId()))) {
-                return locationMapper.toShowDto(savedLocation);
+                return locationMapper.toShowDto(savedLocation, locationService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -137,7 +137,7 @@ public class LocationController {
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
             Location savedLocation = locationService.create(locationReq);
             locationService.notify(savedLocation, Helper.getLocale(user));
-            return locationMapper.toShowDto(savedLocation);
+            return locationMapper.toShowDto(savedLocation, locationService);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
@@ -156,7 +156,7 @@ public class LocationController {
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId())) {
                 Location patchedLocation = locationService.update(id, location);
                 locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
-                return locationMapper.toShowDto(patchedLocation);
+                return locationMapper.toShowDto(patchedLocation, locationService);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
     }
