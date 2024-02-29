@@ -32,5 +32,7 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_02_29_1709156223_work_order_set_null.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_01_1709243481_set_null_and_cascade_from_script.xml"
+             relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
