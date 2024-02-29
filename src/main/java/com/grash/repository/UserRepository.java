@@ -14,18 +14,18 @@ public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecifi
     boolean existsByUsername(String username);
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    Optional<OwnUser> findByEmail(String email);
+    Optional<OwnUser> findByEmailIgnoreCase(String email);
 
     @Transactional
     void deleteByUsername(String username);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailIgnoreCase(String email);
 
     Collection<OwnUser> findByCompany_Id(Long id);
 
     Collection<OwnUser> findByLocation_Id(Long id);
 
-    Optional<OwnUser> findByEmailAndCompany_Id(String email, Long companyId);
+    Optional<OwnUser> findByEmailIgnoreCaseAndCompany_Id(String email, Long companyId);
 
     Optional<OwnUser> findByIdAndCompany_Id(Long id, Long companyId);
 }

@@ -30,7 +30,7 @@ public class UserInvitationService {
     }
 
     public Collection<UserInvitation> findByRoleAndEmail(Long id, String email) {
-        return userInvitationRepository.findByRole_IdAndEmail(id, email);
+        return userInvitationRepository.findByRole_IdAndEmailIgnoreCase(id, email);
     }
 
 }

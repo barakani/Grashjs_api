@@ -70,7 +70,7 @@ public class UserService {
             if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + type.toUpperCase()))) {
                 throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
             }
-            Optional<OwnUser> optionalUser = userRepository.findByEmail(email);
+            Optional<OwnUser> optionalUser = userRepository.findByEmailIgnoreCase(email);
             OwnUser user = optionalUser.get();
             user.setLastLogin(new Date());
             userRepository.save(user);
@@ -83,7 +83,7 @@ public class UserService {
     public SuccessResponse signup(UserSignupRequest userReq) {
         OwnUser user = userMapper.toModel(userReq);
         user.setEmail(user.getEmail().toLowerCase());
-        if (!userRepository.existsByEmail(user.getEmail())) {
+        if (!userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
@@ -143,11 +143,11 @@ public class UserService {
     }
 
     public Optional<OwnUser> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailIgnoreCase(email);
     }
 
     public Optional<OwnUser> findByEmailAndCompany(String email, Long companyId) {
-        return userRepository.findByEmailAndCompany_Id(email, companyId);
+        return userRepository.findByEmailIgnoreCaseAndCompany_Id(email, companyId);
     }
 
     public Optional<OwnUser> findByIdAndCompany(Long id, Long companyId) {
@@ -155,11 +155,11 @@ public class UserService {
     }
 
     public OwnUser whoami(HttpServletRequest req) {
-        return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
+        return userRepository.findByEmailIgnoreCase(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req))).get();
     }
 
     public String refresh(String username) {
-        return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findByEmail(username).get().getRole().getRoleType()));
+        return jwtTokenProvider.createToken(username, Arrays.asList(userRepository.findByEmailIgnoreCase(username).get().getRole().getRoleType()));
     }
 
     public List<OwnUser> getAll() {
@@ -175,7 +175,7 @@ public class UserService {
     }
 
     public void enableUser(String email) {
-        OwnUser user = userRepository.findByEmail(email).get();
+        OwnUser user = userRepository.findByEmailIgnoreCase(email).get();
         user.setEnabled(true);
         userRepository.save(user);
     }
@@ -206,7 +206,7 @@ public class UserService {
     }
 
     public void invite(String email, Role role, OwnUser inviter) {
-        if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
+        if (!userRepository.existsByEmailIgnoreCase(email) && Helper.isValidEmailAddress(email)) {
             userInvitationService.create(new UserInvitation(email, role));
             Map<String, Object> variables = new HashMap<String, Object>() {{
                 put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
@@ -237,7 +237,7 @@ public class UserService {
     }
 
     public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByEmailIgnoreCase(email);
     }
 
     public boolean isUserInCompany(OwnUser user, long companyId, boolean optional) {
