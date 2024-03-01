@@ -7,6 +7,7 @@ import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
+import com.grash.model.Asset;
 import com.grash.model.OwnUser;
 import com.grash.model.Part;
 import com.grash.model.Workflow;
@@ -87,6 +88,12 @@ public class PartController {
     public PartShowDTO create(@ApiParam("Part") @Valid @RequestBody Part partReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (partReq.getBarcode() != null) {
+                Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode(), user.getCompany().getId());
+                if (optionalPartWithSameBarCode.isPresent()) {
+                    throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
             Part savedPart = partService.create(partReq);
             partService.notify(savedPart, Helper.getLocale(user));
             return partMapper.toShowDto(savedPart);
@@ -107,6 +114,12 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
+                if (part.getBarcode() != null) {
+                    Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
+                    if (optionalPartWithSameBarCode.isPresent() && !optionalPartWithSameBarCode.get().getId().equals(id)) {
+                        throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                }
                 Part patchedPart = partService.update(id, part);
                 Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED, user.getCompany().getId());
                 workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));

@@ -158,7 +158,7 @@ public class AssetService {
         SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
-        return assetRepository.findAll(builder.build(), page).map(asset->assetMapper.toShowDto(asset,this));
+        return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
     }
 
     public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
@@ -169,6 +169,21 @@ public class AssetService {
         Long companySettingsId = company.getCompanySettings().getId();
         Long companyId = company.getId();
         asset.setArea(dto.getArea());
+        if (dto.getBarCode() != null) {
+            Optional<Asset> optionalAssetWithSameBarCode = findByBarcodeAndCompany(dto.getBarCode(), company.getId());
+            if (optionalAssetWithSameBarCode.isPresent()) {
+                boolean hasError = false;
+                if (dto.getId() == null) {//creation
+                    hasError = true;
+                } else {//update
+                    if (!dto.getId().equals(optionalAssetWithSameBarCode.get().getId())) {
+                        hasError = true;
+                    }
+                }
+                if (hasError)
+                    throw new CustomException("Asset with same barcode exists: " + dto.getBarCode(), HttpStatus.NOT_ACCEPTABLE);
+            }
+        }
         asset.setBarCode(dto.getBarCode());
         asset.setArea(dto.getArea());
         asset.setArchived(Helper.getBooleanFromString(dto.getArchived()));
@@ -260,7 +275,7 @@ public class AssetService {
         }
     }
 
-    public Boolean hasChildren(Long assetId){
-        return assetRepository.countByParentAsset_Id(assetId)>0;
+    public Boolean hasChildren(Long assetId) {
+        return assetRepository.countByParentAsset_Id(assetId) > 0;
     }
 }

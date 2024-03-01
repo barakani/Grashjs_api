@@ -140,6 +140,21 @@ public class PartService {
         Optional<PartCategory> optionalPartCategory = partCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalPartCategory.ifPresent(part::setCategory);
         part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
+        if (dto.getBarcode() != null) {
+            Optional<Part> optionalPartWithSameBarCode = findByBarcodeAndCompany(dto.getBarcode(), company.getId());
+            if (optionalPartWithSameBarCode.isPresent()) {
+                boolean hasError = false;
+                if (dto.getId() == null) {//creation
+                    hasError = true;
+                } else {//update
+                    if (!dto.getId().equals(optionalPartWithSameBarCode.get().getId())) {
+                        hasError = true;
+                    }
+                }
+                if (hasError)
+                    throw new CustomException("Part with same barcode exists: " + dto.getBarcode(), HttpStatus.NOT_ACCEPTABLE);
+            }
+        }
         part.setBarcode(dto.getBarcode());
         part.setDescription(dto.getDescription());
         part.setQuantity(dto.getQuantity());
@@ -181,5 +196,9 @@ public class PartService {
 
     public Optional<Part> findByNameAndCompany(String name, Long companyId) {
         return partRepository.findByNameAndCompany_Id(name, companyId);
+    }
+
+    public Optional<Part> findByBarcodeAndCompany(String barcode, Long companyId) {
+        return partRepository.findByBarcodeAndCompany_Id(barcode, companyId);
     }
 }
