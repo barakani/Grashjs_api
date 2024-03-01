@@ -159,6 +159,7 @@ public class RequestController {
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "Request not found")})
     public RequestShowDTO cancel(@ApiParam("id") @PathVariable("id") Long id,
+                                 @RequestParam String reason,
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
@@ -168,6 +169,8 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
+            if(reason==null || reason.trim().isEmpty()) throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
+            savedRequest.setCancellationReason(reason);
             savedRequest.setCancelled(true);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));

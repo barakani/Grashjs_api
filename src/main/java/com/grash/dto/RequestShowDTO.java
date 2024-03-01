@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 public class RequestShowDTO extends WorkOrderBaseShowDTO {
     private boolean cancelled;
 
+    private String cancellationReason;
+
     private WorkOrderMiniDTO workOrder;
 }

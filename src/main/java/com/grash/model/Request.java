@@ -15,6 +15,8 @@ public class Request extends WorkOrderBase {
     private Long id;
     private boolean cancelled;
 
+    private String cancellationReason;
+
     @OneToOne
     private WorkOrder workOrder;
 
