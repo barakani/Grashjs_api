@@ -3,6 +3,7 @@ package com.grash.model.abstracts;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
+import com.grash.model.File;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CustomUserDetail;
@@ -48,4 +49,11 @@ public class CompanyAudit extends Audit {
         }
     }
 
+    private boolean makesException(OwnUser user) {
+        if (this instanceof File) {
+            return user.getSuperAccountRelations().stream()
+                    .anyMatch(relation->relation.getChildUser().getCompany().getId().equals(this.company.getId()));
+        }
+        return false;
+    }
 }
