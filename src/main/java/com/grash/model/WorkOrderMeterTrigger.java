@@ -40,11 +40,5 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Meter meter;
-
-    public void setWaitBefore(int waitBefore) {
-        if (waitBefore < 1)
-            throw new CustomException("Wait Before should not be less than 1", HttpStatus.NOT_ACCEPTABLE);
-        this.waitBefore = waitBefore;
-    }
 }
 
