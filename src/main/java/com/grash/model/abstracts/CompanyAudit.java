@@ -52,12 +52,12 @@ public class CompanyAudit extends Audit {
     }
 
     private boolean makesException(OwnUser user) {
-        if (this instanceof File) {
-            return user.getSuperAccountRelations().stream()
-                    .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.company.getId()))
-                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser().getCompany().getId().equals(this.company.getId()))
-                    ;
-        }
+//        if (this instanceof File) {
+//            return user.getSuperAccountRelations().stream()
+//                    .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.company.getId()))
+//                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser().getCompany().getId().equals(this.company.getId()))
+//                    ;
+//        }
         return false;
     }
 }

@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class SuperAccountRelationDTO {
     private String childCompanyName;
-    private File childCompanyLogo;
     private Long childUserId;
     private Long superUserId;
 }

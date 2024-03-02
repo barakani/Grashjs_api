@@ -14,7 +14,6 @@ public interface SuperAccountRelationMapper {
 
     @Mappings({
             @Mapping(source = "childUser.company.name", target = "childCompanyName"),
-            @Mapping(source = "childUser.company.logo", target = "childCompanyLogo"),
             @Mapping(source = "childUser.id", target = "childUserId"),
             @Mapping(source = "superUser.id", target = "superUserId"),
     })
