@@ -135,7 +135,7 @@ public class OwnUser extends Audit {
     @JsonIgnore
     private List<WorkOrder> workOrders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "superUser")
+    @OneToMany(mappedBy = "superUser", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<SuperAccountRelation> superAccountRelations = new ArrayList<>();
 
