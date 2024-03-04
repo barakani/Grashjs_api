@@ -87,8 +87,8 @@ public class PreventiveMaintenanceService {
         }
     }
 
-    public List<CalendarEvent> getEvents(Date start, Date end, Long companyId) {
-        List<PreventiveMaintenance> preventiveMaintenances = preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(start, companyId);
+    public List<CalendarEvent> getEvents(Date end, Long companyId) {
+        List<PreventiveMaintenance> preventiveMaintenances = preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
         List<CalendarEvent> result = new ArrayList<>();
         for (PreventiveMaintenance preventiveMaintenance : preventiveMaintenances) {
             Schedule schedule = preventiveMaintenance.getSchedule();
