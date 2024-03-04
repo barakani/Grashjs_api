@@ -46,11 +46,11 @@ public class CompanySettings {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<CostCategory> costCategories = new ArrayList<>(createCostCategories(Arrays.asList("Drive cost", "Vendor cost", "Other cost", "Inspection cost", "Wrench cost")));
+    private List<CostCategory> costCategories = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<TimeCategory> timeCategories = new ArrayList<>(createTimeCategories(Arrays.asList("Drive time", "Vendor time", "Other time", "Inspection time", "Wrench time")));
+    private List<TimeCategory> timeCategories = new ArrayList<>();
 
     private Role createRole(String name,
                             boolean paid,
