@@ -47,18 +47,18 @@ public class CompanyAudit extends Audit {
         if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) &&
                 !company.getId().equals(this.getCompany().getId())
                 && !makesException(user)) {
-            throw new CustomException("afterLoad:  the user (username=" + user.getUsername() + ")  is not authorized to load  this object (" + this.getClass() + ") with id" + this.id, HttpStatus.FORBIDDEN);
+            throw new CustomException("afterLoad:  the user (id=" + user.getId() + ")  is not authorized to load  this object (" + this.getClass() + ") with id " + this.id, HttpStatus.FORBIDDEN);
         }
     }
 
     private boolean makesException(OwnUser user) {
-        if (this instanceof File) {
-            return user.getSuperAccountRelations().stream()
-                    .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.company.getId()))
-                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser()
-                    .getSuperAccountRelations().stream().anyMatch(sar->sar.getChildUser().getCompany().getId().equals(this.company.getId())))
-                    ;
-        }
+//        if (this instanceof File) {
+//            return user.getSuperAccountRelations().stream()
+//                    .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.company.getId()))
+//                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser()
+//                    .getSuperAccountRelations().stream().anyMatch(sar->sar.getChildUser().getCompany().getId().equals(this.company.getId())))
+//                    ;
+//        }
         return false;
     }
 }
