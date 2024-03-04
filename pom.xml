@@ -218,7 +218,7 @@
                     <execution>
                         <goals>
                             <goal>compile</goal>       <!-- use this goal to weave all your main classes -->
-                            <goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
+<!--                            <goal>test-compile</goal>  &lt;!&ndash; use this goal to weave all your test classes &ndash;&gt;-->
                         </goals>
                     </execution>
                 </executions>
