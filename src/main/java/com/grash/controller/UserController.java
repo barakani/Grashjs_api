@@ -80,7 +80,7 @@ public class UserController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user) {
-        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).filter(u->!u.getRole().getCode().equals(RoleCode.REQUESTER)).map(userMapper::toMiniDto).collect(Collectors.toList());
+        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).filter(u -> !u.getRole().getCode().equals(RoleCode.REQUESTER)).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/mini/disabled")
@@ -156,6 +156,31 @@ public class UserController {
                     return userMapper.toPatchDto(userService.save(userToPatch));
                 } else
                     throw new CustomException("Company subscription users count doesn't allow this operation", HttpStatus.NOT_ACCEPTABLE);
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    @PatchMapping("/{id}/disable")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"), //
+            @ApiResponse(code = 403, message = "Access denied"), //
+            @ApiResponse(code = 404, message = "User not found")})
+    public UserResponseDTO disable(@ApiParam("id") @PathVariable("id") Long id,
+                                   @ApiIgnore @CurrentUser OwnUser requester) {
+        Optional<OwnUser> optionalUserToDisable = userService.findById(id);
+
+        if (optionalUserToDisable.isPresent()) {
+            OwnUser userToDisable = optionalUserToDisable.get();
+            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                userToDisable.setEnabled(false);
+                userToDisable.setEnabledInSubscription(false);
+                return userMapper.toPatchDto(userService.save(userToDisable));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
