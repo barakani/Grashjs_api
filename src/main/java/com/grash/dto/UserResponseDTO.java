@@ -41,6 +41,8 @@ public class UserResponseDTO {
 
     private List<SuperAccountRelationDTO> superAccountRelations = new ArrayList<>();
 
-    private SuperAccountRelationDTO parentSuperAccount;
+    private Boolean enabled;
+
+    private Boolean enabledInSubscription;
 
 }
