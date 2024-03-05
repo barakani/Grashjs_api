@@ -10,4 +10,5 @@ import javax.validation.constraints.NotNull;
 public class CategoryPatchDTO {
     @NotNull
     private String name;
+    private String description;
 }
