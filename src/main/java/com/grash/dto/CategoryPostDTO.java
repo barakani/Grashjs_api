@@ -11,4 +11,6 @@ public class CategoryPostDTO {
 
     @NotNull
     private String name;
+
+    private String description;
 }

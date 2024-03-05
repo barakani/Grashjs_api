@@ -35,7 +35,9 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -122,7 +124,7 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
-            return assetService.findByLocation(id).stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+            return assetService.findByLocation(id).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -137,7 +139,7 @@ public class AssetController {
         OwnUser user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
-            return optionalPart.get().getAssets().stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+            return optionalPart.get().getAssets().stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -150,13 +152,13 @@ public class AssetController {
     public Collection<AssetShowDTO> getChildrenById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+            return assetService.findByCompany(user.getCompany().getId()).stream().filter(asset -> asset.getParentAsset() == null).map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findAssetChildren(id).stream().map(asset->assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+                return assetService.findAssetChildren(id).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -234,9 +236,15 @@ public class AssetController {
             @ApiResponse(code = 500, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
     })
-    public Collection<AssetMiniDTO> getMini(HttpServletRequest req) {
-        OwnUser asset = userService.whoami(req);
-        return assetService.findByCompany(asset.getCompany().getId()).stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+    public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) Long locationId, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        List<Asset> assets = new ArrayList<>();
+        if (locationId == null) {
+            assets = assetService.findByCompany(user.getCompany().getId());
+        } else {
+            assets = assetService.findByLocation(locationId);
+        }
+        return assets.stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")

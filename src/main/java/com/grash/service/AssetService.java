@@ -91,7 +91,7 @@ public class AssetService {
         return assetRepository.findByNfcIdAndCompany_Id(nfcId, companyId);
     }
 
-    public Collection<Asset> findByCompany(Long id) {
+    public List<Asset> findByCompany(Long id) {
         return assetRepository.findByCompany_Id(id);
     }
 
@@ -110,7 +110,7 @@ public class AssetService {
                 new Notification(message, user, NotificationType.ASSET, newAsset.getId())).collect(Collectors.toList()), true, title);
     }
 
-    public Collection<Asset> findByLocation(Long id) {
+    public List<Asset> findByLocation(Long id) {
         return assetRepository.findByLocation_Id(id);
     }
 

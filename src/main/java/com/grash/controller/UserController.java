@@ -7,6 +7,7 @@ import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CurrentUser;
 import com.grash.service.RoleService;
@@ -79,7 +80,7 @@ public class UserController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user) {
-        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).map(userMapper::toMiniDto).collect(Collectors.toList());
+        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).filter(u->!u.getRole().getCode().equals(RoleCode.REQUESTER)).map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/mini/disabled")
