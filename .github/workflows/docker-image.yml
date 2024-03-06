@@ -27,15 +27,10 @@ jobs:
           git config --local user.email "ambroise.tine@gmail.com"
           git config --local user.name "amb0u"
           pwd
+          sed -i 's|image: amb0u/atlas-api:latest|image: new/image:$RUN_NUMBER|' dev/api-deployment.yml
           cat dev/api-deployment.yml
-          pwd
-          sed -i "s+amb0u/atlas-api:$RUN_NUMBER+g" dev/api-deployment.yml
-          cat dev/api-deployment.yml
-          # git commit -m "Update manifest version"
-          # sed -i "s+amb0u/atlas-api:${{ github.run_number }}+g" dev/api-deployment.yml
-          #cat dev/api-deployment.yml
           git add .
-          git commit -m 'Done  by Github Actions   Job changemanifest: ${{ github.run_number }}'
+          git commit -m 'Update manifest version'
           git push origin main
         env:
           GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
