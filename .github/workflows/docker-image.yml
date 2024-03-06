@@ -43,8 +43,8 @@ jobs:
           token: ${{ secrets.GIT_PASSWORD }}
       - name: modify the image
         run: |
-          git config --local user.email "ambroise.tine@gmail.com"
-          git config --local user.name "amb0u"
+          git config --local user.email '$(echo "$EMAIL")'
+          git config --local user.name '$(echo "$GIT_USERNAME")'
           pwd
           sed -i 's|image: amb0u/atlas-api:.*|image: amb0u/atlas-api:'$(echo "$GITHUB_RUN_NUMBER")'|' dev/api-deployment.yml
           ## cat dev/api-deployment.yml
@@ -55,3 +55,4 @@ jobs:
           GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
           GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
           RUN_NUMBER: ${{ github.run_number }}
+          EMAIL: ${{ github.EMAIL }}
