@@ -27,7 +27,7 @@ jobs:
           git config --local user.email "ambroise.tine@gmail.com"
           git config --local user.name "amb0u"
           pwd
-          sed -i 's|image: amb0u/atlas-api:|image: amb0u/atlas-api:${{ github.run_number }}|' dev/api-deployment.yml
+          sed -i 's|image: amb0u/atlas-api:.*|image: amb0u/atlas-api:'$(echo "$GITHUB_RUN_NUMBER")'|' dev/api-deployment.yml
           cat dev/api-deployment.yml
           git add .
           git commit -m 'Update manifest version'
