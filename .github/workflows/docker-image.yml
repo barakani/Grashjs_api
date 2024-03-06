@@ -36,26 +36,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  modifygit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: changing the deployment of git repo
         with:
-          repository: amb0u/atlas-apps  # Specify the repository to modify
-
-      # Add your modification steps here, for example, using sed to update a JSON file
-      - name: Modify manifest file
-        run: |
-          sed -i "s+amb0u/atlas-api:${{ github.run_number }}+g" dev/api-deployment.yml
-          
-      # Commit the changes
-      - name: Commit changes
+          repository: 'amb0u/atlas-apps'
+          token: ${{ secrets.GIT_PASSWORD }}
+      - name: modify the image
         run: |
           git config --local user.email "ambroise.tine@gmail.com"
           git config --local user.name "amb0u"
           git add .
           git commit -m "Update manifest version"
-      
-      # Push the changes back to the repository
-      - name: Push changes
-        uses: amb0u/atlas-apps@master
-        with:
-          github_token: ${{ secrets.GIT_PASSWORD }}
+          sed -i "s+amb0u/atlas-api:${{ github.run_number }}+g" dev/api-deployment.yml
+          cat dev/api-deployment.yml
+          git add .
+          git commit -m 'Done  by Github Actions   Job changemanifest: ${{ github.run_number }}'
+          git push origin main
+        env:
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+          RUN_NUMBER: ${{ github.run_number }}
