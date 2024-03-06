@@ -36,9 +36,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  modifygit:
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v2
         name: changing the deployment of git repo
         with:
