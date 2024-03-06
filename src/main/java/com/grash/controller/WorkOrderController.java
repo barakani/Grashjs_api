@@ -114,7 +114,8 @@ public class WorkOrderController {
                                             .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
                             )).build());
                 }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+            }
+//            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
         }
         return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria, orSpecification));
     }
