@@ -165,10 +165,9 @@ public class WorkOrderService {
         return workOrderRepository.findByLocation_Id(id);
     }
 
-    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria, Specification<WorkOrder> orSpecification) {
+    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
-        if(orSpecification!=null) builder.or(orSpecification);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
     }

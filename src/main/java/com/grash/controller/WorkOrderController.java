@@ -83,8 +83,6 @@ public class WorkOrderController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        Specification<WorkOrder> orSpecification = (workOrderRoot, query, criteriaBuilder) ->
-                criteriaBuilder.equal(workOrderRoot.get("parentRequest").get("createdBy"), user.getId());
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             searchCriteria.filterCompany(user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -114,10 +112,17 @@ public class WorkOrderController {
                                             .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
                             )).build());
                 }
+
+            } else if (user.getRole().getCode().equals(RoleCode.REQUESTER)) {
+                searchCriteria.getFilterFields().add(FilterField.builder()
+                        .field("parentRequest.createdBy")
+                        .value(user.getId())
+                        .operation("eq")
+                        .values(new ArrayList<>()).build());
             }
 //            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
         }
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria, orSpecification));
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
     }
 
     @PostMapping("/events")
@@ -181,7 +186,7 @@ public class WorkOrderController {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if ((user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                     (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()) || savedWorkOrder.isAssignedTo(user)))
-            || savedWorkOrder.getParentRequest() != null && savedWorkOrder.getParentRequest().getCreatedBy().equals(user.getId())
+                    || savedWorkOrder.getParentRequest() != null && savedWorkOrder.getParentRequest().getCreatedBy().equals(user.getId())
             ) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

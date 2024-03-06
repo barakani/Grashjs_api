@@ -45,7 +45,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = cb.notLike(cb.lower(root.get(filterField.getField())), "%" + strToSearch);
                 break;
             case EQUAL:
-                result = cb.equal(root.get(filterField.getField()), filterField.getValue());
+                result = cb.equal(getFieldPath(root,filterField.getField()), filterField.getValue());
                 break;
             case NOT_EQUAL:
                 result = cb.notEqual(root.get(filterField.getField()), filterField.getValue());
@@ -124,5 +124,17 @@ public class WrapperSpecification<T> implements Specification<T> {
             }
         }
         return value;
+    }
+
+    private Path<T> getFieldPath(Root<T> root, String field) {
+        // Split the field path using dot notation
+        String[] fieldNames = field.split("\\.");
+
+        // Traverse the field path to get the Path object
+        Path<T> path = root;
+        for (String fieldName : fieldNames) {
+            path = path.get(fieldName);
+        }
+        return path;
     }
 }
