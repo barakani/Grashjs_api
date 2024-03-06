@@ -27,7 +27,7 @@ jobs:
           git config --local user.email "ambroise.tine@gmail.com"
           git config --local user.name "amb0u"
           pwd
-          cat deployment.yaml
+          cat dev/api-deployment.yml
           pwd
           sed -i "s+amb0u/atlas-api:$RUN_NUMBER+g" dev/api-deployment.yml
           cat dev/api-deployment.yml
