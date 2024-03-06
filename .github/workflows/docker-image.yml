@@ -30,8 +30,35 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: amb0u/atlas-api
-          tags: latest
+          tags: ${{ github.run_number }}
           registry: docker.io
           dockerfile: Dockerfile
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  modify_manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: amb0u/atlas-apps  # Specify the repository to modify
+
+      # Add your modification steps here, for example, using sed to update a JSON file
+      - name: Modify manifest file
+        run: |
+          sed -i "s+amb0u/atlas-api:${{ github.run_number }}+g" dev/api-deployment.yml
+          
+      # Commit the changes
+      - name: Commit changes
+        run: |
+          git config --local user.email "ambroise.tine@gmail.com"
+          git config --local user.name "amb0u"
+          git add .
+          git commit -m "Update manifest version"
+      
+      # Push the changes back to the repository
+      - name: Push changes
+        uses: ad-m/github-push-action@main
+        with:
+          github_token: ${{ secrets.GIT_PASSWORD }}
