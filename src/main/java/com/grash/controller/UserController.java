@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,7 +81,9 @@ public class UserController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "AssetCategory not found")})
     public Collection<UserMiniDTO> getMini(@ApiIgnore @CurrentUser OwnUser user) {
-        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription).filter(u -> !u.getRole().getCode().equals(RoleCode.REQUESTER)).map(userMapper::toMiniDto).collect(Collectors.toList());
+        return userService.findByCompany(user.getCompany().getId()).stream().filter(OwnUser::isEnabledInSubscription)
+                .filter(u -> !Arrays.asList(RoleCode.VIEW_ONLY, RoleCode.REQUESTER).contains(u.getRole().getCode()))
+                .map(userMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/mini/disabled")

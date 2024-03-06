@@ -8,6 +8,8 @@ import java.util.List;
 
 public class SpecificationBuilder<T> {
     private final List<FilterField> filterFields;
+    private Specification<T> andSpecification;
+    private Specification<T> orSpecification;
 
     public SpecificationBuilder() {
         this.filterFields = new ArrayList<>();
@@ -15,6 +17,15 @@ public class SpecificationBuilder<T> {
 
     public final SpecificationBuilder<T> with(FilterField filterField) {
         filterFields.add(filterField);
+        return this;
+    }
+
+    public final SpecificationBuilder<T> with(Specification<T> specification) {
+        this.andSpecification = specification;
+        return this;
+    }
+    public final SpecificationBuilder<T> or(Specification<T> specification) {
+        this.orSpecification = specification;
         return this;
     }
 
@@ -26,6 +37,8 @@ public class SpecificationBuilder<T> {
         for (FilterField criteria : filterFields) {
             result = Specification.where(result).and(new WrapperSpecification<>(criteria));
         }
+        if (andSpecification != null) result = result.and(andSpecification);
+        if (orSpecification != null) result = result.or(orSpecification);
         return result;
     }
 

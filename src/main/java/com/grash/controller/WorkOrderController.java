@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -80,6 +83,8 @@ public class WorkOrderController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
+        Specification<WorkOrder> orSpecification = (workOrderRoot, query, criteriaBuilder) ->
+                criteriaBuilder.equal(workOrderRoot.get("parentRequest").get("createdBy"), user.getId());
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             searchCriteria.filterCompany(user);
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -111,7 +116,7 @@ public class WorkOrderController {
                 }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria, orSpecification));
     }
 
     @PostMapping("/events")
@@ -121,7 +126,7 @@ public class WorkOrderController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
     public Collection<CalendarEvent> getEvents(@Valid @RequestBody DateRange
-                                                        dateRange, HttpServletRequest req) {
+                                                       dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             List<CalendarEvent> result = new ArrayList<>();
@@ -130,7 +135,7 @@ public class WorkOrderController {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
             }).map(workOrderMapper::toShowDto).map(workOrderShowDTO -> new CalendarEvent("WORK_ORDER", workOrderShowDTO, workOrderShowDTO.getDueDate())).collect(Collectors.toList()));
-        return result;
+            return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

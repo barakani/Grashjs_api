@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -164,9 +165,10 @@ public class WorkOrderService {
         return workOrderRepository.findByLocation_Id(id);
     }
 
-    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria, Specification<WorkOrder> orSpecification) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
+        if(orSpecification!=null) builder.or(orSpecification);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
     }
