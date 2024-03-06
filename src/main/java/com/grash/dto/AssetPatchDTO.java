@@ -55,4 +55,8 @@ public class AssetPatchDTO {
 
     private Long acquisitionCost;
 
+    private String power;
+
+    private String manufacturer;
+
 }

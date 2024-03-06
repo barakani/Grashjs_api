@@ -36,5 +36,7 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_02_1709332440_cancellation_reason.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_07_1709756137_create_asset_columns.xml"
+             relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

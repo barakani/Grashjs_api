@@ -138,6 +138,10 @@ public class Asset extends CompanyAudit {
             })
     private List<File> files = new ArrayList<>();
 
+    private String power;
+
+    private String manufacturer;
+
     public Collection<OwnUser> getUsers() {
         Collection<OwnUser> users = new ArrayList<>();
         if (this.getPrimaryUser() != null) {

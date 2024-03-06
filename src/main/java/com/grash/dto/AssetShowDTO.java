@@ -66,4 +66,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private List<PartMiniDTO> parts = new ArrayList<>();
 
+    private String power;
+
+    private String manufacturer;
 }
