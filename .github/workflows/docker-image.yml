@@ -31,7 +31,7 @@ jobs:
           cat dev/api-deployment.yml
           git add .
           git commit -m 'Update manifest version'
-          git push origin main
+          git push origin master
         env:
           GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
           GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
