@@ -39,7 +39,7 @@ jobs:
   modifygit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         name: changing the deployment of git repo
         with:
           repository: 'amb0u/atlas-apps'
