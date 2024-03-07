@@ -2,6 +2,7 @@ package com.grash.model.abstracts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.exception.CustomException;
+import com.grash.model.Asset;
 import com.grash.model.Company;
 import com.grash.model.File;
 import com.grash.model.OwnUser;
