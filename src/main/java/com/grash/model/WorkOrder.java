@@ -97,7 +97,7 @@ public class WorkOrder extends WorkOrderBase {
 
     public boolean canBeEditedBy(OwnUser user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
-                || this.getCreatedBy().equals(user.getId()) || isAssignedTo(user);
+                || (this.getCreatedBy()!=null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
     //in days

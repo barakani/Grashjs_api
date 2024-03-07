@@ -139,7 +139,7 @@ public class WorkOrderController {
             result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()));
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                return canViewOthers || workOrder.getCreatedBy().equals(user.getId()) || workOrder.isAssignedTo(user);
+                return canViewOthers || (workOrder.getCreatedBy() !=null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
             }).map(workOrderMapper::toShowDto).map(workOrderShowDTO -> new CalendarEvent("WORK_ORDER", workOrderShowDTO, workOrderShowDTO.getDueDate())).collect(Collectors.toList()));
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -185,7 +185,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if ((user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()) || savedWorkOrder.isAssignedTo(user)))
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (savedWorkOrder.getCreatedBy() !=null && savedWorkOrder.getCreatedBy().equals(user.getId())) || savedWorkOrder.isAssignedTo(user)))
                     || savedWorkOrder.getParentRequest() != null && savedWorkOrder.getParentRequest().getCreatedBy().equals(user.getId())
             ) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
@@ -358,7 +358,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || savedWorkOrder.getCreatedBy().equals(user.getId()) || savedWorkOrder.isAssignedTo(user))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || user.getId().equals(savedWorkOrder.getCreatedBy()) || savedWorkOrder.isAssignedTo(user))) {
                 Context thymeleafContext = new Context();
                 thymeleafContext.setLocale(Helper.getLocale(user));
                 Optional<OwnUser> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() : userService.findById(savedWorkOrder.getCreatedBy());
