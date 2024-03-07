@@ -108,7 +108,8 @@ public class PurchaseOrderController {
                 put("message", message);
             }};
             Collection<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
-                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
+                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)||
+                            user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
             notificationService.createMultiple(usersToNotify.stream().map(user1 -> new Notification(message, user1, NotificationType.PURCHASE_ORDER, result.getId())).collect(Collectors.toList()), true, title);
             Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user1 -> user1.getUserSettings().isEmailUpdatesForPurchaseOrders()).collect(Collectors.toList());
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_po", null, Helper.getLocale(user)), mailVariables, "new-purchase-order.html", Helper.getLocale(user));

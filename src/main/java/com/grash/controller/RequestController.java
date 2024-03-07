@@ -14,6 +14,7 @@ import com.grash.model.Request;
 import com.grash.model.Workflow;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.NotificationService;
@@ -99,7 +100,8 @@ public class RequestController {
             String title = "new_request";
             String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
             notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream()
-                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+                    .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
                     .map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()), true, title);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
