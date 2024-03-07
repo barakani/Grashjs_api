@@ -75,16 +75,8 @@ public class TenantAspect {
 
     private void validateFieldElement(Object object) {
         if (object instanceof CompanyAudit) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || authentication.getPrincipal() instanceof String) return;
-            Object principal = authentication.getPrincipal();
-            OwnUser user = ((CustomUserDetail) principal).getUser();
             CompanyAudit companyAudit = (CompanyAudit) object;
-            companyAudit = (CompanyAudit) entityManager.find(object.getClass(), companyAudit.getId()); //
-
-            if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) && !user.getCompany().getId().equals(companyAudit.getCompany().getId())) {
-                throw new CustomException("beforeSave:  the user (id=" + user.getId() + ")  is not authorized to save using this object (" + companyAudit.getClass() + ") with id " + companyAudit.getId(), HttpStatus.FORBIDDEN);
-            }
+            entityManager.find(object.getClass(), companyAudit.getId()); // should fail here if from other company because of @PostLoad
         }
     }
 }
