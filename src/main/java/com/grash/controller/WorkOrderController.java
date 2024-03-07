@@ -244,67 +244,87 @@ public class WorkOrderController {
                                   HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-        if (workOrder.getStatus() != Status.COMPLETE) {
-            workOrder.setCompletedOn(null);
-            workOrder.setCompletedBy(null);
-        }
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
-            if (savedWorkOrder.canBeEditedBy(user)
-                    && (workOrder.getSignature() == null ||
-                    user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
-                if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
-                    if (workOrder.getStatus().equals(Status.COMPLETE)) {
-                        workOrder.setCompletedBy(user);
-                        workOrder.setCompletedOn(new Date());
-                        if (workOrder.getAsset() != null) {
-                            Asset asset = workOrder.getAsset();
-                            Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
-                            if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                                assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
-                            }
-                        }
-                        Collection<Labor> primaryLabors = laborService.findByWorkOrder(id).stream().filter(Labor::isLogged).collect(Collectors.toList());
-                        primaryLabors.forEach(laborService::stop);
-                    }
-                    Collection<Labor> labors = laborService.findByWorkOrder(id);
-                    Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
-                    primaryTimes.forEach(laborService::stop);
-                }
-
+            if (savedWorkOrder.canBeEditedBy(user)) {
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
 
-                if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrder.getStatus().equals(Status.COMPLETE)) {
-                    Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED, user.getCompany().getId());
-                    workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
-                }
                 if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
                     Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_ARCHIVED, user.getCompany().getId());
                     workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
                 }
-                if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
-                        && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
-                        && patchedWorkOrder.getParentRequest() != null) {
-                    Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
-                    OwnUser requester = userService.findById(requesterId).get();
-                    Locale locale = Helper.getLocale(user);
-                    String message = messageSource.getMessage("notification_wo_request", new Object[]{patchedWorkOrder.getTitle(), messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)}, locale);
-                    notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
-                    if (requester.getUserSettings().isEmailUpdatesForRequests()) {
-                        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                            put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
-                            put("message", message);
-                        }};
-                        emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, messageSource.getMessage("request_update", null, locale), mailVariables, "requester-update.html", Helper.getLocale(user));
-                    }
-                }
+
                 boolean shouldNotify = !user.getCompany().getCompanySettings().getGeneralPreferences().isDisableClosedWorkOrdersNotif() || !patchedWorkOrder.getStatus().equals(Status.COMPLETE);
                 if (shouldNotify)
                     workOrderService.patchNotify(savedWorkOrder, patchedWorkOrder, Helper.getLocale(user));
                 return workOrderMapper.toShowDto(patchedWorkOrder);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/{id}/change-status")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+
+    public WorkOrderShowDTO changeStatus(@ApiParam("WorkOrder") @Valid @RequestBody WorkOrderChangeStatusDTO
+                                                 workOrder, @ApiParam("id") @PathVariable("id") Long id,
+                                         HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        WorkOrder savedWorkOrder = optionalWorkOrder.get();
+        Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
+
+        if(workOrder.getStatus()== null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
+
+        savedWorkOrder.setSignature(workOrder.getSignature());
+        savedWorkOrder.setStatus(workOrder.getStatus());
+        savedWorkOrder.setFeedback(workOrder.getFeedback());
+
+        if (workOrder.getStatus() != Status.COMPLETE) {
+            savedWorkOrder.setCompletedOn(null);
+            savedWorkOrder.setCompletedBy(null);
+        }
+        if (savedWorkOrder.canBeEditedBy(user) && (workOrder.getSignature() == null ||
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
+            if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
+                if (workOrder.getStatus().equals(Status.COMPLETE)) {
+                    savedWorkOrder.setCompletedBy(user);
+                    savedWorkOrder.setCompletedOn(new Date());
+                    if (savedWorkOrder.getAsset() != null) {
+                        Asset asset = savedWorkOrder.getAsset();
+                        Collection<WorkOrder> workOrdersOfSameAsset = workOrderService.findByAsset(asset.getId());
+                        if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
+                            assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
+                        }
+                    }
+                }
+                Collection<Labor> labors = laborService.findByWorkOrder(id);
+                Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
+                primaryTimes.forEach(laborService::stop);
+            }
+            WorkOrder patchedWorkOrder = workOrderService.save(savedWorkOrder);
+
+            if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
+                Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED, user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, patchedWorkOrder));
+            }
+            if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
+                    && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
+                    && patchedWorkOrder.getParentRequest() != null) {
+                Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
+                OwnUser requester = userService.findById(requesterId).get();
+                Locale locale = Helper.getLocale(user);
+                String message = messageSource.getMessage("notification_wo_request", new Object[]{patchedWorkOrder.getTitle(), messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)}, locale);
+                notificationService.create(new Notification(message, userService.findById(requesterId).get(), NotificationType.WORK_ORDER, id));
+                if (requester.getUserSettings().isEmailUpdatesForRequests()) {
+                    Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                        put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
+                        put("message", message);
+                    }};
+                    emailService2.sendMessageUsingThymeleafTemplate(new String[]{requester.getEmail()}, messageSource.getMessage("request_update", null, locale), mailVariables, "requester-update.html", Helper.getLocale(user));
+                }
+            }
+            return workOrderMapper.toShowDto(patchedWorkOrder);
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
     @DeleteMapping("/{id}")

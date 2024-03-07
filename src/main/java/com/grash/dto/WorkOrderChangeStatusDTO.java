@@ -10,8 +10,8 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
-    private OwnUser completedBy;
-    private Date completedOn;
-    private boolean archived;
+public class WorkOrderChangeStatusDTO {
+    private Status status;
+    private File signature;
+    private String feedback;
 }

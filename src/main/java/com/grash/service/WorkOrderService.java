@@ -172,8 +172,8 @@ public class WorkOrderService {
         return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
     }
 
-    public void save(WorkOrder workOrder) {
-        workOrderRepository.save(workOrder);
+    public WorkOrder save(WorkOrder workOrder) {
+       return workOrderRepository.save(workOrder);
     }
 
     public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
