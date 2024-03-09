@@ -223,6 +223,8 @@ public class AssetController {
                         throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
+                if(asset.getParentAsset() !=null && asset.getParentAsset().getId().equals(id))
+                    throw new CustomException("Parent asset cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
                 Asset patchedAsset = assetService.update(id, asset);
                 assetService.patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
                 return assetMapper.toShowDto(patchedAsset, assetService);

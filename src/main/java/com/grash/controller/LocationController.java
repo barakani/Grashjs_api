@@ -154,6 +154,9 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId())) {
+                if(location.getParentLocation() !=null && location.getParentLocation().getId().equals(id))
+                    throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
+
                 Location patchedLocation = locationService.update(id, location);
                 locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
                 return locationMapper.toShowDto(patchedLocation, locationService);
