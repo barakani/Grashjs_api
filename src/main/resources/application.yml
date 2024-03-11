@@ -74,4 +74,4 @@ fast-spring:
 management:
   health:
     mail:
-      enabled: false
+      enabled: true
