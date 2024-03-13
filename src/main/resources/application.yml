@@ -71,7 +71,3 @@ gcp:
 fast-spring:
   username: ${FASTSPRING_USER}
   password: ${FASTSPRING_PWD}
-management:
-  health:
-    mail:
-      enabled: false
