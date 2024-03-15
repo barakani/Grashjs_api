@@ -5,6 +5,8 @@ import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import lombok.Data;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
@@ -26,18 +28,23 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private boolean requiredSignature;
 
     @OneToOne
+    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED)
     private File image;
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private WorkOrderCategory category;
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private Location location;
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private Team team;
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private OwnUser primaryUser;
 
     @ManyToMany
@@ -53,6 +60,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private Asset asset;
 
     public void setEstimatedDuration(int estimatedDuration) {

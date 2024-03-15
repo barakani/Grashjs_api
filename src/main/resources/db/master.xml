@@ -38,5 +38,30 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_07_1709756137_create_asset_columns.xml"
              relativeToChangelogFile="true"/>
-
+    <include file="changelog/2024_03_15_1710478604_create_wo_aud_table.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers1.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers2.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers3.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers4.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers5.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers6.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers7.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers8.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers9.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers10.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers11.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers12.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

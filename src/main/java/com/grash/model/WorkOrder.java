@@ -9,6 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.*;
@@ -24,12 +28,15 @@ import static java.util.stream.Collectors.toCollection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Audited(withModifiedFlag = true)
 public class WorkOrder extends WorkOrderBase {
     @Id
+    @NotAudited
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne
+    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED)
     private OwnUser completedBy;
 
     private Date completedOn;
@@ -37,18 +44,21 @@ public class WorkOrder extends WorkOrderBase {
     private Status status = Status.OPEN;
 
     @OneToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private File signature;
 
     private boolean archived;
 
     @ManyToOne
     @JsonIgnore
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private Request parentRequest;
 
     private String feedback;
 
 
     @ManyToOne
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
     @JsonIgnore
