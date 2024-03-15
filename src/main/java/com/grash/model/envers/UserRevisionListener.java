@@ -1,4 +1,4 @@
-package com.grash.configuration;
+package com.grash.model.envers;
 
 import com.grash.model.OwnUser;
 import com.grash.model.envers.RevInfo;

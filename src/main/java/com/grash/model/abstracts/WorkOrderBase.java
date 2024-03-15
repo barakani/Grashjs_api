@@ -6,6 +6,7 @@ import com.grash.model.*;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.http.HttpStatus;
 
@@ -48,14 +49,17 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private OwnUser primaryUser;
 
     @ManyToMany
+    @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<OwnUser> assignedTo = new ArrayList<>();
 
     @ManyToMany
+    @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Customer> customers = new ArrayList<>();
 
     @ManyToMany
+    @NotAudited
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<File> files = new ArrayList<>();
 

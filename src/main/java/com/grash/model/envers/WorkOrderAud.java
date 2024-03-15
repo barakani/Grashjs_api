@@ -6,14 +6,12 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
 
-@Entity
+//@Entity
 @Data
 @Table(name = "work_order_aud")
 public class WorkOrderAud {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rev")
-    private Integer rev;
+    @EmbeddedId
+    private WorkOrderAudId workOrderAudId;
 
     @Column(name = "revtype")
     private Integer revtype;
@@ -85,11 +83,6 @@ public class WorkOrderAud {
     private PreventiveMaintenance parentPreventiveMaintenance;
 
     // Include fields for _mod columns
-    // Omitted for brevity
-
-    @ManyToOne
-    @JoinColumn(name = "id", nullable = false)
-    private WorkOrder workOrder;
 
     @ManyToOne
     @JoinColumn(name = "asset_id")

@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -29,9 +30,9 @@ import static java.util.stream.Collectors.toCollection;
 @AllArgsConstructor
 @Builder
 @Audited(withModifiedFlag = true)
+@AuditOverride(forClass = WorkOrderBase.class)
 public class WorkOrder extends WorkOrderBase {
     @Id
-    @NotAudited
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

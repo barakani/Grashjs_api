@@ -64,4 +64,16 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_15_1710478604_fix_envers12.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers13.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers14.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers15.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers16.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers17.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers18.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

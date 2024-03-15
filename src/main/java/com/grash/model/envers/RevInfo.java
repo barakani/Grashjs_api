@@ -1,11 +1,10 @@
 package com.grash.model.envers;
 
-import com.grash.configuration.UserRevisionListener;
 import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;
-import org.hibernate.envers.RevisionListener;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
