@@ -37,7 +37,7 @@ public class WorkOrder extends WorkOrderBase {
     private Long id;
 
     @ManyToOne
-    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser completedBy;
 
     private Date completedOn;
@@ -45,21 +45,21 @@ public class WorkOrder extends WorkOrderBase {
     private Status status = Status.OPEN;
 
     @OneToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private File signature;
 
     private boolean archived;
 
     @ManyToOne
     @JsonIgnore
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Request parentRequest;
 
     private String feedback;
 
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
     @JsonIgnore

@@ -76,4 +76,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_15_1710478604_fix_envers18.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers19.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers20.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

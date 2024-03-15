@@ -29,23 +29,23 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private boolean requiredSignature;
 
     @OneToOne
-    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private File image;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private WorkOrderCategory category;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Location location;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Team team;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser primaryUser;
 
     @ManyToMany
@@ -64,7 +64,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED)
+    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Asset asset;
 
     public void setEstimatedDuration(int estimatedDuration) {
