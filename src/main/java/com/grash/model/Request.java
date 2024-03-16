@@ -22,7 +22,8 @@ public class Request extends WorkOrderBase {
 
     @PreRemove
     private void preRemove() {
-        workOrder.setParentRequest(null);
+        if(workOrder !=null)
+            workOrder.setParentRequest(null);
     }
 
 }

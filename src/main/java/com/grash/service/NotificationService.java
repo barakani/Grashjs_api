@@ -37,7 +37,7 @@ public class NotificationService {
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
         notificationRepository.saveAll(notifications);
-        if (mobile && notifications.size() > 0)
+        if (mobile && !notifications.isEmpty())
             try {
                 sendPushNotifications(notifications.stream().map(Notification::getUser).collect(Collectors.toList()),
                         title, notifications.get(0).getMessage(), new HashMap<String, Object>() {{

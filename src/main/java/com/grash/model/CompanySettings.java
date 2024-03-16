@@ -89,7 +89,7 @@ public class CompanySettings {
         return new HashSet<>(Arrays.asList(
                 createRole("Administrator", true, RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
                 createRole("Limited Administrator", true, RoleCode.LIMITED_ADMIN,
-                        allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
+                        allEntities.stream().filter(permissionEntity -> !Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.REQUESTS).contains(permissionEntity)).collect(Collectors.toList()),
                         allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
                         Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
                 createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS, PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES)),
