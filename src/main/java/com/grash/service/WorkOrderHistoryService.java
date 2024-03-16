@@ -1,17 +1,27 @@
 package com.grash.service;
 
+import com.grash.model.OwnUser;
+import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderHistory;
+import com.grash.repository.WorkOrderAudRepository;
 import com.grash.repository.WorkOrderHistoryRepository;
+import com.grash.repository.WorkOrderRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class WorkOrderHistoryService {
     private final WorkOrderHistoryRepository workOrderHistoryRepository;
+    private final WorkOrderAudRepository workOrderAudRepository;
+    private final WorkOrderRepository workOrderRepository;
+    private final MessageSource messageSource;
 
     public WorkOrderHistory create(WorkOrderHistory workOrderHistory) {
         return workOrderHistoryRepository.save(workOrderHistory);
@@ -34,6 +44,14 @@ public class WorkOrderHistoryService {
     }
 
     public Collection<WorkOrderHistory> findByWorkOrder(Long id) {
-        return workOrderHistoryRepository.findByWorkOrder_Id(id);
+        return workOrderAudRepository.findByIdAndRevtype(id, 1).stream().map(workOrderAud -> {
+            WorkOrder workOrder = workOrderRepository.findById(id).get();
+            OwnUser user = workOrderAud.getWorkOrderAudId().getRev().getUser();
+            return WorkOrderHistory.builder()
+                    .workOrder(workOrder)
+                    .name(workOrderAud.getSummary())
+                    .user(user)
+                    .build();
+        }).collect(Collectors.toList());
     }
 }

@@ -80,4 +80,14 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_15_1710478604_fix_envers20.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers21.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers22.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers23.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers24.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_15_1710478604_fix_envers25.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

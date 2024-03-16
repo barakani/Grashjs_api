@@ -2,27 +2,33 @@ package com.grash.model.envers;
 
 import com.grash.model.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
-//@Entity
+@Entity
 @Data
 @Table(name = "work_order_aud")
-public class WorkOrderAud {
+@NoArgsConstructor
+public class WorkOrderAud implements Serializable {
+
     @EmbeddedId
     private WorkOrderAudId workOrderAudId;
 
     @Column(name = "revtype")
     private Integer revtype;
 
-    @Column(name = "dueDate")
+    @Column(name = "due_date")
     private Date dueDate;
 
     @Column(name = "priority")
     private Integer priority;
 
-    @Column(name = "estimatedDuration")
+    @Column(name = "estimated_duration")
     private Integer estimatedDuration;
 
     @Column(name = "description")
@@ -31,7 +37,7 @@ public class WorkOrderAud {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "requiredSignature")
+    @Column(name = "required_signature")
     private Boolean requiredSignature;
 
     @ManyToOne
@@ -82,72 +88,141 @@ public class WorkOrderAud {
     @JoinColumn(name = "parent_preventive_maintenance_id")
     private PreventiveMaintenance parentPreventiveMaintenance;
 
-    // Include fields for _mod columns
+    // Include fields for _MOD columns
 
     @ManyToOne
     @JoinColumn(name = "asset_id")
     private Asset asset;
 
-    // Include fields for _mod columns for asset_id
+    // Include fields for _MOD columns for asset_id
     // Fields for mod columns
-    @Column(name = "dueDate_mod")
+    @Column(name = "dueDate_MOD")
     private Boolean dueDateMod;
 
-    @Column(name = "priority_mod")
+    @Column(name = "priority_MOD")
     private Boolean priorityMod;
 
-    @Column(name = "estimatedDuration_mod")
+    @Column(name = "estimatedDuration_MOD")
     private Boolean estimatedDurationMod;
 
-    @Column(name = "description_mod")
+    @Column(name = "description_MOD")
     private Boolean descriptionMod;
 
-    @Column(name = "title_mod")
+    @Column(name = "title_MOD")
     private Boolean titleMod;
 
-    @Column(name = "requiredSignature_mod")
+    @Column(name = "requiredSignature_MOD")
     private Boolean requiredSignatureMod;
 
-    @Column(name = "image_id_mod")
+    @Column(name = "image_MOD")
     private Boolean imageIdMod;
 
-    @Column(name = "category_id_mod")
+    @Column(name = "category_MOD")
     private Boolean categoryIdMod;
 
-    @Column(name = "location_id_mod")
+    @Column(name = "location_MOD")
     private Boolean locationIdMod;
 
-    @Column(name = "team_id_mod")
+    @Column(name = "team_MOD")
     private Boolean teamIdMod;
 
-    @Column(name = "primary_user_id_mod")
+    @Column(name = "primaryUser_MOD")
     private Boolean primaryUserIdMod;
 
-    @Column(name = "completed_by_id_mod")
+    @Column(name = "completedBy_MOD")
     private Boolean completedByIdMod;
 
-    @Column(name = "completed_on_mod")
+    @Column(name = "completedOn_MOD")
     private Boolean completedOnMod;
 
-    @Column(name = "status_mod")
+    @Column(name = "status_MOD")
     private Boolean statusMod;
 
-    @Column(name = "signature_id_mod")
+    @Column(name = "signature_MOD")
     private Boolean signatureIdMod;
 
-    @Column(name = "archived_mod")
+    @Column(name = "archived_MOD")
     private Boolean archivedMod;
 
-    @Column(name = "parent_request_id_mod")
+    @Column(name = "parentRequest_MOD")
     private Boolean parentRequestIdMod;
 
-    @Column(name = "feedback_mod")
+    @Column(name = "feedback_MOD")
     private Boolean feedbackMod;
 
-    @Column(name = "parent_preventive_maintenance_id_mod")
+    @Column(name = "parentPreventiveMaintenance_MOD")
     private Boolean parentPreventiveMaintenanceIdMod;
 
 
-    @Column(name = "asset_id_mod")
+    @Column(name = "asset_MOD")
     private Boolean assetIdMod;
+
+    public String getSummary() {
+        StringBuilder summary = new StringBuilder();
+
+        if (dueDateMod != null && dueDateMod) {
+            summary.append("Due Date: ").append(dueDate).append("\n");
+        }
+        if (priorityMod != null && priorityMod) {
+            summary.append("Priority: ").append(priority).append("\n");
+        }
+        if (estimatedDurationMod != null && estimatedDurationMod) {
+            summary.append("Estimated Duration: ").append(estimatedDuration).append("\n");
+        }
+        if (descriptionMod != null && descriptionMod) {
+            summary.append("Description: ").append(description).append("\n");
+        }
+        if (titleMod != null && titleMod) {
+            summary.append("Title: ").append(title).append("\n");
+        }
+        if (requiredSignatureMod != null && requiredSignatureMod) {
+            summary.append("Required Signature: ").append(requiredSignature).append("\n");
+        }
+        if (imageIdMod != null && imageIdMod) {
+            summary.append("Image.\n");
+        }
+        if (categoryIdMod != null && categoryIdMod) {
+            summary.append("Category: ").append(category.getName()).append("\n");
+        }
+        if (locationIdMod != null && locationIdMod) {
+            summary.append("Location: ").append(location.getName()).append("\n");
+        }
+        if (teamIdMod != null && teamIdMod) {
+            summary.append("Team: ").append(team.getName()).append("\n");
+        }
+        if (primaryUserIdMod != null && primaryUserIdMod) {
+            summary.append("Primary User: ").append(primaryUser.getFullName()).append("\n");
+        }
+        if (completedByIdMod != null && completedByIdMod) {
+            summary.append("Completed By: ").append(completedBy.getFullName()).append("\n");
+        }
+        if (completedOnMod != null && completedOnMod) {
+            summary.append("Completed On: ").append(completedOn).append("\n");
+        }
+        if (statusMod != null && statusMod) {
+            summary.append("Status: ").append(status).append("\n");
+        }
+        if (signatureIdMod != null && signatureIdMod) {
+            summary.append("Signature.\n");
+        }
+        if (archivedMod != null && archivedMod) {
+            summary.append("Archived: ").append(archived).append("\n");
+        }
+        if (parentRequestIdMod != null && parentRequestIdMod) {
+            summary.append("Parent Request: ").append(parentRequest.getTitle()).append("\n");
+        }
+        if (feedbackMod != null && feedbackMod) {
+            summary.append("Feedback: ").append(feedback).append("\n");
+        }
+        if (parentPreventiveMaintenanceIdMod != null && parentPreventiveMaintenanceIdMod) {
+            summary.append("Parent Preventive Maintenance: ").append(parentPreventiveMaintenance.getName()).append("\n");
+        }
+        if (assetIdMod != null && assetIdMod) {
+            summary.append("Asset: ").append(asset.getName()).append("\n");
+        }
+
+        return summary.toString();
+    }
+
+
 }
