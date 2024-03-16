@@ -17,16 +17,14 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.model.enums.workflow.WFMainCondition;
-import com.grash.service.NotificationService;
-import com.grash.service.RequestService;
-import com.grash.service.UserService;
-import com.grash.service.WorkflowService;
+import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -36,8 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -53,6 +50,10 @@ public class RequestController {
     private final NotificationService notificationService;
     private final MessageSource messageSource;
     private final WorkflowService workflowService;
+    private final EmailService2 emailService2;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -99,10 +100,21 @@ public class RequestController {
             Request createdRequest = requestService.create(requestReq);
             String title = "new_request";
             String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(user));
-            notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream()
+            List<OwnUser> usersToNotify = userService.findByCompany(user.getCompany().getId()).stream()
                     .filter(user1 -> user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
-                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
-                    .map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()), true, title);
+                            || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+            notificationService.createMultiple(usersToNotify
+                    .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST, createdRequest.getId())).collect(Collectors.toList()), true, title);
+            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
+                put("featuresLink", frontendUrl + "/#key-features");
+                put("requestTitle", createdRequest.getTitle());
+                put("requester", user.getFullName());
+            }};
+            emailService2.sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(OwnUser::getEmail)
+                    .toArray(String[]::new), messageSource.getMessage("new_request", null,
+                    Helper.getLocale(user)), mailVariables, "new-request.html", Helper.getLocale(user));
+
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
             return requestMapper.toShowDto(createdRequest);
@@ -171,7 +183,8 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
-            if(reason==null || reason.trim().isEmpty()) throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
+            if (reason == null || reason.trim().isEmpty())
+                throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
             savedRequest.setCancellationReason(reason);
             savedRequest.setCancelled(true);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
