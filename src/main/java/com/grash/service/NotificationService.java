@@ -30,6 +30,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
     private final PushNotificationTokenService pushNotificationTokenService;
 
+    @Async
     public Notification create(Notification notification) {
         return notificationRepository.save(notification);
     }

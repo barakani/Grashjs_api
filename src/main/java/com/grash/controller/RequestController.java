@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/requests")
 @Api(tags = "request")
 @RequiredArgsConstructor
+@Transactional
 public class RequestController {
 
     private final RequestService requestService;
@@ -164,7 +166,15 @@ public class RequestController {
             }
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
-            return workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
+
+            WorkOrderShowDTO result=workOrderMapper.toShowDto(requestService.createWorkOrderFromRequest(savedRequest, user));
+
+            String title = messageSource.getMessage("request_approved", null, Helper.getLocale(user));
+            String message = messageSource.getMessage("request_approved_description", new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+            notificationService.createMultiple( Collections.singletonList(new Notification(message, userService.findById(savedRequest.getCreatedBy()).get(),
+                    NotificationType.WORK_ORDER, result.getId())),true,title);
+
+            return result;
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
 
@@ -193,6 +203,12 @@ public class RequestController {
             savedRequest.setCancelled(true);
             Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED, user.getCompany().getId());
             workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+
+            String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
+            String message = messageSource.getMessage("request_rejected_description", new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+            notificationService.createMultiple(Collections.singletonList(new Notification(message, userService.findById(savedRequest.getCreatedBy()).get(),
+                    NotificationType.INFO, null)),true, title);
+
             return requestMapper.toShowDto(requestService.save(savedRequest));
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
