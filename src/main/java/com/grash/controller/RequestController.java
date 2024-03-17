@@ -154,7 +154,9 @@ public class RequestController {
                                     HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
-
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
@@ -177,7 +179,9 @@ public class RequestController {
                                  HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Request> optionalRequest = requestService.findById(id);
-
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
