@@ -85,7 +85,7 @@ public class WOAnalyticsController {
             return workOrder.getDueDate() != null && workOrder.getDueDate().after(Helper.localDateTimeToDate(todayMidnight)) && workOrder.getDueDate().before(Helper.localDateTimeToDate(tomorrowMidnight));
         }).count();
         int high = (int) workOrders.stream().filter(workOrder -> workOrder.getPriority().equals(Priority.HIGH)).count();
-        return Helper.withCache(MobileWOStats.builder()
+        return ResponseEntity.ok(MobileWOStats.builder()
                 .open(open)
                 .onHold(onHold)
                 .inProgress(inProgress)
@@ -108,7 +108,7 @@ public class WOAnalyticsController {
                 return true;
             } else return workOrder.getCompletedOn().after(weekStart);
         }).collect(Collectors.toList());
-        return Helper.withCache(MobileWOStatsExtended.builder()
+        return ResponseEntity.ok(MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
                 .compliantRate(workOrders.size() == 0 ? 1 : ((double) compliantWO.size()) / workOrders.size())
