@@ -34,14 +34,15 @@ public class NotificationService {
 
     @Async
     public Notification create(Notification notification) {
-        messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification);
-        return notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+        messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), savedNotification);
+        return savedNotification;
     }
 
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
-        notificationRepository.saveAll(notifications);
-        notifications.forEach(notification ->
+        List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
+        savedNotifications.forEach(notification ->
                 messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification));
         if (mobile && !notifications.isEmpty())
             try {
