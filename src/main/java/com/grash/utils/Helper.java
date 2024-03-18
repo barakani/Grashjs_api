@@ -168,7 +168,7 @@ public class Helper {
     }
 
     public static <T> ResponseEntity<T> withCache(T entity) {
-        CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.DAYS);
+        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES);
         return ResponseEntity.ok()
                 .cacheControl(cacheControl).body(entity);
     }
