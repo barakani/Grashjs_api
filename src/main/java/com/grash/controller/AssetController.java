@@ -33,6 +33,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.el.ELManager;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ public class AssetController {
     private final LocationService locationService;
     private final PartService partService;
     private final MessageSource messageSource;
+    private final EntityManager em;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -204,6 +207,7 @@ public class AssetController {
 
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
+            em.detach(savedAsset);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
             ) {
                 if (asset.getStatus().equals(AssetStatus.OPERATIONAL) && !savedAsset.getStatus().equals(AssetStatus.OPERATIONAL)) {

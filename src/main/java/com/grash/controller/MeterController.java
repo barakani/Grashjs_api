@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
@@ -46,6 +47,7 @@ public class MeterController {
     private final UserService userService;
     private final AssetService assetService;
     private final ReadingService readingService;
+    private final EntityManager em;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -120,6 +122,7 @@ public class MeterController {
 
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
+            em.detach(savedMeter);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId())) {
                 Meter patchedMeter = meterService.update(id, meter);
                 meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));

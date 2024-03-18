@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
@@ -40,6 +41,7 @@ public class TeamController {
     private final TeamService teamService;
     private final TeamMapper teamMapper;
     private final UserService userService;
+    private final EntityManager em;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -105,6 +107,7 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
+            em.detach(savedTeam);
             Team patchTeam = teamService.update(id, team);
             teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
             return teamMapper.toShowDto(patchTeam);

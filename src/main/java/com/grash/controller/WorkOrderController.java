@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -74,6 +75,7 @@ public class WorkOrderController {
     private final WorkflowService workflowService;
     private final Environment environment;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
+    private final EntityManager em;
 
 
     @Value("${frontend.url}")
@@ -247,6 +249,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (savedWorkOrder.canBeEditedBy(user)) {
+                em.detach(savedWorkOrder);
                 WorkOrder patchedWorkOrder = workOrderService.update(id, workOrder, user);
 
                 if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {

@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
@@ -41,6 +42,7 @@ public class LocationController {
     private final LocationService locationService;
     private final LocationMapper locationMapper;
     private final UserService userService;
+    private final EntityManager em;
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
@@ -153,6 +155,7 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
+            em.detach(savedLocation);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || savedLocation.getCreatedBy().equals(user.getId())) {
                 if(location.getParentLocation() !=null && location.getParentLocation().getId().equals(id))
                     throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);

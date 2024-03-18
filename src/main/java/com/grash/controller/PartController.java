@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
@@ -45,6 +46,8 @@ public class PartController {
     private final PartMapper partMapper;
     private final UserService userService;
     private final WorkflowService workflowService;
+    private final EntityManager em;
+
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -113,6 +116,7 @@ public class PartController {
 
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
+            em.detach(savedPart);
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
                 if (part.getBarcode() != null) {
                     Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
