@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -29,15 +30,19 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final PushNotificationTokenService pushNotificationTokenService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @Async
     public Notification create(Notification notification) {
+        messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification);
         return notificationRepository.save(notification);
     }
 
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
         notificationRepository.saveAll(notifications);
+        notifications.forEach(notification ->
+                messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification));
         if (mobile && !notifications.isEmpty())
             try {
                 sendPushNotifications(notifications.stream().map(Notification::getUser).collect(Collectors.toList()),

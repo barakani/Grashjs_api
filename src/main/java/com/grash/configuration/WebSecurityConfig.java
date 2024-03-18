@@ -43,6 +43,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/fast-spring/**").permitAll()
                 .antMatchers("/health-check").permitAll()
                 .antMatchers("/mail/send").permitAll()
+                .antMatchers("/ws/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
                 .antMatchers("/auth/activate-account**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
