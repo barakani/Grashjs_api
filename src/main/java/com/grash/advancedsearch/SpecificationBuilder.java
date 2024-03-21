@@ -30,7 +30,7 @@ public class SpecificationBuilder<T> {
     }
 
     public Specification<T> build() {
-        if (CollectionUtils.isEmpty(filterFields)) {
+        if (CollectionUtils.isEmpty(filterFields) && andSpecification == null && orSpecification == null) {
             return null;
         }
         Specification<T> result = (root, query, criteriaBuilder) -> null;

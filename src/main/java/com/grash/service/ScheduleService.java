@@ -74,7 +74,6 @@ public class ScheduleService {
                         Task copiedTask = new Task(task.getTaskBase(), savedWorkOrder, null, task.getValue());
                         taskService.create(copiedTask);
                     });
-                    workOrderService.notify(savedWorkOrder, Helper.getLocale(workOrder.getCompany()));
                 }
             };
             timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);

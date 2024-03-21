@@ -93,8 +93,7 @@ public class ReadingController {
                             new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                     ).collect(Collectors.toList()), true, title);
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                    WorkOrder createdWorkOrder = workOrderService.create(workOrder);
-                    workOrderService.notify(createdWorkOrder, Helper.getLocale(user));
+                    workOrderService.create(workOrder);
                 }
             });
             return readingService.create(readingReq);

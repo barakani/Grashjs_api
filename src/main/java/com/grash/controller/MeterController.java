@@ -101,7 +101,8 @@ public class MeterController {
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || savedMeter.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) ||
+                            (savedMeter.getCreatedBy().equals(user.getId())) || savedMeter.getUsers().stream().anyMatch(u -> u.getId().equals(user.getId())))) {
                 return meterMapper.toShowDto(savedMeter, readingService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
