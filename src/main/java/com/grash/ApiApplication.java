@@ -27,7 +27,6 @@ public class ApiApplication implements CommandLineRunner {
     private final SubscriptionPlanService subscriptionPlanService;
     private final SubscriptionService subscriptionService;
     private final ScheduleService scheduleService;
-    private final RoleService roleService;
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
