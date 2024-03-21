@@ -90,4 +90,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_15_1710478604_fix_envers25.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_03_22_1711051874_drop_not_null_revinfo_user.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
