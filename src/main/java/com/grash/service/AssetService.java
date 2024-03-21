@@ -136,6 +136,7 @@ public class AssetService {
                 .startsOn(new Date())
                 .asset(asset)
                 .build();
+        assetDowntime.setCompany(asset.getCompany());
         assetDowntimeService.create(assetDowntime);
         asset.setStatus(AssetStatus.DOWN);
         save(asset);
