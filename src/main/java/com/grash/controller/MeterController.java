@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
@@ -10,6 +11,7 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.Asset;
 import com.grash.model.Meter;
 import com.grash.model.OwnUser;
+import com.grash.model.Team;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleType;
@@ -30,10 +32,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,7 +60,18 @@ public class MeterController {
                 searchCriteria.filterCompany(user);
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS);
                 if (!canViewOthers) {
-                    searchCriteria.filterCreatedBy(user);
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdBy")
+                            .value(user.getId())
+                            .operation("eq")
+                            .values(new ArrayList<>())
+                            .alternatives(Arrays.asList(
+                                    FilterField.builder()
+                                            .field("users")
+                                            .operation("inm")
+                                            .joinType(JoinType.LEFT)
+                                            .value("")
+                                            .values(Collections.singletonList(user.getId())).build())).build());
                 }
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
