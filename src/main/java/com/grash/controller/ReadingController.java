@@ -68,7 +68,7 @@ public class ReadingController {
             if (!readings.isEmpty()) {
                 Reading lastReading = Collections.max(readings, new AuditComparator());
                 Date nextReading = Helper.incrementDays(lastReading.getCreatedAt(), meter.getUpdateFrequency());
-                if (new Date().before(nextReading)) {
+                if (!(Helper.isSameDay(new Date(), nextReading) && !Helper.isSameDay(new Date(), lastReading.getCreatedAt()))) {
                     throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
                 }
             }
