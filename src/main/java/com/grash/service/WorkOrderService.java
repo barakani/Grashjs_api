@@ -141,7 +141,7 @@ public class WorkOrderService {
             put("workOrderTitle", workOrder.getTitle());
         }};
         Collection<OwnUser> usersToMail = users.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
-        if (usersToMail.size() > 0) {
+        if (!usersToMail.isEmpty()) {
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
         }
     }
@@ -149,8 +149,19 @@ public class WorkOrderService {
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
-        notificationService.createMultiple(oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).stream().map(user ->
+        List<OwnUser> usersToNotify = oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers());
+        notificationService.createMultiple(usersToNotify.stream().map(user ->
                 new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()), true, title);
+
+        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+            put("workOrderLink", frontendUrl + "/app/work-orders/" + newWorkOrder.getId());
+            put("featuresLink", frontendUrl + "/#key-features");
+            put("workOrderTitle", newWorkOrder.getTitle());
+        }};
+        Collection<OwnUser> usersToMail = usersToNotify.stream().filter(user -> user.getUserSettings().isEmailUpdatesForWorkOrders()).collect(Collectors.toList());
+        if (!usersToMail.isEmpty()) {
+            emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail).toArray(String[]::new), messageSource.getMessage("new_wo", null, locale), mailVariables, "new-work-order.html", Helper.getLocale(users.stream().findFirst().get()));
+        }
     }
 
     public Collection<WorkOrder> findByAsset(Long id) {
@@ -188,6 +199,7 @@ public class WorkOrderService {
         workOrder.setLocation(workOrderBase.getLocation());
         workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
         workOrder.setTeam(workOrderBase.getTeam());
+        workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
         return workOrder;
     }
 
