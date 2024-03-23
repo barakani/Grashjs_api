@@ -52,6 +52,7 @@ import static java.util.stream.Collectors.toCollection;
 @RequestMapping("/work-orders")
 @Api(tags = "workOrder")
 @RequiredArgsConstructor
+@Transactional
 public class WorkOrderController {
 
     private final WorkOrderService workOrderService;
@@ -345,6 +346,20 @@ public class WorkOrderController {
             if (
                     user.getId().equals(savedWorkOrder.getCreatedBy()) ||
                             user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+                Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                    put("featuresLink", frontendUrl + "/#key-features");
+                    put("workOrdersLink", frontendUrl + "/app/work-orders");
+                    put("workOrderTitle", savedWorkOrder.getTitle());
+                    put("deleter", user.getFullName());
+                }};
+                String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
+
+                List<OwnUser> usersToMail = userService.findByCompany(user.getId()).stream().filter(user1->user1.getRole()
+                        .getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
+
+                emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                        .toArray(String[]::new), title, mailVariables, "deleted-work-order.html", Helper.getLocale(user));
+
                 workOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
