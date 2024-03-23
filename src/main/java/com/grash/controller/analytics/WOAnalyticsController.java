@@ -111,8 +111,8 @@ public class WOAnalyticsController {
         return ResponseEntity.ok(MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
-                .compliantRate(workOrders.size() == 0 ? 1 : ((double) compliantWO.size()) / workOrders.size())
-                .compliantRateWeek(completeWOWeek.size() == 0 ? 1 : ((double) compliantWOWeek.size()) / completeWOWeek.size())
+                .compliantRate(workOrders.isEmpty() ? 1 : ((double) compliantWO.size()) / workOrders.size())
+                .compliantRateWeek(completeWOWeek.isEmpty() ? 1 : ((double) compliantWOWeek.size()) / completeWOWeek.size())
                 .build());
     }
 
