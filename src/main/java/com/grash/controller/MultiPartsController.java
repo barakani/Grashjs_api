@@ -1,8 +1,6 @@
 package com.grash.controller;
 
-import com.grash.dto.MultiPartsPatchDTO;
-import com.grash.dto.MultiPartsShowDTO;
-import com.grash.dto.SuccessResponse;
+import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
@@ -102,6 +100,13 @@ public class MultiPartsController {
                 return multiPartsMapper.toShowDto(multiPartsService.update(id, multiParts));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("MultiParts not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<MultiPartsMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return multiPartsService.findByCompany(user.getCompany().getId()).stream().map(multiPartsMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")

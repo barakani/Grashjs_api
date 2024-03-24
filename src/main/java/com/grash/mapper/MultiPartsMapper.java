@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.MultiPartsMiniDTO;
 import com.grash.dto.MultiPartsPatchDTO;
 import com.grash.dto.MultiPartsShowDTO;
 import com.grash.model.MultiParts;
@@ -15,4 +16,6 @@ public interface MultiPartsMapper {
     MultiPartsPatchDTO toPatchDto(MultiParts model);
 
     MultiPartsShowDTO toShowDto(MultiParts model);
+
+    MultiPartsMiniDTO toMiniDto(MultiParts multiParts);
 }
