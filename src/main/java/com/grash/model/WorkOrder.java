@@ -37,7 +37,7 @@ public class WorkOrder extends WorkOrderBase {
     private Long id;
 
     @ManyToOne
-    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser completedBy;
 
     private Date completedOn;
@@ -45,21 +45,21 @@ public class WorkOrder extends WorkOrderBase {
     private Status status = Status.OPEN;
 
     @OneToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private File signature;
 
     private boolean archived;
 
     @ManyToOne
     @JsonIgnore
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Request parentRequest;
 
     private String feedback;
 
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
     @JsonIgnore
@@ -108,13 +108,13 @@ public class WorkOrder extends WorkOrderBase {
 
     public boolean canBeEditedBy(OwnUser user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
-                || (this.getCreatedBy()!=null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
     //in days
     @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
+        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCompletedOn(), workOrder.getCreatedAt(), TimeUnit.DAYS)).collect(Collectors.toList());
         return completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }

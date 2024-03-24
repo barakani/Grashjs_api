@@ -12,5 +12,5 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class IncompleteWOByAsset extends AssetMiniDTO {
     private int count;
-    private long averageAge;
+    private long averageAge; //days
 }
