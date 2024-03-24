@@ -66,6 +66,7 @@ public class WorkOrderService {
     ) {
         this.workflowService = workflowService;
     }
+
     @Transactional
     public WorkOrder create(WorkOrder workOrder) {
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
@@ -77,9 +78,9 @@ public class WorkOrderService {
                 assetService.triggerDownTime(asset.getId(), Helper.getLocale(company));
             }
         }
-            notify(savedWorkOrder, Helper.getLocale(company));
-            Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
-            workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
+        notify(savedWorkOrder, Helper.getLocale(company));
+        Collection<Workflow> workflows = workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CREATED, company.getId());
+        workflows.forEach(workflow -> workflowService.runWorkOrder(workflow, savedWorkOrder));
 
         return savedWorkOrder;
     }
@@ -184,7 +185,7 @@ public class WorkOrderService {
     }
 
     public WorkOrder save(WorkOrder workOrder) {
-       return workOrderRepository.save(workOrder);
+        return workOrderRepository.save(workOrder);
     }
 
     public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
@@ -307,7 +308,7 @@ public class WorkOrderService {
         optionalAsset.ifPresent(workOrder::setAsset);
         Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(), companyId);
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
-        workOrder.setCompletedOn(Helper.getDateFromExcelDate(dto.getCompletedOn()));
+        workOrder.setCompletedOn(dto.getCompletedOn() == null ? null : Helper.addSeconds(new Date(), 60 * 10));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
         workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
         workOrder.setFeedback(dto.getFeedback());
