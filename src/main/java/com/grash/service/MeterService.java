@@ -120,9 +120,9 @@ public class MeterService {
         meter.setName(dto.getName());
         meter.setUnit(dto.getUnit());
         meter.setUpdateFrequency(dto.getUpdateFrequency());
-        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
         optionalLocation.ifPresent(meter::setLocation);
-        Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findByNameAndCompanySettings(dto.getMeterCategory(), companySettingsId);
+        Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getMeterCategory(), companySettingsId);
         optionalMeterCategory.ifPresent(meter::setMeterCategory);
         List<OwnUser> users = new ArrayList<>();
         dto.getUsersEmails().forEach(email -> {

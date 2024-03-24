@@ -73,7 +73,7 @@ public class CustomerService {
         return customerRepository.findAll(builder.build(), page);
     }
 
-    public Optional<Customer> findByNameAndCompany(String name, Long companyId) {
-        return customerRepository.findByNameAndCompany_Id(name, companyId);
+    public Optional<Customer> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
+        return customerRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
 }

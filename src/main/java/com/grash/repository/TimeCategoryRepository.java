@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface TimeCategoryRepository extends JpaRepository<TimeCategory, Long> {
     Collection<TimeCategory> findByCompanySettings_Id(Long id);
 
-    Optional<TimeCategory> findByNameAndCompanySettings_Id(String name, Long id);
+    Optional<TimeCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long id);
 
 }

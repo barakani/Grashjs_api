@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
     Collection<Customer> findByCompany_Id(Long id);
 
-    Optional<Customer> findByNameAndCompany_Id(String name, Long companyId);
+    Optional<Customer> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
 }

@@ -125,7 +125,7 @@ public class TeamService {
         return teamRepository.findAll(builder.build(), page).map(teamMapper::toShowDto);
     }
 
-    public Optional<Team> findByNameAndCompany(String teamName, Long id) {
-        return teamRepository.findByNameAndCompany_Id(teamName, id);
+    public Optional<Team> findByNameIgnoreCaseAndCompany(String teamName, Long id) {
+        return teamRepository.findByNameIgnoreCaseAndCompany_Id(teamName, id);
     }
 }

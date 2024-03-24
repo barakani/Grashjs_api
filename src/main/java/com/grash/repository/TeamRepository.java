@@ -12,5 +12,5 @@ public interface TeamRepository extends JpaRepository<Team, Long>, JpaSpecificat
 
     Collection<Team> findByUsers_Id(Long id);
 
-    Optional<Team> findByNameAndCompany_Id(String teamName, Long id);
+    Optional<Team> findByNameIgnoreCaseAndCompany_Id(String teamName, Long id);
 }

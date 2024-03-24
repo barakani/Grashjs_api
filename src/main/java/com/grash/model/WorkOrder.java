@@ -114,7 +114,7 @@ public class WorkOrder extends WorkOrderBase {
     //in days
     @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCompletedOn(), workOrder.getCreatedAt(), TimeUnit.DAYS)).collect(Collectors.toList());
+        List<Long> completionTimes = completeWorkOrders.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS)).collect(Collectors.toList());
         return completionTimes.size() == 0 ? 0 : completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 }

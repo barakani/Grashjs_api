@@ -22,7 +22,7 @@ public class AssetCategoryService {
     private final AssetCategoryMapper assetCategoryMapper;
 
     public AssetCategory create(AssetCategory assetCategory) {
-        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByNameAndCompanySettings_Id(assetCategory.getName(), assetCategory.getCompanySettings().getId());
+        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(assetCategory.getName(), assetCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -62,7 +62,7 @@ public class AssetCategoryService {
         }
     }
 
-    public Optional<AssetCategory> findByNameAndCompanySettings(String category, Long companySettingsId) {
-        return assetCategoryRepository.findByNameAndCompanySettings_Id(category, companySettingsId);
+    public Optional<AssetCategory> findByNameIgnoreCaseAndCompanySettings(String category, Long companySettingsId) {
+        return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(category, companySettingsId);
     }
 }

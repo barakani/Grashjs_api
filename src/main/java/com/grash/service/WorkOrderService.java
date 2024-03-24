@@ -289,11 +289,11 @@ public class WorkOrderService {
         workOrder.setDescription(dto.getDescription());
         workOrder.setTitle(dto.getTitle());
         workOrder.setRequiredSignature(Helper.getBooleanFromString(dto.getRequiredSignature()));
-        Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalWorkOrderCategory.ifPresent(workOrder::setCategory);
-        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
         optionalLocation.ifPresent(workOrder::setLocation);
-        Optional<Team> optionalTeam = teamService.findByNameAndCompany(dto.getTeamName(), companyId);
+        Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(dto.getTeamName(), companyId);
         optionalTeam.ifPresent(workOrder::setTeam);
         Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
         optionalPrimaryUser.ifPresent(workOrder::setPrimaryUser);
@@ -303,7 +303,7 @@ public class WorkOrderService {
             optionalUser1.ifPresent(assignedTo::add);
         });
         workOrder.setAssignedTo(assignedTo);
-        Optional<Asset> optionalAsset = assetService.findByNameAndCompany(dto.getAssetName(), companyId);
+        Optional<Asset> optionalAsset = assetService.findByNameIgnoreCaseAndCompany(dto.getAssetName(), companyId);
         optionalAsset.ifPresent(workOrder::setAsset);
         Optional<OwnUser> optionalCompletedBy = userService.findByEmailAndCompany(dto.getCompletedByEmail(), companyId);
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
@@ -313,7 +313,7 @@ public class WorkOrderService {
         workOrder.setFeedback(dto.getFeedback());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
-            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);

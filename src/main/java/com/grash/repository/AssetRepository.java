@@ -12,11 +12,12 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
     List<Asset> findByCompany_Id(Long id);
 
     Collection<Asset> findByParentAsset_Id(Long id);
+
     Integer countByParentAsset_Id(Long id);
 
     List<Asset> findByLocation_Id(Long id);
 
-    Optional<Asset> findByNameAndCompany_Id(String assetName, Long companyId);
+    Optional<Asset> findByNameIgnoreCaseAndCompany_Id(String assetName, Long companyId);
 
     Optional<Asset> findByIdAndCompany_Id(Long id, Long companyId);
 

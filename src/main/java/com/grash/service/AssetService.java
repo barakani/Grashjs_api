@@ -162,8 +162,8 @@ public class AssetService {
         return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
     }
 
-    public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
-        return assetRepository.findByNameAndCompany_Id(assetName, companyId);
+    public Optional<Asset> findByNameIgnoreCaseAndCompany(String assetName, Long companyId) {
+        return assetRepository.findByNameIgnoreCaseAndCompany_Id(assetName, companyId);
     }
 
     public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
@@ -192,11 +192,11 @@ public class AssetService {
         asset.setModel(dto.getModel());
         asset.setPower(dto.getPower());
         asset.setManufacturer(dto.getManufacturer());
-        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
         optionalLocation.ifPresent(asset::setLocation);
-        Optional<Asset> optionalAsset = findByNameAndCompany(dto.getParentAssetName(), companyId);
+        Optional<Asset> optionalAsset = findByNameIgnoreCaseAndCompany(dto.getParentAssetName(), companyId);
         optionalAsset.ifPresent(asset::setParentAsset);
-        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalAssetCategory.ifPresent(asset::setCategory);
         asset.setName(dto.getName());
         Optional<OwnUser> optionalPrimaryUser = userService.findByEmailAndCompany(dto.getPrimaryUserEmail(), companyId);
@@ -212,7 +212,7 @@ public class AssetService {
         asset.setAssignedTo(assignedTo);
         List<Team> teams = new ArrayList<>();
         dto.getTeamsNames().forEach(teamName -> {
-            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(teamName, companyId);
             optionalTeam.ifPresent(teams::add);
         });
         asset.setTeams(teams);
@@ -220,19 +220,19 @@ public class AssetService {
         asset.setAcquisitionCost(dto.getAcquisitionCost());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
-            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalCustomer.ifPresent(customers::add);
         });
         asset.setCustomers(customers);
         List<Vendor> vendors = new ArrayList<>();
         dto.getVendorsNames().forEach(name -> {
-            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            Optional<Vendor> optionalVendor = vendorService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalVendor.ifPresent(vendors::add);
         });
         asset.setVendors(vendors);
         List<Part> parts = new ArrayList<>();
         dto.getPartsNames().forEach(name -> {
-            Optional<Part> optionalPart = partService.findByNameAndCompany(name, companyId);
+            Optional<Part> optionalPart = partService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalPart.ifPresent(parts::add);
         });
         asset.setParts(parts);

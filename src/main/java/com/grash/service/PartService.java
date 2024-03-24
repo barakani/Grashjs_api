@@ -137,7 +137,7 @@ public class PartService {
         Long companySettingsId = company.getCompanySettings().getId();
         part.setName(dto.getName());
         part.setCost(dto.getCost());
-        Optional<PartCategory> optionalPartCategory = partCategoryService.findByNameAndCompanySettings(dto.getCategory(), companySettingsId);
+        Optional<PartCategory> optionalPartCategory = partCategoryService.findByNameIgnoreCaseAndCompanySettings(dto.getCategory(), companySettingsId);
         optionalPartCategory.ifPresent(part::setCategory);
         part.setNonStock(Helper.getBooleanFromString(dto.getCategory()));
         if (dto.getBarcode() != null) {
@@ -161,7 +161,7 @@ public class PartService {
         part.setAdditionalInfos(dto.getAdditionalInfos());
         part.setArea(dto.getArea());
         part.setMinQuantity(dto.getMinQuantity());
-//        Optional<Location> optionalLocation = locationService.findByNameAndCompany(dto.getLocationName(), companyId);
+//        Optional<Location> optionalLocation = locationService.findByNameIgnoreCaseAndCompany(dto.getLocationName(), companyId);
 //        optionalLocation.ifPresent(part::setLocation);
         List<OwnUser> users = new ArrayList<>();
         dto.getAssignedToEmails().forEach(email -> {
@@ -171,19 +171,19 @@ public class PartService {
         part.setAssignedTo(users);
         List<Team> teams = new ArrayList<>();
         dto.getTeamsNames().forEach(teamName -> {
-            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(teamName, companyId);
             optionalTeam.ifPresent(teams::add);
         });
         part.setTeams(teams);
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
-            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalCustomer.ifPresent(customers::add);
         });
         part.setCustomers(customers);
         List<Vendor> vendors = new ArrayList<>();
         dto.getVendorsNames().forEach(name -> {
-            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            Optional<Vendor> optionalVendor = vendorService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalVendor.ifPresent(vendors::add);
         });
         part.setVendors(vendors);
@@ -194,8 +194,8 @@ public class PartService {
         return partRepository.findByIdAndCompany_Id(id, companyId);
     }
 
-    public Optional<Part> findByNameAndCompany(String name, Long companyId) {
-        return partRepository.findByNameAndCompany_Id(name, companyId);
+    public Optional<Part> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
+        return partRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
 
     public Optional<Part> findByBarcodeAndCompany(String barcode, Long companyId) {

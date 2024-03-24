@@ -23,7 +23,7 @@ public class MeterCategoryService {
     private final MeterCategoryMapper meterCategoryMapper;
 
     public MeterCategory create(MeterCategory meterCategory) {
-        Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByNameAndCompanySettings_Id(meterCategory.getName(), meterCategory.getCompanySettings().getId());
+        Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(meterCategory.getName(), meterCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -53,7 +53,7 @@ public class MeterCategoryService {
         return meterCategoryRepository.findByCompany_Id(id);
     }
 
-    public Optional<MeterCategory> findByNameAndCompanySettings(String name, Long companySettingsId) {
-        return meterCategoryRepository.findByNameAndCompanySettings_Id(name, companySettingsId);
+    public Optional<MeterCategory> findByNameIgnoreCaseAndCompanySettings(String name, Long companySettingsId) {
+        return meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettingsId);
     }
 }

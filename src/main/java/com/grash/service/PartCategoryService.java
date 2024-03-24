@@ -20,7 +20,7 @@ public class PartCategoryService {
     private final PartCategoryMapper partCategoryMapper;
 
     public PartCategory create(PartCategory partCategory) {
-        Optional<PartCategory> categoryWithSameName = partCategoryRepository.findByNameAndCompanySettings_Id(partCategory.getName(), partCategory.getCompanySettings().getId());
+        Optional<PartCategory> categoryWithSameName = partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(partCategory.getName(), partCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("PartCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -50,7 +50,7 @@ public class PartCategoryService {
         return partCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public Optional<PartCategory> findByNameAndCompanySettings(String category, Long companySettingsId) {
-        return partCategoryRepository.findByNameAndCompanySettings_Id(category, companySettingsId);
+    public Optional<PartCategory> findByNameIgnoreCaseAndCompanySettings(String category, Long companySettingsId) {
+        return partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(category, companySettingsId);
     }
 }

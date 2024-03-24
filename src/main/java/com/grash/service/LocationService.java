@@ -103,8 +103,8 @@ public class LocationService {
         }
     }
 
-    public Optional<Location> findByNameAndCompany(String locationName, Long companyId) {
-        return locationRepository.findByNameAndCompany_Id(locationName, companyId);
+    public Optional<Location> findByNameIgnoreCaseAndCompany(String locationName, Long companyId) {
+        return locationRepository.findByNameIgnoreCaseAndCompany_Id(locationName, companyId);
     }
 
     public void importLocation(Location location, LocationImportDTO dto, Company company) {
@@ -113,7 +113,7 @@ public class LocationService {
         location.setAddress(dto.getAddress());
         location.setLongitude(dto.getLongitude());
         location.setLatitude(dto.getLatitude());
-        Optional<Location> optionalLocation = findByNameAndCompany(dto.getParentLocationName(), companyId);
+        Optional<Location> optionalLocation = findByNameIgnoreCaseAndCompany(dto.getParentLocationName(), companyId);
         optionalLocation.ifPresent(location::setParentLocation);
         List<OwnUser> workers = new ArrayList<>();
         dto.getWorkersEmails().forEach(email -> {
@@ -123,19 +123,19 @@ public class LocationService {
         location.setWorkers(workers);
         List<Team> teams = new ArrayList<>();
         dto.getTeamsNames().forEach(teamName -> {
-            Optional<Team> optionalTeam = teamService.findByNameAndCompany(teamName, companyId);
+            Optional<Team> optionalTeam = teamService.findByNameIgnoreCaseAndCompany(teamName, companyId);
             optionalTeam.ifPresent(teams::add);
         });
         location.setTeams(teams);
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
-            Optional<Customer> optionalCustomer = customerService.findByNameAndCompany(name, companyId);
+            Optional<Customer> optionalCustomer = customerService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalCustomer.ifPresent(customers::add);
         });
         location.setCustomers(customers);
         List<Vendor> vendors = new ArrayList<>();
         dto.getVendorsNames().forEach(name -> {
-            Optional<Vendor> optionalVendor = vendorService.findByNameAndCompany(name, companyId);
+            Optional<Vendor> optionalVendor = vendorService.findByNameIgnoreCaseAndCompany(name, companyId);
             optionalVendor.ifPresent(vendors::add);
         });
         location.setVendors(vendors);

@@ -23,7 +23,7 @@ public class WorkOrderCategoryService {
     private final WorkOrderCategoryMapper workOrderCategoryMapper;
 
     public WorkOrderCategory create(WorkOrderCategory workOrderCategory) {
-        Optional<WorkOrderCategory> categoryWithSameName = workOrderCategoryRepository.findByNameAndCompanySettings_Id(workOrderCategory.getName(), workOrderCategory.getCompanySettings().getId());
+        Optional<WorkOrderCategory> categoryWithSameName = workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(workOrderCategory.getName(), workOrderCategory.getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
             throw new CustomException("WorkOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -53,7 +53,7 @@ public class WorkOrderCategoryService {
         return workOrderCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public Optional<WorkOrderCategory> findByNameAndCompanySettings(String name, Long id) {
-        return workOrderCategoryRepository.findByNameAndCompanySettings_Id(name, id);
+    public Optional<WorkOrderCategory> findByNameIgnoreCaseAndCompanySettings(String name, Long id) {
+        return workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, id);
     }
 }

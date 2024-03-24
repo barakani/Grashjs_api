@@ -12,5 +12,5 @@ public interface PartCategoryRepository extends JpaRepository<PartCategory, Long
 
     Optional<PartCategory> findByName(String name);
 
-    Optional<PartCategory> findByNameAndCompanySettings_Id(String category, Long companySettingsId);
+    Optional<PartCategory> findByNameIgnoreCaseAndCompanySettings_Id(String category, Long companySettingsId);
 }

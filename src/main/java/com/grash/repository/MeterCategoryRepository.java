@@ -14,5 +14,5 @@ public interface MeterCategoryRepository extends JpaRepository<MeterCategory, Lo
 
     Optional<MeterCategory> findByName(String name);
 
-    Optional<MeterCategory> findByNameAndCompanySettings_Id(String name, Long companySettingsId);
+    Optional<MeterCategory> findByNameIgnoreCaseAndCompanySettings_Id(String name, Long companySettingsId);
 }

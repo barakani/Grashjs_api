@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface VendorRepository extends JpaRepository<Vendor, Long>, JpaSpecificationExecutor<Vendor> {
     Collection<Vendor> findByCompany_Id(Long id);
 
-    Optional<Vendor> findByNameAndCompany_Id(String name, Long companyId);
+    Optional<Vendor> findByNameIgnoreCaseAndCompany_Id(String name, Long companyId);
 }

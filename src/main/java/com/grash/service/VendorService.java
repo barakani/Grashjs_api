@@ -83,7 +83,7 @@ public class VendorService {
         return vendorRepository.findAll(builder.build(), page);
     }
 
-    public Optional<Vendor> findByNameAndCompany(String name, Long companyId) {
-        return vendorRepository.findByNameAndCompany_Id(name, companyId);
+    public Optional<Vendor> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
+        return vendorRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }
 }
