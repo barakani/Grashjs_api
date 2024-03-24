@@ -1,6 +1,7 @@
 package com.grash.utils;
 
 import com.grash.model.*;
+import com.grash.service.AssetDowntimeService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -19,11 +20,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CsvFileGenerator {
     private final MessageSource messageSource;
+    private final AssetDowntimeService assetDowntimeService;
 
     public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale) {
         try {
             CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
-            List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date", "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name", "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On", "Archived", "Feedback", "Customers");
+            List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date", "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name", "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On", "Archived", "Feedback", "Customers", "Created_At");
             printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
             for (WorkOrder workOrder : workOrders) {
                 printer.printRecord(workOrder.getId(),
@@ -44,8 +46,8 @@ public class CsvFileGenerator {
                         workOrder.getCompletedOn(),
                         Helper.getStringFromBoolean(workOrder.isArchived(), messageSource, locale),
                         workOrder.getFeedback(),
-                        Helper.enumerate(workOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList()))
-
+                        Helper.enumerate(workOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())),
+                        workOrder.getCreatedAt()
                 );
             }
             writer.close();
@@ -74,9 +76,14 @@ public class CsvFileGenerator {
                     "Teams_Names",
                     "Parts",
                     "Vendors",
-                    "Customers");
+                    "Customers",
+                    "Downtime_Duration");
             printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
             for (Asset asset : assets) {
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
+                long downTimeDuration = downtimes.stream().map(AssetDowntime::getDuration)
+                        .reduce(0L, Long::sum);
+                
                 printer.printRecord(asset.getId(),
                         asset.getName(),
                         asset.getDescription(),
@@ -95,7 +102,8 @@ public class CsvFileGenerator {
                         Helper.enumerate(asset.getTeams().stream().map(Team::getName).collect(Collectors.toList())),
                         Helper.enumerate(asset.getParts().stream().map(Part::getName).collect(Collectors.toList())),
                         Helper.enumerate(asset.getVendors().stream().map(Vendor::getName).collect(Collectors.toList())),
-                        Helper.enumerate(asset.getCustomers().stream().map(Customer::getName).collect(Collectors.toList()))
+                        Helper.enumerate(asset.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())),
+                        downTimeDuration
                 );
             }
             writer.close();
