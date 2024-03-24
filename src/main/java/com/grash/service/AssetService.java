@@ -254,7 +254,7 @@ public class AssetService {
         for (AssetImportDTO asset : assets) {
             String parentName = asset.getParentAssetName();
             assetMap.computeIfAbsent(parentName, k -> new ArrayList<>()).add(asset);
-            if (parentName == null) {
+            if (parentName == null || assets.stream().noneMatch(assetImportDTO -> assetImportDTO.getName().equals(parentName))) {
                 topLevelAssets.add(asset);
             }
         }

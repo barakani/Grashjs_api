@@ -150,8 +150,9 @@ public class LocationService {
         SpecificationBuilder<Location> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
-        return locationRepository.findAll(builder.build(), page).map(location->locationMapper.toShowDto(location, this));
+        return locationRepository.findAll(builder.build(), page).map(location -> locationMapper.toShowDto(location, this));
     }
+
     public static List<LocationImportDTO> orderLocations(List<LocationImportDTO> locations) {
         Map<String, List<LocationImportDTO>> locationMap = new HashMap<>();
         List<LocationImportDTO> topLevelLocations = new ArrayList<>();
@@ -160,7 +161,7 @@ public class LocationService {
         for (LocationImportDTO location : locations) {
             String parentName = location.getParentLocationName();
             locationMap.computeIfAbsent(parentName, k -> new ArrayList<>()).add(location);
-            if (parentName == null) {
+            if (parentName == null || locations.stream().noneMatch(locationImportDTO -> locationImportDTO.getName().equals(parentName))) {
                 topLevelLocations.add(location);
             }
         }
@@ -183,6 +184,6 @@ public class LocationService {
     }
 
     public boolean hasChildren(Long locationId) {
-        return locationRepository.countByParentLocation_Id(locationId)>0;
+        return locationRepository.countByParentLocation_Id(locationId) > 0;
     }
 }
