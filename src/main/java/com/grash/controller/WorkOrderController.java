@@ -86,46 +86,7 @@ public class WorkOrderController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            searchCriteria.filterCompany(user);
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                if (!canViewOthers) {
-                    searchCriteria.getFilterFields().add(FilterField.builder()
-                            .field("createdBy")
-                            .value(user.getId())
-                            .operation("eq")
-                            .values(new ArrayList<>())
-                            .alternatives(Arrays.asList(
-                                    FilterField.builder()
-                                            .field("assignedTo")
-                                            .operation("inm")
-                                            .joinType(JoinType.LEFT)
-                                            .value("")
-                                            .values(Collections.singletonList(user.getId())).build(),
-                                    FilterField.builder()
-                                            .field("primaryUser")
-                                            .operation("eq")
-                                            .value(user.getId())
-                                            .values(Collections.singletonList(user.getId())).build(),
-                                    FilterField.builder()
-                                            .field("team")
-                                            .operation("in")
-                                            .value("")
-                                            .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
-                            )).build());
-                }
-
-            } else if (user.getRole().getCode().equals(RoleCode.REQUESTER)) {
-                searchCriteria.getFilterFields().add(FilterField.builder()
-                        .field("parentRequest.createdBy")
-                        .value(user.getId())
-                        .operation("eq")
-                        .values(new ArrayList<>()).build());
-            }
-//            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
-        }
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(searchCriteria));
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user, searchCriteria)));
     }
 
     @PostMapping("/events")
@@ -142,7 +103,7 @@ public class WorkOrderController {
             result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()));
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
-                return canViewOthers || (workOrder.getCreatedBy() !=null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
+                return canViewOthers || (workOrder.getCreatedBy() != null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
             }).map(workOrderMapper::toShowDto).map(workOrderShowDTO -> new CalendarEvent("WORK_ORDER", workOrderShowDTO, workOrderShowDTO.getDueDate())).collect(Collectors.toList()));
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
@@ -188,7 +149,7 @@ public class WorkOrderController {
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if ((user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (savedWorkOrder.getCreatedBy() !=null && savedWorkOrder.getCreatedBy().equals(user.getId())) || savedWorkOrder.isAssignedTo(user)))
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (savedWorkOrder.getCreatedBy() != null && savedWorkOrder.getCreatedBy().equals(user.getId())) || savedWorkOrder.isAssignedTo(user)))
                     || savedWorkOrder.getParentRequest() != null && savedWorkOrder.getParentRequest().getCreatedBy().equals(user.getId())
             ) {
                 return workOrderMapper.toShowDto(savedWorkOrder);
@@ -277,7 +238,7 @@ public class WorkOrderController {
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
         Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
 
-        if(workOrder.getStatus()== null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
+        if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);
 
         savedWorkOrder.setSignature(workOrder.getSignature());
         savedWorkOrder.setStatus(workOrder.getStatus());
@@ -354,7 +315,7 @@ public class WorkOrderController {
                 }};
                 String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
 
-                List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1->user1.getRole()
+                List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole()
                         .getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
 
                 emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
@@ -419,6 +380,15 @@ public class WorkOrderController {
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
+    }
+
+    @GetMapping("/urgent")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse getUrgentCount(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
+            return new SuccessResponse(true, workOrderService.countUrgent(user).toString());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     private String translateTaskValue(String value, Locale locale) {

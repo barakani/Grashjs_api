@@ -8,10 +8,7 @@ import com.grash.dto.WorkOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.mapper.WorkOrderMapper;
-import com.grash.model.Notification;
-import com.grash.model.OwnUser;
-import com.grash.model.Request;
-import com.grash.model.Workflow;
+import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
@@ -71,6 +68,15 @@ public class RequestController {
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(requestService.findBySearchCriteria(searchCriteria));
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse getPending(HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT) && user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
+            return new SuccessResponse(true, requestService.countPending(user.getCompany().getId()).toString());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/{id}")

@@ -110,4 +110,8 @@ public class RequestService {
             return optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId);
         }
     }
+
+    public Integer countPending(Long companyId) {
+        return requestRepository.countPending(companyId);
+    }
 }

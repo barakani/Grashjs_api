@@ -67,7 +67,8 @@ public class Helper {
     }
 
     public static Date getNextOccurence(Date date, int days) {
-        if(days ==0) throw new CustomException("getNextOccurence should not have 0 as parameter", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (days == 0)
+            throw new CustomException("getNextOccurence should not have 0 as parameter", HttpStatus.INTERNAL_SERVER_ERROR);
         Date result = date;
         if (result.after(new Date())) {
             result = incrementDays(result, days);
@@ -104,7 +105,7 @@ public class Helper {
             case FR:
                 return Locale.FRANCE;
             case TR:
-                return new Locale("tr","TR");
+                return new Locale("tr", "TR");
             default:
                 return Locale.getDefault();
         }
@@ -171,5 +172,14 @@ public class Helper {
         CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES);
         return ResponseEntity.ok()
                 .cacheControl(cacheControl).body(entity);
+    }
+
+    public static Date minusDays(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, -days);
+
+        // Get the resulting date after subtracting days
+        return calendar.getTime();
     }
 }

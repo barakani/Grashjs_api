@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
@@ -10,10 +11,7 @@ import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.abstracts.Cost;
 import com.grash.model.abstracts.WorkOrderBase;
-import com.grash.model.enums.AssetStatus;
-import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.Priority;
-import com.grash.model.enums.Status;
+import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
@@ -32,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.JoinType;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -327,5 +326,64 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCompletedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
         return workOrderRepository.findByCompletedBy_IdAndCreatedAtBetween(id, date1, date2);
+    }
+
+    public SearchCriteria getSearchCriteria(OwnUser user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            searchCriteria.filterCompany(user);
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
+                if (!canViewOthers) {
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdBy")
+                            .value(user.getId())
+                            .operation("eq")
+                            .values(new ArrayList<>())
+                            .alternatives(Arrays.asList(
+                                    FilterField.builder()
+                                            .field("assignedTo")
+                                            .operation("inm")
+                                            .joinType(JoinType.LEFT)
+                                            .value("")
+                                            .values(Collections.singletonList(user.getId())).build(),
+                                    FilterField.builder()
+                                            .field("primaryUser")
+                                            .operation("eq")
+                                            .value(user.getId())
+                                            .values(Collections.singletonList(user.getId())).build(),
+                                    FilterField.builder()
+                                            .field("team")
+                                            .operation("in")
+                                            .value("")
+                                            .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
+                            )).build());
+                }
+
+            } else if (user.getRole().getCode().equals(RoleCode.REQUESTER)) {
+                searchCriteria.getFilterFields().add(FilterField.builder()
+                        .field("parentRequest.createdBy")
+                        .value(user.getId())
+                        .operation("eq")
+                        .values(new ArrayList<>()).build());
+            }
+//            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
+        }
+        return searchCriteria;
+    }
+
+    public Integer countUrgent(OwnUser user) {
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.getFilterFields().addAll(Arrays.asList(FilterField.builder()
+                        .field("dueDate")
+                        .value(Helper.addSeconds(new Date(), 2 * 24 * 3600))
+                        .operation("le").build(),
+                FilterField.builder().field("status")
+                        .value(Status.COMPLETE)
+                        .operation("ne")
+                        .build()));
+        searchCriteria = getSearchCriteria(user, searchCriteria);
+        searchCriteria.getFilterFields().forEach(builder::with);
+        return Math.toIntExact(workOrderRepository.count(builder.build()));
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class SearchCriteria {
-    private List<FilterField> filterFields;
+    private List<FilterField> filterFields = new ArrayList<>();
     private Direction direction = Direction.ASC;
     private int pageNum = 0;
     private int pageSize = 10;
