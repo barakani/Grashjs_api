@@ -104,11 +104,13 @@ public class RequestService {
         builder.with((Specification<Request>) (requestRoot, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (searchCriteriaClone.getFilterFields().stream().anyMatch(filterField -> filterField.getField().equals("priority"))) {
-                Join<Request, WorkOrder> workOrderJoin = requestRoot.join("workOrder", JoinType.INNER);
                 List<Priority> priorities = searchCriteriaClone.getFilterFields().stream()
                         .filter(filterField -> filterField.getField().equals("priority"))
                         .findFirst().get().getValues().stream().map(value -> Priority.getPriorityFromString(value.toString())).collect(Collectors.toList());
-                if (!priorities.isEmpty()) predicates.add(workOrderJoin.get("priority").in(priorities));
+                if (!priorities.isEmpty()) {
+                    Join<Request, WorkOrder> workOrderJoin = requestRoot.join("workOrder", JoinType.INNER);
+                    predicates.add(workOrderJoin.get("priority").in(priorities));
+                }
             }
 
             if (searchCriteriaClone.getFilterFields().stream().anyMatch(filterField -> filterField.getField().equals("status"))) {
