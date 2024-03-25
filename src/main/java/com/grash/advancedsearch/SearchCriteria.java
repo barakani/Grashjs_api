@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SearchCriteria {
+public class SearchCriteria implements Cloneable {
     private List<FilterField> filterFields = new ArrayList<>();
     private Direction direction = Direction.ASC;
     private int pageNum = 0;
@@ -37,4 +37,17 @@ public class SearchCriteria {
                 .operation("eq")
                 .values(new ArrayList<>()).build());
     }
+
+    @Override
+    public SearchCriteria clone() {
+        SearchCriteria result;
+        try {
+            result = (SearchCriteria) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Cloning failed", e);
+        }
+        result.filterFields = new ArrayList<>(this.filterFields);
+        return result;
+    }
+
 }

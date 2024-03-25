@@ -7,8 +7,10 @@ import com.grash.dto.RequestShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.OwnUser;
+import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Request;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import com.grash.utils.Helper;
@@ -16,14 +18,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import javax.persistence.criteria.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,6 +99,41 @@ public class RequestService {
 
     public Page<RequestShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Request> builder = new SpecificationBuilder<>();
+        SearchCriteria searchCriteriaClone = searchCriteria.clone();
+
+        builder.with((Specification<Request>) (requestRoot, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (searchCriteriaClone.getFilterFields().stream().anyMatch(filterField -> filterField.getField().equals("priority"))) {
+                Join<Request, WorkOrder> workOrderJoin = requestRoot.join("workOrder", JoinType.INNER);
+                predicates.add(workOrderJoin.get("priority").in(searchCriteriaClone.getFilterFields().stream()
+                        .filter(filterField -> filterField.getField().equals("priority"))
+                        .findFirst().get().getValues().stream().map(value -> Priority.getPriorityFromString(value.toString())).collect(Collectors.toList())));
+            }
+
+            if (searchCriteriaClone.getFilterFields().stream().anyMatch(filterField -> filterField.getField().equals("status"))) {
+                List<Object> values = searchCriteriaClone.getFilterFields().stream()
+                        .filter(filterField -> filterField.getField().equals("status"))
+                        .findFirst().get().getValues();
+                predicates.add(criteriaBuilder.or(values.stream().map(value -> {
+                    if (value instanceof String) {
+                        switch (value.toString()) {
+                            case "CANCELLED":
+                                return criteriaBuilder.equal(requestRoot.get("cancelled"), true);
+                            case "APPROVED":
+                                return criteriaBuilder.isNotNull(requestRoot.get("workOrder"));
+                            case "PENDING":
+                                return criteriaBuilder.and(criteriaBuilder.isNull(requestRoot.get("workOrder")), criteriaBuilder.equal(requestRoot.get("cancelled"), false));
+                            default:
+                                return null;
+                        }
+                    }
+                    return null;
+                }).toArray(Predicate[]::new)));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        });
+        searchCriteria.getFilterFields().
+                removeIf(filterField -> filterField.getField().equals("status") || filterField.getField().equals("priority"));
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
         return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
