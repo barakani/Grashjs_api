@@ -4,16 +4,21 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
+import com.grash.model.SubscriptionChangeRequest;
+import com.grash.repository.SubscriptionChangeRequestRepository;
+import com.grash.service.EmailService2;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -26,6 +31,10 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
     private final UserService userService;
+    private final EmailService2 emailService2;
+    private final SubscriptionChangeRequestRepository subscriptionChangeRequestRepository;
+    @Value("${mail.recipients}")
+    private String[] recipients;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
@@ -77,6 +86,22 @@ public class SubscriptionController {
                 } else throw new CustomException("There are some already enabled users", HttpStatus.NOT_ACCEPTABLE);
             } else
                 throw new CustomException("The subscription users count doesn't permit this operation", HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/request-upgrade")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse requestUpgrade(@RequestBody SubscriptionChangeRequest subscriptionChangeRequest,
+                                          HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        if (user.isOwnsCompany()) {
+            subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
+            try {
+                emailService2.sendHtmlMessage(recipients, "New Atlas subscription change request", user.getFirstName() + " " + user.getLastName() + " just requested a subscription change for company " + user.getCompany().getName() + "\nCode: " + subscriptionChangeRequest.getCode() + "\nPeriod: " + (subscriptionChangeRequest.getMonthly() ? "Monthly" : "Annually") + "\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone());
+            } catch (MessagingException ignored) {
+            }
+
+            return new SuccessResponse(true, "Success");
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
