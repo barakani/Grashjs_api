@@ -17,6 +17,7 @@ import com.grash.repository.WorkOrderHistoryRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -24,12 +25,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -360,6 +364,29 @@ public class WorkOrderService {
                                             .value("")
                                             .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
                             )).build());
+                } else if (searchCriteria.getFilterFields().stream().anyMatch(filterField -> filterField.getField().equals("assignedToUser"))) {
+                    searchCriteria.getFilterFields().add(
+                            FilterField.builder()
+                                    .field("assignedTo")
+                                    .operation("inm")
+                                    .joinType(JoinType.LEFT)
+                                    .value("")
+                                    .values(Collections.singletonList(user.getId()))
+                                    .alternatives(
+                                            Arrays.asList(FilterField.builder()
+                                                            .field("primaryUser")
+                                                            .operation("eq")
+                                                            .value(user.getId())
+                                                            .values(Collections.singletonList(user.getId())).build(),
+                                                    FilterField.builder()
+                                                            .field("team")
+                                                            .operation("in")
+                                                            .value("")
+                                                            .values(teamService.findByUser(user.getId()).stream().map(Team::getId).collect(Collectors.toList())).build()
+
+                                            )).build());
+                    searchCriteria.getFilterFields().
+                            removeIf(filterField -> filterField.getField().equals("assignedToUser"));
                 }
 
             } else if (user.getRole().getCode().equals(RoleCode.REQUESTER)) {
