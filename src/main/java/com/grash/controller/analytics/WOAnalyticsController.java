@@ -62,17 +62,17 @@ public class WOAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<MobileWOStats> getMobileOverview(HttpServletRequest req, @RequestParam("assignedToMe") boolean assignedToMe) {
         OwnUser user = userService.whoami(req);
+        Collection<WorkOrder> result;
         Collection<WorkOrder> workOrders;
         Collection<WorkOrder> completeWorkOrders;
         if (assignedToMe) {
-            Collection<WorkOrder> result = workOrderService.findByPrimaryUser(user.getId());
-            workOrders = result.stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            completeWorkOrders = result.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            result = workOrderService.findByAssignedToUser(user.getId());
         } else {
-            Collection<WorkOrder> result = workOrderService.findByCompany(user.getCompany().getId());
-            workOrders = result.stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            completeWorkOrders = result.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            result = workOrderService.findByCompany(user.getCompany().getId());
         }
+        workOrders = result.stream().filter(workOrder -> !workOrder.isArchived() && !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+        completeWorkOrders = result.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+
         int open = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.OPEN)).count();
         int onHold = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.ON_HOLD)).count();
         int inProgress = (int) workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.IN_PROGRESS)).count();
@@ -225,7 +225,7 @@ public class WOAnalyticsController {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<IncompleteWOByUser> result = new ArrayList<>();
             users.forEach(user1 -> {
-                Collection<WorkOrder> incompleteWO = workOrderService.findByPrimaryUser(user1.getId())
+                Collection<WorkOrder> incompleteWO = workOrderService.findByAssignedToUser(user1.getId())
                         .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
                 int count = incompleteWO.size();
@@ -266,7 +266,7 @@ public class WOAnalyticsController {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
-                int count = (int) workOrderService.findByPrimaryUser(user1.getId()).stream()
+                int count = (int) workOrderService.findByAssignedToUser(user1.getId()).stream()
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.add(WOCountByUser.builder()
                         .firstName(user1.getFirstName())

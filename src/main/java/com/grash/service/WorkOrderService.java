@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -205,6 +204,10 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByPrimaryUser(Long id) {
         return workOrderRepository.findByPrimaryUser_Id(id);
+    }
+
+    public Collection<WorkOrder> findByAssignedToUser(Long id) {
+        return workOrderRepository.findByAssignedToUser(id);
     }
 
     public Collection<WorkOrder> findByCompletedBy(Long id) {

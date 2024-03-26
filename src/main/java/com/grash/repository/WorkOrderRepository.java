@@ -4,6 +4,8 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.Priority;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.Date;
@@ -37,4 +39,13 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2);
 
     Collection<WorkOrder> findByCompletedBy_IdAndCreatedAtBetween(Long id, Date date1, Date date2);
+
+    @Query("SELECT DISTINCT wo FROM WorkOrder wo " +
+            "LEFT JOIN wo.assignedTo assigned " +
+            "LEFT JOIN wo.team team " +
+            "WHERE wo.primaryUser.id = :id " +
+            "OR assigned.id = :id " +
+            "OR :id IN (SELECT user.id FROM team.users user)")
+    Collection<WorkOrder> findByAssignedToUser(@Param("id") Long id);
+
 }
