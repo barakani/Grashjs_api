@@ -1,11 +1,13 @@
 package com.grash.controller.analytics;
 
+import com.grash.dto.DateRange;
 import com.grash.dto.analytics.assets.*;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
 import com.grash.model.AssetDowntime;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
@@ -18,17 +20,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -223,6 +220,26 @@ public class AssetAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
+            return Helper.withCache(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/{id}/overview")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @RequestBody DateRange dateRange, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Asset savedAsset = assetService.findById(id).get();
+        Date start = dateRange.getStart();
+        Date end = dateRange.getEnd();
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
+            AssetOverview result = AssetOverview.builder()
+                    .mttr(assetService.getMTTR(id, start, end))
+                    .mtbf(assetService.getMTBF(id, start, end))
+                    .downtime(assetService.getDowntime(id, start, end))
+                    .uptime(assetService.getUptime(id, start, end))
+                    .totalCost(assetService.getTotalCost(id, start, end, user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost()))
+                    .build();
             return Helper.withCache(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

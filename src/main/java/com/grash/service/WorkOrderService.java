@@ -171,6 +171,10 @@ public class WorkOrderService {
         return workOrderRepository.findByAsset_Id(id);
     }
 
+    public Collection<WorkOrder> findByAssetAndCreatedAtBetween(Long id, Date start, Date end) {
+        return workOrderRepository.findByAsset_IdAndCreatedAtBetween(id, start, end);
+    }
+
     public Collection<WorkOrder> findByPM(Long id) {
         return workOrderRepository.findByParentPreventiveMaintenance_Id(id);
     }

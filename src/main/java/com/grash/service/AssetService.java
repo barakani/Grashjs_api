@@ -39,19 +39,22 @@ public class AssetService {
     private final UserService userService;
     private final CustomerService customerService;
     private final VendorService vendorService;
-    private final CompanyService companyService;
+    private LaborService laborService;
     private final NotificationService notificationService;
     private final TeamService teamService;
     private final PartService partService;
     private final AssetMapper assetMapper;
     private final EntityManager em;
     private final AssetDowntimeService assetDowntimeService;
+    private WorkOrderService workOrderService;
     private final MessageSource messageSource;
 
     @Autowired
-    public void setDeps(@Lazy LocationService locationService
+    public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService, @Lazy WorkOrderService workOrderService
     ) {
         this.locationService = locationService;
+        this.laborService = laborService;
+        this.workOrderService = workOrderService;
     }
 
     @Transactional
@@ -281,5 +284,38 @@ public class AssetService {
 
     public Boolean hasChildren(Long assetId) {
         return assetRepository.countByParentAsset_Id(assetId) > 0;
+    }
+
+    // Stats
+    public long getMTBF(Long assetId, Date start, Date end) {
+        Asset asset = findById(assetId).get();
+        Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
+        long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
+        long age = Helper.getDateDiff(asset.getCreatedAt(), new Date(), TimeUnit.SECONDS);
+        return (age - downtimesDuration) / downtimes.size();
+    }
+
+    public long getMTTR(Long assetId, Date start, Date end) {
+        Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(assetId, start, end);
+        List<Labor> labors = new ArrayList<>();
+        for (WorkOrder workOrder : workOrders) {
+            labors.addAll(laborService.findByWorkOrder(workOrder.getId()));
+        }
+        return Labor.getTotalWorkDuration(labors) / workOrders.size();
+    }
+
+    public long getDowntime(Long assetId, Date start, Date end) {
+        Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
+        return downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
+    }
+
+    public long getUptime(Long assetId, Date start, Date end) {
+        Asset asset = findById(assetId).get();
+        return asset.getAge() - getDowntime(assetId, start, end);
+    }
+
+    public long getTotalCost(Long assetId, Date start, Date end, Boolean includeLaborCost) {
+        Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(assetId, start, end);
+        return workOrderService.getAllCost(workOrders, includeLaborCost);
     }
 }

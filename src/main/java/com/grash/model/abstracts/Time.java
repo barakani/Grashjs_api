@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 @MappedSuperclass
 public abstract class Time extends CompanyAudit {
 
-    private long duration = 0;
+    private long duration = 0; //seconds
 
     public List<? extends Number> getFormattedDuration() {
         int day = (int) TimeUnit.SECONDS.toDays(duration);

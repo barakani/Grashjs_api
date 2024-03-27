@@ -60,6 +60,10 @@ public class AssetDowntimeService {
         return assetDowntimeRepository.findByAsset_Id(id);
     }
 
+    public Collection<AssetDowntime> findByAssetAndStartsOnBetween(Long id, Date start, Date end) {
+        return assetDowntimeRepository.findByAsset_IdAndStartsOnBetween(id, start, end);
+    }
+
     public Collection<AssetDowntime> findByCompany(Long id) {
         return assetDowntimeRepository.findByCompany_Id(id);
     }

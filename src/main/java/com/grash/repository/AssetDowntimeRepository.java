@@ -13,4 +13,6 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
     Collection<AssetDowntime> findByCompany_Id(Long id);
 
     Collection<AssetDowntime> findByStartsOnBetweenAndCompany_Id(Date date1, Date date2, Long id);
+
+    Collection<AssetDowntime> findByAsset_IdAndStartsOnBetween(Long id, Date start, Date end);
 }
