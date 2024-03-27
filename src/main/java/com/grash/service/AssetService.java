@@ -292,7 +292,7 @@ public class AssetService {
         Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
         long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
         long age = Helper.getDateDiff(asset.getCreatedAt(), new Date(), TimeUnit.SECONDS);
-        return downtimes.isEmpty() ? 0 : (age - downtimesDuration) / downtimes.size();
+        return downtimes.isEmpty() ? 0 : ((age - downtimesDuration) / 60) / downtimes.size();
     }
 
     public long getMTTR(Long assetId, Date start, Date end) {
@@ -301,7 +301,7 @@ public class AssetService {
         for (WorkOrder workOrder : workOrders) {
             labors.addAll(laborService.findByWorkOrder(workOrder.getId()));
         }
-        return workOrders.isEmpty() ? 0 : Labor.getTotalWorkDuration(labors) / workOrders.size();
+        return workOrders.isEmpty() ? 0 : (Labor.getTotalWorkDuration(labors) / 60) / workOrders.size();
     }
 
     public long getDowntime(Long assetId, Date start, Date end) {
