@@ -316,7 +316,8 @@ public class WorkOrderController {
                 String title = messageSource.getMessage("deleted_wo", null, Helper.getLocale(user));
 
                 List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole()
-                        .getViewPermissions().contains(PermissionEntity.SETTINGS)).collect(Collectors.toList());
+                                .getViewPermissions().contains(PermissionEntity.SETTINGS))
+                        .filter(user1 -> user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
 
                 emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                         .toArray(String[]::new), title, mailVariables, "deleted-work-order.html", Helper.getLocale(user));

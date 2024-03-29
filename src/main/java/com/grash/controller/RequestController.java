@@ -189,7 +189,8 @@ public class RequestController {
                 put("featuresLink", frontendUrl + "/#key-features");
                 put("workOrderTitle", result.getTitle());
             }};
-            List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+            List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                    .filter(user1 -> user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             usersToMail.add(requester);
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                     .toArray(String[]::new), title, mailVariables, "approved-request.html", Helper.getLocale(user));
@@ -240,7 +241,8 @@ public class RequestController {
                 put("featuresLink", frontendUrl + "/#key-features");
                 put("requestTitle", savedRequest.getTitle());
             }};
-            List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+            List<OwnUser> usersToMail = userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                    .filter(user1 -> user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
             usersToMail.add(requester);
             emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
                     .toArray(String[]::new), title, mailVariables, "rejected-request.html", Helper.getLocale(user));
