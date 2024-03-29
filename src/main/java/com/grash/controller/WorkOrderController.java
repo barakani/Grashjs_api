@@ -100,7 +100,9 @@ public class WorkOrderController {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             List<CalendarEvent> result = new ArrayList<>();
-            result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()));
+            result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()).stream()
+                    .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
+                    .collect(Collectors.toList()));
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 return canViewOthers || (workOrder.getCreatedBy() != null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
