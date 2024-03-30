@@ -4,6 +4,7 @@ import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
 import com.grash.model.Role;
+import com.grash.model.enums.RoleCode;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -52,7 +53,7 @@ public class RoleService {
     }
 
     public List<Role> findDefaultRoles() {
-        return roleRepository.findDefaultRoles();
+        return roleRepository.findDefaultRoles(RoleCode.USER_CREATED);
     }
 
     public List<Role> saveAll(List<Role> roles) {
