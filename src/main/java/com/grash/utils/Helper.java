@@ -4,7 +4,11 @@ package com.grash.utils;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
+import com.grash.model.Role;
 import com.grash.model.enums.Language;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleType;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
@@ -21,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Helper {
 
@@ -182,4 +187,77 @@ public class Helper {
         // Get the resulting date after subtracting days
         return calendar.getTime();
     }
+
+    public static List<Role> getDefaultRoles() {
+        List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.values());
+        return Arrays.asList(
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.ADMIN)
+                        .name("Administrator")
+                        .paid(true)
+                        .createPermissions(new HashSet<>(allEntities))
+                        .editOtherPermissions(new HashSet<>(allEntities))
+                        .deleteOtherPermissions(new HashSet<>(allEntities))
+                        .viewOtherPermissions(new HashSet<>(allEntities))
+                        .viewPermissions(new HashSet<>(allEntities))
+                        .build(),
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.LIMITED_ADMIN)
+                        .name("Limited Administrator")
+                        .paid(true)
+                        .createPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> !Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.REQUESTS).contains(permissionEntity)).collect(Collectors.toList())))
+                        .editOtherPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList())))
+                        .viewOtherPermissions(new HashSet<>(allEntities))
+                        .viewPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())))
+                        .deleteOtherPermissions(new HashSet<>())
+                        .build(),
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.TECHNICIAN)
+                        .name("Technician")
+                        .paid(true)
+                        .createPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS, PermissionEntity.FILES)))
+                        .editOtherPermissions(new HashSet<>())
+                        .deleteOtherPermissions(new HashSet<>(Arrays.asList(PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS)))
+                        .viewOtherPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)))
+                        .viewPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)))
+                        .build(),
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.LIMITED_TECHNICIAN)
+                        .name("Limited Technician")
+                        .paid(true)
+                        .createPermissions(new HashSet<>(Arrays.asList(PermissionEntity.FILES)))
+                        .editOtherPermissions(new HashSet<>())
+                        .deleteOtherPermissions(new HashSet<>())
+                        .viewOtherPermissions(new HashSet<>(Arrays.asList(PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS)))
+                        .viewPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.CATEGORIES, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)))
+                        .build(),
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.VIEW_ONLY)
+                        .name("View Only")
+                        .paid(false)
+                        .createPermissions(new HashSet<>())
+                        .editOtherPermissions(new HashSet<>())
+                        .deleteOtherPermissions(new HashSet<>())
+                        .viewOtherPermissions(new HashSet<>(allEntities))
+                        .viewPermissions(new HashSet<>(allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())))
+                        .build(),
+                Role.builder()
+                        .roleType(RoleType.ROLE_CLIENT)
+                        .code(RoleCode.REQUESTER)
+                        .name("Requester")
+                        .paid(false)
+                        .createPermissions(new HashSet<>(Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.FILES)))
+                        .editOtherPermissions(new HashSet<>())
+                        .deleteOtherPermissions(new HashSet<>())
+                        .viewOtherPermissions(new HashSet<>())
+                        .viewPermissions(new HashSet<>(Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.CATEGORIES)))
+                        .build()
+        );
+    }
+
 }

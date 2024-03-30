@@ -3,16 +3,14 @@ package com.grash.service;
 import com.grash.dto.RolePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
-import com.grash.model.OwnUser;
 import com.grash.model.Role;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,4 +51,11 @@ public class RoleService {
         return roleRepository.findByCompany_Id(id);
     }
 
+    public List<Role> findDefaultRoles() {
+        return roleRepository.findDefaultRoles();
+    }
+
+    public List<Role> saveAll(List<Role> roles) {
+        return roleRepository.saveAll(roles);
+    }
 }

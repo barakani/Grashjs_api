@@ -5,15 +5,15 @@ import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.service.*;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -93,5 +93,41 @@ public class ApiApplication implements CommandLineRunner {
         schedules.forEach(scheduleService::scheduleWorkOrder);
         Collection<Subscription> subscriptions = subscriptionService.getAll();
         subscriptions.forEach(subscriptionService::scheduleEnd);
+
+        List<Role> defaultRoles = roleService.findDefaultRoles();
+        List<Role> upToDateRoles = Helper.getDefaultRoles();
+        List<Role> rolesToUpdate = new ArrayList<>();
+
+        for (Role defaultRole : defaultRoles) {
+            for (Role upToDateRole : upToDateRoles) {
+                if (defaultRole.getCode().equals(upToDateRole.getCode())) {
+                    if (!CollectionUtils.isEqualCollection(defaultRole.getCreatePermissions(), upToDateRole.getCreatePermissions()) ||
+                            !CollectionUtils.isEqualCollection(defaultRole.getEditOtherPermissions(), upToDateRole.getEditOtherPermissions()) ||
+                            !CollectionUtils.isEqualCollection(defaultRole.getDeleteOtherPermissions(), upToDateRole.getDeleteOtherPermissions()) ||
+                            !CollectionUtils.isEqualCollection(defaultRole.getViewOtherPermissions(), upToDateRole.getViewOtherPermissions()) ||
+                            !CollectionUtils.isEqualCollection(defaultRole.getViewPermissions(), upToDateRole.getViewPermissions())) {
+                        // Update the role in the database
+                        defaultRole.getCreatePermissions().clear();
+                        defaultRole.getEditOtherPermissions().clear();
+                        defaultRole.getDeleteOtherPermissions().clear();
+                        defaultRole.getViewOtherPermissions().clear();
+                        defaultRole.getViewPermissions().clear();
+
+                        defaultRole.getCreatePermissions().addAll(upToDateRole.getCreatePermissions());
+                        defaultRole.getEditOtherPermissions().addAll(upToDateRole.getEditOtherPermissions());
+                        defaultRole.getDeleteOtherPermissions().addAll(upToDateRole.getDeleteOtherPermissions());
+                        defaultRole.getViewOtherPermissions().addAll(upToDateRole.getViewOtherPermissions());
+                        defaultRole.getViewPermissions().addAll(upToDateRole.getViewPermissions());
+
+                        rolesToUpdate.add(defaultRole);
+                        // Optionally, you can break the loop if you only want to update the first occurrence of the role
+                        // break;
+                    }
+                    // If the roles match, no need to check further, break the loop
+                    break;
+                }
+            }
+        }
+        if (!rolesToUpdate.isEmpty()) roleService.saveAll(rolesToUpdate);
     }
 }

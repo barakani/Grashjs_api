@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
+import com.grash.utils.Helper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -51,30 +52,7 @@ public class CompanySettings {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<TimeCategory> timeCategories = new ArrayList<>();
-
-    private Role createRole(String name,
-                            boolean paid,
-                            RoleCode code,
-                            List<PermissionEntity> createPermissions,
-                            List<PermissionEntity> editOtherPermissions,
-                            List<PermissionEntity> deleteOtherPermissions,
-                            List<PermissionEntity> viewOtherPermissions,
-                            List<PermissionEntity> viewPermissions
-    ) {
-        return Role.builder()
-                .roleType(RoleType.ROLE_CLIENT)
-                .companySettings(this)
-                .code(code)
-                .name(name)
-                .paid(paid)
-                .createPermissions(new HashSet<>(createPermissions))
-                .editOtherPermissions(new HashSet<>(editOtherPermissions))
-                .deleteOtherPermissions(new HashSet<>(deleteOtherPermissions))
-                .viewOtherPermissions(new HashSet<>(viewOtherPermissions))
-                .viewPermissions(new HashSet<>(viewPermissions))
-                .build();
-
-    }
+    
 
     private List<CostCategory> createCostCategories(List<String> costCategories) {
         return costCategories.stream().map(costCategory -> new CostCategory(costCategory, this)).collect(Collectors.toList());
@@ -85,17 +63,9 @@ public class CompanySettings {
     }
 
     private Set<Role> getDefaultRoles() {
-        List<PermissionEntity> allEntities = Arrays.asList(PermissionEntity.values());
-        return new HashSet<>(Arrays.asList(
-                createRole("Administrator", true, RoleCode.ADMIN, allEntities, allEntities, allEntities, allEntities, allEntities),
-                createRole("Limited Administrator", true, RoleCode.LIMITED_ADMIN,
-                        allEntities.stream().filter(permissionEntity -> !Arrays.asList(PermissionEntity.PEOPLE_AND_TEAMS, PermissionEntity.REQUESTS).contains(permissionEntity)).collect(Collectors.toList()),
-                        allEntities.stream().filter(permissionEntity -> !permissionEntity.equals(PermissionEntity.PEOPLE_AND_TEAMS)).collect(Collectors.toList()),
-                        Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Technician", true, RoleCode.TECHNICIAN, Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS, PermissionEntity.FILES), Collections.emptyList(), Arrays.asList(PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)),
-                createRole("Limited Technician", true, RoleCode.LIMITED_TECHNICIAN, Arrays.asList(PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS), Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.CATEGORIES, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)),
-                createRole("View Only", false, RoleCode.VIEW_ONLY, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), allEntities, allEntities.stream().filter(permissionEntity -> permissionEntity != PermissionEntity.SETTINGS).collect(Collectors.toList())),
-                createRole("Requester", false, RoleCode.REQUESTER, Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.FILES), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList(PermissionEntity.REQUESTS, PermissionEntity.CATEGORIES))
-        ));
+        return Helper.getDefaultRoles().stream().peek(role -> {
+            role.setCompanySettings(this);
+            role.setRoleType(RoleType.ROLE_CLIENT);
+        }).collect(Collectors.toSet());
     }
 }
