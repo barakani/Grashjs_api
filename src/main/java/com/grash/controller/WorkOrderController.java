@@ -1,6 +1,5 @@
 package com.grash.controller;
 
-import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +30,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -106,7 +101,7 @@ public class WorkOrderController {
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 return canViewOthers || (workOrder.getCreatedBy() != null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
-            }).map(workOrderMapper::toShowDto).map(workOrderShowDTO -> new CalendarEvent("WORK_ORDER", workOrderShowDTO, workOrderShowDTO.getDueDate())).collect(Collectors.toList()));
+            }).map(workOrderMapper::toBaseMiniDto).map(workOrderBaseMiniDTO -> new CalendarEvent("WORK_ORDER", workOrderBaseMiniDTO, workOrderBaseMiniDTO.getDueDate())).collect(Collectors.toList()));
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

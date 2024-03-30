@@ -113,7 +113,7 @@ public class PreventiveMaintenanceService {
                 }
             }
 
-            result.addAll(dates.stream().map(date -> new CalendarEvent("PREVENTIVE_MAINTENANCE", preventiveMaintenanceMapper.toShowDto(preventiveMaintenance), date)).collect(Collectors.toList()));
+            result.addAll(dates.stream().map(date -> new CalendarEvent("PREVENTIVE_MAINTENANCE", preventiveMaintenanceMapper.toBaseMiniDto(preventiveMaintenance), date)).collect(Collectors.toList()));
         }
         return result;
     }

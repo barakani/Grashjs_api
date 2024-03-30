@@ -1,9 +1,8 @@
 package com.grash.mapper;
 
-import com.grash.dto.PreventiveMaintenancePatchDTO;
-import com.grash.dto.PreventiveMaintenancePostDTO;
-import com.grash.dto.PreventiveMaintenanceShowDTO;
+import com.grash.dto.*;
 import com.grash.model.PreventiveMaintenance;
+import com.grash.model.WorkOrder;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
@@ -18,4 +17,9 @@ public interface PreventiveMaintenanceMapper {
     PreventiveMaintenanceShowDTO toShowDto(PreventiveMaintenance model);
 
     PreventiveMaintenance toModel(PreventiveMaintenancePostDTO dto);
+
+    PreventiveMaintenanceMiniDTO toMiniDto(PreventiveMaintenance model);
+
+    WorkOrderBaseMiniDTO toBaseMiniDto(PreventiveMaintenance model);
+
 }

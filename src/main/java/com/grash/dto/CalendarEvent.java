@@ -11,6 +11,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class CalendarEvent {
     private String type;
-    private WorkOrderBaseShowDTO event;
+    private WorkOrderBaseMiniDTO event;
     private Date date;
 }

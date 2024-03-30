@@ -1,5 +1,6 @@
 package com.grash.mapper;
 
+import com.grash.dto.WorkOrderBaseMiniDTO;
 import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.dto.WorkOrderShowDTO;
 import com.grash.model.WorkOrder;
@@ -16,4 +17,6 @@ public interface WorkOrderMapper {
 
     @Mappings({})
     WorkOrderShowDTO toShowDto(WorkOrder model);
+
+    WorkOrderBaseMiniDTO toBaseMiniDto(WorkOrder model);
 }
