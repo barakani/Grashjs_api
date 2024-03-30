@@ -1,5 +1,6 @@
 package com.grash.dto;
 
+import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,5 @@ public class WorkOrderBaseMiniDTO {
     private String title;
     private Date dueDate;
     private Instant createdAt;
-    private Status status;
-
+    private Priority priority;
 }
