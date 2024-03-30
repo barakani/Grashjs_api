@@ -96,12 +96,12 @@ public class WorkOrderController {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             List<CalendarEvent> result = new ArrayList<>();
             result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), user.getCompany().getId()).stream()
-                    .filter(calendarEvent -> calendarEvent.getEvent().getCreatedAt().isAfter(new Date().toInstant()))
+                    .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
                     .collect(Collectors.toList()));
             result.addAll(workOrderService.findByDueDateBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId()).stream().filter(workOrder -> {
                 boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS);
                 return canViewOthers || (workOrder.getCreatedBy() != null && workOrder.getCreatedBy().equals(user.getId())) || workOrder.isAssignedTo(user);
-            }).map(workOrderMapper::toBaseMiniDto).map(workOrderBaseMiniDTO -> new CalendarEvent("WORK_ORDER", workOrderBaseMiniDTO, workOrderBaseMiniDTO.getDueDate())).collect(Collectors.toList()));
+            }).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent("WORK_ORDER", workOrderMiniDTO, workOrderMiniDTO.getDueDate())).collect(Collectors.toList()));
             return result;
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
