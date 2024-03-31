@@ -70,7 +70,7 @@ public class NotificationController {
 
     @GetMapping("/read-all")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public SuccessResponse readAll(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+    public SuccessResponse readAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         notificationService.readAll(user.getId());
         return new SuccessResponse(true, "Notifications read");
