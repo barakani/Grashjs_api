@@ -68,6 +68,14 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.findBySearchCriteria(searchCriteria));
     }
 
+    @GetMapping("/read-all")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public SuccessResponse readAll(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        notificationService.readAll(user.getId());
+        return new SuccessResponse(true, "Notifications read");
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     @ApiResponses(value = {//
