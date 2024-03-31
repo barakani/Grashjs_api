@@ -30,7 +30,7 @@ public class OwnUser extends Audit {
 
     private long rate;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private File image;
 
     @Column(unique = true)
@@ -69,7 +69,7 @@ public class OwnUser extends Audit {
     @OneToOne(cascade = CascadeType.ALL)
     private UserSettings userSettings = new UserSettings();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
 
     @ManyToMany
@@ -139,7 +139,7 @@ public class OwnUser extends Audit {
     @JsonIgnore
     private List<SuperAccountRelation> superAccountRelations = new ArrayList<>();
 
-    @OneToOne(mappedBy="childUser")
+    @OneToOne(mappedBy = "childUser")
     @JsonIgnore
     private SuperAccountRelation parentSuperAccount;
 

@@ -40,6 +40,8 @@ public class UserResponseDTO {
     private File image;
 
     private List<SuperAccountRelationDTO> superAccountRelations = new ArrayList<>();
+    
+    private SuperAccountRelationDTO parentSuperAccount;
 
     private Boolean enabled;
 
