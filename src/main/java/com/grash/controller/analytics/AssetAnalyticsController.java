@@ -59,7 +59,7 @@ public class AssetAnalyticsController {
                         .id(asset.getId())
                         .build());
             });
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -73,7 +73,7 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
             long ages = assets.stream().mapToLong(Asset::getAge).sum();
             long availability = ages == 0 ? 0 : (ages - downtimesDuration) * 100 / ages;
-            return Helper.withCache(AssetStats.builder()
+            return ResponseEntity.ok(AssetStats.builder()
                     .downtime(downtimesDuration)
                     .availability(availability)
                     .downtimeEvents(downtimes.size())
@@ -87,7 +87,7 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return Helper.withCache(assets.stream().map(asset -> {
+            return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long percent = downtimesDuration * 100 / asset.getAge();
@@ -115,7 +115,7 @@ public class AssetAnalyticsController {
                 WorkOrder lastWorkOrder = Collections.max(workOrders, auditComparator);
                 betweenMaintenances = (Helper.getDateDiff(firstWorkOrder.getCreatedAt(), lastWorkOrder.getCreatedAt(), TimeUnit.HOURS)) / (workOrders.size() - 1);
             }
-            return Helper.withCache(Meantimes.builder()
+            return ResponseEntity.ok(Meantimes.builder()
                     .betweenDowntimes(assetDowntimeService.getDowntimesMeantime(downtimes))
                     .betweenMaintenances(betweenMaintenances)
                     .build());
@@ -128,7 +128,7 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return Helper.withCache(assets.stream().map(asset -> {
+            return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 return RepairTimeByAsset.builder()
                         .id(asset.getId())
@@ -157,7 +157,7 @@ public class AssetAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -172,7 +172,7 @@ public class AssetAnalyticsController {
             long totalAcquisitionCost = assetsWithAcquisitionCost.stream().mapToLong(Asset::getAcquisitionCost).sum();
             long totalWOCosts = getCompleteWOCosts(assets, includeLaborCost);
             long rav = assetsWithAcquisitionCost.size() == 0 ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost, includeLaborCost) * 100 / totalAcquisitionCost;
-            return Helper.withCache(AssetsCosts.builder()
+            return ResponseEntity.ok(AssetsCosts.builder()
                     .totalWOCosts(totalWOCosts)
                     .totalAcquisitionCost(totalAcquisitionCost)
                     .rav(rav).build());
@@ -185,7 +185,7 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
-            return Helper.withCache(assets.stream().map(asset -> {
+            return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost());
@@ -220,7 +220,7 @@ public class AssetAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -240,7 +240,7 @@ public class AssetAnalyticsController {
                     .uptime(assetService.getUptime(id, start, end))
                     .totalCost(assetService.getTotalCost(id, start, end, user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost()))
                     .build();
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

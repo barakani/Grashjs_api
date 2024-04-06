@@ -50,7 +50,7 @@ public class RequestAnalyticsController {
             Collection<Request> pendingRequests = requests.stream().filter(request -> request.getWorkOrder() == null && !request.isCancelled()).collect(Collectors.toList());
             Collection<Request> completeRequests = approvedRequests.stream().filter(request -> request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             long cycleTime = WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
-            return Helper.withCache(RequestStats.builder()
+            return ResponseEntity.ok(RequestStats.builder()
                     .approved(approvedRequests.size())
                     .pending(pendingRequests.size())
                     .cancelled(cancelledRequests.size())
@@ -71,7 +71,7 @@ public class RequestAnalyticsController {
             int lowCounts = getCountsByPriority(Priority.LOW, requests);
             int mediumCounts = getCountsByPriority(Priority.MEDIUM, requests);
 
-            return Helper.withCache(RequestStatsByPriority.builder()
+            return ResponseEntity.ok(RequestStatsByPriority.builder()
                     .high(RequestStatsByPriority.BasicStats.builder()
                             .count(highCounts)
                             .build())
@@ -109,7 +109,7 @@ public class RequestAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

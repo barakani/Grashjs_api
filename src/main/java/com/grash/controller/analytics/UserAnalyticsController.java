@@ -38,7 +38,7 @@ public class UserAnalyticsController {
         OwnUser user = userService.whoami(req);
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());
-        return Helper.withCache(UserWOStats.builder()
+        return ResponseEntity.ok(UserWOStats.builder()
                 .created(createdWorkOrders.size())
                 .completed(completedWorkOrders.size())
                 .build());
@@ -66,7 +66,7 @@ public class UserAnalyticsController {
                             .build());
                 }
                 Collections.reverse(result);
-                return Helper.withCache(result);
+                return ResponseEntity.ok(result);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

@@ -43,7 +43,7 @@ public class PartAnalyticsController {
             long totalConsumptionCost = partConsumptions.stream().mapToLong(PartConsumption::getCost).sum();
             int consumedCount = partConsumptions.stream().mapToInt(PartConsumption::getQuantity).sum();
 
-            return Helper.withCache(PartStats.builder()
+            return ResponseEntity.ok(PartStats.builder()
                     .consumedCount(consumedCount)
                     .totalConsumptionCost(totalConsumptionCost)
                     .build());
@@ -69,7 +69,7 @@ public class PartAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 }

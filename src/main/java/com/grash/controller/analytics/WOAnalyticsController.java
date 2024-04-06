@@ -50,7 +50,7 @@ public class WOAnalyticsController {
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
-            return Helper.withCache(WOStats.builder()
+            return ResponseEntity.ok(WOStats.builder()
                     .total(total)
                     .complete(complete)
                     .compliant(compliant)
@@ -126,7 +126,7 @@ public class WOAnalyticsController {
             int total = incompleteWO.size();
             List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getRealCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
             int averageAge = ages.size() == 0 ? 0 : ages.stream().mapToInt(Long::intValue).sum() / ages.size();
-            return Helper.withCache(WOIncompleteStats.builder()
+            return ResponseEntity.ok(WOIncompleteStats.builder()
                     .total(total)
                     .averageAge(averageAge)
                     .build());
@@ -155,7 +155,7 @@ public class WOAnalyticsController {
             int noneCounts = noneValues.get(0);
             int noneEstimatedDurations = noneValues.get(1);
 
-            return Helper.withCache(WOStatsByPriority.builder()
+            return ResponseEntity.ok(WOStatsByPriority.builder()
                     .high(WOStatsByPriority.BasicStats.builder()
                             .count(highCounts)
                             .estimatedHours(highEstimatedDurations)
@@ -185,7 +185,7 @@ public class WOAnalyticsController {
             Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
-            return Helper.withCache(WOStatuses.builder()
+            return ResponseEntity.ok(WOStatuses.builder()
                     .open(getWOCountsByStatus(Status.OPEN, incompleteWO))
                     .inProgress(getWOCountsByStatus(Status.IN_PROGRESS, incompleteWO))
                     .onHold(getWOCountsByStatus(Status.ON_HOLD, incompleteWO))
@@ -213,7 +213,7 @@ public class WOAnalyticsController {
                         .id(asset.getId())
                         .build());
             });
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -237,7 +237,7 @@ public class WOAnalyticsController {
                         .id(user1.getId())
                         .build());
             });
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -251,7 +251,7 @@ public class WOAnalyticsController {
             Collection<Labor> labors = new ArrayList<>();
             workOrders.forEach(workOrder -> labors.addAll(laborService.findByWorkOrder(workOrder.getId())));
             int actual = labors.stream().map(Labor::getDuration).mapToInt(Math::toIntExact).sum() / 3600;
-            return Helper.withCache(WOHours.builder()
+            return ResponseEntity.ok(WOHours.builder()
                     .estimated(estimated)
                     .actual(actual)
                     .build());
@@ -275,7 +275,7 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return Helper.withCache(results);
+            return ResponseEntity.ok(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -296,7 +296,7 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return Helper.withCache(results);
+            return ResponseEntity.ok(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -312,7 +312,7 @@ public class WOAnalyticsController {
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.put(priority, count);
             });
-            return Helper.withCache(results);
+            return ResponseEntity.ok(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -332,7 +332,7 @@ public class WOAnalyticsController {
                         .count(count)
                         .build());
             });
-            return Helper.withCache(results);
+            return ResponseEntity.ok(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -358,7 +358,7 @@ public class WOAnalyticsController {
                 previousMonday = previousMonday.minusDays(7);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -385,7 +385,7 @@ public class WOAnalyticsController {
                 previousMonday = previousMonday.minusDays(7);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -401,7 +401,7 @@ public class WOAnalyticsController {
             long partCost = workOrderService.getPartCost(completeWorkOrders);
             long total = laborCost + partCost + additionalCost;
 
-            return Helper.withCache(WOCostsAndTime.builder()
+            return ResponseEntity.ok(WOCostsAndTime.builder()
                     .total(total)
                     .average(completeWorkOrders.size() == 0 ? 0 : total / completeWorkOrders.size())
                     .additionalCost(additionalCost)
@@ -433,7 +433,7 @@ public class WOAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
-            return Helper.withCache(result);
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
