@@ -98,6 +98,10 @@ public class AssetService {
         return assetRepository.findByCompany_Id(id);
     }
 
+    public List<Asset> findByCompanyAndBefore(Long id, Date date) {
+        return assetRepository.findByCompany_IdAndCreatedAtBefore(id, date);
+    }
+
     public Collection<Asset> findAssetChildren(Long id) {
         return assetRepository.findByParentAsset_Id(id);
     }

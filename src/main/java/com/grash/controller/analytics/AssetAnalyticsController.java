@@ -42,13 +42,13 @@ public class AssetAnalyticsController {
 
     @GetMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             Collection<TimeCostByAsset> result = new ArrayList<>();
             assets.forEach(asset -> {
-                Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId())
+                Collection<WorkOrder> completeWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 long time = workOrderService.getLaborCostAndTime(completeWO).getSecond();
                 long cost = workOrderService.getAllCost(completeWO, user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost());
@@ -65,12 +65,12 @@ public class AssetAnalyticsController {
 
     @GetMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<AssetStats> getOverviewStats(HttpServletRequest req) {
+    public ResponseEntity<AssetStats> getOverviewStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
+            Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             long ages = assets.stream().mapToLong(Asset::getAge).sum();
             long availability = ages == 0 ? 0 : (ages - downtimesDuration) * 100 / ages;
             return ResponseEntity.ok(AssetStats.builder()
@@ -83,12 +83,12 @@ public class AssetAnalyticsController {
 
     @GetMapping("/downtimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
                 long percent = downtimesDuration * 100 / asset.getAge();
                 return DowntimesByAsset.builder()
@@ -103,12 +103,12 @@ public class AssetAnalyticsController {
 
     @GetMapping("/meantimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Meantimes> getMeantimes(HttpServletRequest req) {
+    public ResponseEntity<Meantimes> getMeantimes(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompany(user.getCompany().getId());
+            Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             long betweenMaintenances = 0L;
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             if (workOrders.size() > 2) {
                 AuditComparator auditComparator = new AuditComparator();
                 WorkOrder firstWorkOrder = Collections.min(workOrders, auditComparator);
@@ -124,12 +124,12 @@ public class AssetAnalyticsController {
 
     @GetMapping("/repair-times")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<WorkOrder> completeWO = workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                Collection<WorkOrder> completeWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 return RepairTimeByAsset.builder()
                         .id(asset.getId())
                         .name(asset.getName())
@@ -163,15 +163,15 @@ public class AssetAnalyticsController {
 
     @GetMapping("/costs/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<AssetsCosts> getAssetsCosts(HttpServletRequest req) {
+    public ResponseEntity<AssetsCosts> getAssetsCosts(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         boolean includeLaborCost = user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             Collection<Asset> assetsWithAcquisitionCost = assets.stream().filter(asset -> asset.getAcquisitionCost() != null).collect(Collectors.toList());
             long totalAcquisitionCost = assetsWithAcquisitionCost.stream().mapToLong(Asset::getAcquisitionCost).sum();
-            long totalWOCosts = getCompleteWOCosts(assets, includeLaborCost);
-            long rav = assetsWithAcquisitionCost.size() == 0 ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost, includeLaborCost) * 100 / totalAcquisitionCost;
+            long totalWOCosts = getCompleteWOCosts(assets, includeLaborCost, dateRange);
+            long rav = assetsWithAcquisitionCost.isEmpty() ? 0 : getCompleteWOCosts(assetsWithAcquisitionCost, includeLaborCost, dateRange) * 100 / totalAcquisitionCost;
             return ResponseEntity.ok(AssetsCosts.builder()
                     .totalWOCosts(totalWOCosts)
                     .totalAcquisitionCost(totalAcquisitionCost)
@@ -181,14 +181,14 @@ public class AssetAnalyticsController {
 
     @GetMapping("/downtimes/costs")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(HttpServletRequest req) {
+    public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
                 long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
-                long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost());
+                long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost(), dateRange);
                 return DowntimesAndCostsByAsset.builder()
                         .id(asset.getId())
                         .name(asset.getName())
@@ -244,7 +244,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    private long getCompleteWOCosts(Collection<Asset> assets, boolean includeLaborCost) {
-        return assets.stream().map(asset -> workOrderService.findByAsset(asset.getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrder -> workOrderService.getAllCost(workOrder, includeLaborCost)).sum();
+    private long getCompleteWOCosts(Collection<Asset> assets, boolean includeLaborCost, DateRange dateRange) {
+        return assets.stream().map(asset -> workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrder -> workOrderService.getAllCost(workOrder, includeLaborCost)).sum();
     }
 }

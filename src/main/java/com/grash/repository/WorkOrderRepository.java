@@ -49,4 +49,6 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     Collection<WorkOrder> findByAssignedToUser(@Param("id") Long id);
 
     Collection<WorkOrder> findByAsset_IdAndCreatedAtBetween(Long id, Date start, Date end);
+
+    Collection<WorkOrder> findByCompany_IdAndCreatedAtBetween(Long id, Date start, Date end);
 }

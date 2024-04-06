@@ -4,8 +4,6 @@ import com.grash.dto.AssetDowntimePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.AssetDowntimeMapper;
 import com.grash.model.AssetDowntime;
-import com.grash.model.OwnUser;
-import com.grash.model.enums.RoleType;
 import com.grash.repository.AssetDowntimeRepository;
 import com.grash.utils.DowntimeComparator;
 import com.grash.utils.Helper;
@@ -96,5 +94,9 @@ public class AssetDowntimeService {
                 throw new CustomException("The downtimes can't interweave", HttpStatus.NOT_ACCEPTABLE);
             }
         });
+    }
+
+    public Collection<AssetDowntime> findByCompanyAndStartsOnBetween(Long id, Date start, Date end) {
+        return assetDowntimeRepository.findByStartsOnBetweenAndCompany_Id(start, end, id);
     }
 }
