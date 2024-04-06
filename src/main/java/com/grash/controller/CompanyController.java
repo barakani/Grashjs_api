@@ -4,6 +4,7 @@ import com.grash.dto.CompanyPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.service.CompanyService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -57,6 +58,8 @@ public class CompanyController {
 
         if (optionalCompany.isPresent()) {
             Company savedCompany = optionalCompany.get();
+            if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return companyService.update(id, company);
         } else throw new CustomException("Company not found", HttpStatus.NOT_FOUND);
     }

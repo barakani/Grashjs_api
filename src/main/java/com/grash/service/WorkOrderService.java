@@ -222,8 +222,16 @@ public class WorkOrderService {
         return workOrderRepository.findByPriorityAndCompany_Id(priority, companyId);
     }
 
+    public Collection<WorkOrder> findByPriorityAndCompanyAndCreatedAtBetween(Priority priority, Long companyId, Date start, Date end) {
+        return workOrderRepository.findByPriorityAndCompany_IdAndCreatedAtBetween(priority, companyId, start, end);
+    }
+
     public Collection<WorkOrder> findByCategory(Long id) {
         return workOrderRepository.findByCategory_Id(id);
+    }
+
+    public Collection<WorkOrder> findByCategoryAndCreatedAtBetween(Long id, Date start, Date end) {
+        return workOrderRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
     }
 
     public Collection<WorkOrder> findByCompletedOnBetweenAndCompany(Date date1, Date date2, Long companyId) {
@@ -419,5 +427,9 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByCompanyAndCreatedAtBetween(Long id, Date start, Date end) {
         return workOrderRepository.findByCompany_IdAndCreatedAtBetween(id, start, end);
+    }
+
+    public Collection<WorkOrder> findByAssignedToUserAndCreatedAtBetween(Long id, Date start, Date end) {
+        return workOrderRepository.findByAssignedToUserAndCreatedAtBetween(id, start, end);
     }
 }

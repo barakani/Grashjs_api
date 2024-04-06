@@ -1,5 +1,6 @@
 package com.grash.controller.analytics;
 
+import com.grash.dto.DateRange;
 import com.grash.dto.analytics.requests.RequestStats;
 import com.grash.dto.analytics.requests.RequestStatsByPriority;
 import com.grash.dto.analytics.requests.RequestsByMonth;
@@ -17,9 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -39,12 +38,12 @@ public class RequestAnalyticsController {
     private final UserService userService;
     private final RequestService requestService;
 
-    @GetMapping("/overview")
+    @PostMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<RequestStats> getRequestStats(HttpServletRequest req) {
+    public ResponseEntity<RequestStats> getRequestStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Request> requests = requestService.findByCompany(user.getCompany().getId());
+            Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId());
             Collection<Request> approvedRequests = requests.stream().filter(request -> request.getWorkOrder() != null).collect(Collectors.toList());
             Collection<Request> cancelledRequests = requests.stream().filter(Request::isCancelled).collect(Collectors.toList());
             Collection<Request> pendingRequests = requests.stream().filter(request -> request.getWorkOrder() == null && !request.isCancelled()).collect(Collectors.toList());
@@ -59,12 +58,12 @@ public class RequestAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/priority")
+    @PostMapping("/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<RequestStatsByPriority> getByPriority(HttpServletRequest req) {
+    public ResponseEntity<RequestStatsByPriority> getByPriority(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Request> requests = requestService.findByCompany(user.getCompany().getId());
+            Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(), dateRange.getEnd(), user.getCompany().getId());
 
             int highCounts = getCountsByPriority(Priority.HIGH, requests);
             int noneCounts = getCountsByPriority(Priority.NONE, requests);

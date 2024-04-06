@@ -47,4 +47,8 @@ public class PartConsumptionService {
     public void save(PartConsumption partConsumption) {
         partConsumptionRepository.save(partConsumption);
     }
+
+    public Collection<PartConsumption> findByCompanyAndCreatedAtBetween(Long id, Date start, Date end) {
+        return partConsumptionRepository.findByCompany_IdAndCreatedAtBetween(id, start, end);
+    }
 }

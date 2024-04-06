@@ -1,5 +1,6 @@
 package com.grash.controller.analytics;
 
+import com.grash.dto.DateRange;
 import com.grash.dto.analytics.parts.PartConsumptionsByMonth;
 import com.grash.dto.analytics.parts.PartStats;
 import com.grash.exception.CustomException;
@@ -13,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -34,12 +33,12 @@ public class PartAnalyticsController {
     private final UserService userService;
     private final PartConsumptionService partConsumptionService;
 
-    @GetMapping("/consumptions/overview")
+    @PostMapping("/consumptions/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<PartStats> getPartStats(HttpServletRequest req) {
+    public ResponseEntity<PartStats> getPartStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompany(user.getCompany().getId());
+            Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             long totalConsumptionCost = partConsumptions.stream().mapToLong(PartConsumption::getCost).sum();
             int consumedCount = partConsumptions.stream().mapToInt(PartConsumption::getQuantity).sum();
 

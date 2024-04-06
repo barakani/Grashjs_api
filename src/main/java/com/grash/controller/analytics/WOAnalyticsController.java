@@ -1,5 +1,6 @@
 package com.grash.controller.analytics;
 
+import com.grash.dto.DateRange;
 import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
@@ -14,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -40,12 +38,12 @@ public class WOAnalyticsController {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final AssetService assetService;
 
-    @GetMapping("/complete/overview")
+    @PostMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOStats> getCompleteStats(HttpServletRequest req) {
+    public ResponseEntity<WOStats> getCompleteStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             Collection<WorkOrder> completedWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = workOrders.size();
             int complete = completedWO.size();
@@ -116,12 +114,12 @@ public class WOAnalyticsController {
                 .build());
     }
 
-    @GetMapping("/incomplete/overview")
+    @PostMapping("/incomplete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOIncompleteStats> getIncompleteStats(HttpServletRequest req) {
+    public ResponseEntity<WOIncompleteStats> getIncompleteStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             int total = incompleteWO.size();
             List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getRealCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
@@ -133,12 +131,12 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete/priority")
+    @PostMapping("/incomplete/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOStatsByPriority> getIncompleteByPriority(HttpServletRequest req) {
+    public ResponseEntity<WOStatsByPriority> getIncompleteByPriority(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
             List<Integer> highValues = getCountsAndEstimatedDurationByPriority(Priority.HIGH, incompleteWO);
@@ -177,12 +175,12 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete/statuses")
+    @PostMapping("/incomplete/statuses")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOStatuses> getWOStatuses(HttpServletRequest req) {
+    public ResponseEntity<WOStatuses> getWOStatuses(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             Collection<WorkOrder> incompleteWO = workOrders.stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
 
             return ResponseEntity.ok(WOStatuses.builder()
@@ -194,15 +192,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete/age/assets")
+    @PostMapping("/incomplete/age/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<IncompleteWOByAsset>> getIncompleteByAsset(HttpServletRequest req) {
+    public ResponseEntity<Collection<IncompleteWOByAsset>> getIncompleteByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<Asset> assets = assetService.findByCompany(user.getCompany().getId());
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             Collection<IncompleteWOByAsset> result = new ArrayList<>();
             assets.forEach(asset -> {
-                Collection<WorkOrder> incompleteWO = workOrderService.findByAsset(asset.getId())
+                Collection<WorkOrder> incompleteWO = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd())
                         .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
                 int count = incompleteWO.size();
@@ -217,15 +215,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/incomplete/age/users")
+    @PostMapping("/incomplete/age/users")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(HttpServletRequest req) {
+    public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<IncompleteWOByUser> result = new ArrayList<>();
             users.forEach(user1 -> {
-                Collection<WorkOrder> incompleteWO = workOrderService.findByAssignedToUser(user1.getId())
+                Collection<WorkOrder> incompleteWO = workOrderService.findByAssignedToUserAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd())
                         .stream().filter(workOrder -> !workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 List<Long> ages = incompleteWO.stream().map(workOrder -> Helper.getDateDiff(workOrder.getCreatedAt(), new Date(), TimeUnit.DAYS)).collect(Collectors.toList());
                 int count = incompleteWO.size();
@@ -241,12 +239,12 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/hours")
+    @PostMapping("/hours")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOHours> getHours(HttpServletRequest req) {
+    public ResponseEntity<WOHours> getHours(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> workOrders = workOrderService.findByCompany(user.getCompany().getId());
+            Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             int estimated = workOrders.stream().map(WorkOrderBase::getEstimatedDuration).mapToInt(value -> value).sum();
             Collection<Labor> labors = new ArrayList<>();
             workOrders.forEach(workOrder -> labors.addAll(laborService.findByWorkOrder(workOrder.getId())));
@@ -258,15 +256,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/counts/primaryUser")
+    @PostMapping("/complete/counts/primaryUser")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
-                int count = (int) workOrderService.findByAssignedToUser(user1.getId()).stream()
+                int count = (int) workOrderService.findByAssignedToUserAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd()).stream()
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.add(WOCountByUser.builder()
                         .firstName(user1.getFirstName())
@@ -279,15 +277,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/counts/completedBy")
+    @PostMapping("/complete/counts/completedBy")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
-                int count = (int) workOrderService.findByCompletedBy(user1.getId()).stream()
+                int count = (int) workOrderService.findByCompletedByAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd()).stream()
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.add(WOCountByUser.builder()
                         .firstName(user1.getFirstName())
@@ -300,15 +298,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/counts/priority")
+    @PostMapping("/complete/counts/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Map<Priority, Integer>> getCountsByPriority(HttpServletRequest req) {
+    public ResponseEntity<Map<Priority, Integer>> getCountsByPriority(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Priority[] priorities = Priority.values();
             Map<Priority, Integer> results = new HashMap<>();
             Arrays.asList(priorities).forEach(priority -> {
-                int count = (int) workOrderService.findByPriorityAndCompany(priority, user.getCompany().getId()).stream()
+                int count = (int) workOrderService.findByPriorityAndCompanyAndCreatedAtBetween(priority, user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd()).stream()
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.put(priority, count);
             });
@@ -316,15 +314,15 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/counts/category")
+    @PostMapping("/complete/counts/category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<WOCountByCategory>> getCountsByCategory(HttpServletRequest req) {
+    public ResponseEntity<Collection<WOCountByCategory>> getCountsByCategory(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<WorkOrderCategory> categories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
             Collection<WOCountByCategory> results = new ArrayList<>();
             categories.forEach(category -> {
-                int count = (int) workOrderService.findByCategory(category.getId()).stream()
+                int count = (int) workOrderService.findByCategoryAndCreatedAtBetween(category.getId(), dateRange.getStart(), dateRange.getEnd()).stream()
                         .filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).count();
                 results.add(WOCountByCategory.builder()
                         .name(category.getName())
@@ -389,12 +387,13 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/costs-time")
+    @PostMapping("/complete/costs-time")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<WOCostsAndTime> getCompleteCostsAndTime(HttpServletRequest req) {
+    public ResponseEntity<WOCostsAndTime> getCompleteCostsAndTime(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompany(user.getCompany().getId()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompanyAndCreatedAtBetween(
+                    user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
             long additionalCost = workOrderService.getAdditionalCost(completeWorkOrders);
             long laborCost = workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst();
             long laborTime = workOrderService.getLaborCostAndTime(completeWorkOrders).getSecond();
