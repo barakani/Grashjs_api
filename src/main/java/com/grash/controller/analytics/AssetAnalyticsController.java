@@ -40,7 +40,7 @@ public class AssetAnalyticsController {
     private final AssetService assetService;
     private final AssetDowntimeService assetDowntimeService;
 
-    @GetMapping("/time-cost")
+    @PostMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -63,7 +63,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/overview")
+    @PostMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<AssetStats> getOverviewStats(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -81,7 +81,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/downtimes")
+    @PostMapping("/downtimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -101,7 +101,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/meantimes")
+    @PostMapping("/meantimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Meantimes> getMeantimes(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -122,7 +122,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/repair-times")
+    @PostMapping("/repair-times")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -161,7 +161,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/costs/overview")
+    @PostMapping("/costs/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<AssetsCosts> getAssetsCosts(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
@@ -179,7 +179,7 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/downtimes/costs")
+    @PostMapping("/downtimes/costs")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
