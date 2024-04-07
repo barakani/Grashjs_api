@@ -8,6 +8,7 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.*;
+import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -95,7 +96,8 @@ public class UserService {
                 subscriptionService.create(subscription);
                 Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
                 company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
-                if(userReq.getLanguage() !=null) company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
+                if (userReq.getLanguage() != null)
+                    company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);
@@ -199,6 +201,10 @@ public class UserService {
 
     public Collection<OwnUser> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
+    }
+
+    public Collection<OwnUser> findWorkersByCompany(Long id) {
+        return userRepository.findWorkersByCompany(id, Arrays.asList(RoleCode.REQUESTER, RoleCode.VIEW_ONLY));
     }
 
     public Collection<OwnUser> findByLocation(Long id) {

@@ -220,7 +220,7 @@ public class WOAnalyticsController {
     public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<IncompleteWOByUser> result = new ArrayList<>();
             users.forEach(user1 -> {
                 Collection<WorkOrder> incompleteWO = workOrderService.findByAssignedToUserAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd())
@@ -261,7 +261,7 @@ public class WOAnalyticsController {
     public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
                 int count = (int) workOrderService.findByAssignedToUserAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd()).stream()
@@ -282,7 +282,7 @@ public class WOAnalyticsController {
     public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            Collection<OwnUser> users = userService.findByCompany(user.getCompany().getId());
+            Collection<OwnUser> users = userService.findWorkersByCompany(user.getCompany().getId());
             Collection<WOCountByUser> results = new ArrayList<>();
             users.forEach(user1 -> {
                 int count = (int) workOrderService.findByCompletedByAndCreatedAtBetween(user1.getId(), dateRange.getStart(), dateRange.getEnd()).stream()
