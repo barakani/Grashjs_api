@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.dto.DateRange;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.utils.Helper;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Entity
 @Data
@@ -35,6 +37,12 @@ public class AssetDowntime extends CompanyAudit {
 
     public Date getEndsOn() {
         return Helper.addSeconds(startsOn, Math.toIntExact(duration));
+    }
+
+    public long getDateRangeDuration(DateRange dateRange) {
+        Date start = new Date(Math.max(startsOn.getTime(), dateRange.getStart().getTime()));
+        Date end = new Date(Math.min(getEndsOn().getTime(), dateRange.getEnd().getTime()));
+        return Helper.getDateDiff(start, end, TimeUnit.SECONDS);
     }
 
 }

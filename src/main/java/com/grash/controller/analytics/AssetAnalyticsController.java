@@ -69,10 +69,10 @@ public class AssetAnalyticsController {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<AssetDowntime> downtimes = assetDowntimeService.findByCompanyAndStartsOnBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
-            long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
+            long downtimesDuration = downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
-            long ages = assets.stream().mapToLong(Asset::getAge).sum();
-            long availability = ages == 0 ? 0 : (ages - downtimesDuration) * 100 / ages;
+            long livingTime = assets.stream().mapToLong(asset -> getLivingTime(asset, dateRange)).sum();
+            long availability = livingTime == 0 ? 0 : (livingTime - downtimesDuration) * 100 / livingTime;
             return ResponseEntity.ok(AssetStats.builder()
                     .downtime(downtimesDuration)
                     .availability(availability)
@@ -89,8 +89,8 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd());
-                long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
-                long percent = downtimesDuration * 100 / asset.getAge();
+                long downtimesDuration = downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
+                long percent = downtimesDuration * 100 / getLivingTime(asset, dateRange);
                 return DowntimesByAsset.builder()
                         .count(downtimes.size())
                         .percent(percent)
@@ -187,7 +187,7 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
                 Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
-                long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
+                long downtimesDuration = downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
                 long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost(), dateRange);
                 return DowntimesAndCostsByAsset.builder()
                         .id(asset.getId())
@@ -246,5 +246,11 @@ public class AssetAnalyticsController {
 
     private long getCompleteWOCosts(Collection<Asset> assets, boolean includeLaborCost, DateRange dateRange) {
         return assets.stream().map(asset -> workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd()).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList())).mapToLong(workOrder -> workOrderService.getAllCost(workOrder, includeLaborCost)).sum();
+    }
+
+    private long getLivingTime(Asset asset, DateRange dateRange) {
+        return Helper.getDateDiff(asset.getRealCreatedAt()
+                .before(dateRange.getStart()) ? dateRange.getStart()
+                : asset.getRealCreatedAt(), dateRange.getEnd(), TimeUnit.SECONDS);
     }
 }
