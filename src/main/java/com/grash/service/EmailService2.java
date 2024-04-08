@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -17,9 +18,11 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,6 +34,8 @@ public class EmailService2 {
     private final JavaMailSender emailSender;
 
     private final SimpleMailMessage template;
+    private final MailProperties mailProperties;
+
 
     private final SpringTemplateEngine thymeleafTemplateEngine;
 
@@ -98,7 +103,11 @@ public class EmailService2 {
 
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom("Atlas CMMS");
+        try {
+            helper.setFrom(new InternetAddress(mailProperties.getUsername(), "Atlas CMMS"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlBody, true);
