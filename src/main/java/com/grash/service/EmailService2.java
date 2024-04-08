@@ -98,6 +98,7 @@ public class EmailService2 {
 
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom("Atlas CMMS");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlBody, true);
