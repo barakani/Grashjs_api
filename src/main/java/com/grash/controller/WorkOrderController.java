@@ -86,10 +86,6 @@ public class WorkOrderController {
 
     @PostMapping("/events")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrderCategory not found")})
     public Collection<CalendarEvent> getEvents(@Valid @RequestBody DateRange
                                                        dateRange, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
@@ -108,10 +104,6 @@ public class WorkOrderController {
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrder not found")})
     public Collection<WorkOrderShowDTO> getByAsset(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
@@ -122,10 +114,6 @@ public class WorkOrderController {
 
     @GetMapping("/location/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrder not found")})
     public Collection<WorkOrderShowDTO> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
@@ -136,10 +124,6 @@ public class WorkOrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"),
-            @ApiResponse(code = 403, message = "Access denied"),
-            @ApiResponse(code = 404, message = "WorkOrder not found")})
     public WorkOrderShowDTO getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
@@ -233,6 +217,8 @@ public class WorkOrderController {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
+        if (savedWorkOrder.getFirstTimeToReact() == null && !workOrder.getStatus().equals(Status.ON_HOLD))
+            savedWorkOrder.setFirstTimeToReact(new Date());
         Status savedWorkOrderStatusBefore = savedWorkOrder.getStatus();
 
         if (workOrder.getStatus() == null) throw new CustomException("Status can't be null", HttpStatus.NOT_ACCEPTABLE);

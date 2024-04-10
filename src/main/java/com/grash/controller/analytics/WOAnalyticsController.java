@@ -45,13 +45,17 @@ public class WOAnalyticsController {
         if (user.canSeeAnalytics()) {
             Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
             Collection<WorkOrder> completedWO = workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+            Collection<WorkOrder> withFirstTimeToReactWO = workOrders.stream().filter(workOrder -> workOrder.getFirstTimeToReact() != null).collect(Collectors.toList());
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
+            long mtta = withFirstTimeToReactWO.stream().mapToLong(workOrder ->
+                    Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getFirstTimeToReact(), TimeUnit.HOURS)).sum() / withFirstTimeToReactWO.size();
             return ResponseEntity.ok(WOStats.builder()
                     .total(total)
                     .complete(complete)
                     .compliant(compliant)
+                    .mtta(mtta)
                     .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

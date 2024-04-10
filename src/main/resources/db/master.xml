@@ -94,4 +94,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_03_27_1711476574_create_subscription_change_request.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_04_10_1712708883_first_time_to_react.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2024_04_10_1712708883_first_time_to_react2.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

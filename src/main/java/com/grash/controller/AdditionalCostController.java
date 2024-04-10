@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -73,6 +74,11 @@ public class AdditionalCostController {
     public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
+            WorkOrder workOrder = workOrderService.findById(additionalCostReq.getWorkOrder().getId()).get();
+            if (workOrder.getFirstTimeToReact() == null) {
+                workOrder.setFirstTimeToReact(new Date());
+                workOrderService.save(workOrder);
+            }
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

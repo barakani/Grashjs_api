@@ -96,6 +96,7 @@ public class WorkOrderService {
     public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
+            if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
             WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
 //            WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()

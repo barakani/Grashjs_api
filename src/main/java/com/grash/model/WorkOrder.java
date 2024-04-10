@@ -62,6 +62,9 @@ public class WorkOrder extends WorkOrderBase {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
+    @NotAudited
+    private Date firstTimeToReact;
+
     @JsonIgnore
     public Collection<OwnUser> getUsers() {
         Collection<OwnUser> users = new ArrayList<>();

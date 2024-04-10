@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,6 +82,10 @@ public class PartQuantityController {
 
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (savedWorkOrder.getFirstTimeToReact() == null) {
+                savedWorkOrder.setFirstTimeToReact(new Date());
+                workOrderService.save(savedWorkOrder);
+            }
             if (savedWorkOrder.canBeEditedBy(user)) {
                 Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
                 Collection<Long> partQuantityMappedPartIds = partQuantities.stream().map

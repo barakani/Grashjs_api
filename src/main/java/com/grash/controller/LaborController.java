@@ -81,6 +81,8 @@ public class LaborController {
             Optional<Labor> optionalLabor = laborService.findByWorkOrder(id).stream().filter(labor -> labor.isLogged() && labor.getAssignedTo().getId().equals(user.getId())).findFirst();
             if (start) {
                 WorkOrder workOrder = optionalWorkOrder.get();
+                if (workOrder.getFirstTimeToReact() == null) workOrder.setFirstTimeToReact(new Date());
+
                 if (!workOrder.getStatus().equals(Status.IN_PROGRESS)) {
                     workOrder.setStatus(Status.IN_PROGRESS);
                     workOrderService.save(workOrder);
@@ -119,6 +121,11 @@ public class LaborController {
     public Labor create(@ApiParam("Labor") @Valid @RequestBody Labor laborReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_TIME)) {
+            WorkOrder workOrder = workOrderService.findById(laborReq.getWorkOrder().getId()).get();
+            if (workOrder.getFirstTimeToReact() == null) {
+                workOrder.setFirstTimeToReact(new Date());
+                workOrderService.save(workOrder);
+            }
             return laborService.create(laborReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

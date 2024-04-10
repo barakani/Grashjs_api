@@ -14,4 +14,5 @@ public class WOStats {
     private int complete;
     private int compliant;
     private long avgCycleTime;
+    private long mtta;
 }
