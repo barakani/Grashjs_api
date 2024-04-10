@@ -9,6 +9,7 @@ import com.grash.model.OwnUser;
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
+import com.grash.security.CurrentUser;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
@@ -101,6 +102,17 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @PostMapping("/mtbf")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@CurrentUser OwnUser user, @RequestBody DateRange dateRange) {
+        if (user.canSeeAnalytics()) {
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
+            return ResponseEntity.ok(assets.stream().map(asset -> MTBFByAsset.builder()
+                    .mtbf(assetService.getMTBF(asset.getId(), dateRange.getStart(), dateRange.getEnd()))
+                    .build()).collect(Collectors.toList()));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     @PostMapping("/meantimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Meantimes> getMeantimes(HttpServletRequest req, @RequestBody DateRange dateRange) {
@@ -186,7 +198,8 @@ public class AssetAnalyticsController {
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> {
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId()).stream()
+                        .filter(assetDowntime -> assetDowntime.getDuration() != 0).collect(Collectors.toList());
                 long downtimesDuration = downtimes.stream().mapToLong(assetDowntime -> assetDowntime.getDateRangeDuration(dateRange)).sum();
                 long totalWOCosts = getCompleteWOCosts(Collections.singleton(asset), user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost(), dateRange);
                 return DowntimesAndCostsByAsset.builder()

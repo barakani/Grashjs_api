@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -58,15 +55,15 @@ public class AssetDowntimeService {
         return assetDowntimeRepository.findByAsset_Id(id);
     }
 
-    public Collection<AssetDowntime> findByAssetAndStartsOnBetween(Long id, Date start, Date end) {
+    public List<AssetDowntime> findByAssetAndStartsOnBetween(Long id, Date start, Date end) {
         return assetDowntimeRepository.findByAsset_IdAndStartsOnBetween(id, start, end);
     }
 
-    public Collection<AssetDowntime> findByCompany(Long id) {
+    public List<AssetDowntime> findByCompany(Long id) {
         return assetDowntimeRepository.findByCompany_Id(id);
     }
 
-    public Collection<AssetDowntime> findByStartsOnBetweenAndCompany(Date date1, Date date2, Long id) {
+    public List<AssetDowntime> findByStartsOnBetweenAndCompany(Date date1, Date date2, Long id) {
         return assetDowntimeRepository.findByStartsOnBetweenAndCompany_Id(date1, date2, id);
 
     }

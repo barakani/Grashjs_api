@@ -291,12 +291,33 @@ public class AssetService {
     }
 
     // Stats
-    public long getMTBF(Long assetId, Date start, Date end) {
+    public long getMTBFLF(Long assetId, Date start, Date end) {
         Asset asset = findById(assetId).get();
         Collection<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
         long downtimesDuration = downtimes.stream().mapToLong(AssetDowntime::getDuration).sum();
-        long age = Helper.getDateDiff(asset.getCreatedAt(), new Date(), TimeUnit.SECONDS);
+        long age = asset.getAge();
         return downtimes.isEmpty() ? 0 : ((age - downtimesDuration) / 60) / downtimes.size();
+    }
+
+    public long getMTBF(Long assetId, Date start, Date end) {
+        List<AssetDowntime> downtimes = assetDowntimeService.findByAssetAndStartsOnBetween(assetId, start, end);
+        downtimes.sort(Comparator.comparing(AssetDowntime::getStartsOn));
+        if (downtimes.size() < 2) {
+            return 0L;
+        }
+
+        long intervalsSum = 0;
+        int numberOfIntervals = downtimes.size() - 1;
+
+        for (int i = 0; i < downtimes.size() - 1; i++) {
+            AssetDowntime currentDowntime = downtimes.get(i);
+            AssetDowntime nextDowntime = downtimes.get(i + 1);
+
+            long interval = Helper.getDateDiff(nextDowntime.getStartsOn(), currentDowntime.getEndsOn(), TimeUnit.DAYS);
+            intervalsSum += interval;
+        }
+
+        return intervalsSum / numberOfIntervals;
     }
 
     public long getMTTR(Long assetId, Date start, Date end) {

@@ -30,7 +30,7 @@ public class AssetDowntime extends CompanyAudit {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Asset asset;
 
-    //seconds
+    //seconds can be equal to 0 if created by triggerDowntime
     private long duration = 0;
 
     private Date startsOn;
