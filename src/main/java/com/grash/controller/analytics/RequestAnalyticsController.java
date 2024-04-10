@@ -1,12 +1,11 @@
 package com.grash.controller.analytics;
 
-import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.requests.RequestStats;
 import com.grash.dto.analytics.requests.RequestStatsByPriority;
 import com.grash.dto.analytics.requests.RequestsByMonth;
+import com.grash.dto.analytics.requests.RequestsResolvedByDate;
 import com.grash.dto.analytics.workOrders.CountByCategory;
-import com.grash.dto.analytics.workOrders.WOCountByUser;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
@@ -24,14 +23,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import sun.util.resources.LocaleData;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -134,6 +132,36 @@ public class RequestAnalyticsController {
                         .build());
             });
             return ResponseEntity.ok(results);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/received-and-resolved")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+        if (user.canSeeAnalytics()) {
+            List<RequestsResolvedByDate> result = new ArrayList<>();
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(30, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays((totalDaysInRange / points) - 1); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
+                Collection<Request> completeRequests = requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                int resolved = completeRequests.size();
+                int received = requests.size();
+                result.add(RequestsResolvedByDate.builder()
+                        .resolved(resolved)
+                        .received(received)
+                        .date(Helper.localDateToDate(currentDate))
+                        .build());
+                currentDate = nextDate.plusDays(1); // Move to the next segment
+            }
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
