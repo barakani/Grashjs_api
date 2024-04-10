@@ -313,7 +313,7 @@ public class AssetService {
             AssetDowntime currentDowntime = downtimes.get(i);
             AssetDowntime nextDowntime = downtimes.get(i + 1);
 
-            long interval = Helper.getDateDiff(nextDowntime.getStartsOn(), currentDowntime.getEndsOn(), TimeUnit.DAYS);
+            long interval = Helper.getDateDiff(currentDowntime.getEndsOn(), nextDowntime.getStartsOn(), TimeUnit.DAYS);
             intervalsSum += interval;
         }
 
