@@ -109,6 +109,8 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
             return ResponseEntity.ok(assets.stream().map(asset -> MTBFByAsset.builder()
                     .mtbf(assetService.getMTBF(asset.getId(), dateRange.getStart(), dateRange.getEnd()))
+                    .id(asset.getId())
+                    .name(asset.getName())
                     .build()).collect(Collectors.toList()));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
