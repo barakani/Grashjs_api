@@ -49,7 +49,7 @@ public class WOAnalyticsController {
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
-            long mtta = withFirstTimeToReactWO.stream().mapToLong(workOrder ->
+            long mtta = withFirstTimeToReactWO.isEmpty() ? 0 : withFirstTimeToReactWO.stream().mapToLong(workOrder ->
                     Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getFirstTimeToReact(), TimeUnit.HOURS)).sum() / withFirstTimeToReactWO.size();
             return ResponseEntity.ok(WOStats.builder()
                     .total(total)
