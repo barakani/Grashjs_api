@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpecificationExecutor<Request> {
     Collection<Request> findByCompany_Id(@Param("x") Long id);
@@ -16,4 +17,6 @@ public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpec
 
     @Query("SELECT COUNT(r) FROM Request r WHERE r.workOrder IS NULL AND r.cancelled = false and r.company.id=:companyId")
     Integer countPending(@Param("companyId") Long companyId);
+
+    List<Request> findByCategory_IdAndCreatedAtBetween(Long id, Date start, Date end);
 }

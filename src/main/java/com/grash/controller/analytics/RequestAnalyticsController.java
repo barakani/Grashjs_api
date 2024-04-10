@@ -1,17 +1,22 @@
 package com.grash.controller.analytics;
 
+import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.requests.RequestStats;
 import com.grash.dto.analytics.requests.RequestStatsByPriority;
 import com.grash.dto.analytics.requests.RequestsByMonth;
+import com.grash.dto.analytics.workOrders.CountByCategory;
+import com.grash.dto.analytics.workOrders.WOCountByUser;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
 import com.grash.model.WorkOrder;
+import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderCategoryService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,7 @@ import java.util.stream.Collectors;
 public class RequestAnalyticsController {
 
     private final UserService userService;
+    private final WorkOrderCategoryService workOrderCategoryService;
     private final RequestService requestService;
 
     @PostMapping("/overview")
@@ -109,6 +115,25 @@ public class RequestAnalyticsController {
             }
             Collections.reverse(result);
             return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/counts/category")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<WorkOrderCategory> categories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            Collection<CountByCategory> results = new ArrayList<>();
+            categories.forEach(category -> {
+                int count = requestService.findByCategoryAndCreatedAtBetween(category.getId(), dateRange.getStart(), dateRange.getEnd()).size();
+                results.add(CountByCategory.builder()
+                        .name(category.getName())
+                        .id(category.getId())
+                        .count(count)
+                        .build());
+            });
+            return ResponseEntity.ok(results);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

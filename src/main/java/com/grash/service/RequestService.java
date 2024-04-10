@@ -155,4 +155,8 @@ public class RequestService {
     public Integer countPending(Long companyId) {
         return requestRepository.countPending(companyId);
     }
+
+    public List<Request> findByCategoryAndCreatedAtBetween(Long id, Date start, Date end) {
+        return requestRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
+    }
 }
