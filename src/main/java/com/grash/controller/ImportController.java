@@ -3,6 +3,8 @@ package com.grash.controller;
 import com.grash.dto.imports.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
+import com.grash.model.enums.ImportEntity;
+import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.service.*;
@@ -11,12 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.html.parser.Entity;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +30,7 @@ public class ImportController {
 
     private final AssetService assetService;
     private final UserService userService;
+    private final GCPService gcpService;
     private final LocationService locationService;
     private final PartService partService;
     private final MeterService meterService;
@@ -177,5 +178,12 @@ public class ImportController {
                     .updated(updated[0])
                     .build();
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @GetMapping("/download-template")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public byte[] importMeters(@RequestParam Language language, @RequestParam ImportEntity importEntity, HttpServletRequest req) {
+//        OwnUser user = userService.whoami(req);
+        return gcpService.download("import templates/" + language.name().toLowerCase() + "/" + importEntity.name().toLowerCase() + ".csv");
     }
 }
