@@ -1,11 +1,11 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.parts.PartConsumptionsByAsset;
 import com.grash.dto.analytics.parts.PartConsumptionsByMonth;
 import com.grash.dto.analytics.parts.PartStats;
 import com.grash.exception.CustomException;
-import com.grash.model.OwnUser;
-import com.grash.model.PartConsumption;
+import com.grash.model.*;
 import com.grash.service.PartConsumptionService;
 import com.grash.service.UserService;
 import com.grash.utils.Helper;
@@ -19,10 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/analytics/parts")
@@ -46,6 +44,28 @@ public class PartAnalyticsController {
                     .consumedCount(consumedCount)
                     .totalConsumptionCost(totalConsumptionCost)
                     .build());
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/consumptions/pareto")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<List<PartConsumptionsByAsset>> getPareto(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween
+                            (user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd())
+                    .stream().filter(partConsumption -> partConsumption.getQuantity() != 0).collect(Collectors.toList());
+            Set<Part> parts = new HashSet<>(partConsumptions.stream()
+                    .map(PartConsumption::getPart)
+                    .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(Part::getId)))));
+            List<PartConsumptionsByAsset> result = parts.stream().map(part -> {
+                long cost = partConsumptions.stream().filter(partConsumption -> partConsumption.getPart().getId().equals(part.getId())).mapToLong(PartConsumption::getCost).sum();
+                return PartConsumptionsByAsset.builder()
+                        .id(part.getId())
+                        .name(part.getName())
+                        .cost(cost).build();
+            }).sorted(Comparator.comparing(PartConsumptionsByAsset::getCost).reversed()).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
