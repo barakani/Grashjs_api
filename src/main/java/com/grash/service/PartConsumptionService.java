@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,5 +51,9 @@ public class PartConsumptionService {
 
     public Collection<PartConsumption> findByCompanyAndCreatedAtBetween(Long id, Date start, Date end) {
         return partConsumptionRepository.findByCompany_IdAndCreatedAtBetween(id, start, end);
+    }
+
+    public List<PartConsumption> findByWorkOrders(List<Long> ids) {
+        return partConsumptionRepository.findByWorkOrder_IdIn(ids);
     }
 }

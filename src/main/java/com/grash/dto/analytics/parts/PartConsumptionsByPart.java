@@ -1,6 +1,5 @@
 package com.grash.dto.analytics.parts;
 
-import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.PartMiniDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +10,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartConsumptionsByAsset extends AssetMiniDTO {
+public class PartConsumptionsByPart extends PartMiniDTO {
     private long cost;
 }

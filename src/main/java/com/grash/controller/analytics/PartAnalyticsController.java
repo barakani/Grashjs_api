@@ -2,12 +2,17 @@ package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.parts.PartConsumptionsByAsset;
+import com.grash.dto.analytics.parts.PartConsumptionsByPart;
 import com.grash.dto.analytics.parts.PartConsumptionsByMonth;
 import com.grash.dto.analytics.parts.PartStats;
+import com.grash.dto.analytics.workOrders.IncompleteWOByAsset;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
+import com.grash.model.enums.Status;
+import com.grash.service.AssetService;
 import com.grash.service.PartConsumptionService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,6 +35,8 @@ import java.util.stream.Collectors;
 public class PartAnalyticsController {
 
     private final UserService userService;
+    private final AssetService assetService;
+    private final WorkOrderService workOrderService;
     private final PartConsumptionService partConsumptionService;
 
     @PostMapping("/consumptions/overview")
@@ -49,7 +57,7 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/pareto")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<PartConsumptionsByAsset>> getPareto(HttpServletRequest req, @RequestBody DateRange dateRange) {
+    public ResponseEntity<List<PartConsumptionsByPart>> getPareto(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween
@@ -58,13 +66,35 @@ public class PartAnalyticsController {
             Set<Part> parts = new HashSet<>(partConsumptions.stream()
                     .map(PartConsumption::getPart)
                     .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(Part::getId)))));
-            List<PartConsumptionsByAsset> result = parts.stream().map(part -> {
+            List<PartConsumptionsByPart> result = parts.stream().map(part -> {
                 long cost = partConsumptions.stream().filter(partConsumption -> partConsumption.getPart().getId().equals(part.getId())).mapToLong(PartConsumption::getCost).sum();
-                return PartConsumptionsByAsset.builder()
+                return PartConsumptionsByPart.builder()
                         .id(part.getId())
                         .name(part.getName())
                         .cost(cost).build();
-            }).sorted(Comparator.comparing(PartConsumptionsByAsset::getCost).reversed()).collect(Collectors.toList());
+            }).sorted(Comparator.comparing(PartConsumptionsByPart::getCost).reversed()).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/consumptions/assets")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Collection<PartConsumptionsByAsset>> getIncompleteByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
+            Collection<PartConsumptionsByAsset> result = new ArrayList<>();
+            for (Asset asset : assets) {
+                Collection<WorkOrder> workOrders = workOrderService.findByAssetAndCreatedAtBetween(asset.getId(), dateRange.getStart(), dateRange.getEnd());
+                List<PartConsumption> partConsumptions = partConsumptionService.findByWorkOrders(workOrders.stream().map(WorkOrder::getId).collect(Collectors.toList()));
+                long cost = partConsumptions.stream().mapToLong(PartConsumption::getCost).sum();
+                result.add(PartConsumptionsByAsset.builder()
+                        .cost(cost)
+                        .name(asset.getName())
+                        .id(asset.getId())
+                        .build());
+            }
+            result = result.stream().filter(partConsumptionsByAsset -> partConsumptionsByAsset.getCost() != 0).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
