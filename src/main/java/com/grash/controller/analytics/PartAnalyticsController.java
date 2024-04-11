@@ -1,18 +1,12 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
-import com.grash.dto.analytics.parts.PartConsumptionsByAsset;
-import com.grash.dto.analytics.parts.PartConsumptionsByPart;
-import com.grash.dto.analytics.parts.PartConsumptionsByMonth;
-import com.grash.dto.analytics.parts.PartStats;
+import com.grash.dto.analytics.parts.*;
 import com.grash.dto.analytics.workOrders.IncompleteWOByAsset;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.Status;
-import com.grash.service.AssetService;
-import com.grash.service.PartConsumptionService;
-import com.grash.service.UserService;
-import com.grash.service.WorkOrderService;
+import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +30,8 @@ public class PartAnalyticsController {
 
     private final UserService userService;
     private final AssetService assetService;
+    private final PartCategoryService partCategoryService;
+    private final WorkOrderCategoryService workOrderCategoryService;
     private final WorkOrderService workOrderService;
     private final PartConsumptionService partConsumptionService;
 
@@ -79,7 +75,7 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<Collection<PartConsumptionsByAsset>> getIncompleteByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
+    public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(user.getCompany().getId(), dateRange.getEnd());
@@ -95,6 +91,48 @@ public class PartAnalyticsController {
                         .build());
             }
             result = result.stream().filter(partConsumptionsByAsset -> partConsumptionsByAsset.getCost() != 0).collect(Collectors.toList());
+            return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/consumptions/parts-category")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<PartCategory> partCategories = partCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            Collection<PartConsumptionByCategory> result = new ArrayList<>();
+            Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
+            for (PartCategory category : partCategories) {
+                long cost = partConsumptions.stream().filter(partConsumption -> partConsumption.getPart().getCategory() != null
+                        && category.getId().equals(partConsumption.getPart().getCategory().getId())).mapToLong(PartConsumption::getCost).sum();
+                result.add(PartConsumptionByCategory.builder()
+                        .cost(cost)
+                        .name(category.getName())
+                        .id(category.getId())
+                        .build());
+            }
+            return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/consumptions/work-order-category")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        if (user.canSeeAnalytics()) {
+            Collection<WorkOrderCategory> workOrderCategories = workOrderCategoryService.findByCompanySettings(user.getCompany().getCompanySettings().getId());
+            Collection<PartConsumptionByWOCategory> result = new ArrayList<>();
+            Collection<PartConsumption> partConsumptions = partConsumptionService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), dateRange.getEnd());
+            for (WorkOrderCategory category : workOrderCategories) {
+                long cost = partConsumptions.stream().filter(partConsumption -> partConsumption.getWorkOrder().getCategory() != null
+                        && category.getId().equals(partConsumption.getWorkOrder().getCategory().getId())).mapToLong(PartConsumption::getCost).sum();
+                result.add(PartConsumptionByWOCategory.builder()
+                        .cost(cost)
+                        .name(category.getName())
+                        .id(category.getId())
+                        .build());
+            }
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
