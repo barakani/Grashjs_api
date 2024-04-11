@@ -98,4 +98,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_04_10_1712708883_first_time_to_react2.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_04_11_1712849519_insert_cfa.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -476,7 +476,7 @@ public class WOAnalyticsController {
                         .complete((int) statuses.stream().filter(status -> status.equals(Status.COMPLETE)).count())
                         .date(Helper.localDateToDate(currentDate))
                         .build());
-                currentDate = nextDate.plusDays(1); // Move to the next segment
+                currentDate = nextDate; // Move to the next segment
             }
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
