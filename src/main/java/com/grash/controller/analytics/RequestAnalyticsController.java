@@ -1,11 +1,7 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
-import com.grash.dto.analytics.requests.RequestStats;
-import com.grash.dto.analytics.requests.RequestStatsByPriority;
-import com.grash.dto.analytics.requests.RequestsByMonth;
-import com.grash.dto.analytics.requests.RequestsResolvedByDate;
-import com.grash.dto.analytics.workOrders.CountByCategory;
+import com.grash.dto.analytics.requests.*;
 import com.grash.exception.CustomException;
 import com.grash.model.OwnUser;
 import com.grash.model.Request;
@@ -28,7 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -147,7 +146,7 @@ public class RequestAnalyticsController {
             int points = Math.toIntExact(Math.min(30, totalDaysInRange));
 
             for (int i = 0; i < points; i++) {
-                LocalDate nextDate = currentDate.plusDays((totalDaysInRange / points) - 1); // Distribute evenly over the range
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
                 Collection<Request> completeRequests = requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());

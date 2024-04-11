@@ -1,6 +1,7 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.requests.RequestsResolvedByDate;
 import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
@@ -8,10 +9,13 @@ import com.grash.model.abstracts.Time;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
+import com.grash.model.envers.WorkOrderAud;
+import com.grash.repository.WorkOrderAudRepository;
 import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,6 +38,7 @@ import java.util.stream.Collectors;
 public class WOAnalyticsController {
 
     private final WorkOrderService workOrderService;
+    private final WorkOrderAudRepository workOrderAudRepository;
     private final UserService userService;
     private final LaborService laborService;
     private final WorkOrderCategoryService workOrderCategoryService;
@@ -436,6 +442,42 @@ public class WOAnalyticsController {
                 firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
             }
             Collections.reverse(result);
+            return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/statuses")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<List<WOStatusesByDate>> getReceivedAndResolvedForDateRange(HttpServletRequest req, @RequestBody DateRange dateRange) {
+        OwnUser user = userService.whoami(req);
+        LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+        if (user.canSeeAnalytics()) {
+            List<WOStatusesByDate> result = new ArrayList<>();
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(30, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<WorkOrder> workOrders = workOrderService.findByCompanyAndCreatedAtBetween(user.getCompany().getId(), dateRange.getStart(), Helper.localDateToDate(nextDate));
+                LocalDate finalNextDate = nextDate;
+                Collection<Status> statuses = workOrders.stream().map(workOrder -> {
+                    List<WorkOrderAud> workOrderAuds = workOrderAudRepository.findLastByIdAndDate(workOrder.getId(), Helper.localDateToDate(finalNextDate).getTime(), PageRequest.of(0, 1));
+                    if (workOrderAuds.isEmpty()) return workOrder.getStatus();
+                    else return workOrderAuds.get(0).getStatus();
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+                result.add(WOStatusesByDate.builder()
+                        .open((int) statuses.stream().filter(status -> status.equals(Status.OPEN)).count())
+                        .onHold((int) statuses.stream().filter(status -> status.equals(Status.ON_HOLD)).count())
+                        .inProgress((int) statuses.stream().filter(status -> status.equals(Status.IN_PROGRESS)).count())
+                        .complete((int) statuses.stream().filter(status -> status.equals(Status.COMPLETE)).count())
+                        .date(Helper.localDateToDate(currentDate))
+                        .build());
+                currentDate = nextDate.plusDays(1); // Move to the next segment
+            }
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

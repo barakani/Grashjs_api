@@ -1,4 +1,4 @@
-package com.grash.dto.analytics.workOrders;
+package com.grash.dto.analytics.requests;
 
 import com.grash.dto.CategoryMiniDTO;
 import com.grash.dto.UserMiniDTO;

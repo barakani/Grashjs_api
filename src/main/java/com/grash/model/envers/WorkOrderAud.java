@@ -1,6 +1,7 @@
 package com.grash.model.envers;
 
 import com.grash.model.*;
+import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
@@ -19,7 +20,7 @@ public class WorkOrderAud implements Serializable {
     @EmbeddedId
     private WorkOrderAudId workOrderAudId;
 
-    @Column(name = "revtype")
+    @Column(name = "revtype") //0 create 1 MOD 2 Del
     private Integer revtype;
 
     @Column(name = "due_date")
@@ -68,7 +69,7 @@ public class WorkOrderAud implements Serializable {
     private Date completedOn;
 
     @Column(name = "status")
-    private Integer status;
+    private Status status;
 
     @ManyToOne
     @JoinColumn(name = "signature_id")

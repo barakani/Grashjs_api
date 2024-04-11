@@ -7,13 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import net.bytebuddy.implementation.bind.annotation.Super;
 
+import java.util.Date;
+
 @SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WOStatuses {
-    private int open;
-    private int onHold;
-    private int inProgress;
-    private int complete;
+public class WOStatusesByDate extends WOStatuses {
+    private Date date;
 }
