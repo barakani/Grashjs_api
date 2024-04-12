@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RelationService {
     private final RelationRepository relationRepository;
@@ -29,7 +30,6 @@ public class RelationService {
     private final RelationMapper relationMapper;
     private final EntityManager em;
 
-    @Transactional
     public Relation create(Relation relation) {
         Relation savedRelation = relationRepository.saveAndFlush(relation);
         em.refresh(savedRelation);
