@@ -93,9 +93,13 @@ public class ScheduleService {
     }
 
     public void reScheduleWorkOrder(Long id, Schedule schedule) {
+        stopSchedule(id);
+        scheduleWorkOrder(schedule);
+    }
+
+    public void stopSchedule(Long id) {
         timers.get(id).cancel();
         timers.get(id).purge();
-        scheduleWorkOrder(schedule);
     }
 
     public Schedule save(Schedule schedule) {
