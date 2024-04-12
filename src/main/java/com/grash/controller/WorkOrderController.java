@@ -81,7 +81,15 @@ public class WorkOrderController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<WorkOrderShowDTO>> search(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user, searchCriteria)));
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user, searchCriteria)).map(workOrderMapper::toShowDto));
+    }
+
+    @PostMapping("/search/mini")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Page<WorkOrderBaseMiniDTO>> searchMini(@RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        return ResponseEntity.ok(workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user, searchCriteria))
+                .map(workOrderMapper::toBaseMiniDto));
     }
 
     @PostMapping("/events")

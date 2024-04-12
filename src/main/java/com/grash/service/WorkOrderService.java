@@ -180,11 +180,11 @@ public class WorkOrderService {
         return workOrderRepository.findByLocation_Id(id);
     }
 
-    public Page<WorkOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<WorkOrder> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(), searchCriteria.getDirection(), "id");
-        return workOrderRepository.findAll(builder.build(), page).map(workOrderMapper::toShowDto);
+        return workOrderRepository.findAll(builder.build(), page);
     }
 
     public WorkOrder save(WorkOrder workOrder) {
