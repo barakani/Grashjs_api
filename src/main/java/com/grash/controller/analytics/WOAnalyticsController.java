@@ -456,7 +456,7 @@ public class WOAnalyticsController {
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
             LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
             long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
-            int points = Math.toIntExact(Math.min(30, totalDaysInRange));
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
 
             for (int i = 0; i < points; i++) {
                 LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range

@@ -143,15 +143,16 @@ public class RequestAnalyticsController {
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
             LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
             long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
-            int points = Math.toIntExact(Math.min(30, totalDaysInRange));
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
 
             for (int i = 0; i < points; i++) {
                 LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
-                Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
-                Collection<Request> completeRequests = requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+                Collection<Request> notCancelledRequests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId())
+                        .stream().filter(request -> !request.isCancelled()).collect(Collectors.toList());
+                Collection<Request> completeRequests = notCancelledRequests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 int resolved = completeRequests.size();
-                int received = requests.size();
+                int received = notCancelledRequests.size();
                 result.add(RequestsResolvedByDate.builder()
                         .resolved(resolved)
                         .received(received)
