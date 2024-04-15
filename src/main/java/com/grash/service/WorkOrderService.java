@@ -204,6 +204,7 @@ public class WorkOrderService {
         workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
         workOrder.setTeam(workOrderBase.getTeam());
         workOrder.getAssignedTo().addAll(workOrderBase.getAssignedTo());
+        workOrder.setEstimatedDuration(workOrder.getEstimatedDuration());
         return workOrder;
     }
 
