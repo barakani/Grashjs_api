@@ -32,6 +32,9 @@ public class WorkOrderAud implements Serializable {
     @Column(name = "estimated_duration")
     private Integer estimatedDuration;
 
+    @Column(name = "estimated_start_date")
+    private Date estimatedStartDate;
+
     @Column(name = "description")
     private String description;
 
@@ -105,6 +108,9 @@ public class WorkOrderAud implements Serializable {
 
     @Column(name = "estimatedDuration_MOD")
     private Boolean estimatedDurationMod;
+
+    @Column(name = "estimatedStartDate_MOD")
+    private Boolean estimatedStartDateMod;
 
     @Column(name = "description_MOD")
     private Boolean descriptionMod;

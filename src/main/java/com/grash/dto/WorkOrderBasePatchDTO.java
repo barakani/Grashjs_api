@@ -15,6 +15,7 @@ public class WorkOrderBasePatchDTO {
     private Date dueDate;
     private Priority priority = Priority.NONE;
     private int estimatedDuration;
+    private Date estimatedStartDate;
     private String description;
     private String title;
     private boolean requiredSignature;

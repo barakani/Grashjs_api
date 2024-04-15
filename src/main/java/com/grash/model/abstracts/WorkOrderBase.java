@@ -23,12 +23,19 @@ import static java.util.stream.Collectors.toCollection;
 @MappedSuperclass
 public abstract class WorkOrderBase extends CompanyAudit {
     private Date dueDate;
+
     private Priority priority = Priority.NONE;
+
     private int estimatedDuration;
+
+    private Date estimatedStartDate;
+
     @Column(length = 10000)
     private String description;
+
     @NotNull
     private String title;
+
     private boolean requiredSignature;
 
     @OneToOne
