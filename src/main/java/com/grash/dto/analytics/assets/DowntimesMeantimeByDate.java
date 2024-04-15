@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DowntimesMeantimeByMonth {
+public class DowntimesMeantimeByDate {
     //hours
     private long meantime;
     private Date date;

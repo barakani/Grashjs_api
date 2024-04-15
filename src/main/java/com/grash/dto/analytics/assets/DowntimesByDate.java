@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DowntimesByMonth {
+public class DowntimesByDate {
     //seconds
     private long duration;
     private long workOrdersCosts;

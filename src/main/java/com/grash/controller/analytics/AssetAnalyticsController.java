@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -153,24 +154,27 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/downtimes/meantime/month")
+    @PostMapping("/downtimes/meantime/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<DowntimesMeantimeByMonth>> getDowntimesMeantimeByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<DowntimesMeantimeByDate>> getDowntimesMeantimeByMonth(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            List<DowntimesMeantimeByMonth> result = new ArrayList<>();
-            LocalDate firstOfMonth =
-                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
-            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            for (int i = 0; i < 13; i++) {
-                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
-                result.add(DowntimesMeantimeByMonth.builder()
+            LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+            List<DowntimesMeantimeByDate> result = new ArrayList<>();
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
+                result.add(DowntimesMeantimeByDate.builder()
                         .meantime(assetDowntimeService.getDowntimesMeantime(downtimes))
-                        .date(Helper.localDateToDate(firstOfMonth)).build());
-                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+                        .date(Helper.localDateToDate(currentDate)).build());
+                currentDate = nextDate;
             }
-            Collections.reverse(result);
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
@@ -214,27 +218,30 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/downtimes/costs/month")
+    @PostMapping("/downtimes/costs/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<DowntimesByMonth>> getDowntimesByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<DowntimesByDate>> getDowntimesByMonth(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            List<DowntimesByMonth> result = new ArrayList<>();
-            LocalDate firstOfMonth =
-                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
-            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            for (int i = 0; i < 13; i++) {
-                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
-                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId())
+            List<DowntimesByDate> result = new ArrayList<>();
+            LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
-                result.add(DowntimesByMonth.builder()
+                Collection<AssetDowntime> downtimes = assetDowntimeService.findByStartsOnBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
+                result.add(DowntimesByDate.builder()
                         .workOrdersCosts(workOrderService.getAllCost(completeWorkOrders, user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost()))
                         .duration(downtimes.stream().mapToLong(AssetDowntime::getDuration).sum())
-                        .date(Helper.localDateToDate(firstOfMonth)).build());
-                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+                        .date(Helper.localDateToDate(currentDate)).build());
+                currentDate = nextDate;
             }
-            Collections.reverse(result);
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }

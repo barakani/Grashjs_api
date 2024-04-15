@@ -444,7 +444,6 @@ public class WOAnalyticsController {
                         .date(Helper.localDateToDate(currentDate)).build());
                 currentDate = nextDate;
             }
-            Collections.reverse(result);
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
