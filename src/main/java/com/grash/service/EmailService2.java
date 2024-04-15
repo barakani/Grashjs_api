@@ -100,19 +100,21 @@ public class EmailService2 {
 
 
     public void sendHtmlMessage(String[] to, String subject, String htmlBody) throws MessagingException {
+        if (to.length > 0) {
 
-        MimeMessage message = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        try {
-            helper.setFrom(new InternetAddress(mailProperties.getUsername(), "Atlas CMMS"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            try {
+                helper.setFrom(new InternetAddress(mailProperties.getUsername(), "Atlas CMMS"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            //helper.addInline("attachment.png", resourceFile);
+            emailSender.send(message);
         }
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(htmlBody, true);
-        //helper.addInline("attachment.png", resourceFile);
-        emailSender.send(message);
     }
 
 }

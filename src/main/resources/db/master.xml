@@ -100,4 +100,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_04_11_1712849519_insert_cfa.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_04_15_1713196441_daysBeforePrevMaintNotification.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

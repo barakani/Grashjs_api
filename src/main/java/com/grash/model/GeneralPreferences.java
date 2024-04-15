@@ -44,6 +44,8 @@ public class GeneralPreferences {
 
     private boolean simplifiedWorkOrder;
 
+    private int daysBeforePrevMaintNotification = 1;
+
     @OneToOne
     @JsonIgnore
     private CompanySettings companySettings;

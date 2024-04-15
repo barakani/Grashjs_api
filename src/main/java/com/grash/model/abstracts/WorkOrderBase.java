@@ -1,5 +1,6 @@
 package com.grash.model.abstracts;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
@@ -12,9 +13,11 @@ import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Comparator.comparingLong;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Data
 @MappedSuperclass
@@ -29,23 +32,23 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private boolean requiredSignature;
 
     @OneToOne
-    @Audited(targetAuditMode= RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private File image;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private WorkOrderCategory category;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Location location;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Team team;
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private OwnUser primaryUser;
 
     @ManyToMany
@@ -64,11 +67,28 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @ManyToOne
-    @Audited(targetAuditMode=RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Asset asset;
 
+    @JsonIgnore
+    public Collection<OwnUser> getUsers() {
+        Collection<OwnUser> users = new ArrayList<>();
+        if (this.getPrimaryUser() != null) {
+            users.add(this.getPrimaryUser());
+        }
+        if (this.getTeam() != null) {
+            users.addAll(this.getTeam().getUsers());
+        }
+        if (this.getAssignedTo() != null) {
+            users.addAll(this.getAssignedTo());
+        }
+        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
+                ArrayList::new));
+    }
+
     public void setEstimatedDuration(int estimatedDuration) {
-        if(estimatedDuration <0) throw new CustomException("Estimated duration should not be negative", HttpStatus.NOT_ACCEPTABLE);
+        if (estimatedDuration < 0)
+            throw new CustomException("Estimated duration should not be negative", HttpStatus.NOT_ACCEPTABLE);
         this.estimatedDuration = estimatedDuration;
     }
 }

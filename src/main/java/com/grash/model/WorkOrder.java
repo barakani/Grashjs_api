@@ -65,21 +65,6 @@ public class WorkOrder extends WorkOrderBase {
     @NotAudited
     private Date firstTimeToReact;
 
-    @JsonIgnore
-    public Collection<OwnUser> getUsers() {
-        Collection<OwnUser> users = new ArrayList<>();
-        if (this.getPrimaryUser() != null) {
-            users.add(this.getPrimaryUser());
-        }
-        if (this.getTeam() != null) {
-            users.addAll(this.getTeam().getUsers());
-        }
-        if (this.getAssignedTo() != null) {
-            users.addAll(this.getAssignedTo());
-        }
-        return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingLong(OwnUser::getId))),
-                ArrayList::new));
-    }
 
     public boolean isAssignedTo(OwnUser user) {
         Collection<OwnUser> users = getUsers();
