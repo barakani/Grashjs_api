@@ -90,26 +90,29 @@ public class RequestAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/cycle-time/month")
+    @PostMapping("/cycle-time/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
             List<RequestsByMonth> result = new ArrayList<>();
-            LocalDate firstOfMonth =
-                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
-            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            for (int i = 0; i < 13; i++) {
-                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
-                Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId());
+            LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId());
                 Collection<Request> completeRequests = requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 long cycleTime = WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
                 result.add(RequestsByMonth.builder()
                         .cycleTime(cycleTime)
-                        .date(Helper.localDateToDate(firstOfMonth)).build());
-                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+                        .date(Helper.localDateToDate(currentDate)).build());
+                currentDate = nextDate;
             }
-            Collections.reverse(result);
             return ResponseEntity.ok(result);
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
