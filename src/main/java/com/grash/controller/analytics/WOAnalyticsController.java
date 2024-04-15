@@ -1,7 +1,6 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
-import com.grash.dto.analytics.requests.RequestsResolvedByDate;
 import com.grash.dto.analytics.workOrders.*;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
@@ -421,25 +420,29 @@ public class WOAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    @GetMapping("/complete/costs/month")
+    @PostMapping("/complete/costs/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<WOCostsByMonth>> getCompleteCostsByMonth(HttpServletRequest req) {
+    public ResponseEntity<List<WOCostsByDate>> getCompleteCostsByDate(HttpServletRequest req, @RequestBody DateRange dateRange) {
         OwnUser user = userService.whoami(req);
         if (user.canSeeAnalytics()) {
-            List<WOCostsByMonth> result = new ArrayList<>();
-            LocalDate firstOfMonth =
-                    LocalDate.now(ZoneId.of("UTC")).withDayOfMonth(1);
-            // .with(TemporalAdjusters.previous(DayOfWeek.MONDAY));
-            for (int i = 0; i < 13; i++) {
-                LocalDate lastOfMonth = firstOfMonth.plusMonths(1).withDayOfMonth(1).minusDays(1);
-                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(firstOfMonth), Helper.localDateToDate(lastOfMonth), user.getCompany().getId())
+            LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
+            List<WOCostsByDate> result = new ArrayList<>();
+            LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
+            LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date in the range
+            long totalDaysInRange = ChronoUnit.DAYS.between(Helper.dateToLocalDate(dateRange.getStart()), endDateExclusive);
+            int points = Math.toIntExact(Math.min(15, totalDaysInRange));
+
+            for (int i = 0; i < points; i++) {
+                LocalDate nextDate = currentDate.plusDays(totalDaysInRange / points); // Distribute evenly over the range
+                nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
+                Collection<WorkOrder> completeWorkOrders = workOrderService.findByCompletedOnBetweenAndCompany(Helper.localDateToDate(currentDate), Helper.localDateToDate(nextDate), user.getCompany().getId())
                         .stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                result.add(WOCostsByMonth.builder()
+                result.add(WOCostsByDate.builder()
                         .additionalCost(workOrderService.getAdditionalCost(completeWorkOrders))
                         .laborCost(workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst())
                         .partCost(workOrderService.getPartCost(completeWorkOrders))
-                        .date(Helper.localDateToDate(firstOfMonth)).build());
-                firstOfMonth = firstOfMonth.minusDays(1).withDayOfMonth(1);
+                        .date(Helper.localDateToDate(currentDate)).build());
+                currentDate = nextDate;
             }
             Collections.reverse(result);
             return ResponseEntity.ok(result);

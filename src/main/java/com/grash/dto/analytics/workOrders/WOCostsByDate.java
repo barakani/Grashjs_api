@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WOCostsByMonth {
+public class WOCostsByDate {
     private long partCost;
     private long additionalCost;
     private long laborCost;
