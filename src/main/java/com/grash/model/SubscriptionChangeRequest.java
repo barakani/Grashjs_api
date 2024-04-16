@@ -28,4 +28,7 @@ public class SubscriptionChangeRequest extends CompanyAudit {
 
     @NotNull
     private Boolean monthly;
+
+    @NotNull
+    private int usersCount;
 }

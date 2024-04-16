@@ -97,7 +97,7 @@ public class SubscriptionController {
         if (user.isOwnsCompany()) {
             subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
             try {
-                emailService2.sendHtmlMessage(recipients, "New Atlas subscription change request", user.getFirstName() + " " + user.getLastName() + " just requested a subscription change for company " + user.getCompany().getName() + "\nCode: " + subscriptionChangeRequest.getCode() + "\nPeriod: " + (subscriptionChangeRequest.getMonthly() ? "Monthly" : "Annually") + "\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone());
+                emailService2.sendHtmlMessage(recipients, "New Atlas subscription change request", user.getFirstName() + " " + user.getLastName() + " just requested a subscription change for company " + user.getCompany().getName() + "\nUsers count: " + subscriptionChangeRequest.getUsersCount() + "\nCode: " + subscriptionChangeRequest.getCode() + "\nPeriod: " + (subscriptionChangeRequest.getMonthly() ? "Monthly" : "Annually") + "\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone());
             } catch (MessagingException ignored) {
             }
 

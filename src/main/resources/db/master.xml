@@ -104,4 +104,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2024_04_15_1713203858_estimatedStartDate.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2024_04_16_1713265842_userscount.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
