@@ -9,6 +9,7 @@ import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +57,7 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
-        Collection<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), 10);
+        Page<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), 10);
         boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
                 .after(new Date())) || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null);
         if (shouldSchedule) {

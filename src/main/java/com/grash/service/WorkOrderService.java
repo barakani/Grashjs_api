@@ -171,7 +171,7 @@ public class WorkOrderService {
         return workOrderRepository.findByAsset_IdAndCreatedAtBetween(id, start, end);
     }
 
-    public Collection<WorkOrder> findLastByPM(Long id, int count) {
+    public Page<WorkOrder> findLastByPM(Long id, int count) {
         return workOrderRepository.findByParentPreventiveMaintenance_Id(id, PageRequest.of(0, count));
     }
 
