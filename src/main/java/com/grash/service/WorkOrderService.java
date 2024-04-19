@@ -4,7 +4,6 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.WorkOrderPatchDTO;
-import com.grash.dto.WorkOrderShowDTO;
 import com.grash.dto.imports.WorkOrderImportDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
@@ -172,8 +171,8 @@ public class WorkOrderService {
         return workOrderRepository.findByAsset_IdAndCreatedAtBetween(id, start, end);
     }
 
-    public Collection<WorkOrder> findByPM(Long id) {
-        return workOrderRepository.findByParentPreventiveMaintenance_Id(id);
+    public Collection<WorkOrder> findLastByPM(Long id, int count) {
+        return workOrderRepository.findByParentPreventiveMaintenance_Id(id, PageRequest.of(0, count));
     }
 
     public Collection<WorkOrder> findByLocation(Long id) {

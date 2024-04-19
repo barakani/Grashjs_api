@@ -2,6 +2,7 @@ package com.grash.repository;
 
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.Priority;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +19,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
 
     Collection<WorkOrder> findByLocation_Id(Long id);
 
-    Collection<WorkOrder> findByParentPreventiveMaintenance_Id(Long id);
+    Collection<WorkOrder> findByParentPreventiveMaintenance_Id(Long id, Pageable pageable);
 
     Collection<WorkOrder> findByPrimaryUser_Id(Long id);
 

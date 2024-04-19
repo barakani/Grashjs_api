@@ -56,7 +56,9 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
-        boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn().after(new Date()));
+        Collection<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), 10);
+        boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
+                .after(new Date())) || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null);
         if (shouldSchedule) {
             Timer timer = new Timer();
             //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
