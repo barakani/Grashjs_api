@@ -27,7 +27,7 @@ public class ScheduleService {
     private final TaskService taskService;
     @Value("${frontend.url}")
     private String frontendUrl;
-    private Map<Long, List<Timer>> timersState = new HashMap<>();
+    private final Map<Long, Map<String, Timer>> timersState = new HashMap<>();
 
     public Schedule create(Schedule Schedule) {
         return scheduleRepository.save(Schedule);
@@ -83,46 +83,49 @@ public class ScheduleService {
                 }
             };
             timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-            List<Timer> localTimers = new ArrayList<>();
-            localTimers.add(timer);//first wo creation
+            Map<String, Timer> localTimers = new HashMap<>();
+            localTimers.put("wo_creation", timer);//first wo creation
 
             Timer timer1 = new Timer();// use daysBeforePrevMaintNotification
             int daysBeforePMNotification = schedule.getPreventiveMaintenance().getCompany()
                     .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
-            TimerTask timerTask1 = new TimerTask() {
-                @Override
-                public void run() {
-                    //send notification to assigned users
-                    PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-                    Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());
-                    String title = messageSource.getMessage("coming_wo", null, locale);
-                    Collection<OwnUser> usersToMail = preventiveMaintenance.getUsers();
-                    Map<String, Object> mailVariables = new HashMap<String, Object>() {{
-                        put("pmLink", frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
-                        put("featuresLink", frontendUrl + "/#key-features");
-                        put("pmTitle", preventiveMaintenance.getTitle());
-                    }};
-                    emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
-                            .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
-                }
-            };
-            timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(startsOn, daysBeforePMNotification), (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
-            localTimers.add(timer1);
-
+            if (daysBeforePMNotification > 0) {
+                TimerTask timerTask1 = new TimerTask() {
+                    @Override
+                    public void run() {
+                        //send notification to assigned users
+                        PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
+                        Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());
+                        String title = messageSource.getMessage("coming_wo", null, locale);
+                        Collection<OwnUser> usersToMail = preventiveMaintenance.getUsers();
+                        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                            put("pmLink", frontendUrl + "/app/preventive-maintenances/" + preventiveMaintenance.getId());
+                            put("featuresLink", frontendUrl + "/#key-features");
+                            put("pmTitle", preventiveMaintenance.getTitle());
+                        }};
+                        emailService2.sendMessageUsingThymeleafTemplate(usersToMail.stream().map(OwnUser::getEmail)
+                                .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
+                    }
+                };
+                timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(startsOn, daysBeforePMNotification), (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
+                localTimers.put("notification", timer1);
+            }
             if (schedule.getEndsOn() != null) {
                 Timer timer2 = new Timer();
                 TimerTask timerTask2 = new TimerTask() {
                     @Override
                     public void run() {
                         //stop other timers
-                        timersState.get(schedule.getId()).get(0).cancel();
-                        timersState.get(schedule.getId()).get(0).purge();
-                        timersState.get(schedule.getId()).get(1).cancel();
-                        timersState.get(schedule.getId()).get(1).purge();
+                        timersState.get(schedule.getId()).get("wo_creation").cancel();
+                        timersState.get(schedule.getId()).get("wo_creation").purge();
+                        if (timersState.get(schedule.getId()).containsKey("notification")) {
+                            timersState.get(schedule.getId()).get("notification").cancel();
+                            timersState.get(schedule.getId()).get("notification").purge();
+                        }
                     }
                 };
                 timer2.schedule(timerTask2, schedule.getEndsOn());
-                localTimers.add(timer2); //third schedule stopping
+                localTimers.put("stop", timer2); //third schedule stopping
             }
             timersState.put(schedule.getId(), localTimers);
         }
@@ -134,7 +137,7 @@ public class ScheduleService {
     }
 
     public void stopScheduleTimers(Long id) {
-        timersState.get(id).forEach(timer -> {
+        timersState.get(id).forEach((key, timer) -> {
             timer.cancel();
             timer.purge();
         });
