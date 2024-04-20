@@ -220,7 +220,7 @@ public class Helper {
                         .paid(true)
                         .createPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS, PermissionEntity.LOCATIONS, PermissionEntity.FILES)))
                         .editOtherPermissions(new HashSet<>())
-                        .deleteOtherPermissions(new HashSet<>(Arrays.asList(PermissionEntity.ASSETS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS)))
+                        .deleteOtherPermissions(new HashSet<>())
                         .viewOtherPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS)))
                         .viewPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS, PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES, PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)))
                         .build(),
