@@ -57,9 +57,10 @@ public class ScheduleService {
     }
 
     public void scheduleWorkOrder(Schedule schedule) {
-        Page<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), 10);
+        int limit = 10; //inclusive schedules at 10
+        Page<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), limit);
         boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
-                .after(new Date())) || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null);
+                .after(new Date())) && (workOrders.getSize() <= limit || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null));
         if (shouldSchedule) {
             Timer timer = new Timer();
             //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
