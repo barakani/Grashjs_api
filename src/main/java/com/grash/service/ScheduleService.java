@@ -58,7 +58,8 @@ public class ScheduleService {
 
     public void scheduleWorkOrder(Schedule schedule) {
         int limit = 10; //inclusive schedules at 10
-        Page<WorkOrder> workOrders = workOrderService.findLastByPM(schedule.getPreventiveMaintenance().getId(), limit);
+        PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
+        Page<WorkOrder> workOrders = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
         boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
                 .after(new Date())) && (workOrders.getSize() <= limit || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null));
         if (shouldSchedule) {
@@ -71,7 +72,7 @@ public class ScheduleService {
                     PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
                     WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
                     Collection<Task> tasks = taskService.findByPreventiveMaintenance(preventiveMaintenance.getId());
-                    workOrder.setParentPreventiveMaintenance(schedule.getPreventiveMaintenance());
+                    workOrder.setParentPreventiveMaintenance(preventiveMaintenance);
                     if (schedule.getDueDateDelay() != null) {
                         workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
                     }
@@ -87,9 +88,10 @@ public class ScheduleService {
             localTimers.put("wo_creation", timer);//first wo creation
 
             Timer timer1 = new Timer();// use daysBeforePrevMaintNotification
-            int daysBeforePMNotification = schedule.getPreventiveMaintenance().getCompany()
+            int daysBeforePMNotification = preventiveMaintenance.getCompany()
                     .getCompanySettings().getGeneralPreferences().getDaysBeforePrevMaintNotification();
             if (daysBeforePMNotification > 0) {
+                Date trueStartsOn = preventiveMaintenance.getEstimatedStartDate() == null ? startsOn : preventiveMaintenance.getEstimatedStartDate();
                 TimerTask timerTask1 = new TimerTask() {
                     @Override
                     public void run() {
@@ -107,7 +109,7 @@ public class ScheduleService {
                                 .toArray(String[]::new), title, mailVariables, "coming-work-order.html", locale);
                     }
                 };
-                timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(startsOn, daysBeforePMNotification), (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
+                timer1.scheduleAtFixedRate(timerTask1, Helper.minusDays(trueStartsOn, daysBeforePMNotification), (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);
                 localTimers.put("notification", timer1);
             }
             if (schedule.getEndsOn() != null) {
