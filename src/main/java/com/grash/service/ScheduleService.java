@@ -60,8 +60,14 @@ public class ScheduleService {
         int limit = 10; //inclusive schedules at 10
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
         Page<WorkOrder> workOrders = workOrderService.findLastByPM(preventiveMaintenance.getId(), limit);
+        boolean isStale = false;
+        if (workOrders.getSize() >= limit && workOrders.stream().allMatch(workOrder -> workOrder.getFirstTimeToReact() == null)) {
+            isStale = true;
+            schedule.setDisabled(true);
+            scheduleRepository.save(schedule);
+        }
         boolean shouldSchedule = !schedule.isDisabled() && (schedule.getEndsOn() == null || schedule.getEndsOn()
-                .after(new Date())) && (workOrders.getSize() <= limit || workOrders.stream().anyMatch(workOrder -> workOrder.getFirstTimeToReact() != null));
+                .after(new Date())) && !isStale;
         if (shouldSchedule) {
             Timer timer = new Timer();
             //  Collection<WorkOrder> workOrders = workOrderService.findByPM(schedule.getPreventiveMaintenance().getId());
