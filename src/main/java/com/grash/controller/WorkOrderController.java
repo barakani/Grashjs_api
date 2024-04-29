@@ -5,6 +5,7 @@ import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.service.*;
@@ -58,6 +59,7 @@ public class WorkOrderController {
     private final LocationService locationService;
     private final LaborService laborService;
     private final PartService partService;
+    private final FileService fileService;
     private final PartQuantityService partQuantityService;
     private final NotificationService notificationService;
     private final EmailService2 emailService2;
@@ -383,10 +385,41 @@ public class WorkOrderController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @PatchMapping("/files/{id}/add")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<File> addFilesToWorkOrder(@ApiParam("id") @PathVariable("id") Long id, @RequestBody List<File> files, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (!savedWorkOrder.canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            savedWorkOrder.getFiles().addAll(files);
+            workOrderService.save(savedWorkOrder);
+            return savedWorkOrder.getFiles();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/files/{id}/{fileId}/remove")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public List<File> removeFileFromWorkOrder(@ApiParam("id") @PathVariable("id") Long id, @PathVariable("fileId") Long fileId, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (!savedWorkOrder.canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            savedWorkOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
+            workOrderService.save(savedWorkOrder);
+            return savedWorkOrder.getFiles();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
     private String translateTaskValue(String value, Locale locale) {
         List<String> taskOptions = Arrays.asList("OPEN", "ON_HOLD", "IN_PROGRESS", "COMPLETE", "PASS", "FLAG", "FAIL");
         if (taskOptions.contains(value)) {
             return messageSource.getMessage(value, null, locale);
         } else return value;
     }
+
 }

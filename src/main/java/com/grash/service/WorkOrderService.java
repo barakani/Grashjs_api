@@ -98,12 +98,6 @@ public class WorkOrderService {
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
             WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
             em.refresh(updatedWorkOrder);
-//            WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
-//                    .name(messageSource.getMessage("updating_wo", new Object[]{workOrder.getTitle()}, Helper.getLocale(user)))
-//                    .workOrder(updatedWorkOrder)
-//                    .user(user)
-//                    .build();
-//            workOrderHistoryRepository.save(workOrderHistory);
             return updatedWorkOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
